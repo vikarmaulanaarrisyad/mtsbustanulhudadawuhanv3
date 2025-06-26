@@ -229,7 +229,6 @@
         @endforeach
     </div>
 
-
     <div class="row">
         <!-- PPDB - Diterima -->
         <div class="col-12 col-sm-6 col-md-3">

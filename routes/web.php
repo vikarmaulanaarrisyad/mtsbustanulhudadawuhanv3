@@ -3,6 +3,7 @@
 use App\Http\Controllers\{
     AcademicYearController,
     AdmissionPhaseController,
+    AdmissionQuotasController,
     AdmissionTypeController,
     ClassGroupController,
     DashboardController,
@@ -204,6 +205,18 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/admission/admission-types/import-excel', 'importEXCEL')->name('admission-types.import_excel');
             Route::post('/admission/admission-types', 'store')->name('admission-types.store');
             Route::delete('/admission/admission-types/{id}/destroy', 'destroy')->name('admission-types.destroy');
+        });
+    });
+
+    Route::group(['middleware' => ['permission:admission-quotas.view']], function () {
+        Route::controller(AdmissionQuotasController::class)->group(function () {
+            Route::get('/admission/admission-quotas/data', 'data')->name('admission-quotas.data');
+            Route::get('/admission/admission-quotas', 'index')->name('admission-quotas.index');
+            Route::get('/admission/admission-quotas/{id}', 'show')->name('admission-quotas.show');
+            Route::put('/admission/admission-quotas/{id}', 'update')->name('admission-quotas.update');
+            Route::post('/admission/admission-quotas/import-excel', 'importEXCEL')->name('admission-quotas.import_excel');
+            Route::post('/admission/admission-quotas', 'store')->name('admission-quotas.store');
+            Route::delete('/admission/admission-quotas/{id}/destroy', 'destroy')->name('admission-quotas.destroy');
         });
     });
 });
