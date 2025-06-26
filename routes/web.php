@@ -8,6 +8,7 @@ use App\Http\Controllers\{
     ClassGroupController,
     DashboardController,
     EducationController,
+    ImageSliderController,
     MonthlyIncomeController,
     PermissionController,
     PermissionGroupController,
@@ -217,6 +218,19 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/admission/admission-quotas/import-excel', 'importEXCEL')->name('admission-quotas.import_excel');
             Route::post('/admission/admission-quotas', 'store')->name('admission-quotas.store');
             Route::delete('/admission/admission-quotas/{id}/destroy', 'destroy')->name('admission-quotas.destroy');
+        });
+    });
+
+    Route::group(['middleware' => ['permission:image-sliders.view']], function () {
+        Route::controller(ImageSliderController::class)->group(function () {
+            Route::get('/blog/image-sliders/data', 'data')->name('image-sliders.data');
+            Route::get('/blog/image-sliders', 'index')->name('image-sliders.index');
+            Route::get('/blog/image-sliders/{id}', 'show')->name('image-sliders.show');
+            Route::put('/blog/image-sliders/{id}', 'update')->name('image-sliders.update');
+            Route::post('/blog/image-sliders/import-excel', 'importEXCEL')->name('image-sliders.import_excel');
+            Route::post('/blog/image-sliders', 'store')->name('image-sliders.store');
+            Route::post('/blog/image-sliders/delete-selected', 'deleteSelected')->name('image-sliders.deleteSelected');
+            Route::delete('/blog/image-sliders/{id}/destroy', 'destroy')->name('image-sliders.destroy');
         });
     });
 });

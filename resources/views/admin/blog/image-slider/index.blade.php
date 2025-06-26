@@ -1,49 +1,52 @@
 @extends('layouts.app')
 
-@section('title', 'Kuota Penerimaan')
-@section('subtitle', 'Kuota Penerimaan')
+@section('title', 'Gambar Slide')
+@section('subtitle', 'Gambar Slide')
 
 @section('breadcrumb')
     @parent
-    <li class="breadcrumb-item active">Penerimaan Peserta Didik</li>
+    <li class="breadcrumb-item active">Blog</li>
     <li class="breadcrumb-item active">@yield('subtitle')</li>
 @endsection
+
 
 @section('content')
     <div class="row">
         <div class="col-lg-12">
             <x-card>
                 <x-slot name="header">
-                    <button onclick="addForm(`{{ route('admission-quotas.store') }}`)" class="btn btn-sm btn-info"><i
+                    <button onclick="addForm(`{{ route('image-sliders.store') }}`)" class="btn btn-sm btn-info"><i
                             class="fas fa-plus-circle"></i>
                         Tambah Data
+                    </button>
+
+                    <button id="deleteSelectedBtn" class="btn btn-sm btn-danger ml-2" disabled>
+                        <i class="fas fa-trash"></i> Hapus Data Terpilih
                     </button>
                 </x-slot>
                 <x-table id="table">
                     <x-slot name="thead">
+                        <th>
+                            <div class="form-check form-check-inline">
+                                <input id="selectAll" class="form-check-input" type="checkbox" name="selectAll"
+                                    value="true">
+                            </div>
+                        </th>
                         <th width="5%">NO</th>
-                        <th width="25%">TAHUN PELAJARAN</th>
-                        <th>JALUR PENDAFTARAN</th>
-                        <th>KUOTA</th>
+                        <th width="25%">GAMBAR</th>
+                        <th>CAPTION</th>
                         <th>AKSI</th>
                     </x-slot>
-                    <tfoot>
-                        <tr>
-                            <th colspan="3" class="text-end">Total Kuota:</th>
-                            <th id="total-quota">0</th>
-                            <th></th>
-                        </tr>
-                    </tfoot>
                 </x-table>
             </x-card>
         </div>
     </div>
 
-    @include('admin.admission.admission-quotas.form')
+    @include('admin.blog.image-slider.form')
 @endsection
 
 @include('includes.datatable')
-@include('includes.datepicker')
+@include('includes.summernote')
 
 @push('scripts')
     <script>
@@ -57,56 +60,126 @@
             autoWidth: false,
             responsive: true,
             ajax: {
-                url: '{{ route('admission-quotas.data') }}',
+                url: '{{ route('image-sliders.data') }}',
             },
             columns: [{
+                    data: 'selectAll',
+                    name: 'selectAll',
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: 'DT_RowIndex',
                     name: 'DT_RowIndex',
                     orderable: false,
                     searchable: false
                 },
                 {
-                    data: 'academic_year',
+                    data: 'image',
                     orderable: false,
                     searchable: false
                 },
                 {
-                    data: 'admission_types',
+                    data: 'caption',
                     orderable: false,
                     searchable: false
                 },
-                {
-                    data: 'quota',
-                    orderable: false,
-                    searchable: false
-                },
+
                 {
                     data: 'action',
                     orderable: false,
                     searchable: false
                 },
             ],
-            footerCallback: function(row, data, start, end, display) {
-                let api = this.api();
-
-                // Hitung total kuota dari semua data yang ditampilkan (atau semua data jika kamu mau)
-                let total = api
-                    .column(3, {
-                        page: 'current'
-                    }) // index 3 = kolom kuota
-                    .data()
-                    .reduce(function(a, b) {
-                        let x = typeof a === 'string' ? parseInt(a.replace(/[^\d]/g, '')) || 0 : a;
-                        let y = typeof b === 'string' ? parseInt(b.replace(/[^\d]/g, '')) || 0 : b;
-                        return x + y;
-                    }, 0);
-
-                // Update footer
-                $('#total-quota').html(total.toLocaleString('id-ID'));
-            }
         })
 
-        function addForm(url, title = 'Kuota Pendaftaran') {
+        // Ketika checkbox "selectAll" di header diklik
+        $('#selectAll').on('click', function() {
+            // Set semua checkbox baris sesuai status selectAll
+            $('.row-checkbox').prop('checked', $(this).prop('checked'));
+
+            // Enable/disable tombol hapus berdasarkan checkbox yang dipilih
+            const anyChecked = $('.row-checkbox:checked').length > 0;
+            $('#deleteSelectedBtn').prop('disabled', !anyChecked);
+        });
+
+        // Ketika checkbox baris di klik
+        $(document).on('click', '.row-checkbox', function() {
+            // Jika ada checkbox baris yang tidak dicentang, maka selectAll juga tidak dicentang
+            if ($('.row-checkbox:checked').length === $('.row-checkbox').length) {
+                $('#selectAll').prop('checked', true);
+            } else {
+                $('#selectAll').prop('checked', false);
+            }
+        });
+
+        // Enable/disable tombol hapus berdasarkan checkbox yang dipilih
+        $(document).on('change', '.row-checkbox', function() {
+            const anyChecked = $('.row-checkbox:checked').length > 0;
+            $('#deleteSelectedBtn').prop('disabled', !anyChecked);
+        });
+
+        // Fungsi hapus data terpilih saat tombol diklik
+        $('#deleteSelectedBtn').on('click', function() {
+            const selectedIds = $('.row-checkbox:checked').map(function() {
+                return $(this).data('id'); // Pastikan checkbox row punya atribut data-id
+            }).get();
+
+            if (selectedIds.length === 0) {
+                Swal.fire('Oops!', 'Tidak ada data yang dipilih.', 'warning');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Hapus Data Terpilih?',
+                text: `Apakah Anda yakin ingin menghapus ${selectedIds.length} data? Data yang dihapus tidak bisa dikembalikan!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menghapus...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading(),
+                        showConfirmButton: false,
+                    });
+
+                    $.ajax({
+                        url: '{{ route('image-sliders.deleteSelected') }}', // Route untuk delete massal, sesuaikan
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            ids: selectedIds,
+                        },
+                        success: function(response) {
+                            Swal.close();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: response.message,
+                                showConfirmButton: false,
+                                timer: 3000
+                            }).then(() => {
+                                $(button).prop('disabled', false);
+                                table.ajax.reload(); // Reload DataTables
+                                $('#deleteSelectedBtn').prop('disabled', true);
+                                $('#selectAll').prop('checked', false);
+                            });
+                        },
+                        error: function(xhr) {
+                            Swal.close();
+                            Swal.fire('Gagal!', xhr.responseJSON?.message ||
+                                'Terjadi kesalahan.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+
+        function addForm(url, title = 'Gambar Slide') {
             $(modal).modal('show');
             $(`${modal} .modal-title`).text(title);
             $(`${modal} form`).attr('action', url);
@@ -115,7 +188,7 @@
             resetForm(`${modal} form`);
         }
 
-        function editForm(url, title = 'Kuota Pendaftaran') {
+        function editForm(url, title = 'Gambar Slide') {
             Swal.fire({
                 title: "Memuat...",
                 text: "Mohon tunggu sebentar...",
