@@ -209,7 +209,7 @@
                     </span>
                     <div class="info-box-content">
                         <span class="info-box-text">Kuota Jalur {{ $type->admission_type_name }}</span>
-                        {{--  <span class="info-box-number">{{ $type->quota }}</span>  --}}
+                        <span class="info-box-number">{{ $type->quota->quota ?? 'Belum diatur' }}</span>
                     </div>
                 </div>
             </div>

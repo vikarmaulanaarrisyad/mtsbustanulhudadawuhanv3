@@ -12,4 +12,9 @@ class AdmissionType extends Model
     {
         return $this->belongsTo(AcademicYear::class);
     }
+
+    public function quota()
+    {
+        return $this->hasOne(AdmissionQuotas::class, 'admission_types_id');
+    }
 }

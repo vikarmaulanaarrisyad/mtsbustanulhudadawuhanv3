@@ -17,8 +17,13 @@ class DashboardController extends Controller
 
         $studentAdmission = StudentAdmission::where('academic_year_id', $academicYear->id)->first();
         $statusPendaftaran = ($studentAdmission && $studentAdmission->admission_status == 'open') ? 'Dibuka' : 'Ditutup';
-        $admissionTypes = AdmissionType::where('academic_year_id', $academicYear->id)->get();
 
+        // Ambil semua jenis pendaftaran + kuotanya
+        $admissionTypes = AdmissionType::with('quota')
+            ->where('academic_year_id', $academicYear->id)
+            ->get();
+
+        // dd($admissionTypes);
         return view('admin.dashboard.index', compact('academicYear', 'statusPendaftaran', 'studentAdmission', 'admissionTypes'));
     }
 }
