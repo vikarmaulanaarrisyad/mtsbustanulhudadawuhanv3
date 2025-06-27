@@ -5,6 +5,7 @@ use App\Http\Controllers\{
     AdmissionPhaseController,
     AdmissionQuotasController,
     AdmissionTypeController,
+    CategoryController,
     ClassGroupController,
     DashboardController,
     EducationController,
@@ -231,6 +232,19 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/blog/image-sliders', 'store')->name('image-sliders.store');
             Route::post('/blog/image-sliders/delete-selected', 'deleteSelected')->name('image-sliders.deleteSelected');
             Route::delete('/blog/image-sliders/{id}/destroy', 'destroy')->name('image-sliders.destroy');
+        });
+    });
+
+    Route::group(['middleware' => ['permission:categories.view']], function () {
+        Route::controller(CategoryController::class)->group(function () {
+            Route::get('/blog/categories/data', 'data')->name('categories.data');
+            Route::get('/blog/categories', 'index')->name('categories.index');
+            Route::get('/blog/categories/{id}', 'show')->name('categories.show');
+            Route::put('/blog/categories/{id}', 'update')->name('categories.update');
+            Route::post('/blog/categories/import-excel', 'importEXCEL')->name('categories.import_excel');
+            Route::post('/blog/categories', 'store')->name('categories.store');
+            Route::post('/blog/categories/delete-selected', 'deleteSelected')->name('categories.deleteSelected');
+            Route::delete('/blog/categories/{id}/destroy', 'destroy')->name('categories.destroy');
         });
     });
 });
