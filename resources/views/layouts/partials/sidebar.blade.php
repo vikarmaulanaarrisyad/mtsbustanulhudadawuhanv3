@@ -102,15 +102,15 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#" class="nav-link">
+                                    <a href="{{ route('tags.index') }}" class="nav-link">
                                         <i class="far fa-dot-circle nav-icon"></i>
-                                        <p>Komentar</p>
+                                        <p>Tags</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#" class="nav-link">
                                         <i class="far fa-dot-circle nav-icon"></i>
-                                        <p>Tags</p>
+                                        <p>Komentar</p>
                                     </a>
                                 </li>
                             </ul>

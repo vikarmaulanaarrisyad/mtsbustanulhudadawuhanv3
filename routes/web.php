@@ -18,6 +18,7 @@ use App\Http\Controllers\{
     SettingController,
     StudentAdmissionController,
     StudentStatusController,
+    TagController,
     TransportationController,
     UserController
 };
@@ -245,6 +246,19 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/blog/categories', 'store')->name('categories.store');
             Route::post('/blog/categories/delete-selected', 'deleteSelected')->name('categories.deleteSelected');
             Route::delete('/blog/categories/{id}/destroy', 'destroy')->name('categories.destroy');
+        });
+    });
+
+    Route::group(['middleware' => ['permission:tags.view']], function () {
+        Route::controller(TagController::class)->group(function () {
+            Route::get('/blog/tags/data', 'data')->name('tags.data');
+            Route::get('/blog/tags', 'index')->name('tags.index');
+            Route::get('/blog/tags/{id}', 'show')->name('tags.show');
+            Route::put('/blog/tags/{id}', 'update')->name('tags.update');
+            Route::post('/blog/tags/import-excel', 'importEXCEL')->name('tags.import_excel');
+            Route::post('/blog/tags', 'store')->name('tags.store');
+            Route::post('/blog/tags/delete-selected', 'deleteSelected')->name('tags.deleteSelected');
+            Route::delete('/blog/tags/{id}/destroy', 'destroy')->name('tags.destroy');
         });
     });
 });

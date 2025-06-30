@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Kategori Tulisan')
-@section('subtitle', 'Kategori Tulisan')
+@section('title', 'Tag Tulisan')
+@section('subtitle', 'Tag Tulisan')
 
 @section('breadcrumb')
     @parent
@@ -14,7 +14,7 @@
         <div class="col-lg-12">
             <x-card>
                 <x-slot name="header">
-                    <button onclick="addForm(`{{ route('categories.store') }}`)" class="btn btn-sm btn-info"><i
+                    <button onclick="addForm(`{{ route('tags.store') }}`)" class="btn btn-sm btn-info"><i
                             class="fas fa-plus-circle"></i>
                         Tambah Data
                     </button>
@@ -32,9 +32,8 @@
                             </div>
                         </th>
                         <th width="5%">NO</th>
-                        <th width="25%">KATEGORI</th>
-                        <th>TYPE</th>
-                        <th>DESKRIPSI</th>
+                        <th width="25%">TAGS</th>
+                        <th width="25%">SLUG</th>
                         <th>AKSI</th>
                     </x-slot>
                 </x-table>
@@ -42,7 +41,7 @@
         </div>
     </div>
 
-    @include('admin.blog.categories.form')
+    @include('admin.blog.tags.form')
 @endsection
 
 @include('includes.datatable')
@@ -60,7 +59,7 @@
             autoWidth: false,
             responsive: true,
             ajax: {
-                url: '{{ route('categories.data') }}',
+                url: '{{ route('tags.data') }}',
             },
             columns: [{
                     data: 'selectAll',
@@ -75,17 +74,12 @@
                     searchable: false
                 },
                 {
-                    data: 'category_name',
+                    data: 'tag_name',
                     orderable: false,
                     searchable: false
                 },
                 {
-                    data: 'category_type',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'category_description',
+                    data: 'tag_slug',
                     orderable: false,
                     searchable: false
                 },
@@ -152,7 +146,7 @@
                     });
 
                     $.ajax({
-                        url: '{{ route('categories.deleteSelected') }}', // Route untuk delete massal, sesuaikan
+                        url: '{{ route('tags.deleteSelected') }}', // Route untuk delete massal, sesuaikan
                         type: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
@@ -183,7 +177,7 @@
             });
         });
 
-        function addForm(url, title = 'Kategori Tulisan') {
+        function addForm(url, title = 'Tags') {
             $(modal).modal('show');
             $(`${modal} .modal-title`).text(title);
             $(`${modal} form`).attr('action', url);
@@ -192,7 +186,7 @@
             resetForm(`${modal} form`);
         }
 
-        function editForm(url, title = 'Kategori Tulisan') {
+        function editForm(url, title = 'Tags') {
             Swal.fire({
                 title: "Memuat...",
                 text: "Mohon tunggu sebentar...",
