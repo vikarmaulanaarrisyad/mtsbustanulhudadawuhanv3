@@ -11,14 +11,22 @@
             </td>
             <td class="text-center">:</td>
             <td>
-                {{ $academicYear->academic_year }} {{ $academicYear->semester->semester_name }}
+                @if ($academicYear)
+                    {{ $academicYear->academic_year }} {{ $academicYear->semester->semester_name ?? '' }}
+                @else
+                    <span class="text-danger"><i>Belum diatur</i></span>
+                @endif
             </td>
             <td>
                 <i class="bi bi-calendar-check text-danger me-2"></i> Tahun Penerimaan Peserta Didik Baru
             </td>
             <td class="text-center">:</td>
             <td>
-                {{ $academicYear->academic_year }} {{ $academicYear->semester->semester_name }}
+                @if ($academicYear)
+                    {{ $academicYear->academic_year }} {{ $academicYear->semester->semester_name ?? '' }}
+                @else
+                    <span class="text-danger"><i>Belum diatur</i></span>
+                @endif
             </td>
         </tr>
         <tr>
@@ -31,10 +39,9 @@
                 <i class="bi bi-info-circle text-danger me-2"></i> Status Penerimaan Peserta Didik Baru
             </td>
             <td class="text-center">:</td>
-            <td><span
-                    class="badge bg-{{ $statusPendaftaran == 'Dibuka' ? 'success' : 'secondary' }}">{{ $statusPendaftaran }}</span>
-            </td>
-
+            <td><span class="badge bg-{{ $statusPendaftaran == 'Dibuka' ? 'success' : 'secondary' }}">
+                    {{ $statusPendaftaran }}
+                </span></td>
         </tr>
         <tr>
             <td>

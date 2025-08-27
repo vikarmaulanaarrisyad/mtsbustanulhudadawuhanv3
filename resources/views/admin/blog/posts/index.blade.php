@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Kategori Tulisan')
-@section('subtitle', 'Kategori Tulisan')
+@section('title', 'Postingan')
+@section('subtitle', 'Postingan')
 
 @section('breadcrumb')
     @parent
@@ -14,10 +14,9 @@
         <div class="col-lg-12">
             <x-card>
                 <x-slot name="header">
-                    <button onclick="addForm(`{{ route('categories.store') }}`)" class="btn btn-sm btn-info"><i
-                            class="fas fa-plus-circle"></i>
+                    <a href="{{ route('posts.create') }}" class="btn btn-sm btn-info"><i class="fas fa-plus-circle"></i>
                         Tambah Data
-                    </button>
+                    </a>
 
                     <button id="deleteSelectedBtn" class="btn btn-sm btn-danger ml-2" disabled>
                         <i class="fas fa-trash"></i> Hapus Data Terpilih
@@ -32,9 +31,10 @@
                             </div>
                         </th>
                         <th width="5%">NO</th>
-                        <th width="25%">KATEGORI</th>
-                        <th>TYPE</th>
-                        <th>DESKRIPSI</th>
+                        <th width="10%">GAMBAR</th>
+                        <th width="35%">JUDUL</th>
+                        <th>TANGGAL</th>
+                        <th>PENULIS</th>
                         <th>AKSI</th>
                     </x-slot>
                 </x-table>
@@ -42,16 +42,15 @@
         </div>
     </div>
 
-    @include('admin.blog.categories.form')
+    {{--  @include('admin.blog.posts.form')  --}}
 @endsection
 
 @include('includes.datatable')
-@include('includes.summernote')
+
 
 @push('scripts')
     <script>
         let table;
-        let modal = '#modal-categories';
         let button = '#submitBtn';
 
         table = $('#table').DataTable({
@@ -59,8 +58,13 @@
             serverSide: true,
             autoWidth: false,
             responsive: true,
+            pageLength: 30, // Default jumlah data yang ditampilkan
+            lengthMenu: [
+                [10, 30, 50, 100],
+                [10, 30, 50, 100]
+            ], // Dropdown pilihan
             ajax: {
-                url: '{{ route('categories.data') }}',
+                url: '{{ route('posts.data') }}',
             },
             columns: [{
                     data: 'selectAll',
@@ -74,18 +78,20 @@
                     orderable: false,
                     searchable: false
                 },
+
                 {
-                    data: 'category_name',
+                    data: 'post_image',
                     orderable: false,
                     searchable: false
                 },
                 {
-                    data: 'category_type',
-                    orderable: false,
-                    searchable: false
+                    data: 'post_title',
                 },
                 {
-                    data: 'category_description',
+                    data: 'created_at',
+                },
+                {
+                    data: 'user',
                     orderable: false,
                     searchable: false
                 },
@@ -95,7 +101,8 @@
                     searchable: false
                 },
             ],
-        })
+        });
+
 
         // Ketika checkbox "selectAll" di header diklik
         $('#selectAll').on('click', function() {
@@ -152,7 +159,7 @@
                     });
 
                     $.ajax({
-                        url: '{{ route('categories.deleteSelected') }}', // Route untuk delete massal, sesuaikan
+                        url: '{{ route('posts.deleteSelected') }}', // Route untuk delete massal, sesuaikan
                         type: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
@@ -183,113 +190,8 @@
             });
         });
 
-        function addForm(url, title = 'Kategori Tulisan') {
-            $(modal).modal('show');
-            $(`${modal} .modal-title`).text(title);
-            $(`${modal} form`).attr('action', url);
-            $(`${modal} [name=_method]`).val('post');
+        function addForm(url, title = 'Postingan Baru') {
 
-            resetForm(`${modal} form`);
-        }
-
-        function editForm(url, title = 'Kategori Tulisan') {
-            Swal.fire({
-                title: "Memuat...",
-                text: "Mohon tunggu sebentar...",
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    Swal.showLoading(); // Menampilkan spinner loading
-                }
-            });
-
-            $.get(url)
-                .done(response => {
-                    Swal.close(); // Tutup loading setelah sukses
-                    $(modal).modal('show');
-                    $(`${modal} .modal-title`).text(title);
-                    $(`${modal} form`).attr('action', url);
-                    $(`${modal} [name=_method]`).val('put');
-
-                    resetForm(`${modal} form`);
-                    loopForm(response.data);
-                })
-                .fail(errors => {
-                    Swal.close(); // Tutup loading jika terjadi error
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops! Gagal',
-                        text: errors.responseJSON?.message || 'Terjadi kesalahan saat memuat data.',
-                        showConfirmButton: true,
-                    });
-
-                    if (errors.status == 422) {
-                        loopErrors(errors.responseJSON.errors);
-                    }
-                });
-        }
-
-        function submitForm(originalForm) {
-            $(button).prop('disabled', true);
-
-            // Menampilkan Swal loading
-            Swal.fire({
-                title: 'Mohon Tunggu...',
-                text: 'Sedang memproses data',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading(); // Menampilkan animasi loading
-                }
-            });
-
-            $.ajax({
-                url: $(originalForm).attr('action'),
-                type: $(originalForm).attr('method') || 'POST', // Gunakan method dari form
-                data: new FormData(originalForm),
-                dataType: 'JSON',
-                contentType: false,
-                cache: false,
-                processData: false,
-                success: function(response, textStatus, xhr) {
-                    Swal.close(); // Tutup Swal Loading
-
-                    if (xhr.status === 201 || xhr.status === 200) {
-                        $(modal).modal('hide');
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: response.message,
-                            showConfirmButton: false,
-                            timer: 3000
-                        }).then(() => {
-                            $(button).prop('disabled', false);
-                            table.ajax.reload(); // Reload DataTables
-                        });
-                    }
-                },
-                error: function(xhr) {
-                    Swal.close(); // Tutup Swal Loading
-                    $(button).prop('disabled', false);
-
-                    let errorMessage = "Terjadi kesalahan!";
-                    if (xhr.responseJSON?.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops! Gagal',
-                        text: errorMessage,
-                        showConfirmButton: false,
-                        timer: 3000,
-                    });
-
-                    if (xhr.status === 422) {
-                        loopErrors(xhr.responseJSON.errors);
-                    }
-                }
-            });
         }
 
         function deleteData(url, name) {

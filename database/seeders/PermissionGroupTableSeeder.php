@@ -39,6 +39,27 @@ class PermissionGroupTableSeeder extends Seeder
                 'name' => 'Post'
             ],
             [
+                'name' => 'Tags'
+            ],
+            [
+                'name' => 'Image Sliders'
+            ],
+            [
+                'name' => 'Admission Quotas'
+            ],
+            [
+                'name' => 'Admission Types'
+            ],
+            [
+                'name' => 'Admission Phases'
+            ],
+            [
+                'name' => 'Student Admission'
+            ],
+            [
+                'name' => 'Residences'
+            ],
+            [
                 'name' => 'Category'
             ],
             [

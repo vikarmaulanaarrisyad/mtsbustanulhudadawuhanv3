@@ -25,6 +25,14 @@ class ImageSliderController extends Controller
 
         return datatables($query)
             ->addIndexColumn()
+            ->addColumn('image', function ($q) {
+                $imageUrl = $q->image ? Storage::url($q->image) : asset('images/no-image.png');
+
+                return '
+                    <img src="' . $imageUrl . '" alt="' . e($q->caption) . '" style="max-height: 60px;" class="img-thumbnail">
+                ';
+            })
+
             ->addColumn('selectAll', function ($q) {
                 return '
                     <div class="form-check form-check-inline">

@@ -9,7 +9,6 @@
     <li class="breadcrumb-item active">@yield('subtitle')</li>
 @endsection
 
-
 @section('content')
     <div class="row">
         <div class="col-lg-12">
@@ -23,17 +22,18 @@
                     <button id="deleteSelectedBtn" class="btn btn-sm btn-danger ml-2" disabled>
                         <i class="fas fa-trash"></i> Hapus Data Terpilih
                     </button>
+
                 </x-slot>
                 <x-table id="table">
                     <x-slot name="thead">
-                        <th>
+                        <th width="5%">
                             <div class="form-check form-check-inline">
                                 <input id="selectAll" class="form-check-input" type="checkbox" name="selectAll"
                                     value="true">
                             </div>
                         </th>
                         <th width="5%">NO</th>
-                        <th width="25%">GAMBAR</th>
+                        <th>GAMBAR</th>
                         <th>CAPTION</th>
                         <th>AKSI</th>
                     </x-slot>

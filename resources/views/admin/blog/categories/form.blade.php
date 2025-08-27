@@ -1,4 +1,4 @@
-<x-modal data-backdrop="static" data-keyboard="false" size="modal-lg">
+<x-modal id="modal-categories" data-backdrop="static" data-keyboard="false" size="modal-lg">
     <x-slot name="title">
         Tambah Pendaftaran
     </x-slot>

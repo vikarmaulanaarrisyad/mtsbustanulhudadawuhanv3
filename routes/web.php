@@ -13,6 +13,7 @@ use App\Http\Controllers\{
     MonthlyIncomeController,
     PermissionController,
     PermissionGroupController,
+    PostController,
     ResidenceController,
     RoleController,
     SettingController,
@@ -141,7 +142,7 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::group(['middleware' => ['permission:education.view']], function () {
+    Route::group(['middleware' => ['permission:educations.view']], function () {
         Route::controller(EducationController::class)->group(function () {
             Route::get('/academic/educations/data', 'data')->name('educations.data');
             Route::get('/academic/educations', 'index')->name('educations.index');
@@ -261,4 +262,31 @@ Route::group(['middleware' => ['auth']], function () {
             Route::delete('/blog/tags/{id}/destroy', 'destroy')->name('tags.destroy');
         });
     });
+
+    Route::group(['middleware' => ['permission:posts.view']], function () {
+        Route::controller(PostController::class)->group(function () {
+            Route::get('/blog/posts/data', 'data')->name('posts.data');
+            Route::get('/blog/posts', 'index')->name('posts.index');
+            Route::get('/blog/posts/create', 'create')->name('posts.create');
+            Route::get('/blog/posts/{id}', 'show')->name('posts.show');
+            Route::get('/blog/posts/{id}/edit', 'edit')->name('posts.edit');
+            Route::put('/blog/posts/{id}', 'update')->name('posts.update');
+            Route::post('/blog/posts/import-excel', 'importEXCEL')->name('posts.import_excel');
+            Route::post('/blog/posts', 'store')->name('posts.store');
+            Route::post('/blog/posts/delete-selected', 'deleteSelected')->name('posts.deleteSelected');
+            Route::delete('/blog/posts/{id}/destroy', 'destroy')->name('posts.destroy');
+        });
+    });
+
+    // Route::controller(PostController::class)->group(function () {
+    //     Route::get('/blog/posts/data', 'data')->name('posts.data');
+    //     Route::get('/blog/posts', 'index')->name('posts.index');
+    //     Route::get('/blog/posts/create', 'create')->name('posts.create');
+    //     Route::get('/blog/posts/{id}', 'show')->name('posts.show');
+    //     Route::put('/blog/posts/{id}', 'update')->name('posts.update');
+    //     Route::post('/blog/posts/import-excel', 'importEXCEL')->name('posts.import_excel');
+    //     Route::post('/blog/posts', 'store')->name('posts.store');
+    //     Route::post('/blog/posts/delete-selected', 'deleteSelected')->name('posts.deleteSelected');
+    //     Route::delete('/blog/posts/{id}/destroy', 'destroy')->name('posts.destroy');
+    // });
 });

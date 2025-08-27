@@ -25,7 +25,7 @@
                 </x-slot>
                 <x-table id="table">
                     <x-slot name="thead">
-                        <th>
+                        <th width="5%">
                             <div class="form-check form-check-inline">
                                 <input id="selectAll" class="form-check-input" type="checkbox" name="selectAll"
                                     value="true">
@@ -50,7 +50,7 @@
 @push('scripts')
     <script>
         let table;
-        let modal = '#modal-form';
+        let modal = '#modal-tags';
         let button = '#submitBtn';
 
         table = $('#table').DataTable({

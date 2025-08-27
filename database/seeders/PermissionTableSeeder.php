@@ -90,6 +90,71 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'student-status.create', 'group' => 'Student Status'],
             ['name' => 'student-status.update', 'group' => 'Student Status'],
             ['name' => 'student-status.delete', 'group' => 'Student Status'],
+
+            // Residences
+            ['name' => 'residences.view', 'group' => 'Residences'],
+            ['name' => 'residences.create', 'group' => 'Residences'],
+            ['name' => 'residences.update', 'group' => 'Residences'],
+            ['name' => 'residences.delete', 'group' => 'Residences'],
+
+            // Category
+            ['name' => 'categories.view', 'group' => 'Category'],
+            ['name' => 'categories.create', 'group' => 'Category'],
+            ['name' => 'categories.update', 'group' => 'Category'],
+            ['name' => 'categories.delete', 'group' => 'Category'],
+
+            // Post
+            ['name' => 'posts.view', 'group' => 'Post'],
+            ['name' => 'posts.create', 'group' => 'Post'],
+            ['name' => 'posts.update', 'group' => 'Post'],
+            ['name' => 'posts.delete', 'group' => 'Post'],
+
+            // Tags
+            ['name' => 'tags.view', 'group' => 'Tags'],
+            ['name' => 'tags.create', 'group' => 'Tags'],
+            ['name' => 'tags.update', 'group' => 'Tags'],
+            ['name' => 'tags.delete', 'group' => 'Tags'],
+
+            // Image Sliders
+            ['name' => 'image-sliders.view', 'group' => 'Image Sliders'],
+            ['name' => 'image-sliders.create', 'group' => 'Image Sliders'],
+            ['name' => 'image-sliders.update', 'group' => 'Image Sliders'],
+
+            // Admission Quotas
+            ['name' => 'admission-quotas.view', 'group' => 'Admission Quotas'],
+            ['name' => 'admission-quotas.create', 'group' => 'Admission Quotas'],
+            ['name' => 'admission-quotas.update', 'group' => 'Admission Quotas'],
+            ['name' => 'admission-quotas.delete', 'group' => 'Admission Quotas'],
+
+            // Admission Types
+            ['name' => 'admission-types.view', 'group' => 'Admission Types'],
+            ['name' => 'admission-types.create', 'group' => 'Admission Types'],
+            ['name' => 'admission-types.update', 'group' => 'Admission Types'],
+            ['name' => 'admission-types.delete', 'group' => 'Admission Types'],
+
+            // Admission Phases
+            ['name' => 'admission-phases.view', 'group' => 'Admission Phases'],
+            ['name' => 'admission-phases.create', 'group' => 'Admission Phases'],
+            ['name' => 'admission-phases.update', 'group' => 'Admission Phases'],
+            ['name' => 'admission-phases.delete', 'group' => 'Admission Phases'],
+
+            // Student Admission
+            ['name' => 'student-admissions.view', 'group' => 'Student Admission'],
+            ['name' => 'student-admissions.create', 'group' => 'Student Admission'],
+            ['name' => 'student-admissions.update', 'group' => 'Student Admission'],
+            ['name' => 'student-admissions.delete', 'group' => 'Student Admission'],
+
+            // Student Status
+            ['name' => 'student-status.view', 'group' => 'Student Status'],
+            ['name' => 'student-status.create', 'group' => 'Student Status'],
+            ['name' => 'student-status.update', 'group' => 'Student Status'],
+            ['name' => 'student-status.delete', 'group' => 'Student Status'],
+
+            // Educations
+            ['name' => 'educations.view', 'group' => 'Educations'],
+            ['name' => 'educations.create', 'group' => 'Educations'],
+            ['name' => 'educations.update', 'group' => 'Educations'],
+            ['name' => 'educations.delete', 'group' => 'Educations'],
         ];
 
         foreach ($permissions as $value) {

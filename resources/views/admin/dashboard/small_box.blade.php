@@ -2,8 +2,8 @@
     <div class="col-lg-3 col-6">
         <div class="small-box bg-info">
             <div class="inner">
-                <h3>120</h3>
-                <p>Post</p>
+                <h3>{{ $postsCount }}</h3>
+                <p>Jumlah Postingan</p>
             </div>
             <div class="icon">
                 <i class="fas fa-pencil-alt"></i> <!-- icon untuk Post -->
@@ -14,7 +14,7 @@
     <div class="col-lg-3 col-6">
         <div class="small-box bg-success">
             <div class="inner">
-                <h3>15</h3>
+                <h3>{{ $categoriesCount }}</h3>
                 <p>Kategori</p>
             </div>
             <div class="icon">
@@ -26,7 +26,7 @@
     <div class="col-lg-3 col-6">
         <div class="small-box bg-warning">
             <div class="inner">
-                <h3>45</h3>
+                <h3>{{ $tagsCount }}</h3>
                 <p>Tags</p>
             </div>
             <div class="icon">
@@ -98,7 +98,7 @@
     </div>
 </div>
 
-@if ($academicYear->admission_semester == 1)
+@if ($academicYear && $academicYear->admission_semester == 1)
     {{--  <div class="row">
         <!-- PPDB - Jumlah Pendaftar -->
         <div class="col-12 col-sm-6 col-md-3">
