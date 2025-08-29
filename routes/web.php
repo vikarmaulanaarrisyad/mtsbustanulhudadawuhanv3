@@ -15,6 +15,7 @@ use App\Http\Controllers\{
     PermissionController,
     PermissionGroupController,
     PostController,
+    QuotesController,
     ResidenceController,
     RoleController,
     SettingController,
@@ -288,6 +289,19 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/media/albums', 'store')->name('albums.store');
             Route::post('/media/albums/delete-selected', 'deleteSelected')->name('albums.deleteSelected');
             Route::delete('/media/albums/{id}/destroy', 'destroy')->name('albums.destroy');
+        });
+    });
+
+    Route::group(['middleware' => ['permission:quotes.view']], function () {
+        Route::controller(QuotesController::class)->group(function () {
+            Route::get('/blog/quotes/data', 'data')->name('quotes.data');
+            Route::get('/blog/quotes', 'index')->name('quotes.index');
+            Route::get('/blog/quotes/{id}', 'show')->name('quotes.show');
+            Route::put('/blog/quotes/{id}', 'update')->name('quotes.update');
+            Route::post('/blog/quotes/import-excel', 'importEXCEL')->name('quotes.import_excel');
+            Route::post('/blog/quotes', 'store')->name('quotes.store');
+            Route::post('/blog/quotes/delete-selected', 'deleteSelected')->name('quotes.deleteSelected');
+            Route::delete('/blog/quotes/{id}/destroy', 'destroy')->name('quotes.destroy');
         });
     });
 

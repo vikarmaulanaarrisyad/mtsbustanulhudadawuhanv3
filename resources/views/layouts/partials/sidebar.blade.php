@@ -63,13 +63,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="./index3.html" class="nav-link">
+                            <a href="#" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Tautan</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="./index3.html" class="nav-link">
+                            <a href="#" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Halaman</p>
                             </a>
@@ -116,19 +116,19 @@
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="./index3.html" class="nav-link">
+                            <a href="{{ route('quotes.index') }}" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Kutipan</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="./index3.html" class="nav-link">
+                            <a href="#" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Sambutan Kepala Sekolah</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="./index3.html" class="nav-link">
+                            <a href="#" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Subcriber</p>
                             </a>
