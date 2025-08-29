@@ -138,7 +138,7 @@
 
                 <li class="nav-item">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-globe"></i>
+                        <i class="nav-icon far fa-image"></i>
                         <p>
                             Media
                             <i class="right fas fa-angle-left"></i>
@@ -158,7 +158,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="{{ route('albums.index') }}" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Album Foto</p>
                             </a>

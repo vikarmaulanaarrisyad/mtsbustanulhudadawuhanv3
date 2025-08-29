@@ -5,6 +5,7 @@ use App\Http\Controllers\{
     AdmissionPhaseController,
     AdmissionQuotasController,
     AdmissionTypeController,
+    AlbumController,
     CategoryController,
     ClassGroupController,
     DashboardController,
@@ -277,6 +278,18 @@ Route::group(['middleware' => ['auth']], function () {
             Route::delete('/blog/posts/{id}/destroy', 'destroy')->name('posts.destroy');
         });
     });
+
+    // Route::group(['middleware' => ['permission:albums.view']], function () {
+    Route::controller(AlbumController::class)->group(function () {
+        Route::get('/media/albums/data', 'data')->name('albums.data');
+        Route::get('/media/albums', 'index')->name('albums.index');
+        Route::get('/media/albums/{id}', 'show')->name('albums.show');
+        Route::put('/media/albums/{id}', 'update')->name('albums.update');
+        Route::post('/media/albums', 'store')->name('albums.store');
+        Route::post('/media/albums/delete-selected', 'deleteSelected')->name('albums.deleteSelected');
+        Route::delete('/media/albums/{id}/destroy', 'destroy')->name('albums.destroy');
+    });
+    // });
 
     // Route::controller(PostController::class)->group(function () {
     //     Route::get('/blog/posts/data', 'data')->name('posts.data');
