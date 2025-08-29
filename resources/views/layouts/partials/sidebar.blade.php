@@ -122,7 +122,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="{{ route('opening_speech.index') }}" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Sambutan Kepala Sekolah</p>
                             </a>

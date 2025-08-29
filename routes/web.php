@@ -23,7 +23,8 @@ use App\Http\Controllers\{
     StudentStatusController,
     TagController,
     TransportationController,
-    UserController
+    UserController,
+    WelcomeMessageController
 };
 
 use Illuminate\Support\Facades\Route;
@@ -304,6 +305,14 @@ Route::group(['middleware' => ['auth']], function () {
             Route::delete('/blog/quotes/{id}/destroy', 'destroy')->name('quotes.destroy');
         });
     });
+
+    Route::group(['middleware' => ['permission:opening-speech.view']], function () {
+        Route::controller(WelcomeMessageController::class)->group(function () {
+            Route::get('/blog/opening-speech', 'index')->name('opening_speech.index');
+            Route::put('/blog/opening-speech/{id}', 'update')->name('opening_speech.update');
+        });
+    });
+
 
     // Route::controller(PostController::class)->group(function () {
     //     Route::get('/blog/posts/data', 'data')->name('posts.data');
