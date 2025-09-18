@@ -155,6 +155,18 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'educations.create', 'group' => 'Educations'],
             ['name' => 'educations.update', 'group' => 'Educations'],
             ['name' => 'educations.delete', 'group' => 'Educations'],
+
+            // Opening Speech
+            ['name' => 'opening-speech.view', 'group' => 'Opening Speech'],
+            ['name' => 'opening-speech.create', 'group' => 'Opening Speech'],
+            ['name' => 'opening-speech.update', 'group' => 'Opening Speech'],
+            ['name' => 'opening-speech.delete', 'group' => 'Opening Speech'],
+
+            // Opening Speech
+            ['name' => 'quotes.view', 'group' => 'Quotes'],
+            ['name' => 'quotes.create', 'group' => 'Quotes'],
+            ['name' => 'quotes.update', 'group' => 'Quotes'],
+            ['name' => 'quotes.delete', 'group' => 'Quotes'],
         ];
 
         foreach ($permissions as $value) {

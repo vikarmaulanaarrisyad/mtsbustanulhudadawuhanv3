@@ -81,6 +81,12 @@ class PermissionGroupTableSeeder extends Seeder
                 'name' => 'Student Status'
             ],
             [
+                'name' => 'Opening Speech'
+            ],
+            [
+                'name' => 'Quotes'
+            ],
+            [
                 'name' => 'Pengaturan'
             ],
         ];

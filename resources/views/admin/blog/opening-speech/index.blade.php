@@ -17,9 +17,7 @@
                     @csrf
                     <div class="form-group">
                         <label for="sambutan">Isi Sambutan</label>
-                        <textarea id="sambutan" name="sambutan" class="form-control">
-                            {{ $data->content ?? '' }}
-                        </textarea>
+                        <textarea id="sambutan" name="sambutan" class="form-control">{{ $data->content ?? '' }}</textarea>
                     </div>
                     <button type="submit" class="btn btn-primary mt-3">
                         <i class="fas fa-save"></i> Simpan
@@ -32,23 +30,30 @@
 
 @push('scripts')
     <!-- Summernote -->
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function() {
-            // Inisialisasi Summernote dengan value dari DB
+            // Inisialisasi Summernote
             $('#sambutan').summernote({
                 height: 450,
                 placeholder: 'Tulis sambutan kepala madrasah di sini...'
             });
 
-            // Submit dengan AJAX
             $('#sambutanForm').on('submit', function(e) {
                 e.preventDefault();
 
                 let sambutan = $('#sambutan').val();
                 let token = $('meta[name="csrf-token"]').attr('content');
+
+                // Tentukan URL dan method
+                let url =
+                    "{{ $data && $data->id ? route('opening_speech.update', $data->id) : route('opening_speech.store') }}";
+                let method = "{{ $data && $data->id ? 'PUT' : 'POST' }}";
 
                 // Swal loading
                 Swal.fire({
@@ -61,8 +66,8 @@
                 });
 
                 $.ajax({
-                    url: "{{ route('opening_speech.update', $data->id) }}", // sesuaikan dengan route
-                    method: "PUT",
+                    url: url,
+                    method: method,
                     data: {
                         _token: token,
                         sambutan: sambutan
@@ -75,10 +80,14 @@
                         });
                     },
                     error: function(xhr) {
+                        let errMsg = 'Terjadi kesalahan. Coba lagi.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errMsg = xhr.responseJSON.message;
+                        }
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
-                            text: 'Terjadi kesalahan. Coba lagi.'
+                            text: errMsg
                         });
                     }
                 });

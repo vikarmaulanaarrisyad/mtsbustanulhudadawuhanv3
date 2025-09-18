@@ -306,6 +306,54 @@
                     </li>
                 @endif
 
+
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-book"></i>
+                        <p>
+                            Ujian / Exam
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <!-- Data Ujian -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Daftar Ujian</p>
+                            </a>
+                        </li>
+                        <!-- Tambah Ujian Baru -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Buat Ujian Baru</p>
+                            </a>
+                        </li>
+                        <!-- Kategori / Mata Pelajaran -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Kategori / Mata Pelajaran</p>
+                            </a>
+                        </li>
+                        <!-- Hasil Ujian -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Hasil Ujian</p>
+                            </a>
+                        </li>
+                        <!-- Soal Ujian -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Bank Soal</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 @canany(['user.view', 'role.view', 'permission.view', 'permission-group.view'])
                     <li class="nav-item">
                         <a href="#" class="nav-link">

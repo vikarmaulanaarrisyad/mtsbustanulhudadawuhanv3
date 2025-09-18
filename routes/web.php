@@ -26,12 +26,16 @@ use App\Http\Controllers\{
     UserController,
     WelcomeMessageController
 };
-
+use App\Http\Controllers\Front\FrontController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+Route::get('/', [FrontController::class, 'index']);
+Route::get('/post/{slug}', [FrontController::class, 'show'])->name('front.post_show');
+Route::post('/post/{id}/comment', [FrontController::class, 'postComment'])->name('post.comment');
+
+// Route::get('/contact', [FrontContactController::class, 'index']);
+// Route::post('/contact', [FrontContactController::class, 'store']);
+// Route::get('/about', [AboutController::class, 'index']);
 
 Route::group(['middleware' => ['auth']], function () {
 
@@ -309,7 +313,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['permission:opening-speech.view']], function () {
         Route::controller(WelcomeMessageController::class)->group(function () {
             Route::get('/blog/opening-speech', 'index')->name('opening_speech.index');
-            Route::put('/blog/opening-speech/{id}', 'update')->name('opening_speech.update');
+            // Route::put('/blog/opening-speech/{id}', 'update')->name('opening_speech.update');
+            Route::get('opening-speech/edit', 'edit')->name('opening_speech.edit');
+            Route::post('opening-speech/store', 'store')->name('opening_speech.store');
+            Route::put('opening-speech/update/{id}', 'update')->name('opening_speech.update');
         });
     });
 
