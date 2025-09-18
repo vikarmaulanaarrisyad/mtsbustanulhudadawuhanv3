@@ -4,11 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'Website Sekolah') }}</title>
+    <title>{{ $setting->company_name ?? '' }}</title>
 
     {{-- Bootstrap & Font Awesome --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <meta name="description" content="{{ $setting->nama_aplikasi }}" />
+
+    <!-- FAVICONS ICON ============================================= -->
+    <link rel="icon" href="{{ $setting->path_image }}" type="image/x-icon" />
+    <link rel="icon" href="{{ Storage::url($setting->path_image ?? '') }}" type="image/*">
+
 
     @stack('css')
     <style>
@@ -170,7 +177,6 @@
             margin-bottom: 0.5rem;
         }
 
-
         .footer {
             background: #1d1d1d;
             color: rgba(255, 255, 255, 0.7);
@@ -194,61 +200,72 @@
     {{-- Header Atas --}}
     <div class="topbar d-flex justify-content-between align-items-center">
         <div>
-            <i class="fa fa-map-marker-alt"></i> Jl. Pendidikan No. 123, Jakarta
-            <span class="ml-3"><i class="fa fa-phone"></i> (021) 123-4567</span>
-            <span class="ml-3"><i class="fa fa-envelope"></i> info@sekolahkita.sch.id</span>
+            <i class="fa fa-map-marker-alt"></i> {{ $setting->address }}
+            <span class="ml-3"><i class="fa fa-phone"></i> {{ $setting->phone }}</span>
+            <span class="ml-3"><i class="fa fa-envelope"></i>{{ $setting->email }}</span>
         </div>
         <div>
-            <a href="#"><i class="fab fa-facebook-f"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-youtube"></i></a>
+            <a href="{{ $setting->fanpage_link }}"><i class="fab fa-facebook-f"></i></a>
+            <a href="{{ $setting->instagram_link }}"><i class="fab fa-instagram"></i></a>
+            <a href="{{ $setting->twitter_link }}"><i class="fab fa-youtube"></i></a>
         </div>
     </div>
+
+    @php
+        $menus = App\Models\Menu::where('menu_parent_id', 0)->orderBy('menu_position')->get();
+    @endphp
 
     {{-- Navbar --}}
     <nav class="navbar navbar-expand-sm sticky-top navbar-light bg-white border-bottom">
         <a class="navbar-brand font-weight-bold text-success" href="{{ url('/') }}">
-            <img src="{{ asset('img/logo.png') }}" alt="Logo" style="height:40px;">
-            {{ config('app.name', 'Sekolah Kita') }}
+            <img src="{{ Storage::url($setting->path_image) }}" alt="Logo" style="height:40px;">
+            {{ $setting->company_name ?? '' }}
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar1">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbar1">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item"><a class="nav-link active" href="{{ url('/') }}">Home</a></li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#">Profil</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Visi & Misi</a>
-                        <a class="dropdown-item" href="#">Sejarah</a>
-                        <a class="dropdown-item" href="#">Guru & Staff</a>
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#">Akademik</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Kurikulum</a>
-                        <a class="dropdown-item" href="#">Jadwal Pelajaran</a>
-                        <a class="dropdown-item" href="#">Kalender Akademik</a>
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#">Ekstrakurikuler</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Olahraga</a>
-                        <a class="dropdown-item" href="#">Seni</a>
-                        <a class="dropdown-item" href="#">Pramuka</a>
-                    </div>
-                </li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/contact') }}">Kontak</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/ppdb') }}">PPDB</a></li>
+            <ul class="navbar-nav ml-auto mr-5">
+                @foreach ($menus as $menu)
+                    @php
+                        $children = \App\Models\Menu::where('menu_parent_id', $menu->id)
+                            ->orderBy('menu_position')
+                            ->get();
+
+                        // cek active: kalau path cocok
+                        $isActive = request()->is(trim($menu->menu_url, '/') . '*');
+                    @endphp
+
+                    @if ($children->count() > 0)
+                        <li class="nav-item dropdown {{ $isActive ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                                {{ $menu->menu_title }}
+                            </a>
+                            <div class="dropdown-menu">
+                                @foreach ($children as $child)
+                                    @php
+                                        $childActive = request()->is(trim($child->menu_url, '/') . '*');
+                                    @endphp
+                                    <a class="dropdown-item {{ $childActive ? 'active' : '' }}"
+                                        href="{{ url($child->menu_url) }}">
+                                        {{ $child->menu_title }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </li>
+                    @else
+                        <li class="nav-item {{ $isActive ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ url($menu->menu_url) }}">
+                                {{ $menu->menu_title }}
+                            </a>
+                        </li>
+                    @endif
+                @endforeach
             </ul>
         </div>
     </nav>
 
     @yield('content')
-
 
     {{-- Footer --}}
     <div class="footer">
