@@ -62,4 +62,14 @@ class FrontController extends Controller
 
         return redirect()->back()->with('success', 'Komentar berhasil dikirim!');
     }
+
+    public function showComments($id)
+    {
+        $post = Post::with(['comments'])->findOrFail($id);
+
+        // Ambil semua komentar, terbaru di atas
+        $comments = $post->comments()->orderBy('created_at', 'desc')->paginate(2);
+
+        return view('front.berita.detail', compact('post', 'comments'));
+    }
 }

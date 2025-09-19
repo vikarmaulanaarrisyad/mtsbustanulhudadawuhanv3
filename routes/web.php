@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [FrontController::class, 'index']);
 Route::get('/post/{slug}', [FrontController::class, 'show'])->name('front.post_show');
 Route::post('/post/{id}/comment', [FrontController::class, 'postComment'])->name('post.comment');
+Route::get('/post/{id}/comments', [FrontController::class, 'showComments'])->name('post.showComments');
 
 // Route::get('/contact', [FrontContactController::class, 'index']);
 // Route::post('/contact', [FrontContactController::class, 'store']);

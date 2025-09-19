@@ -163,26 +163,7 @@
                             <i class="fa fa-bullhorn mr-2"></i> Breaking News
                         </div>
                         <div class="card-body p-3" style="max-height: 250px; overflow-y: auto;">
-                            @foreach ($breakingNews as $b)
-                                <div class="media mb-3 pb-3 border-bottom">
-                                    <img src="{{ Storage::url($b->post_image) }}" class="mr-3" alt="..."
-                                        width="80" height="80">
-                                    <div class="media-body">
-                                        <h6 class="mt-0 font-weight-bold post-title-hover">
-                                            <a href="{{ route('front.post_show', $b->post_slug) }}" class="text-dark"
-                                                style="">
-                                                <p class="post-title-hover">
-                                                    {{ Str::limit(strip_tags($b->post_title), 80, '...') }}</p>
-
-                                            </a>
-                                        </h6>
-                                        <small class="text-muted">
-                                            {{ $b->created_at->format('d M Y') }} &bull;
-                                            {!! Str::limit(strip_tags($b->post_content), 300, '...') !!}
-                                        </small>
-                                    </div>
-                                </div>
-                            @endforeach
+                            @include('layouts.partials.breaking-news')
                         </div>
 
                     </div>
