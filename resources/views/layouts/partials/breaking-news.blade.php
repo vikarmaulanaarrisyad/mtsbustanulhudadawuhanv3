@@ -16,7 +16,7 @@
              </h6>
              <small class="text-muted text-justify">
                  {{ $b->created_at->format('d M Y') }} &bull;
-                 {!! Str::limit(strip_tags($b->post_content), 250, '...') !!}
+                 {!! Str::limit(strip_tags($b->post_content), 150, '...') !!}
              </small>
          </div>
      </div>

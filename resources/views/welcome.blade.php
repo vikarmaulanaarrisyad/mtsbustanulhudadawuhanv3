@@ -117,7 +117,7 @@
                                         alt="{{ $post->post_slug }}">
                                     <div class="card-body">
                                         <h5 class="card-title font-weight-bold post-title-hover text-justify">
-                                            {{ Str::limit(strip_tags($post->post_title), 80, '...') }}
+                                            {{ Str::limit(strip_tags($post->post_title), 50, '...') }}
                                         </h5>
 
                                         <!-- Tanggal dan User Posting -->
@@ -128,7 +128,7 @@
                                         </small>
 
                                         <p class="card-text text-muted text-justify line-height-15">
-                                            {!! Str::limit(strip_tags($post->post_content), 400, '...') !!}
+                                            {!! Str::limit(strip_tags($post->post_content), 150, '...') !!}
                                         </p>
 
                                         <a href="{{ route('front.post_show', $post->post_slug) }}"
