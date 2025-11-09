@@ -30,20 +30,21 @@ use App\Http\Controllers\{
 use App\Http\Controllers\Front\FrontController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [FrontController::class, 'index']);
+Route::get('/', [FrontController::class, 'index'])->name('front.index');
+
+// Route untuk postingan detail & komentar
 Route::get('/post/{slug}', [FrontController::class, 'show'])->name('front.post_show');
 Route::post('/post/{id}/comment', [FrontController::class, 'postComment'])->name('post.comment');
 Route::get('/post/{id}/comments', [FrontController::class, 'showComments'])->name('post.showComments');
 
-// Route::get('/contact', [FrontContactController::class, 'index']);
-// Route::post('/contact', [FrontContactController::class, 'store']);
-// Route::get('/about', [AboutController::class, 'index']);
+// Route dinamis berdasarkan slug menu
+Route::get('/{slug}', [FrontController::class, 'handle'])->name('front.handle');
 
 Route::group(['middleware' => ['auth']], function () {
-
-    Route::group(['middleware' => ['role_or_permission:dashboard.view']], function () {
+    Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     });
+
 
     Route::group(['middleware' => ['permission:user.view']], function () {
         Route::controller(UserController::class)->group(function () {

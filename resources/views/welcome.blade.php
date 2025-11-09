@@ -31,6 +31,23 @@
             object-fit: cover;
             /* menjaga gambar proporsional */
         }
+
+        /* Membatasi z-index tabel agar tidak menutupi navbar */
+        section.py-5.bg-white.mb-5 {
+            position: relative;
+            z-index: 1;
+            /* pastikan tabel tidak lebih tinggi dari navbar */
+        }
+
+        /* Menjaga header tabel tetap terlihat hanya di dalam kotak scroll, bukan di luar */
+        .table thead.sticky-top th {
+            top: 0;
+            z-index: 2;
+            /* agar header di atas isi tabel, tapi di bawah navbar */
+            background-color: #198754;
+            /* warna hijau Bootstrap success */
+            color: white;
+        }
     </style>
 @endpush
 
@@ -165,7 +182,6 @@
                         <div class="card-body p-3" style="max-height: 250px; overflow-y: auto;">
                             @include('layouts.partials.breaking-news')
                         </div>
-
                     </div>
 
                     <!-- Pengumuman -->
@@ -173,36 +189,8 @@
                         <div class="card-header bg-success text-white font-weight-bold">
                             <i class="fa fa-info-circle mr-2"></i> Pengumuman
                         </div>
-                        <div class="card-body p-3" style="max-height: 250px; overflow-y: auto;">
-                            <div class="media mb-3 pb-3 border-bottom">
-                                <img src="{{ asset('img/bg.png') }}" class="mr-3 rounded" alt="..." width="70">
-                                <div class="media-body">
-                                    <h6 class="mt-0 font-weight-bold"><a href="#" class="text-dark">Pengumuman
-                                            Jadwal Ujian</a></h6>
-                                    <small class="text-muted">Ujian semester akan dimulai bulan depan, siapkan
-                                        diri!</small>
-                                </div>
-                            </div>
-                            <div class="media mb-3 pb-3 border-bottom">
-                                <img src="{{ asset('img/bg-login.jpg') }}" class="mr-3 rounded" alt="..."
-                                    width="70">
-                                <div class="media-body">
-                                    <h6 class="mt-0 font-weight-bold"><a href="#" class="text-dark">Libur
-                                            Nasional</a></h6>
-                                    <small class="text-muted">Sekolah libur pada tanggal 17 Agustus untuk peringatan
-                                        kemerdekaan.</small>
-                                </div>
-                            </div>
-                            <div class="media">
-                                <img src="{{ asset('img/bgcharity1.jpg') }}" class="mr-3 rounded" alt="..."
-                                    width="70">
-                                <div class="media-body">
-                                    <h6 class="mt-0 font-weight-bold"><a href="#" class="text-dark">Rapat Orang
-                                            Tua Murid</a></h6>
-                                    <small class="text-muted">Undangan rapat orang tua murid kelas IX pada minggu
-                                        depan.</small>
-                                </div>
-                            </div>
+                        <div class="card-body p-3 overflow-auto" style="max-height: 250px;">
+                            @include('layouts.partials.announcements')
                         </div>
                     </div>
 
@@ -211,35 +199,8 @@
                         <div class="card-header bg-success text-white font-weight-bold">
                             <i class="fa fa-trophy mr-2"></i> Prestasi
                         </div>
-                        <div class="card-body p-3" style="max-height: 250px; overflow-y: auto;">
-                            <div class="media mb-3 pb-3 border-bottom">
-                                <img src="{{ asset('img/bg.png') }}" class="mr-3 rounded" alt="..."
-                                    width="70">
-                                <div class="media-body">
-                                    <h6 class="mt-0 font-weight-bold"><a href="#" class="text-dark">Juara
-                                            Olimpiade Matematika</a></h6>
-                                    <small class="text-muted">Siswa meraih juara 1 tingkat provinsi.</small>
-                                </div>
-                            </div>
-                            <div class="media mb-3 pb-3 border-bottom">
-                                <img src="{{ asset('img/bg-login.jpg') }}" class="mr-3 rounded" alt="..."
-                                    width="70">
-                                <div class="media-body">
-                                    <h6 class="mt-0 font-weight-bold"><a href="#" class="text-dark">Juara
-                                            Futsal</a></h6>
-                                    <small class="text-muted">Tim futsal sekolah meraih juara 2 tingkat kota.</small>
-                                </div>
-                            </div>
-                            <div class="media">
-                                <img src="{{ asset('img/bgcharity1.jpg') }}" class="mr-3 rounded" alt="..."
-                                    width="70">
-                                <div class="media-body">
-                                    <h6 class="mt-0 font-weight-bold"><a href="#" class="text-dark">Lomba
-                                            Pidato</a></h6>
-                                    <small class="text-muted">Siswa berhasil juara 3 lomba pidato bahasa
-                                        Indonesia.</small>
-                                </div>
-                            </div>
+                        <div class="card-body p-3 overflow-auto" style="max-height: 250px;">
+                            @include('layouts.partials.prestasi')
                         </div>
                     </div>
                 </div>

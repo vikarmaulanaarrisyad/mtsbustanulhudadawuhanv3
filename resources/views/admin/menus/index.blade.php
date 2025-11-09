@@ -35,8 +35,178 @@
     </style>
 @endpush
 
+@push('css')
+    <style>
+        .menu-card {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .menu-card:hover {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .menu-card .card-header {
+            border-radius: 10px 10px 0 0 !important;
+            cursor: pointer;
+        }
+
+        .menu-input-section .form-control {
+            border-radius: 6px;
+            box-shadow: none;
+        }
+
+        .menu-input-section .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+        }
+
+        .menu-input-section label {
+            font-weight: 500;
+        }
+
+        .menu-card button.btn {
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .sortable-menu>li {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            padding: 10px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .sortable-menu>li:hover {
+            background: #f9f9fb;
+        }
+
+        .nested-sortable>li {
+            background: #fafafa;
+            border: 1px dashed #ddd;
+        }
+    </style>
+@endpush
+
+
 @section('content')
     <div class="row">
+        <div class="col-lg-3">
+            <div class="menu-input-section">
+                {{-- TAUTAN --}}
+                <div class="card shadow-sm border-0 mb-3 menu-card">
+                    <div
+                        class="card-header bg-gradient-primary text-white py-2 d-flex justify-content-between align-items-center">
+                        <h3 class="card-title text-sm mb-0"><i class="fas fa-link mr-2"></i>TAUTAN</h3>
+                        <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form id="form-tautan" onsubmit="addCustomMenu(event, 'tautan')">
+                            @csrf
+                            <div class="form-group mb-3">
+                                <label class="text-muted small mb-1">Nama Menu</label>
+                                <input type="text" name="menu_title" class="form-control form-control-sm"
+                                    placeholder="Misal: Tentang Kami" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="text-muted small mb-1">URL</label>
+                                <input type="url" name="menu_url" class="form-control form-control-sm"
+                                    placeholder="https://example.com" required>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary w-100">
+                                <i class="fas fa-plus-circle mr-1"></i> Tambah ke Menu
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- HALAMAN --}}
+                <div class="card shadow-sm border-0 mb-3 menu-card">
+                    <div
+                        class="card-header bg-gradient-primary text-white py-2 d-flex justify-content-between align-items-center">
+                        <h3 class="card-title text-sm mb-0"><i class="fas fa-file-alt mr-2"></i>HALAMAN</h3>
+                        <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form id="form-halaman" onsubmit="addCustomMenu(event, 'halaman')">
+                            @csrf
+                            <div class="form-group mb-3">
+                                <label class="text-muted small mb-1">Pilih Halaman</label>
+                                <select name="menu_url" class="form-control form-control-sm" required>
+                                    {{-- @foreach ($pages as $page)
+                                <option value="{{ url($page->slug) }}">{{ $page->title }}</option>
+                            @endforeach --}}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary w-100">
+                                <i class="fas fa-plus-circle mr-1"></i> Tambah ke Menu
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- KATEGORI TULISAN --}}
+                <div class="card shadow-sm border-0 mb-3 menu-card">
+                    <div
+                        class="card-header bg-gradient-primary text-white py-2 d-flex justify-content-between align-items-center">
+                        <h3 class="card-title text-sm mb-0"><i class="fas fa-tags mr-2"></i>KATEGORI TULISAN</h3>
+                        <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form id="form-kategori" onsubmit="addCustomMenu(event, 'kategori')">
+                            @csrf
+                            <div class="form-group mb-3">
+                                <label class="text-muted small mb-1">Pilih Kategori</label>
+                                <select name="menu_url" class="form-control form-control-sm" required>
+                                    {{-- @foreach ($categories as $cat)
+                                <option value="{{ url('kategori/' . $cat->slug) }}">{{ $cat->name }}</option>
+                            @endforeach --}}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary w-100">
+                                <i class="fas fa-plus-circle mr-1"></i> Tambah ke Menu
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- MODUL --}}
+                <div class="card shadow-sm border-0 mb-3 menu-card">
+                    <div
+                        class="card-header bg-gradient-primary text-white py-2 d-flex justify-content-between align-items-center">
+                        <h3 class="card-title text-sm mb-0"><i class="fas fa-cubes mr-2"></i>MODUL</h3>
+                        <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form id="form-modul" onsubmit="addCustomMenu(event, 'modul')">
+                            @csrf
+                            <div class="form-group mb-3">
+                                <label class="text-muted small mb-1">Pilih Modul</label>
+                                <select name="menu_url" class="form-control form-control-sm" required>
+                                    <option value="/galeri">Galeri</option>
+                                    <option value="/kontak">Kontak</option>
+                                    <option value="/berita">Berita</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary w-100">
+                                <i class="fas fa-plus-circle mr-1"></i> Tambah ke Menu
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-lg-6">
             <x-card>
                 <x-slot name="header">

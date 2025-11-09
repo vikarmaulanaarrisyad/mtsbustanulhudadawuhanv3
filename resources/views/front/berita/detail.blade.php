@@ -235,7 +235,7 @@
                             <i class="fa fa-info-circle mr-2"></i> Pengumuman
                         </div>
                         <div class="card-body p-3 overflow-auto" style="max-height: 250px;">
-                            {{-- @include('partials.announcements') --}}
+                            @include('layouts.partials.announcements')
                         </div>
                     </div>
 
@@ -245,7 +245,7 @@
                             <i class="fa fa-trophy mr-2"></i> Prestasi
                         </div>
                         <div class="card-body p-3 overflow-auto" style="max-height: 250px;">
-                            {{-- @include('partials.achievements') --}}
+                            @include('layouts.partials.prestasi')
                         </div>
                     </div>
                 </div>

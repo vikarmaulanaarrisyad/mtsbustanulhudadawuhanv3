@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\PostController;
 use App\Models\Comment;
 use App\Models\ImageSlider;
+use App\Models\Menu;
 use App\Models\Post;
 use App\Models\Quotes;
 use Illuminate\Http\Request;
@@ -71,5 +73,31 @@ class FrontController extends Controller
         $comments = $post->comments()->orderBy('created_at', 'desc')->paginate(2);
 
         return view('front.berita.detail', compact('post', 'comments'));
+    }
+
+    public function handle($slug)
+    {
+        $menu = Menu::where('menu_slug', $slug)->firstOrFail();
+
+        switch ($menu->menu_type) {
+            case 'pages':
+                // $page = Page::where('slug', $slug)->firstOrFail();
+                return view('pages.show', compact('page'));
+
+            case 'modul':
+                if ($menu->menu_url === 'berita') {
+                    return app(PostController::class)->index();
+                }
+                // elseif ($menu->menu_url === 'ppdb') {
+                //     return app(PpdbController::class)->index();
+                // }
+                abort(404);
+
+            case 'link':
+                return redirect()->away($menu->menu_url);
+
+            default:
+                abort(404);
+        }
     }
 }

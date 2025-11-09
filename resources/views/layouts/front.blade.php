@@ -216,7 +216,7 @@
     @endphp
 
     {{-- Navbar --}}
-    <nav class="navbar navbar-expand-sm sticky-top navbar-light bg-white border-bottom">
+    <nav class="navbar navbar-expand-sm sticky-top fixed-top navbar-light bg-white border-bottom">
         <a class="navbar-brand font-weight-bold text-success" href="{{ url('/') }}">
             <img src="{{ Storage::url($setting->path_image) }}" alt="Logo" style="height:40px;">
             {{ $setting->company_name ?? '' }}
@@ -226,7 +226,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbar1">
             <ul class="navbar-nav ml-auto mr-5">
-                @foreach ($menus as $menu)
+                {{--  @foreach ($menus as $menu)
                     @php
                         $children = \App\Models\Menu::where('menu_parent_id', $menu->id)
                             ->orderBy('menu_position')
@@ -260,7 +260,62 @@
                             </a>
                         </li>
                     @endif
+                @endforeach  --}}
+
+                @foreach ($menus as $menu)
+                    @php
+                        $children = \App\Models\Menu::where('menu_parent_id', $menu->id)
+                            ->orderBy('menu_position')
+                            ->get();
+
+                        // Tentukan URL berdasarkan menu_type
+                        if ($menu->menu_type === 'pages' || $menu->menu_type === 'modul') {
+                            $url = route('front.handle', $menu->menu_slug);
+                        } elseif ($menu->menu_type === 'link') {
+                            $url = $menu->menu_url; // langsung ke external
+                        } else {
+                            $url = '#';
+                        }
+
+                        // cek active: cocok dengan slug sekarang
+                        $isActive = request()->is($menu->menu_slug . '*');
+                    @endphp
+
+                    @if ($children->count() > 0)
+                        <li class="nav-item dropdown {{ $isActive ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                                {{ $menu->menu_title }}
+                            </a>
+                            <div class="dropdown-menu">
+                                @foreach ($children as $child)
+                                    @php
+                                        if ($child->menu_type === 'pages' || $child->menu_type === 'modul') {
+                                            $childUrl = route('front.handle', $child->menu_slug);
+                                        } elseif ($child->menu_type === 'link') {
+                                            $childUrl = $child->menu_url;
+                                        } else {
+                                            $childUrl = '#';
+                                        }
+
+                                        $childActive = request()->is($child->menu_slug . '*');
+                                    @endphp
+
+                                    <a class="dropdown-item {{ $childActive ? 'active' : '' }}"
+                                        href="{{ $childUrl }}" target="{{ $child->menu_target }}">
+                                        {{ $child->menu_title }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </li>
+                    @else
+                        <li class="nav-item {{ $isActive ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ $url }}" target="{{ $menu->menu_target }}">
+                                {{ $menu->menu_title }}
+                            </a>
+                        </li>
+                    @endif
                 @endforeach
+
             </ul>
         </div>
     </nav>
