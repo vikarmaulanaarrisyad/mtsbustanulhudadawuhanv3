@@ -83,11 +83,11 @@
                                             required>
                                     </div>
 
-                                    <div class="form-group mb-2">
+                                    {{--  <div class="form-group mb-2">
                                         <label>URL Menu</label>
                                         <input type="text" name="menu_url" class="form-control form-control-sm"
                                             placeholder="/url-anda">
-                                    </div>
+                                    </div>  --}}
 
                                     <div class="form-group mb-2">
                                         <label>Target</label>
@@ -108,7 +108,7 @@
                                         </select>
                                     </div>
 
-                                    <button class="btn btn-sm btn-primary w-100">
+                                    <button onclick="addCustomMenu()" class="btn btn-sm btn-primary w-100">
                                         <i class="fas fa-plus-circle"></i> Tambah Menu
                                     </button>
                                 </form>
@@ -196,7 +196,6 @@
                 }
             });
         }
-
 
         function refreshMenuList() {
             fetch(`{{ route('menus.index') }}`)
