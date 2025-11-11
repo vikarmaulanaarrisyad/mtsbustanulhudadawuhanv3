@@ -14,8 +14,12 @@ class MenuController extends Controller
      */
     public function index()
     {
-        $menus = Menu::with('children')
-            ->orderBy('menu_parent_id')
+        // $menus = Menu::with('children')
+        //     ->orderBy('menu_parent_id')
+        //     ->orderBy('menu_position')
+        //     ->get();
+
+        $menus = Menu::orderBy('menu_parent_id')
             ->orderBy('menu_position')
             ->get();
 
@@ -35,18 +39,35 @@ class MenuController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
+
         $request->validate([
-            'menu_title' => 'required|string|max:255',
+            'menu_title' => 'nullable|string|max:255',
             // 'menu_url' => 'nullable|string|max:255',
             'menu_target' => 'required|in:_blank,_self,_parent,_top',
             'menu_type' => 'required|in:pages,links,modules',
             'menu_position' => 'nullable|integer',
         ]);
 
+        // $menu = Menu::create([
+        //     'menu_title' => $request->menu_title,
+        //     'menu_url' => $request->menu_url == "" ? $request->menu_parent_id == 0 ? '#' : Str::slug($request->menu_title) : $request->menu_url,
+        //     'menu_slug' => $request->menu_url == "" ? $request->menu_parent_id == 0 ? '#' : Str::slug($request->menu_title) : $request->menu_url,
+        //     'menu_target' => $request->menu_target,
+        //     'menu_type' => $request->menu_type,
+        //     'menu_parent_id' => $request->menu_parent_id ?? 0,
+        //     'menu_position' => Menu::max('menu_position') + 1,
+        // ]);
+
+        $menu_title = $request->menu_title ?? ucfirst(str_replace('/', '', $request->menu_url));
         $menu = Menu::create([
-            'menu_title' => $request->menu_title,
-            'menu_url' => $request->menu_url == "" ? $request->menu_parent_id == 0 ? '#' : Str::slug($request->menu_title) : $request->menu_url,
-            'menu_slug' => $request->menu_url == "" ? $request->menu_parent_id == 0 ? '#' : Str::slug($request->menu_title) : $request->menu_url,
+            'menu_title' => $menu_title,
+            'menu_url' => $request->menu_url == ""
+                ? ($request->menu_parent_id == 0 ? '#' : Str::slug($menu_title))
+                : $request->menu_url,
+            'menu_slug' => $request->menu_url == ""
+                ? ($request->menu_parent_id == 0 ? '#' : Str::slug($menu_title))
+                : $request->menu_url,
             'menu_target' => $request->menu_target,
             'menu_type' => $request->menu_type,
             'menu_parent_id' => $request->menu_parent_id ?? 0,
@@ -54,6 +75,7 @@ class MenuController extends Controller
         ]);
 
         return response()->json([
+            'success' => true,
             'message' => 'Menu berhasil ditambahkan!',
             'menu' => $menu
         ], 201);
@@ -122,6 +144,22 @@ class MenuController extends Controller
     }
 
     public function updateOrder(Request $request)
+    {
+        $menus = $request->menu;
+
+        foreach ($menus as $item) {
+            Menu::where('id', $item['id'])->update([
+                'menu_parent_id' => $item['parent_id'],
+                'menu_position' => $item['position'],
+            ]);
+        }
+
+        return response()->json(['message' => 'Urutan menu berhasil diperbarui!']);
+    }
+
+
+
+    public function updateOrder1(Request $request)
     {
         $menus = $request->input('menu');
 

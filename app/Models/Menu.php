@@ -10,6 +10,11 @@ class Menu extends Model
 
     public function children()
     {
-        return $this->hasMany(Menu::class, 'menu_parent_id');
+        return $this->hasMany(Menu::class, 'menu_parent_id')->orderBy('menu_position');
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Menu::class, 'menu_parent_id');
     }
 }
