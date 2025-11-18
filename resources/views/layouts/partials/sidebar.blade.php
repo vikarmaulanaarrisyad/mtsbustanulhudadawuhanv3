@@ -69,7 +69,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="{{ route('pages.index') }}" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Halaman</p>
                             </a>
@@ -306,7 +306,6 @@
                     </li>
                 @endif
 
-
                 <li class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-book"></i>
@@ -351,6 +350,7 @@
                                 <p>Bank Soal</p>
                             </a>
                         </li>
+
                     </ul>
                 </li>
 
@@ -368,6 +368,12 @@
                                 <a href="{{ route('menus.index') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Menu</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Halaman</p>
                                 </a>
                             </li>
                             @can('user.view')

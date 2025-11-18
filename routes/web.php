@@ -13,6 +13,7 @@ use App\Http\Controllers\{
     ImageSliderController,
     MenuController,
     MonthlyIncomeController,
+    PageController,
     PermissionController,
     PermissionGroupController,
     PostController,
@@ -27,6 +28,7 @@ use App\Http\Controllers\{
     UserController,
     WelcomeMessageController
 };
+
 use App\Http\Controllers\Front\FrontController;
 use Illuminate\Support\Facades\Route;
 
@@ -323,17 +325,27 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::group(['middleware' => ['permission:opening-speech.view']], function () {
-        Route::controller(MenuController::class)->group(function () {
-            Route::get('/configuration/menus/data', 'getAllMenu')->name('menus.getAllMenu');
-            Route::get('/configuration/menus/sub-menus', 'getAllSubmenu')->name('menus.getAllSubmenu');
-            Route::get('/configuration/menus', 'index')->name('menus.index');
-            Route::get('/configuration/menus/{id}', 'show')->name('menus.show');
-            Route::put('/configuration/menus/{id}', 'update')->name('menus.update');
-            Route::post('/configuration/menus/update-order', 'updateOrder')->name('menus.updateOrder');
-            Route::post('/configuration/menus', 'store')->name('menus.store');
-            Route::delete('/configuration/menus/{id}/destroy', 'destroy')->name('menus.destroy');
-        });
+    // Menu
+    Route::controller(MenuController::class)->group(function () {
+        Route::get('/configuration/menus/data', 'getAllMenu')->name('menus.getAllMenu');
+        Route::get('/configuration/menus/sub-menus', 'getAllSubmenu')->name('menus.getAllSubmenu');
+        Route::get('/configuration/menus', 'index')->name('menus.index');
+        Route::get('/configuration/menus/{id}', 'show')->name('menus.show');
+        Route::put('/configuration/menus/{id}', 'update')->name('menus.update');
+        Route::post('/configuration/menus/update-order', 'updateOrder')->name('menus.updateOrder');
+        Route::post('/configuration/menus', 'store')->name('menus.store');
+        Route::delete('/configuration/menus/{id}/destroy', 'destroy')->name('menus.destroy');
+    });
+
+    // Page
+    Route::controller(PageController::class)->group(function () {
+        Route::get('/blog/pages/data', 'data')->name('pages.data');
+        Route::get('/blog/pages', 'index')->name('pages.index');
+        Route::get('/blog/pages/create', 'create')->name('pages.create');
+        Route::post('/blog/pages', 'store')->name('pages.store');
+        Route::get('/blog/pages/{id}', 'show')->name('pages.show');
+        Route::put('/blog/pages/{id}', 'update')->name('pages.update');
+        Route::delete('/blog/pages/{id}/destroy', 'destroy')->name('pages.destroy');
     });
 
 

@@ -39,8 +39,6 @@ class MenuController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-
         $request->validate([
             'menu_title' => 'nullable|string|max:255',
             // 'menu_url' => 'nullable|string|max:255',
