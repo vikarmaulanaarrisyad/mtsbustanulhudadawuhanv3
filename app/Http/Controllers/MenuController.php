@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Menu;
+use App\Models\Page;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,11 +20,14 @@ class MenuController extends Controller
         //     ->orderBy('menu_position')
         //     ->get();
 
+        $pages = Page::all();
+        $modules = Page::all();
+
         $menus = Menu::orderBy('menu_parent_id')
             ->orderBy('menu_position')
             ->get();
 
-        return view('admin.menus.index', compact('menus'));
+        return view('admin.menus.index', compact('menus', 'pages', 'modules'));
     }
 
     /**
