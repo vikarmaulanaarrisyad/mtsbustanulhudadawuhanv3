@@ -7,6 +7,7 @@ use App\Http\Controllers\PostController;
 use App\Models\Comment;
 use App\Models\ImageSlider;
 use App\Models\Menu;
+use App\Models\Page;
 use App\Models\Post;
 use App\Models\Quotes;
 use Illuminate\Http\Request;
@@ -78,11 +79,10 @@ class FrontController extends Controller
     public function handle($slug)
     {
         $menu = Menu::where('menu_slug', $slug)->firstOrFail();
-
         switch ($menu->menu_type) {
             case 'pages':
-                // $page = Page::where('slug', $slug)->firstOrFail();
-                return view('pages.show', compact('page'));
+                $page = Page::where('slug', $slug)->firstOrFail();
+                return view('front.page.show', compact('page'));
 
             case 'modul':
                 if ($menu->menu_url === 'berita') {

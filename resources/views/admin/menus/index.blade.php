@@ -100,7 +100,7 @@
                                                 <select name="menu_url" class="form-control form-control-sm" required>
                                                     <option value="" disabled selected>Pilih Halaman</option>
                                                     @foreach ($pages as $page)
-                                                        <option value="/page/{{ $page->slug }}">{{ $page->title }}
+                                                        <option value="{{ $page->slug }}">{{ $page->title }}
                                                         </option>
                                                     @endforeach
                                                 </select>

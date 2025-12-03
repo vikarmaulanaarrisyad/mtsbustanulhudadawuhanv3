@@ -180,7 +180,7 @@
         .footer {
             background: #1d1d1d;
             color: rgba(255, 255, 255, 0.7);
-            padding: 40px 0;
+            padding: 15px 0px;
             text-align: center;
             border-top: 3px solid #28a745;
         }
@@ -192,10 +192,11 @@
         .footer a:hover {
             color: #fff;
         }
+
     </style>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     {{-- Header Atas --}}
     <div class="topbar d-flex justify-content-between align-items-center">
