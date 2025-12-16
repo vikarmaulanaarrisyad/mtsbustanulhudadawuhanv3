@@ -54,46 +54,35 @@
 @endpush
 
 @section('content')
+
     <div class="row">
         <div class="col-lg-12">
             <x-card>
                 <div class="row">
 
                     <!-- FORM TAMBAH MENU -->
-                    <div class="col-lg-3">
-                        <div class="card shadow-sm mb-3">
-                            <div class="card-header bg-primary text-white py-2">
-                                <h5 class="mb-0"><i class="fas fa-cubes"></i> Tambah Menu</h5>
-                            </div>
-
-                            <div class="card-body">
-
-                                <!-- NAV PILIHAN FORM -->
-                                <ul class="nav nav-tabs mb-3" role="tablist">
-                                    <li class="nav-item">
-                                        <a class="nav-link active" data-bs-toggle="tab" href="#formHalaman">Halaman</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" data-bs-toggle="tab" href="#formLink">Link</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" data-bs-toggle="tab" href="#formModul">Modul</a>
-                                    </li>
-                                </ul>
-
-                                <div class="tab-content">
-
-                                    <!-- FORM HALAMAN -->
-                                    <div class="tab-pane fade show active" id="formHalaman">
-                                        <form onsubmit="addCustomMenu(event)">
+                    <div class="col-lg-6">
+                         <div class="card">
+              <div class="card-header d-flex p-0">
+                <h3 class="card-title p-3">Tambah Menu</h3>
+                <ul class="nav nav-pills ml-auto p-2">
+                  <li class="nav-item"><a class="nav-link active" href="#halaman" data-toggle="tab">Halaman</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#link" data-toggle="tab">Link</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#modul" data-toggle="tab">Modul</a></li>
+                </ul>
+              </div><!-- /.card-header -->
+              <div class="card-body">
+                <div class="tab-content">
+                  <div class="tab-pane active" id="halaman">
+                     <form onsubmit="addCustomMenu(event)">
                                             @csrf
                                             <input type="hidden" name="menu_type" value="pages">
 
-                                            <div class="form-group mb-2">
+                                            {{--  <div class="form-group mb-2">
                                                 <label>Judul Menu</label>
                                                 <input type="text" name="menu_title" class="form-control form-control-sm"
                                                     required>
-                                            </div>
+                                            </div>  --}}
 
                                             <div class="form-group mb-2">
                                                 <label>Pilih Halaman</label>
@@ -116,71 +105,37 @@
 
                                             <button class="btn btn-sm btn-primary w-100">Tambah</button>
                                         </form>
-                                    </div>
-
-                                    <!-- FORM LINK -->
-                                    <div class="tab-pane fade" id="formLink">
-                                        <form onsubmit="addCustomMenu(event)">
-                                            @csrf
-                                            <input type="hidden" name="menu_type" value="links">
-
-                                            <div class="form-group mb-2">
-                                                <label>Judul Menu</label>
-                                                <input type="text" name="menu_title" class="form-control form-control-sm"
-                                                    required>
-                                            </div>
-
-                                            <div class="form-group mb-2">
-                                                <label>URL</label>
-                                                <input type="text" name="menu_url" class="form-control form-control-sm"
-                                                    placeholder="https://example.com" required>
-                                            </div>
-
-                                            <div class="form-group mb-2">
-                                                <label>Target</label>
-                                                <select name="menu_target" class="form-control form-control-sm">
-                                                    <option value="_self">Self</option>
-                                                    <option value="_blank">Blank</option>
-                                                </select>
-                                            </div>
-
-                                            <button class="btn btn-sm btn-primary w-100">Tambah</button>
-                                        </form>
-                                    </div>
-
-                                    <!-- FORM MODUL -->
-                                    <div class="tab-pane fade" id="formModul">
-                                        <form onsubmit="addCustomMenu(event)">
-                                            @csrf
-                                            <input type="hidden" name="menu_type" value="modules">
-
-                                            <div class="form-group mb-2">
-                                                <label>Judul Menu</label>
-                                                <input type="text" name="menu_title" class="form-control form-control-sm"
-                                                    required>
-                                            </div>
-
-                                            <div class="form-group mb-2">
-                                                <label>Pilih Modul</label>
-                                                <select name="menu_url" class="form-control form-control-sm" required>
-                                                    <option value="" disabled selected>Pilih Modul</option>
-                                                    @foreach ($modules as $m)
-                                                        <option value="/{{ $m->slug }}">{{ $m->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <button class="btn btn-sm btn-primary w-100">Tambah</button>
-                                        </form>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
+                  </div>
+                  <!-- /.tab-pane -->
+                  <div class="tab-pane" id="link">
+                    The European languages are members of the same family. Their separate existence is a myth.
+                    For science, music, sport, etc, Europe uses the same vocabulary. The languages only differ
+                    in their grammar, their pronunciation and their most common words. Everyone realizes why a
+                    new common language would be desirable: one could refuse to pay expensive translators. To
+                    achieve this, it would be necessary to have uniform grammar, pronunciation and more common
+                    words. If several languages coalesce, the grammar of the resulting language is more simple
+                    and regular than that of the individual languages.
+                  </div>
+                  <!-- /.tab-pane -->
+                  <div class="tab-pane" id="modul">
+                    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                    Lorem Ipsum has been the industrys standard dummy text ever since the 1500s,
+                    when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                    It has survived not only five centuries, but also the leap into electronic typesetting,
+                    remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset
+                    sheets containing Lorem Ipsum passages, and more recently with desktop publishing software
+                    like Aldus PageMaker including versions of Lorem Ipsum.
+                  </div>
+                  <!-- /.tab-pane -->
+                </div>
+                <!-- /.tab-content -->
+              </div><!-- /.card-body -->
+            </div>
                     </div>
+                    
 
                     <!-- STRUKTUR MENU -->
-                    <div class="col-lg-9">
+                    <div class="col-lg-6">
                         <x-card>
                             <x-slot name="header">
                                 <div class="d-flex justify-content-between align-items-center">

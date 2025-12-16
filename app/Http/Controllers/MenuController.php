@@ -51,19 +51,12 @@ class MenuController extends Controller
             'menu_position' => 'nullable|integer',
         ]);
 
-        // $menu = Menu::create([
-        //     'menu_title' => $request->menu_title,
-        //     'menu_url' => $request->menu_url == "" ? $request->menu_parent_id == 0 ? '#' : Str::slug($request->menu_title) : $request->menu_url,
-        //     'menu_slug' => $request->menu_url == "" ? $request->menu_parent_id == 0 ? '#' : Str::slug($request->menu_title) : $request->menu_url,
-        //     'menu_target' => $request->menu_target,
-        //     'menu_type' => $request->menu_type,
-        //     'menu_parent_id' => $request->menu_parent_id ?? 0,
-        //     'menu_position' => Menu::max('menu_position') + 1,
-        // ]);
+        // Create menu with improved logic for menu_title
+        $menuTitle = Page::where('slug', $request->menu_url)->first();
 
         $menu_title = $request->menu_title ?? ucfirst(str_replace('/', '', $request->menu_url));
         $menu = Menu::create([
-            'menu_title' => $menu_title,
+            'menu_title' => $menuTitle->title,
             'menu_url' => $request->menu_url == ""
                 ? ($request->menu_parent_id == 0 ? '#' : Str::slug($menu_title))
                 : $request->menu_url,
