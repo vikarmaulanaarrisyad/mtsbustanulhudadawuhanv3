@@ -62,28 +62,39 @@
 
                     <!-- FORM TAMBAH MENU -->
                     <div class="col-lg-6">
-                         <div class="card">
-              <div class="card-header d-flex p-0">
-                <h3 class="card-title p-3">Tambah Menu</h3>
-                <ul class="nav nav-pills ml-auto p-2">
-                  <li class="nav-item"><a class="nav-link active" href="#halaman" data-toggle="tab">Halaman</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#link" data-toggle="tab">Link</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#modul" data-toggle="tab">Modul</a></li>
-                </ul>
-              </div><!-- /.card-header -->
-              <div class="card-body">
-                <div class="tab-content">
-                  <div class="tab-pane active" id="halaman">
-                     <form onsubmit="addCustomMenu(event)">
+                        <div class="card">
+                            <div class="card-header d-flex p-0">
+                                <h4 class="card-title p-3">Tambah Menu</h4>
+                                <ul class="nav nav-pills ml-auto p-2">
+                                    <li class="nav-item"><a class="nav-link active" href="#tautan"
+                                            data-toggle="tab">Tautan</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="#halaman"
+                                            data-toggle="tab">Halaman</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="#kategori" data-toggle="tab">Kategori</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="#modul" data-toggle="tab">Modul</a></li>
+                                </ul>
+                            </div><!-- /.card-header -->
+                            <div class="card-body">
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="tautan">
+                                        The European languages are members of the same family. Their separate existence is a
+                                        myth.
+                                        For science, music, sport, etc, Europe uses the same vocabulary. The languages only
+                                        differ
+                                        in their grammar, their pronunciation and their most common words. Everyone realizes
+                                        why a
+                                        new common language would be desirable: one could refuse to pay expensive
+                                        translators. To
+                                        achieve this, it would be necessary to have uniform grammar, pronunciation and more
+                                        common
+                                        words. If several languages coalesce, the grammar of the resulting language is more
+                                        simple
+                                        and regular than that of the individual languages.
+                                    </div>
+                                    <div class="tab-pane " id="halaman">
+                                        <form onsubmit="addCustomMenu(event)">
                                             @csrf
                                             <input type="hidden" name="menu_type" value="pages">
-
-                                            {{--  <div class="form-group mb-2">
-                                                <label>Judul Menu</label>
-                                                <input type="text" name="menu_title" class="form-control form-control-sm"
-                                                    required>
-                                            </div>  --}}
-
                                             <div class="form-group mb-2">
                                                 <label>Pilih Halaman</label>
                                                 <select name="menu_url" class="form-control form-control-sm" required>
@@ -105,34 +116,63 @@
 
                                             <button class="btn btn-sm btn-primary w-100">Tambah</button>
                                         </form>
-                  </div>
-                  <!-- /.tab-pane -->
-                  <div class="tab-pane" id="link">
-                    The European languages are members of the same family. Their separate existence is a myth.
-                    For science, music, sport, etc, Europe uses the same vocabulary. The languages only differ
-                    in their grammar, their pronunciation and their most common words. Everyone realizes why a
-                    new common language would be desirable: one could refuse to pay expensive translators. To
-                    achieve this, it would be necessary to have uniform grammar, pronunciation and more common
-                    words. If several languages coalesce, the grammar of the resulting language is more simple
-                    and regular than that of the individual languages.
-                  </div>
-                  <!-- /.tab-pane -->
-                  <div class="tab-pane" id="modul">
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                    Lorem Ipsum has been the industrys standard dummy text ever since the 1500s,
-                    when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-                    It has survived not only five centuries, but also the leap into electronic typesetting,
-                    remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset
-                    sheets containing Lorem Ipsum passages, and more recently with desktop publishing software
-                    like Aldus PageMaker including versions of Lorem Ipsum.
-                  </div>
-                  <!-- /.tab-pane -->
-                </div>
-                <!-- /.tab-content -->
-              </div><!-- /.card-body -->
-            </div>
+                                    </div>
+                                    <!-- /.tab-pane -->
+                                    <div class="tab-pane" id="kategori">
+                                       <form onsubmit="addCustomMenu(event)">
+                                            @csrf
+                                            <input type="hidden" name="menu_type" value="links">
+
+                                            {{--  <div class="form-group mb-2">
+                                                <label>Judul Menu</label>
+                                                <input type="text" name="menu_title" class="form-control form-control-sm"
+                                                    required>
+                                            </div>  --}}
+
+                                            <div class="form-group mb-2">
+                                                <label>Pilih Salah Satu</label>
+                                                <select name="menu_url" class="form-control form-control-sm" required>
+                                                    <option value="" disabled selected>Pilih Halaman</option>
+                                                    @foreach ($category as $c)
+                                                        <option value="{{ $c->category_slug }}">{{ $c->category_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group mb-2">
+                                                <label>Target</label>
+                                                <select name="menu_target" class="form-control form-control-sm">
+                                                    <option value="_self">Self</option>
+                                                    <option value="_blank">Blank</option>
+                                                </select>
+                                            </div>
+
+                                            <button class="btn btn-sm btn-primary w-100">Tambah</button>
+                                        </form>
+                                    </div>
+
+                                    <!-- /.tab-pane -->
+                                    <div class="tab-pane" id="modul">
+                                        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                                        Lorem Ipsum has been the industrys standard dummy text ever since the 1500s,
+                                        when an unknown printer took a galley of type and scrambled it to make a type
+                                        specimen book.
+                                        It has survived not only five centuries, but also the leap into electronic
+                                        typesetting,
+                                        remaining essentially unchanged. It was popularised in the 1960s with the release of
+                                        Letraset
+                                        sheets containing Lorem Ipsum passages, and more recently with desktop publishing
+                                        software
+                                        like Aldus PageMaker including versions of Lorem Ipsum.
+                                    </div>
+                                    <!-- /.tab-pane -->
+                                </div>
+                                <!-- /.tab-content -->
+                            </div><!-- /.card-body -->
+                        </div>
                     </div>
-                    
+
 
                     <!-- STRUKTUR MENU -->
                     <div class="col-lg-6">

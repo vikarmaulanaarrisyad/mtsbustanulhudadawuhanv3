@@ -20,6 +20,7 @@ use App\Http\Controllers\{
     QuotesController,
     ResidenceController,
     RoleController,
+    SchoolAgendaController,
     SettingController,
     StudentAdmissionController,
     StudentStatusController,
@@ -346,6 +347,19 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/blog/pages/{id}', 'show')->name('pages.show');
         Route::put('/blog/pages/{id}', 'update')->name('pages.update');
         Route::delete('/blog/pages/{id}/destroy', 'destroy')->name('pages.destroy');
+    });
+
+    Route::group(['middleware' => ['permission:categories.view']], function () {
+        Route::controller(SchoolAgendaController::class)->group(function () {
+            Route::get('/academic/agenda/data', 'data')->name('agenda.data');
+            Route::get('/academic/agenda', 'index')->name('agenda.index');
+            Route::get('/academic/agenda/{id}', 'show')->name('agenda.show');
+            Route::put('/academic/agenda/{id}', 'update')->name('agenda.update');
+            Route::post('/academic/agenda/import-excel', 'importEXCEL')->name('agenda.import_excel');
+            Route::post('/academic/agenda', 'store')->name('agenda.store');
+            Route::post('/academic/agenda/delete-selected', 'deleteSelected')->name('agenda.deleteSelected');
+            Route::delete('/academic/agenda/{id}/destroy', 'destroy')->name('agenda.destroy');
+        });
     });
 
 

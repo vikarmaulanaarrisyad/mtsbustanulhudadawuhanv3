@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\PostController;
+use App\Models\Category;
 use App\Models\Comment;
 use App\Models\ImageSlider;
 use App\Models\Menu;
@@ -77,6 +78,45 @@ class FrontController extends Controller
     }
 
     public function handle($slug)
+{
+    $menu = Menu::where('menu_slug', $slug)->firstOrFail();
+
+    switch ($menu->menu_type) {
+
+        // =====================
+        // HALAMAN (Page)
+        // =====================
+        case 'pages':
+            $page = Page::where('slug', $menu->menu_url)->firstOrFail();
+            return view('front.page.show', compact('page'));
+
+        // =====================
+        // KATEGORI
+        // =====================
+        case 'links':
+            $category = Category::where('category_slug', $menu->menu_url)->firstOrFail();
+            return view('front.category.show', compact('category'));
+
+        // =====================
+        // MODULE / SYSTEM
+        // =====================
+        case 'modules':
+            if ($menu->menu_url === 'berita') {
+                return app(PostController::class)->index();
+            }
+
+            if ($menu->menu_url === 'ppdb') {
+                // return app(PpdbController::class)->index();
+            }
+
+            abort(404);
+
+        default:
+            abort(404);
+    }
+}
+
+    public function handle1($slug)
     {
         $menu = Menu::where('menu_slug', $slug)->firstOrFail();
         switch ($menu->menu_type) {

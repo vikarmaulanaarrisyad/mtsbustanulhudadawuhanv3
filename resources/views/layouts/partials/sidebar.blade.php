@@ -232,6 +232,12 @@
                                     <p>Peserta Didik</p>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{ route('agenda.index') }}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Agenda Madrasah</p>
+                                </a>
+                            </li>
                             <!-- Sub-menu lain seperti Class, Subject -->
                         </ul>
                     </li>
