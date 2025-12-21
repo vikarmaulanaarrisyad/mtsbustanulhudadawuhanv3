@@ -11,6 +11,7 @@ use App\Models\Menu;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\Quotes;
+use App\Models\SchoolAgenda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,7 +25,13 @@ class FrontController extends Controller
 
         $breakingNews = Post::orderBy('created_at', 'desc')->limit(5)->get(); // 5 post terbaru
 
-        return view('welcome', compact('posts', 'quetes', 'breakingNews', 'sliders'));
+        // 👉 Ambil agenda aktif
+    $agendas = SchoolAgenda::where('status', 'active')
+        ->orderBy('start_date', 'asc')
+        ->limit(5)
+        ->get();
+
+        return view('welcome', compact('posts', 'quetes', 'breakingNews', 'sliders', 'agendas'));
     }
 
     // Method untuk detail berita
