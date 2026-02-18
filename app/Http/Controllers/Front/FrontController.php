@@ -78,8 +78,14 @@ class FrontController extends Controller
 
     public function handle($slug)
     {
+        if ($slug === 'dashboard') {
+            return redirect()->route('dashboard');
+        }
+
         $menu = Menu::where('menu_slug', $slug)->firstOrFail();
+
         switch ($menu->menu_type) {
+
             case 'pages':
                 $page = Page::where('slug', $slug)->firstOrFail();
                 return view('front.page.show', compact('page'));
@@ -88,9 +94,6 @@ class FrontController extends Controller
                 if ($menu->menu_url === 'berita') {
                     return app(PostController::class)->index();
                 }
-                // elseif ($menu->menu_url === 'ppdb') {
-                //     return app(PpdbController::class)->index();
-                // }
                 abort(404);
 
             case 'link':

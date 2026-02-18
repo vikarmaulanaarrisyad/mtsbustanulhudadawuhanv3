@@ -8,7 +8,6 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\StudentAdmission;
 use App\Models\Tag;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {

@@ -39,9 +39,6 @@ Route::get('/post/{slug}', [FrontController::class, 'show'])->name('front.post_s
 Route::post('/post/{id}/comment', [FrontController::class, 'postComment'])->name('post.comment');
 Route::get('/post/{id}/comments', [FrontController::class, 'showComments'])->name('post.showComments');
 
-// Route dinamis berdasarkan slug menu
-Route::get('/{slug}', [FrontController::class, 'handle'])->name('front.handle');
-
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -347,17 +344,13 @@ Route::group(['middleware' => ['auth']], function () {
         Route::put('/blog/pages/{id}', 'update')->name('pages.update');
         Route::delete('/blog/pages/{id}/destroy', 'destroy')->name('pages.destroy');
     });
-
-
-    // Route::controller(PostController::class)->group(function () {
-    //     Route::get('/blog/posts/data', 'data')->name('posts.data');
-    //     Route::get('/blog/posts', 'index')->name('posts.index');
-    //     Route::get('/blog/posts/create', 'create')->name('posts.create');
-    //     Route::get('/blog/posts/{id}', 'show')->name('posts.show');
-    //     Route::put('/blog/posts/{id}', 'update')->name('posts.update');
-    //     Route::post('/blog/posts/import-excel', 'importEXCEL')->name('posts.import_excel');
-    //     Route::post('/blog/posts', 'store')->name('posts.store');
-    //     Route::post('/blog/posts/delete-selected', 'deleteSelected')->name('posts.deleteSelected');
-    //     Route::delete('/blog/posts/{id}/destroy', 'destroy')->name('posts.destroy');
-    // });
 });
+
+/*
+|--------------------------------------------------------------------------
+| DYNAMIC FRONTEND SLUG (WAJIB PALING BAWAH)
+|--------------------------------------------------------------------------
+*/
+Route::get('/{slug}', [FrontController::class, 'handle'])
+    ->where('slug', '^(?!admin|login|logout|register|password|users|user|role|permissions|permissiongroups|setting|academic|admission|blog|media|configuration|post$)[A-Za-z0-9\-]+')
+    ->name('front.handle');
