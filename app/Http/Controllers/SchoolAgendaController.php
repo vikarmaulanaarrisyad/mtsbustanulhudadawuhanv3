@@ -129,7 +129,7 @@ class SchoolAgendaController extends Controller
         return response()->json([
             'status' => true,
             'data' => $query
-        ]); 
+        ]);
     }
 
     /**

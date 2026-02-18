@@ -26,10 +26,10 @@ class FrontController extends Controller
         $breakingNews = Post::orderBy('created_at', 'desc')->limit(5)->get(); // 5 post terbaru
 
         // 👉 Ambil agenda aktif
-    $agendas = SchoolAgenda::where('status', 'active')
-        ->orderBy('start_date', 'asc')
-        ->limit(5)
-        ->get();
+        $agendas = SchoolAgenda::where('status', 'active')
+            ->orderBy('start_date', 'asc')
+            ->limit(5)
+            ->get();
 
         return view('welcome', compact('posts', 'quetes', 'breakingNews', 'sliders', 'agendas'));
     }
@@ -85,43 +85,47 @@ class FrontController extends Controller
     }
 
     public function handle($slug)
-{
-    $menu = Menu::where('menu_slug', $slug)->firstOrFail();
+    {
+        if ($slug === 'dashboard') {
+            return redirect()->route('dashboard');
+        }
 
-    switch ($menu->menu_type) {
+        $menu = Menu::where('menu_slug', $slug)->firstOrFail();
 
-        // =====================
-        // HALAMAN (Page)
-        // =====================
-        case 'pages':
-            $page = Page::where('slug', $menu->menu_url)->firstOrFail();
-            return view('front.page.show', compact('page'));
+        switch ($menu->menu_type) {
 
-        // =====================
-        // KATEGORI
-        // =====================
-        case 'links':
-            $category = Category::where('category_slug', $menu->menu_url)->firstOrFail();
-            return view('front.category.show', compact('category'));
+            // =====================
+            // HALAMAN (Page)
+            // =====================
+            case 'pages':
+                $page = Page::where('slug', $menu->menu_url)->firstOrFail();
+                return view('front.page.show', compact('page'));
 
-        // =====================
-        // MODULE / SYSTEM
-        // =====================
-        case 'modules':
-            if ($menu->menu_url === 'berita') {
-                return app(PostController::class)->index();
-            }
+                // =====================
+                // KATEGORI
+                // =====================
+            case 'links':
+                $category = Category::where('category_slug', $menu->menu_url)->firstOrFail();
+                return view('front.category.show', compact('category'));
 
-            if ($menu->menu_url === 'ppdb') {
-                // return app(PpdbController::class)->index();
-            }
+                // =====================
+                // MODULE / SYSTEM
+                // =====================
+            case 'modules':
+                if ($menu->menu_url === 'berita') {
+                    return app(PostController::class)->index();
+                }
 
-            abort(404);
+                if ($menu->menu_url === 'ppdb') {
+                    // return app(PpdbController::class)->index();
+                }
 
-        default:
-            abort(404);
+                abort(404);
+
+            default:
+                abort(404);
+        }
     }
-}
 
     public function handle1($slug)
     {

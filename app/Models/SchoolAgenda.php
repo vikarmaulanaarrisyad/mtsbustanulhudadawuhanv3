@@ -7,4 +7,5 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class SchoolAgenda extends Model
 {
     use HasFactory;
+    protected $table = 'school_agendas';
 }
