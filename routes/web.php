@@ -20,6 +20,7 @@ use App\Http\Controllers\{
     QuotesController,
     ResidenceController,
     RoleController,
+    SchoolAgendaController,
     SettingController,
     StudentAdmissionController,
     StudentStatusController,
@@ -344,6 +345,35 @@ Route::group(['middleware' => ['auth']], function () {
         Route::put('/blog/pages/{id}', 'update')->name('pages.update');
         Route::delete('/blog/pages/{id}/destroy', 'destroy')->name('pages.destroy');
     });
+<<<<<<< HEAD
+=======
+
+    Route::group(['middleware' => ['permission:categories.view']], function () {
+        Route::controller(SchoolAgendaController::class)->group(function () {
+            Route::get('/academic/agenda/data', 'data')->name('agenda.data');
+            Route::get('/academic/agenda', 'index')->name('agenda.index');
+            Route::get('/academic/agenda/{id}', 'show')->name('agenda.show');
+            Route::put('/academic/agenda/{id}', 'update')->name('agenda.update');
+            Route::post('/academic/agenda/import-excel', 'importEXCEL')->name('agenda.import_excel');
+            Route::post('/academic/agenda', 'store')->name('agenda.store');
+            Route::post('/academic/agenda/delete-selected', 'deleteSelected')->name('agenda.deleteSelected');
+            Route::delete('/academic/agenda/{id}/destroy', 'destroy')->name('agenda.destroy');
+        });
+    });
+
+
+    // Route::controller(PostController::class)->group(function () {
+    //     Route::get('/blog/posts/data', 'data')->name('posts.data');
+    //     Route::get('/blog/posts', 'index')->name('posts.index');
+    //     Route::get('/blog/posts/create', 'create')->name('posts.create');
+    //     Route::get('/blog/posts/{id}', 'show')->name('posts.show');
+    //     Route::put('/blog/posts/{id}', 'update')->name('posts.update');
+    //     Route::post('/blog/posts/import-excel', 'importEXCEL')->name('posts.import_excel');
+    //     Route::post('/blog/posts', 'store')->name('posts.store');
+    //     Route::post('/blog/posts/delete-selected', 'deleteSelected')->name('posts.deleteSelected');
+    //     Route::delete('/blog/posts/{id}/destroy', 'destroy')->name('posts.destroy');
+    // });
+>>>>>>> 495ae885f02ce17aa9cf56eb9257867b7f3a8e85
 });
 
 /*

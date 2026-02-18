@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Menu;
 use App\Models\Page;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class MenuController extends Controller
 {
@@ -22,12 +22,13 @@ class MenuController extends Controller
 
         $pages = Page::all();
         $modules = Page::all();
+        $category = Category::all();
 
         $menus = Menu::orderBy('menu_parent_id')
             ->orderBy('menu_position')
             ->get();
 
-        return view('admin.menus.index', compact('menus', 'pages', 'modules'));
+        return view('admin.menus.index', compact('menus', 'pages', 'modules', 'category'));
     }
 
     /**
@@ -44,44 +45,69 @@ class MenuController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'menu_title' => 'nullable|string|max:255',
-            // 'menu_url' => 'nullable|string|max:255',
-            'menu_target' => 'required|in:_blank,_self,_parent,_top',
-            'menu_type' => 'required|in:pages,links,modules',
-            'menu_position' => 'nullable|integer',
+            'menu_title'   => 'nullable|string|max:255',
+            'menu_url'     => 'nullable|string|max:255',
+            'menu_target'  => 'required|in:_blank,_self,_parent,_top',
+            'menu_type'    => 'required|in:pages,links,modules',
+            'menu_parent_id' => 'nullable|integer',
         ]);
 
-        // $menu = Menu::create([
-        //     'menu_title' => $request->menu_title,
-        //     'menu_url' => $request->menu_url == "" ? $request->menu_parent_id == 0 ? '#' : Str::slug($request->menu_title) : $request->menu_url,
-        //     'menu_slug' => $request->menu_url == "" ? $request->menu_parent_id == 0 ? '#' : Str::slug($request->menu_title) : $request->menu_url,
-        //     'menu_target' => $request->menu_target,
-        //     'menu_type' => $request->menu_type,
-        //     'menu_parent_id' => $request->menu_parent_id ?? 0,
-        //     'menu_position' => Menu::max('menu_position') + 1,
-        // ]);
+        $menu_title = null;
+        $menu_url   = $request->menu_url;
 
-        $menu_title = $request->menu_title ?? ucfirst(str_replace('/', '', $request->menu_url));
+        // ===============================
+        // Tentukan sumber menu
+        // ===============================
+        if ($request->menu_type === 'pages') {
+            $page = Page::where('slug', $request->menu_url)->first();
+
+            if (!$page) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Halaman tidak ditemukan'
+                ], 404);
+            }
+
+            $menu_title = $page->title;
+            $menu_url   = $page->slug;
+        } elseif ($request->menu_type === 'links') {
+            $category = Category::where('category_slug', $request->menu_url)->first();
+
+            if (!$category) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Kategori tidak ditemukan'
+                ], 404);
+            }
+
+            $menu_title = $category->category_name;
+            $menu_url   = $category->category_slug;
+        } else {
+            // fallback manual / module
+            $menu_title = $request->menu_title
+                ?? ucfirst(str_replace('-', ' ', $menu_url));
+        }
+
+        // ===============================
+        // Simpan Menu
+        // ===============================
         $menu = Menu::create([
-            'menu_title' => $menu_title,
-            'menu_url' => $request->menu_url == ""
-                ? ($request->menu_parent_id == 0 ? '#' : Str::slug($menu_title))
-                : $request->menu_url,
-            'menu_slug' => $request->menu_url == ""
-                ? ($request->menu_parent_id == 0 ? '#' : Str::slug($menu_title))
-                : $request->menu_url,
-            'menu_target' => $request->menu_target,
-            'menu_type' => $request->menu_type,
+            'menu_title'     => $menu_title,
+            'menu_url'       => $menu_url ?: '#',
+            'menu_slug'      => Str::slug($menu_title),
+            'menu_target'    => $request->menu_target,
+            'menu_type'      => $request->menu_type,
             'menu_parent_id' => $request->menu_parent_id ?? 0,
-            'menu_position' => Menu::max('menu_position') + 1,
+            'menu_position'  => Menu::max('menu_position') + 1,
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Menu berhasil ditambahkan!',
-            'menu' => $menu
+            'menu'    => $menu
         ], 201);
     }
+
 
     /**
      * Display the specified resource.

@@ -220,48 +220,30 @@
                 <table class="table table-bordered table-striped mb-0">
                     <thead class="bg-success text-white sticky-top">
                         <tr>
-                            <th style="width: 150px;">Tanggal</th>
+                            <th style="width: 20%;">Tanggal</th>
                             <th>Kegiatan</th>
                             <th>Lokasi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><i class="fa fa-calendar-alt text-success mr-2"></i> 12 Sept 2025</td>
-                            <td>Masa Pengenalan Lingkungan Sekolah (MPLS)</td>
-                            <td>Aula Utama</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-calendar-alt text-success mr-2"></i> 20 Sept 2025</td>
-                            <td>Pentas Seni & Budaya</td>
-                            <td>Lapangan Sekolah</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-calendar-alt text-success mr-2"></i> 5 Okt 2025</td>
-                            <td>Lomba Olimpiade Sains</td>
-                            <td>Laboratorium IPA</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-calendar-alt text-success mr-2"></i> 15 Okt 2025</td>
-                            <td>Rapat Orang Tua Siswa</td>
-                            <td>Ruang Rapat</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-calendar-alt text-success mr-2"></i> 1 Nov 2025</td>
-                            <td>Perkemahan Pramuka</td>
-                            <td>Bumi Perkemahan Cibubur</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-calendar-alt text-success mr-2"></i> 10 Nov 2025</td>
-                            <td>Workshop Teknologi</td>
-                            <td>Lab Komputer</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-calendar-alt text-success mr-2"></i> 20 Nov 2025</td>
-                            <td>Try Out Ujian Nasional</td>
-                            <td>Kelas 9 & 12</td>
-                        </tr>
+                        @forelse ($agendas as $agenda)
+                            <tr>
+                                <td>
+                                    <i class="fa fa-calendar-alt text-success mr-2"></i>
+                                    {{ tanggal_indonesia($agenda->start_date) }}
+                                </td>
+                                <td>{{ $agenda->title }}</td>
+                                <td>{{ $agenda->location ?? '-' }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">
+                                    No agenda available
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
+
                 </table>
             </div>
         </div>
