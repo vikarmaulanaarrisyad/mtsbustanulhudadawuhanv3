@@ -3,7 +3,7 @@
  @endphp
 
  @foreach ($breakingNews as $b)
-     <div class="media  border-bottom">
+     <div class="media border-bottom">
          <div class="media-body">
              <h6 class="mt-0 font-weight-bold post-title-hover">
                  <a href="{{ route('front.post_show', $b->post_slug) }}" class="text-dark post-title-hover"
