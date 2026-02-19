@@ -24,7 +24,7 @@
 ===================================================== */
         :root {
             --primary-color: #0eaaa6;
-            --primary-light: #d4ffd6;
+            --primary-light: #17ccc6;
             --dark-color: #1d1d1d;
             --text-light: rgba(255, 255, 255, 0.7);
             --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.05);
@@ -55,7 +55,7 @@
         }
 
         .topbar a {
-            color: #fff;
+            color: #0eaaa6;
             margin-left: 15px;
             transition: 0.3s;
         }
@@ -95,6 +95,13 @@
             transition: 0.4s;
         }
 
+        li.nav-item.active {
+            border-radius: 10px 5px;
+            border-bottom: 3px solid #0eaaa6;
+            /* garis bawah */
+        }
+
+
         .navbar .nav-link:hover::after,
         .navbar .nav-link.active::after {
             width: 100%;
@@ -102,14 +109,20 @@
 
         .navbar .dropdown:hover>.dropdown-menu {
             display: block;
-            animation: fadeIn .5s ease-in-out;
+            animation: fadeIn .8s ease-in-out;
         }
 
         .dropdown-menu {
-            margin-top: 6px;
-            border-radius: 0 0 8px 8px;
+            margin-top: 3px;
+            border-radius: 8px 8px;
             border: none;
             box-shadow: var(--shadow-medium);
+            color: #0eaaa6;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #0eaaa6;
+            color: #ffff;
         }
 
         /* =====================================================
@@ -260,7 +273,7 @@
         }
 
         .footer a:hover {
-            color: #fff;
+            color: #0eaaa6;
         }
 
         /* =====================================================

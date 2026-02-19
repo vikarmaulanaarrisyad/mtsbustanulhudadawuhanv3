@@ -5,8 +5,8 @@
 @push('css')
     <style>
         /* ===============================
-                                                       HERO TITLE SLUG
-                                                    =============================== */
+                                                           HERO TITLE SLUG
+                                                        =============================== */
         .post-hero {
             position: relative;
             background-size: cover;
@@ -41,8 +41,8 @@
         }
 
         /* ===============================
-                                                       KONTEN BERITA
-                                                    =============================== */
+                                                           KONTEN BERITA
+                                                        =============================== */
         .post-content {
             line-height: 1.8;
             font-size: 1.2rem;
@@ -103,7 +103,7 @@
         }
 
         .share-buttons a:hover {
-            color: #19692c;
+            color: #0eaaa6;
         }
 
         /* Tombol kembali */
@@ -154,8 +154,8 @@
 @section('content')
 
     <!-- ===============================
-                                                     HERO SECTION
-                                                ================================ -->
+                                                         HERO SECTION
+                                                    ================================ -->
     <div class="post-hero"
         style="background-image: url('{{ $post->post_image ? asset('storage/' . $post->post_image) : asset('images/default-banner.jpg') }}');">
 
@@ -221,8 +221,8 @@
                         </a>
 
                         <!-- ===============================
-                                                                         KOMENTAR
-                                                                    =============================== -->
+                                                                             KOMENTAR
+                                                                        =============================== -->
                         <div class="comments-section mt-5">
                             <h5 class="mb-3">Komentar</h5>
 
@@ -289,8 +289,8 @@
             </div>
 
             <!-- ===============================
-                                                             SIDEBAR
-                                                        =============================== -->
+                                                                 SIDEBAR
+                                                            =============================== -->
             <div class="col-lg-4 mt-4 mt-lg-0">
                 <div class="sidebar">
 
