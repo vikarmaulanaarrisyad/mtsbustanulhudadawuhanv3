@@ -16,7 +16,8 @@
     <link rel="icon" href="{{ $setting->path_image }}" type="image/x-icon" />
     <link rel="icon" href="{{ Storage::url($setting->path_image ?? '') }}" type="image/*">
     <link rel="stylesheet" href="{{ asset('/public/css/mycss.css') }}">
-    <link rel="stylesheet" href="{{ url('/public/css/mycss.css') }}">
+    <link rel="stylesheet" href="{{ secure_asset('css/custom.css') }}">
+
 
 
     @stack('css')
