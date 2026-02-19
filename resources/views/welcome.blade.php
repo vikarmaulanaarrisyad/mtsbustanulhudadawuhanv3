@@ -116,7 +116,7 @@
         </div>
     </div>
 
-    <section class="news py-5 bg-light">
+    <section class="news py-5">
         <div class="px-3">
             <div class="text-center mb-5">
                 <h2 class="font-weight-bold text-success">Berita & Informasi</h2>
@@ -128,7 +128,7 @@
                 <div class="col-md-8 mb-4 px-2">
                     <div class="row">
                         @forelse ($posts as $post)
-                            <div class="col-md-4 mb-4">
+                            <div class="col-md-6 mb-3">
                                 <div class="card shadow-sm border-0 h-100">
                                     <img src="{{ Storage::url($post->post_image) }}" class="card-img-top"
                                         alt="{{ $post->post_slug }}">
@@ -173,9 +173,9 @@
                 </div>
 
                 <!-- Kolom Kanan: Breaking News + Pengumuman + Link + Prestasi -->
-                <div class="col-md-4 mb-4 px-2">
+                {{--  <div class="col-md-4 mb-3 px-2">
                     <!-- Breaking News -->
-                    <div class="card shadow-sm border-0 mb-4">
+                    <div class="card shadow-sm border-0 mb-3">
                         <div class="card-header bg-success text-white font-weight-bold">
                             <i class="fa fa-bullhorn mr-2"></i> Breaking News
                         </div>
@@ -185,7 +185,7 @@
                     </div>
 
                     <!-- Pengumuman -->
-                    <div class="card shadow-sm border-0 mb-4">
+                    <div class="card shadow-sm border-0 mb-3">
                         <div class="card-header bg-success text-white font-weight-bold">
                             <i class="fa fa-info-circle mr-2"></i> Pengumuman
                         </div>
@@ -203,7 +203,79 @@
                             @include('layouts.partials.prestasi')
                         </div>
                     </div>
+                </div>  --}}
+
+                <div class="col-lg-4">
+
+                    {{--  <!-- Sambutan Kepala Madrasah -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-header">
+                            <i class="fa fa-bullhorn"></i>
+                            <span>Sambutan Kepala Madrasah</span>
+                        </div>
+                        <div class="sidebar-body">
+                            @include('layouts.partials.sambutan-kepala')
+                        </div>
+                    </div>  --}}
+
+                    <!-- Sambutan Kepala Madrasah -->
+                    <div class="kepala-card">
+                        <div class="kepala-header">
+                            <span>Sambutan Kepala Madrasah</span>
+                        </div>
+
+                        <div class="kepala-body">
+
+                            <div class="kepala-profile">
+                                <img src="{{ asset('images/kepala.jpg') }}" alt="Kepala Madrasah">
+                                <div class="kepala-info">
+                                    <h6>Nama Kepala Madrasah</h6>
+                                    <small>Kepala Madrasah</small>
+                                </div>
+                            </div>
+
+                            <div class="sidebar-body">
+                                @include('layouts.partials.sambutan-kepala')
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Breaking News -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-header">
+                            <i class="fa fa-bullhorn"></i>
+                            <span>Breaking News</span>
+                        </div>
+                        <div class="sidebar-body">
+                            @include('layouts.partials.breaking-news')
+                        </div>
+                    </div>
+
+                    <!-- Pengumuman -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-header">
+                            <i class="fa fa-info-circle"></i>
+                            <span>Pengumuman</span>
+                        </div>
+                        <div class="sidebar-body">
+                            @include('layouts.partials.announcements')
+                        </div>
+                    </div>
+
+                    <!-- Prestasi -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-header">
+                            <i class="fa fa-trophy"></i>
+                            <span>Prestasi</span>
+                        </div>
+                        <div class="sidebar-body">
+                            @include('layouts.partials.prestasi')
+                        </div>
+                    </div>
+
                 </div>
+
             </div>
         </div>
     </section>
