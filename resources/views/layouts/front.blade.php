@@ -25,10 +25,35 @@
         }
 
         .topbar {
-            background: #28a745;
+            background: #0eaaa6;
             color: #fff;
             font-size: 14px;
-            padding: 5px 30px;
+            padding: 5px 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .topbar img {
+            height: 100%;
+            max-height: 80px;
+            /* optional supaya tidak terlalu besar */
+            width: auto;
+        }
+
+        /* Ukuran HP */
+        @media (max-width: 768px) {
+            .topbar {
+                padding: 10px 5px !important;
+            }
+
+            .topbar img {
+                height: 78px !important;
+                /* khusus HP */
+            }
+
+            .topbar-info {
+                display: none;
+            }
         }
 
         .topbar a {
@@ -58,7 +83,7 @@
             position: absolute;
             width: 0%;
             height: 2px;
-            background: #28a745;
+            background: #0eaaa6;
             bottom: -5px;
             left: 0;
             transition: 0.4s;
@@ -114,7 +139,7 @@
         }
 
         .breaking-news {
-            background: #28a745;
+            background: #0eaaa6;
             color: #fff;
             overflow: hidden;
             position: relative;
@@ -161,7 +186,7 @@
         }
 
         .post-title-hover:hover {
-            color: #28a745;
+            color: #0eaaa6;
         }
 
         .line-height-15 {
@@ -169,7 +194,7 @@
         }
 
         .post-meta {
-            color: #28a745;
+            color: #0eaaa6;
             /* warna hijau */
             padding: 0 5px;
             /* jarak kiri-kanan */
@@ -182,7 +207,7 @@
             color: rgba(255, 255, 255, 0.7);
             padding: 15px 0px;
             text-align: center;
-            border-top: 3px solid #28a745;
+            border-top: 3px solid #0eaaa6;
         }
 
         .footer a {
@@ -192,7 +217,6 @@
         .footer a:hover {
             color: #fff;
         }
-
     </style>
 </head>
 
@@ -200,16 +224,18 @@
 
     {{-- Header Atas --}}
     <div class="topbar d-flex justify-content-between align-items-center">
-        <div>
+        <div class="topbar">
+            <img src="{{ Storage::url($setting->path_image_header) }}" alt="Logo">
+        </div>
+        <div class="topbar-info">
             <i class="fa fa-map-marker-alt"></i> {{ $setting->address }}
             <span class="ml-3"><i class="fa fa-phone"></i> {{ $setting->phone }}</span>
-            <span class="ml-3"><i class="fa fa-envelope"></i>{{ $setting->email }}</span>
-        </div>
-        <div>
+            <span class="ml-3"><i class="fa fa-envelope"></i> {{ $setting->email }}</span>
             <a href="{{ $setting->fanpage_link }}"><i class="fab fa-facebook-f"></i></a>
             <a href="{{ $setting->instagram_link }}"><i class="fab fa-instagram"></i></a>
             <a href="{{ $setting->twitter_link }}"><i class="fab fa-youtube"></i></a>
         </div>
+
     </div>
 
     @php
@@ -219,8 +245,7 @@
     {{-- Navbar --}}
     <nav class="navbar navbar-expand-sm sticky-top fixed-top navbar-light bg-white border-bottom">
         <a class="navbar-brand font-weight-bold text-success" href="{{ url('/') }}">
-            <img src="{{ Storage::url($setting->path_image) }}" alt="Logo" style="height:40px;">
-            {{ $setting->company_name ?? '' }}
+            <img src="{{ Storage::url($setting->path_image_header) }}" alt="Logo" style="height:50px;">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar1">
             <span class="navbar-toggler-icon"></span>

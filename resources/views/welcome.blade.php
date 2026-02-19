@@ -276,7 +276,7 @@
     </section>
 
     {{-- Lokasi Sekolah --}}
-    <section class="py-5 bg-light text-center">
+    {{--  <section class="py-5 bg-light text-center">
         <h2 class="font-weight-bold text-success mb-4">Lokasi Sekolah</h2>
         <div class="px-3">
             <div class="embed-responsive embed-responsive-16by9 shadow rounded overflow-hidden">
@@ -285,7 +285,7 @@
                     allowfullscreen="" loading="lazy"></iframe>
             </div>
         </div>
-    </section>
+    </section>  --}}
 @endsection
 
 @push('scripts')
