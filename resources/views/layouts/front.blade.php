@@ -15,7 +15,7 @@
     <!-- FAVICONS ICON ============================================= -->
     <link rel="icon" href="{{ $setting->path_image }}" type="image/x-icon" />
     <link rel="icon" href="{{ Storage::url($setting->path_image ?? '') }}" type="image/*">
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('/public/css/custom.css') }}">
     <link rel="stylesheet" href="{{ url('css/custom.css') }}">
 
 
