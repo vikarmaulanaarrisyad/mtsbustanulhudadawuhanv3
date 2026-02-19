@@ -1,5 +1,5 @@
  @php
-     $breakingNews = App\Models\Post::orderBy('created_at', 'desc')->limit(5)->get();
+     $breakingNews = App\Models\Post::where('post_type', 'post')->orderBy('created_at', 'desc')->limit(5)->get();
  @endphp
 
  @foreach ($breakingNews as $b)

@@ -18,9 +18,10 @@
                 <x-card>
                     <div class="form-group">
                         <label for="post_title">Judul Postingan</label>
-                        <input id="post_title" class="form-control" type="text" name="post_title"
+                        <textarea name="post_title" id="post_title" cols="50" rows="10" class="form-control summernote">{{ old('post_title', $post->post_title) }}</textarea>
+                        {{--  <input id="post_title" class="form-control" type="text" name="post_title"
                             value="{{ old('post_title', $post->post_title) }}" autocomplete="off"
-                            placeholder="Masukkan judul postingan">
+                            placeholder="Masukkan judul postingan">  --}}
                     </div>
 
                     <div class="form-group">
@@ -78,54 +79,99 @@
 
                 <x-card>
                     <x-slot name="header">PUBLIKASI</x-slot>
+
                     <div class="row">
+
+                        <!-- POST TYPE -->
+                        <div class="col-12 mb-3">
+                            <div class="form-group">
+                                <label for="post_type">Tipe Konten</label>
+                                <select name="post_type" class="form-control" id="post_type">
+                                    <option value="post" {{ ($post->post_type ?? 'post') == 'post' ? 'selected' : '' }}>
+                                        Post
+                                    </option>
+
+                                    <option value="prestasi"
+                                        {{ ($post->post_type ?? '') == 'prestasi' ? 'selected' : '' }}>
+                                        Prestasi
+                                    </option>
+
+                                    <option value="announcement"
+                                        {{ ($post->post_type ?? '') == 'announcement' ? 'selected' : '' }}>
+                                        Announcement
+                                    </option>
+                                </select>
+                                <small class="text-muted">
+                                    Pilih jenis konten yang akan dipublikasikan.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- STATUS -->
                         <div class="col-6">
                             <div class="form-group">
                                 <label for="post_status">Status</label>
                                 <select name="post_status" class="form-control" id="post_status">
-                                    <option value="draft" {{ $post->post_status == 'draft' ? 'selected' : '' }}>Draft
+                                    <option value="draft" {{ $post->post_status == 'draft' ? 'selected' : '' }}>
+                                        Draft
                                     </option>
+
                                     <option value="publish" {{ $post->post_status == 'publish' ? 'selected' : '' }}>
-                                        Diterbitkan</option>
+                                        Diterbitkan
+                                    </option>
                                 </select>
                             </div>
                         </div>
+
+                        <!-- VISIBILITY -->
                         <div class="col-6">
                             <div class="form-group">
                                 <label for="post_visibility">Akses</label>
                                 <select name="post_visibility" class="form-control" id="post_visibility">
                                     <option value="public" {{ $post->post_visibility == 'public' ? 'selected' : '' }}>
-                                        Publik</option>
+                                        Publik
+                                    </option>
+
                                     <option value="private" {{ $post->post_visibility == 'private' ? 'selected' : '' }}>
-                                        Privat</option>
+                                        Privat
+                                    </option>
                                 </select>
                             </div>
                         </div>
+
                     </div>
 
+                    <!-- COMMENT STATUS -->
                     <div class="form-group">
                         <label for="post_comment_status">Komentar</label>
                         <select name="post_comment_status" class="form-control" id="post_comment_status">
-                            <option value="open" {{ $post->post_comment_status == 'open' ? 'selected' : '' }}>Diizinkan
+                            <option value="open" {{ $post->post_comment_status == 'open' ? 'selected' : '' }}>
+                                Diizinkan
                             </option>
-                            <option value="close" {{ $post->post_comment_status == 'close' ? 'selected' : '' }}>Tidak
-                                Diizinkan</option>
+
+                            <option value="close" {{ $post->post_comment_status == 'close' ? 'selected' : '' }}>
+                                Tidak Diizinkan
+                            </option>
                         </select>
                     </div>
 
+                    <!-- IMAGE -->
                     <div class="form-group mt-2">
                         <label for="post_image">Gambar</label>
+
                         @if ($post->post_image)
                             <div class="mb-2">
                                 <img src="{{ asset('storage/' . $post->post_image) }}" alt="Post Image"
-                                    class="img-fluid rounded">
+                                    class="img-fluid rounded shadow-sm" style="max-height:200px;">
                             </div>
                         @endif
+
                         <input type="file" name="post_image" class="form-control-file" id="post_image">
                     </div>
 
                     <x-slot name="footer">
                         <div class="d-flex justify-content-between mt-3">
+
                             <a href="{{ route('posts.index') }}" class="btn btn-sm btn-warning">
                                 <i class="fas fa-undo-alt"></i> Kembali
                             </a>
@@ -136,10 +182,13 @@
 
                             <button type="button" onclick="submitPostForm(this.form)"
                                 class="btn btn-sm btn-outline-info" id="submitBtn">
+
                                 <span id="spinner-border" class="spinner-border spinner-border-sm d-none" role="status"
                                     aria-hidden="true"></span>
+
                                 <i class="fas fa-save mr-1"></i> Simpan
                             </button>
+
                         </div>
                     </x-slot>
                 </x-card>

@@ -17,8 +17,10 @@
                 <x-card>
                     <div class="form-group">
                         <label for="post_title">Judul Postingan</label>
-                        <input id="post_title" class="form-control" type="text" name="post_title" autocomplete="off"
-                            placeholder="Masukkan judul postingan">
+                        <textarea name="post_title" id="post_title" cols="3" rows="3" class="form-control summernote"
+                            style="height: 120px !important;"></textarea>
+                        {{--  <input id="post_title" class="form-control" type="text" name="post_title" autocomplete="off"
+                            placeholder="Masukkan judul postingan">  --}}
                     </div>
 
                     <div class="form-group">
@@ -74,7 +76,22 @@
 
                 <x-card>
                     <x-slot name="header">PUBLIKASI</x-slot>
+
                     <div class="row">
+
+                        <!-- POST TYPE -->
+                        <div class="col-12 mb-3">
+                            <div class="form-group">
+                                <label for="post_type">Tipe Konten</label>
+                                <select name="post_type" class="form-control" id="post_type">
+                                    <option value="post" selected>Post</option>
+                                    <option value="prestasi">Prestasi</option>
+                                    <option value="announcement">Announcement</option>
+                                </select>
+                                <small class="text-muted">Pilih jenis konten yang akan dipublikasikan.</small>
+                            </div>
+                        </div>
+
                         <div class="col-6">
                             <div class="form-group">
                                 <label for="post_status">Status</label>
@@ -84,6 +101,7 @@
                                 </select>
                             </div>
                         </div>
+
                         <div class="col-6">
                             <div class="form-group">
                                 <label for="post_visibility">Akses</label>
@@ -119,16 +137,17 @@
                                 <i class="fas fa-undo-alt"></i> Atur Ulang
                             </button>
 
-                            <button type="button" onclick="submitPostForm(this.form)" class="btn btn-sm btn-outline-info"
-                                id="submitBtn">
+                            <button type="button" onclick="submitPostForm(this.form)"
+                                class="btn btn-sm btn-outline-info" id="submitBtn">
+
                                 <span id="spinner-border" class="spinner-border spinner-border-sm d-none" role="status"
                                     aria-hidden="true"></span>
+
                                 <i class="fas fa-save mr-1"></i> Simpan
                             </button>
                         </div>
                     </x-slot>
                 </x-card>
-
             </div>
         </div>
     </form>

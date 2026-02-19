@@ -21,48 +21,6 @@ class PostController extends Controller
         return view('admin.blog.posts.index');
     }
 
-    // public function data1()
-    // {
-    //     $query = Post::with(['categories', 'tags'])->orderBy('created_at', 'desc')->get();
-
-    //     return datatables($query)
-    //         ->addIndexColumn()
-    //         ->addColumn('post_image', function ($q) {
-    //             $imageUrl = $q->post_image ? Storage::url($q->post_image) : asset('images/no-image.png');
-
-    //             return '
-    //                 <img src="' . $imageUrl . '" alt="' . e($q->caption) . '" style="max-height: 60px;" class="img-thumbnail">
-    //             ';
-    //         })
-
-    //         ->addColumn('selectAll', function ($q) {
-    //             return '
-    //                 <div class="form-check form-check-inline">
-    //                     <input type="checkbox" class="form-check-input row-checkbox" name="selected[]" value="' . $q->id . '" data-id="' . $q->id . '">
-    //                 </div>
-    //             ';
-    //         })
-    //         ->editColumn('action', function ($q) {
-    //             return '
-    //                 <a href="' . route('posts.edit', $q->id) . '" class="btn btn-sm btn-info" title="Edit">
-    //                     <i class="fa fa-edit"></i>
-    //                 </a>
-    //                 <button onclick="deleteData(`' . route('posts.destroy', $q->id) . '`, `' . e($q->post_title) . '`)" class="btn btn-sm" style="background-color:#d81b60; color:#fff;" title="Delete">
-    //                     <i class="fa fa-trash"></i>
-    //                 </button>
-    //             ';
-    //         })
-
-    //         ->editColumn('user', function ($q) {
-    //             return $q->user->name ?? '-';
-    //         })
-    //         ->editColumn('created_at', function ($q) {
-    //             return tanggal_indonesia($q->created_at, false, true);
-    //         })
-    //         ->escapeColumns([])
-    //         ->make(true);
-    // }
-
     public function data()
     {
         $query = Post::with(['categories:id,category_name', 'tags:id,tag_name', 'user:id,name'])
@@ -71,6 +29,9 @@ class PostController extends Controller
 
         return datatables($query)
             ->addIndexColumn()
+            ->editColumn('post_title', function ($q) {
+                return  $q->post_title;
+            })
             ->addColumn('post_image', function ($q) {
                 $imageUrl = $q->post_image ? Storage::url($q->post_image) : asset('images/no-image.png');
 
@@ -99,7 +60,8 @@ class PostController extends Controller
             ->editColumn('created_at', function ($q) {
                 return tanggal_indonesia($q->created_at, false, true);
             })
-            ->rawColumns(['post_image', 'selectAll', 'action']) // <- ganti escapeColumns([])
+            ->escapeColumns([])
+            // ->rawColumns(['post_image', 'selectAll', 'action']) // <- ganti escapeColumns([])
             ->make(true);
     }
 
@@ -144,7 +106,7 @@ class PostController extends Controller
             'post_title' => $request->post_title,
             'post_slug' => $slug,
             'post_content' => $request->post_content,
-            'post_type' => $request->post_type ?? 'post',
+            'post_type' => $request->post_type,
             'post_status' => $request->post_status,
             'post_visibility' => $request->post_visibility,
             'post_comment_status' => $request->post_comment_status,
@@ -219,7 +181,7 @@ class PostController extends Controller
             'post_title' => $request->post_title,
             'post_slug' => $slug,
             'post_content' => $request->post_content,
-            'post_type' => $request->post_type ?? 'post',
+            'post_type' => $request->post_type,
             'post_status' => $request->post_status,
             'post_visibility' => $request->post_visibility,
             'post_comment_status' => $request->post_comment_status,
