@@ -257,7 +257,7 @@
     {{-- Navbar --}}
     <nav class="navbar navbar-expand-sm sticky-top fixed-top navbar-light bg-white border-bottom">
         <a class="navbar-brand font-weight-bold text-success" href="{{ url('/') }}">
-            <img src="{{ Storage::url($setting->path_image_header) }}" alt="Logo" style="height:50px;">
+            <img src="{{ Storage::url($setting->path_image_header) }}" alt="Logo" style="height:30px;">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar1">
             <span class="navbar-toggler-icon"></span>
