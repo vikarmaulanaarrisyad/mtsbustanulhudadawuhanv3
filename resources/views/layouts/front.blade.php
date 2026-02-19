@@ -56,6 +56,18 @@
             }
         }
 
+        /* HP kecil banget */
+        @media (max-width: 480px) {
+            .topbar {
+                padding: 5px 8px !important;
+            }
+
+            .topbar img {
+                height: 50px !important;
+            }
+        }
+
+
         .topbar a {
             color: #fff;
             margin-left: 15px;
