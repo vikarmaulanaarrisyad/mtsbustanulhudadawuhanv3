@@ -172,74 +172,8 @@
                     </div>  --}}
                 </div>
 
-                <!-- Kolom Kanan: Breaking News + Pengumuman + Link + Prestasi -->
-                {{--  <div class="col-md-4 mb-3 px-2">
-                    <!-- Breaking News -->
-                    <div class="card shadow-sm border-0 mb-3">
-                        <div class="card-header bg-success text-white font-weight-bold">
-                            <i class="fa fa-bullhorn mr-2"></i> Breaking News
-                        </div>
-                        <div class="card-body p-3" style="max-height: 250px; overflow-y: auto;">
-                            @include('layouts.partials.breaking-news')
-                        </div>
-                    </div>
-
-                    <!-- Pengumuman -->
-                    <div class="card shadow-sm border-0 mb-3">
-                        <div class="card-header bg-success text-white font-weight-bold">
-                            <i class="fa fa-info-circle mr-2"></i> Pengumuman
-                        </div>
-                        <div class="card-body p-3 overflow-auto" style="max-height: 250px;">
-                            @include('layouts.partials.announcements')
-                        </div>
-                    </div>
-
-                    <!-- Prestasi -->
-                    <div class="card shadow-sm border-0 mt-4">
-                        <div class="card-header bg-success text-white font-weight-bold">
-                            <i class="fa fa-trophy mr-2"></i> Prestasi
-                        </div>
-                        <div class="card-body p-3 overflow-auto" style="max-height: 250px;">
-                            @include('layouts.partials.prestasi')
-                        </div>
-                    </div>
-                </div>  --}}
-
                 <div class="col-lg-4">
-
-                    {{--  <!-- Sambutan Kepala Madrasah -->
-                    <div class="sidebar-card">
-                        <div class="sidebar-header">
-                            <i class="fa fa-bullhorn"></i>
-                            <span>Sambutan Kepala Madrasah</span>
-                        </div>
-                        <div class="sidebar-body">
-                            @include('layouts.partials.sambutan-kepala')
-                        </div>
-                    </div>  --}}
-
-                    <!-- Sambutan Kepala Madrasah -->
-                    <div class="kepala-card">
-                        <div class="kepala-header">
-                            <span>Sambutan Kepala Madrasah</span>
-                        </div>
-
-                        <div class="kepala-body">
-
-                            <div class="kepala-profile">
-                                <img src="{{ asset('images/kepala.jpg') }}" alt="Kepala Madrasah">
-                                <div class="kepala-info">
-                                    <h6>Nama Kepala Madrasah</h6>
-                                    <small>Kepala Madrasah</small>
-                                </div>
-                            </div>
-
-                            <div class="sidebar-body">
-                                @include('layouts.partials.sambutan-kepala')
-                            </div>
-                        </div>
-                    </div>
-
+                    @include('layouts.partials.sambutan-kepala')
 
                     <!-- Breaking News -->
                     <div class="sidebar-card">

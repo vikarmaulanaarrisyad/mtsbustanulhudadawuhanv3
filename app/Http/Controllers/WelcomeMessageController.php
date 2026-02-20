@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\WelcomeMessage;
+use Illuminate\Support\Facades\Storage;
 
 class WelcomeMessageController extends Controller
 {
@@ -20,13 +21,16 @@ class WelcomeMessageController extends Controller
     {
         $request->validate([
             'sambutan' => 'required',
+            'path_image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         try {
             $welcomeMessage = WelcomeMessage::create([
+                'name' => $request->name,
                 'slug'    => Str::slug('Sambutan Kepala Madrasah'),
                 'excerpt' => Str::limit(strip_tags($request->sambutan), 300),
                 'content' => $request->sambutan,
+                'path_image' => $request->hasFile('path_image') ? upload('sambutan', $request->path_image, 'sambutan') : null
             ]);
 
             return response()->json([
@@ -50,13 +54,33 @@ class WelcomeMessageController extends Controller
 
         $request->validate([
             'sambutan' => 'required',
+            'path_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         try {
+
+            $pathImage = $welcomeMessage->path_image; // default pakai gambar lama
+
+            if ($request->hasFile('path_image')) {
+
+                // Hapus lama jika ada
+                if (
+                    $welcomeMessage->path_image &&
+                    Storage::disk('public')->exists($welcomeMessage->path_image)
+                ) {
+                    Storage::disk('public')->delete($welcomeMessage->path_image);
+                }
+
+                // Upload baru
+                $pathImage = upload('sambutan', $request->path_image, 'sambutan');
+            }
+
             $welcomeMessage->update([
-                'slug'    => Str::slug('Sambutan Kepala Madrasah'),
-                'excerpt' => Str::limit(strip_tags($request->sambutan), 300),
-                'content' => $request->sambutan,
+                'name'       => $request->name,
+                'slug'       => Str::slug('Sambutan Kepala Madrasah'),
+                'excerpt'    => Str::limit(strip_tags($request->sambutan), 300),
+                'content'    => $request->sambutan,
+                'path_image' => $pathImage, // tidak pernah null
             ]);
 
             return response()->json([
@@ -65,6 +89,7 @@ class WelcomeMessageController extends Controller
                 'data' => $welcomeMessage
             ]);
         } catch (\Exception $e) {
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan saat menyimpan data',

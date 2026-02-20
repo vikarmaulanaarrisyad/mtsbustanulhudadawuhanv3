@@ -5,8 +5,8 @@
 @push('css')
     <style>
         /* ===============================
-                                                           HERO TITLE SLUG
-                                                        =============================== */
+                                                                   HERO TITLE SLUG
+                                                                =============================== */
         .post-hero {
             position: relative;
             background-size: cover;
@@ -41,8 +41,8 @@
         }
 
         /* ===============================
-                                                           KONTEN BERITA
-                                                        =============================== */
+                                                                   KONTEN BERITA
+                                                                =============================== */
         .post-content {
             line-height: 1.8;
             font-size: 1.2rem;
@@ -154,8 +154,8 @@
 @section('content')
 
     <!-- ===============================
-                                                         HERO SECTION
-                                                    ================================ -->
+                                                                 HERO SECTION
+                                                            ================================ -->
     <div class="post-hero"
         style="background-image: url('{{ $post->post_image ? asset('storage/' . $post->post_image) : asset('images/default-banner.jpg') }}');">
 
@@ -221,8 +221,8 @@
                         </a>
 
                         <!-- ===============================
-                                                                             KOMENTAR
-                                                                        =============================== -->
+                                                                                     KOMENTAR
+                                                                                =============================== -->
                         <div class="comments-section mt-5">
                             <h5 class="mb-3">Komentar</h5>
 
@@ -289,33 +289,13 @@
             </div>
 
             <!-- ===============================
-                                                                 SIDEBAR
-                                                            =============================== -->
+                                                                         SIDEBAR
+                                                                    =============================== -->
             <div class="col-lg-4 mt-4 mt-lg-0">
                 <div class="sidebar">
 
                     <!-- Sambutan Kepala Madrasah -->
-                    <div class="kepala-card">
-                        <div class="kepala-header">
-                            <span>Sambutan Kepala Madrasah</span>
-                        </div>
-
-                        <div class="kepala-body">
-
-                            <div class="kepala-profile">
-                                <img src="{{ asset('images/kepala.jpg') }}" alt="Kepala Madrasah">
-                                <div class="kepala-info">
-                                    <h6>Nama Kepala Madrasah</h6>
-                                    <small>Kepala Madrasah</small>
-                                </div>
-                            </div>
-
-                            <div class="sidebar-body">
-                                @include('layouts.partials.sambutan-kepala')
-                            </div>
-                        </div>
-                    </div>
-
+                    @include('layouts.partials.sambutan-kepala')
 
                     <!-- Breaking News -->
                     <div class="sidebar-card">
