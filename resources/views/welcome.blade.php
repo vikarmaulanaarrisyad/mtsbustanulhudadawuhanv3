@@ -125,7 +125,7 @@
 
             <div class="d-flex flex-wrap">
                 <!-- Kolom Kiri: Berita Utama -->
-                <div class="col-md-8 mb-4 px-2">
+                <div class="col-md-8 px-2">
                     <div class="row">
                         @forelse ($posts as $post)
                             <div class="col-md-6 mb-3">
