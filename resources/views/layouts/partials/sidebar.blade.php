@@ -3,7 +3,7 @@
     <a href="{{ url('/') }}" class="brand-link bg-success">
         <img src="{{ Storage::url($setting->path_image ?? '') }}" alt="Logo"
             class="brand-image img-circle elevation-3 bg-light" style="opacity: .8">
-        <span class="brand-text font-weight-light">{{ $setting->company_name }}</span>
+        <span class="brand-text font-weight-light text-sm">{{ $setting->company_name }}</span>
     </a>
 
     <!-- Sidebar -->
