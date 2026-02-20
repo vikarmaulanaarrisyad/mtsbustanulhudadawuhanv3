@@ -5,8 +5,8 @@
 @push('css')
     <style>
         /* ===============================
-                                                                                           HERO TITLE SLUG
-                                                                                        =============================== */
+                                                                                                   HERO TITLE SLUG
+                                                                                                =============================== */
         .post-hero {
             position: relative;
             background-size: cover;
@@ -41,8 +41,8 @@
         }
 
         /* ===============================
-                                                                                           KONTEN BERITA
-                                                                                        =============================== */
+                                                                                                   KONTEN BERITA
+                                                                                                =============================== */
         .post-content {
             line-height: 1.8;
             font-size: 1.2rem;
@@ -152,10 +152,6 @@
 @endpush
 
 @section('content')
-
-    <!-- ===============================
-                                                                                         HERO SECTION
-                                                                                    ================================ -->
     <div class="post-hero"
         style="background-image: url('{{ $setting->path_breadcrumb ? asset('storage/' . $setting->path_breadcrumb) : asset('images/default-banner.jpg') }}');">
 
@@ -174,8 +170,6 @@
     </div>
 
     <section class="py-5">
-
-
         <div class="row no-gutters px-4">
 
             <!-- Konten Berita -->
@@ -221,8 +215,8 @@
                         </a>
 
                         <!-- ===============================
-                                                                                                             KOMENTAR
-                                                                                                        =============================== -->
+                                                                                                                     KOMENTAR
+                                                                                                                =============================== -->
                         <div class="comments-section mt-5">
                             <h5 class="mb-3">Komentar</h5>
 
@@ -289,8 +283,8 @@
             </div>
 
             <!-- ===============================
-                                                                                                 SIDEBAR
-                                                                                            =============================== -->
+                                                                                                         SIDEBAR
+                                                                                                    =============================== -->
             <div class="col-lg-4 mt-4 mt-lg-0">
                 <div class="sidebar">
 

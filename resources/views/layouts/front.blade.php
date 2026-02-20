@@ -812,7 +812,7 @@
         <div class="offcanvas-overlay" id="offcanvasOverlay"></div>
         <!-- MENU -->
         <div class="collapse navbar-collapse offcanvas-menu" id="navbar1">
-            <ul class="navbar-nav ml-auto mr-5">
+            {{--  <ul class="navbar-nav ml-auto mr-5">
                 @foreach ($menus as $menu)
                     @php
                         $children = \App\Models\Menu::where('menu_parent_id', $menu->id)
@@ -820,7 +820,7 @@
                             ->get();
 
                         // Tentukan URL berdasarkan menu_type
-                        if ($menu->menu_type === 'pages' || $menu->menu_type === 'modul') {
+                        if ($menu->menu_type === 'pages' || $menu->menu_type === 'modules') {
                             $url = route('front.handle', $menu->menu_slug);
                         } elseif ($menu->menu_type === 'link') {
                             $url = $menu->menu_url; // langsung ke external
@@ -834,16 +834,20 @@
 
                     @if ($children->count() > 0)
                         <li class="nav-item dropdown {{ $isActive ? 'active' : '' }}">
-                            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle" href="{{ $url }}" data-toggle="dropdown">
                                 {{ $menu->menu_title }}
                             </a>
                             <div class="dropdown-menu">
                                 @foreach ($children as $child)
                                     @php
-                                        if ($child->menu_type === 'pages' || $child->menu_type === 'modul') {
+                                        if ($child->menu_type === 'pages') {
                                             $childUrl = route('front.handle', $child->menu_slug);
                                         } elseif ($child->menu_type === 'link') {
                                             $childUrl = $child->menu_url;
+
+                                            $childUrl = route('front.handle', $child->menu_slug);
+                                        } elseif ($child->menu_type === 'modules') {
+                                            $childUrl = route('front.handle', $child->menu_slug);
                                         } else {
                                             $childUrl = '#';
                                         }
@@ -859,6 +863,71 @@
                             </div>
                         </li>
                     @else
+                        <li class="nav-item {{ $isActive ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ $url }}" target="{{ $menu->menu_target }}">
+                                {{ $menu->menu_title }}
+                            </a>
+                        </li>
+                    @endif
+                @endforeach
+            </ul>  --}}
+
+            <ul class="navbar-nav ml-auto mr-5">
+                @foreach ($menus as $menu)
+                    @php
+                        $children = \App\Models\Menu::where('menu_parent_id', $menu->id)
+                            ->orderBy('menu_position')
+                            ->get();
+
+                        // Generate URL
+                        if ($menu->menu_type === 'link') {
+                            $url = $menu->menu_url;
+                        } else {
+                            $url = route('front.handle', $menu->menu_slug);
+                        }
+
+                        // Active parent
+                        $isActive = request()->is($menu->menu_slug . '*');
+                    @endphp
+
+                    {{-- Jika punya child --}}
+                    @if ($children->count() > 0)
+                        <li class="nav-item dropdown {{ $isActive ? 'active' : '' }}">
+
+                            <a class="nav-link dropdown-toggle" href="{{ $url }}" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                                {{ $menu->menu_title }}
+                            </a>
+
+                            <div class="dropdown-menu">
+
+                                @foreach ($children as $child)
+                                    @php
+                                        // FIX BUG: tidak dioverwrite lagi
+                                        if ($child->menu_type === 'link') {
+                                            $childUrl = $child->menu_url;
+                                        } else {
+                                            $childUrl = route('front.handle', $child->menu_slug);
+                                        }
+
+                                        $childActive = request()->is($child->menu_slug . '*');
+
+                                        // Jika child aktif → parent juga aktif
+                                        if ($childActive) {
+                                            $isActive = true;
+                                        }
+                                    @endphp
+
+                                    <a class="dropdown-item {{ $childActive ? 'active' : '' }}"
+                                        href="{{ $childUrl }}" target="{{ $child->menu_target }}">
+                                        {{ $child->menu_title }}
+                                    </a>
+                                @endforeach
+
+                            </div>
+                        </li>
+                    @else
+                        {{-- Jika tidak punya child --}}
                         <li class="nav-item {{ $isActive ? 'active' : '' }}">
                             <a class="nav-link" href="{{ $url }}" target="{{ $menu->menu_target }}">
                                 {{ $menu->menu_title }}

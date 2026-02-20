@@ -12,6 +12,7 @@ use App\Models\Page;
 use App\Models\Post;
 use App\Models\Quotes;
 use App\Models\SchoolAgenda;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -105,8 +106,24 @@ class FrontController extends Controller
                 // KATEGORI
                 // =====================
             case 'links':
-                $category = Category::where('category_slug', $menu->menu_url)->firstOrFail();
-                return view('front.category.show', compact('category'));
+                $category = Category::where('category_slug', $menu->menu_url)
+                    ->firstOrFail();
+
+                $posts = $category->posts()
+                    ->latest()
+                    ->paginate(10);
+
+                // Recent Post (tidak termasuk post yang ada di halaman ini jika mau)
+                $recentPosts = Post::latest()
+                    ->take(4)
+                    ->get();
+
+                // Sidebar
+                $recentPosts = Post::latest()->take(5)->get();
+                $categories = Category::withCount('posts')->get();
+                $tags = Tag::withCount('posts')->get();
+
+                return view('front.berita.index', compact('category', 'posts', 'recentPosts',));
 
                 // =====================
                 // MODULE / SYSTEM

@@ -113,13 +113,6 @@
                                         <form onsubmit="addCustomMenu(event)">
                                             @csrf
                                             <input type="hidden" name="menu_type" value="links">
-
-                                            {{--  <div class="form-group mb-2">
-                                                <label>Judul Menu</label>
-                                                <input type="text" name="menu_title" class="form-control form-control-sm"
-                                                    required>
-                                            </div>  --}}
-
                                             <div class="form-group mb-2">
                                                 <label>Pilih Salah Satu</label>
                                                 <select name="menu_url" class="form-control form-control-sm" required>
