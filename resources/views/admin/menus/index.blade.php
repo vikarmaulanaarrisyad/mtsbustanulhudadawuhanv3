@@ -78,19 +78,9 @@
                             <div class="card-body">
                                 <div class="tab-content">
                                     <div class="tab-pane active" id="tautan">
-                                        The European languages are members of the same family. Their separate existence is a
-                                        myth.
-                                        For science, music, sport, etc, Europe uses the same vocabulary. The languages only
-                                        differ
-                                        in their grammar, their pronunciation and their most common words. Everyone realizes
-                                        why a
-                                        new common language would be desirable: one could refuse to pay expensive
-                                        translators. To
-                                        achieve this, it would be necessary to have uniform grammar, pronunciation and more
-                                        common
-                                        words. If several languages coalesce, the grammar of the resulting language is more
-                                        simple
-                                        and regular than that of the individual languages.
+
+                                        <p>Masih Tahap Developer</p>
+
                                     </div>
                                     <div class="tab-pane " id="halaman">
                                         <form onsubmit="addCustomMenu(event)">
@@ -155,17 +145,91 @@
 
                                     <!-- /.tab-pane -->
                                     <div class="tab-pane" id="modul">
-                                        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                                        Lorem Ipsum has been the industrys standard dummy text ever since the 1500s,
-                                        when an unknown printer took a galley of type and scrambled it to make a type
-                                        specimen book.
-                                        It has survived not only five centuries, but also the leap into electronic
-                                        typesetting,
-                                        remaining essentially unchanged. It was popularised in the 1960s with the release of
-                                        Letraset
-                                        sheets containing Lorem Ipsum passages, and more recently with desktop publishing
-                                        software
-                                        like Aldus PageMaker including versions of Lorem Ipsum.
+                                        <form id="formMenu" action="{{ route('menus.store') }}" method="POST">
+                                            <input type="hidden" name="menu_type" value="modules">
+                                            @csrf
+
+                                            <div class="row">
+
+                                                <!-- Parent Menu -->
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3">
+                                                        <label>Parent Menu</label>
+                                                        <select class="form-control" name="menu_parent_id">
+                                                            <option value="0">Menu Utama</option>
+                                                            @foreach ($menus as $menu)
+                                                                @if ($menu->menu_parent_id == 0)
+                                                                    <option value="{{ $menu->id }}">
+                                                                        {{ $menu->menu_title }}
+                                                                    </option>
+                                                                @endif
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <!-- Nama Menu -->
+                                                <div class="col-md-12">
+                                                    <div class="form-group mb-3">
+                                                        <label>Nama Menu <span class="text-danger">*</span></label>
+                                                        <input type="text" name="menu_title" class="form-control"
+                                                            required>
+                                                    </div>
+                                                </div>
+
+                                                <!-- URL Menu -->
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3">
+                                                        <label>URL Menu</label>
+                                                        <input type="text" name="menu_url" class="form-control"
+                                                            placeholder="/about-us">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Target -->
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3">
+                                                        <label>Target Menu</label>
+                                                        <select class="form-control" name="menu_target">
+                                                            <option value="_self">Self</option>
+                                                            <option value="_blank">Blank</option>
+                                                            <option value="_parent">Parent</option>
+                                                            <option value="_top">Top</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Posisi -->
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3">
+                                                        <label>Posisi Menu</label>
+                                                        <input type="number" name="menu_position" class="form-control"
+                                                            value="0">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Status -->
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3">
+                                                        <label>Status</label>
+                                                        <select class="form-control" name="menu_status">
+                                                            <option value="1">Aktif</option>
+                                                            <option value="0">Non Aktif</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Button -->
+                                                <div class="col-md-12 mt-3">
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="fas fa-save"></i> Simpan Menu
+                                                    </button>
+                                                    <button type="reset" class="btn btn-secondary">
+                                                        Reset
+                                                    </button>
+                                                </div>
+
+                                            </div>
+                                        </form>
                                     </div>
                                     <!-- /.tab-pane -->
                                 </div>
@@ -362,5 +426,80 @@
                 }
             });
         }
+    </script>
+
+    <script>
+        $(document).ready(function() {
+
+            // Setup CSRF token global
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            // Submit Form
+            $('#formMenu').on('submit', function(e) {
+                e.preventDefault();
+
+                let form = $(this);
+                let url = form.attr('action');
+                let data = form.serialize();
+
+                Swal.fire({
+                    title: 'Menyimpan...',
+                    text: 'Mohon tunggu sebentar',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: data,
+                    dataType: "json",
+                    success: function(response) {
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: response.message ?? 'Data berhasil disimpan',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        form.trigger("reset");
+                        refreshMenuList();
+                        // Jika pakai DataTables
+                        if (typeof table !== 'undefined') {
+                            refreshMenuList();
+                        }
+
+                    },
+                    error: function(xhr) {
+
+                        let errors = xhr.responseJSON?.errors;
+                        let errorMessage = "Terjadi kesalahan!";
+
+                        if (errors) {
+                            errorMessage = Object.values(errors)
+                                .map(err => err[0])
+                                .join('<br>');
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            html: errorMessage
+                        });
+                    }
+                });
+
+            });
+
+        });
     </script>
 @endpush

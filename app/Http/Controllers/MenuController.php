@@ -96,7 +96,7 @@ class MenuController extends Controller
             'menu_url'       => $menu_url ?: '#',
             'menu_slug'      => Str::slug($menu_title),
             'menu_target'    => $request->menu_target,
-            'menu_type'      => $request->menu_type,
+            'menu_type'      => $request->menu_type ?? 'modules',
             'menu_parent_id' => $request->menu_parent_id ?? 0,
             'menu_position'  => Menu::max('menu_position') + 1,
         ]);
