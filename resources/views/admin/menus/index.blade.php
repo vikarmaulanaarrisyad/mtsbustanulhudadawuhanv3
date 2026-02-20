@@ -1,5 +1,3 @@
-<!-- FULL CODE MENU BUILDER YANG SUDAH DIPISAH: HALAMAN, LINK, MODUL -->
-
 @extends('layouts.app')
 
 @section('title', 'Kelola Menu')
@@ -7,61 +5,155 @@
 
 @push('css')
     <style>
+        .content-wrapper {
+            background: #f4f6f9;
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .05);
+        }
+
+        .card-header {
+            background: #ffffff;
+            border-bottom: 1px solid #f1f1f1;
+            border-radius: 16px 16px 0 0 !important;
+            padding: 18px 20px;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .nav-pills {
+            gap: 6px;
+        }
+
+        .nav-pills .nav-link {
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 13px;
+            padding: 6px 14px;
+            background: #f4f6f9;
+            color: #6c757d;
+            transition: all .25s ease;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            font-size: 14px;
+            padding: 10px 14px;
+            transition: all .2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #3c8dbc;
+            box-shadow: 0 0 0 3px rgba(60, 141, 188, .15);
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 500;
+            padding: 7px 16px;
+            font-size: 13px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3c8dbc, #00c0ef);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            opacity: .9;
+        }
+
+        .btn-light {
+            background: #f4f6f9;
+            border: 1px solid #e5e7eb;
+        }
+
         .sortable-menu {
             list-style: none;
             padding-left: 0;
-            position: relative;
-            min-height: 20px;
         }
 
         .sortable-menu li {
-            background: #fff;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-bottom: 6px;
-            transition: all 0.2s ease;
-            position: relative;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border: 1px solid #f1f1f1;
+            transition: all .25s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .03);
         }
 
         .sortable-menu li:hover {
-            background: #f8f9fa;
-            transform: translateX(2px);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, .08);
         }
 
         .sortable-placeholder {
-            height: 38px !important;
-            background: rgba(0, 123, 255, 0.12);
-            border: 2px dashed #007bff;
-            border-radius: 6px;
-            margin-bottom: 6px;
+            height: 50px !important;
+            background: rgba(60, 141, 188, .08);
+            border: 2px dashed #3c8dbc;
+            border-radius: 14px;
         }
 
         .handle {
-            cursor: move;
-            margin-right: 8px;
+            cursor: grab;
+            margin-right: 10px;
+            color: #adb5bd;
+        }
+
+        .handle:hover {
+            color: #3c8dbc;
         }
 
         .tools i {
             cursor: pointer;
-            margin-left: 8px;
+            margin-left: 12px;
+            transition: .2s;
+            color: #6c757d;
         }
 
-        .tools i:hover {
-            transform: scale(1.15);
+        .tools .fa-trash:hover {
+            color: #dc3545;
+        }
+
+        .tools .fa-edit:hover {
+            color: #17a2b8;
+        }
+
+        .menu-info {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 13px;
+            border: 1px solid #f1f1f1;
+            margin-bottom: 12px;
+            color: #6c757d;
         }
     </style>
 @endpush
 
 @section('content')
-
     <div class="row">
         <div class="col-lg-12">
             <x-card>
                 <div class="row">
-
-                    <!-- FORM TAMBAH MENU -->
-                    <div class="col-lg-6">
+                    <div class="col-lg-4">
                         <div class="card">
                             <div class="card-header d-flex p-0">
                                 <h4 class="card-title p-3">Tambah Menu</h4>
@@ -70,192 +162,71 @@
                                             data-toggle="tab">Tautan</a></li>
                                     <li class="nav-item"><a class="nav-link" href="#halaman" data-toggle="tab">Halaman</a>
                                     </li>
-                                    <li class="nav-item"><a class="nav-link" href="#kategori" data-toggle="tab">Kategori</a>
+                                    <li class="nav-item"><a class="nav-link" href="#kategori" data-toggle="tab">Kategori
+                                            Tulisan</a>
                                     </li>
+                                    <li class="nav-item"><a class="nav-link" href="#modul" data-toggle="tab">Kategori
+                                            File</a></li>
                                     <li class="nav-item"><a class="nav-link" href="#modul" data-toggle="tab">Modul</a></li>
                                 </ul>
-                            </div><!-- /.card-header -->
+                            </div>
+
                             <div class="card-body">
                                 <div class="tab-content">
+                                    <!-- TAB TAUTAN -->
                                     <div class="tab-pane active" id="tautan">
-
-                                        <p>Masih Tahap Developer</p>
-
+                                        @include('admin.menus.form-tautan')
                                     </div>
-                                    <div class="tab-pane " id="halaman">
-                                        <form onsubmit="addCustomMenu(event)">
-                                            @csrf
-                                            <input type="hidden" name="menu_type" value="pages">
-                                            <div class="form-group mb-2">
-                                                <label>Pilih Halaman</label>
-                                                <select name="menu_url" class="form-control form-control-sm" required>
-                                                    <option value="" disabled selected>Pilih Halaman</option>
-                                                    @foreach ($pages as $page)
-                                                        <option value="{{ $page->slug }}">{{ $page->title }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
 
-                                            <div class="form-group mb-2">
-                                                <label>Target</label>
-                                                <select name="menu_target" class="form-control form-control-sm">
-                                                    <option value="_self">Self</option>
-                                                    <option value="_blank">Blank</option>
-                                                </select>
-                                            </div>
-
-                                            <button class="btn btn-sm btn-primary w-100">Tambah</button>
-                                        </form>
-                                    </div>
-                                    <!-- /.tab-pane -->
                                     <div class="tab-pane" id="kategori">
-                                        <form onsubmit="addCustomMenu(event)">
-                                            @csrf
-                                            <input type="hidden" name="menu_type" value="links">
-                                            <div class="form-group mb-2">
-                                                <label>Pilih Salah Satu</label>
-                                                <select name="menu_url" class="form-control form-control-sm" required>
-                                                    <option value="" disabled selected>Pilih Halaman</option>
-                                                    @foreach ($category as $c)
-                                                        <option value="{{ $c->category_slug }}">{{ $c->category_name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group mb-2">
-                                                <label>Target</label>
-                                                <select name="menu_target" class="form-control form-control-sm">
-                                                    <option value="_self">Self</option>
-                                                    <option value="_blank">Blank</option>
-                                                </select>
-                                            </div>
-
-                                            <button class="btn btn-sm btn-primary w-100">Tambah</button>
-                                        </form>
+                                        @include('admin.menus.form-kategori')
                                     </div>
 
-                                    <!-- /.tab-pane -->
+                                    <!-- TAB HALAMAN -->
+                                    <div class="tab-pane" id="halaman">
+                                        @include('admin.menus.form-halaman')
+                                    </div>
+
+                                    <!-- TAB MODUL (dipersingkat tampilan premium) -->
                                     <div class="tab-pane" id="modul">
-                                        <form id="formMenu" action="{{ route('menus.store') }}" method="POST">
-                                            <input type="hidden" name="menu_type" value="modules">
-                                            @csrf
-
-                                            <div class="row">
-
-                                                <!-- Parent Menu -->
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3">
-                                                        <label>Parent Menu</label>
-                                                        <select class="form-control" name="menu_parent_id">
-                                                            <option value="0">Menu Utama</option>
-                                                            @foreach ($menus as $menu)
-                                                                @if ($menu->menu_parent_id == 0)
-                                                                    <option value="{{ $menu->id }}">
-                                                                        {{ $menu->menu_title }}
-                                                                    </option>
-                                                                @endif
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <!-- Nama Menu -->
-                                                <div class="col-md-12">
-                                                    <div class="form-group mb-3">
-                                                        <label>Nama Menu <span class="text-danger">*</span></label>
-                                                        <input type="text" name="menu_title" class="form-control"
-                                                            required>
-                                                    </div>
-                                                </div>
-
-                                                <!-- URL Menu -->
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3">
-                                                        <label>URL Menu</label>
-                                                        <input type="text" name="menu_url" class="form-control"
-                                                            placeholder="/about-us">
-                                                    </div>
-                                                </div>
-
-                                                <!-- Target -->
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3">
-                                                        <label>Target Menu</label>
-                                                        <select class="form-control" name="menu_target">
-                                                            <option value="_self">Self</option>
-                                                            <option value="_blank">Blank</option>
-                                                            <option value="_parent">Parent</option>
-                                                            <option value="_top">Top</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Posisi -->
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3">
-                                                        <label>Posisi Menu</label>
-                                                        <input type="number" name="menu_position" class="form-control"
-                                                            value="0">
-                                                    </div>
-                                                </div>
-
-                                                <!-- Status -->
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3">
-                                                        <label>Status</label>
-                                                        <select class="form-control" name="menu_status">
-                                                            <option value="1">Aktif</option>
-                                                            <option value="0">Non Aktif</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Button -->
-                                                <div class="col-md-12 mt-3">
-                                                    <button type="submit" class="btn btn-primary">
-                                                        <i class="fas fa-save"></i> Simpan Menu
-                                                    </button>
-                                                    <button type="reset" class="btn btn-secondary">
-                                                        Reset
-                                                    </button>
-                                                </div>
-
-                                            </div>
-                                        </form>
+                                        @include('admin.menus.form-modul')
                                     </div>
-                                    <!-- /.tab-pane -->
                                 </div>
-                                <!-- /.tab-content -->
-                            </div><!-- /.card-body -->
+                            </div>
                         </div>
                     </div>
 
-
-                    <!-- STRUKTUR MENU -->
-                    <div class="col-lg-6">
+                    <div class="col-lg-8">
                         <x-card>
                             <x-slot name="header">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0"><i class="fas fa-list-ul"></i> Struktur Menu</h5>
-                                    <button onclick="refreshMenuList()" class="btn btn-sm btn-secondary">
-                                        <i class="fas fa-sync"></i> Refresh
+                                <div class="d-flex justify-content-between align-items-center w-100">
+                                    <div>
+                                        <h5 class="card-title">
+                                            <i class="fas fa-sitemap text-info mr-2"></i>
+                                            Struktur Menu Website
+                                        </h5>
+                                    </div>
+                                    <button onclick="refreshMenuList()" class="btn btn-light btn-sm">
+                                        <i class="fas fa-sync-alt"></i>
                                     </button>
                                 </div>
                             </x-slot>
+
+                            <div class="menu-info">
+                                <i class="fas fa-info-circle text-info mr-1"></i>
+                                Tarik menu untuk membuat sub-menu hingga 5 level.
+                            </div>
 
                             <ul class="sortable-menu" id="menuList">
                                 @include('admin.menus.menu-list', ['menus' => $menus])
                             </ul>
                         </x-card>
                     </div>
-
                 </div>
             </x-card>
         </div>
     </div>
 @endsection
-
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
@@ -318,39 +289,6 @@
                     initSortableMenu();
                 })
                 .catch(() => toastr.error("Gagal memuat ulang menu"));
-        }
-
-        function addCustomMenu(e) {
-            e.preventDefault();
-
-            const form = e.target;
-            const data = new FormData(form);
-
-            Swal.fire({
-                title: 'Menyimpan...',
-                didOpen: () => Swal.showLoading(),
-                allowOutsideClick: false
-            });
-
-            fetch(`{{ route('menus.store') }}`, {
-                    method: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: data
-                })
-                .then(res => res.json())
-                .then(res => {
-                    Swal.close();
-                    if (res.menu) {
-                        toastr.success(res.message);
-                        form.reset();
-                        refreshMenuList();
-                    } else {
-                        Swal.fire('Gagal', res.message || 'Kesalahan tidak diketahui', 'error');
-                    }
-                })
-                .catch(() => Swal.fire('Error', 'Tidak dapat mengirim data ke server', 'error'));
         }
 
         function deleteData(url, name) {
@@ -424,15 +362,8 @@
     <script>
         $(document).ready(function() {
 
-            // Setup CSRF token global
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            // Submit Form
-            $('#formMenu').on('submit', function(e) {
+            // Gunakan class, bukan ID
+            $(document).on('submit', '.formMenu', function(e) {
                 e.preventDefault();
 
                 let form = $(this);
@@ -455,7 +386,6 @@
                     data: data,
                     dataType: "json",
                     success: function(response) {
-
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil!',
@@ -465,15 +395,12 @@
                         });
 
                         form.trigger("reset");
-                        refreshMenuList();
-                        // Jika pakai DataTables
-                        if (typeof table !== 'undefined') {
+
+                        if (typeof refreshMenuList === "function") {
                             refreshMenuList();
                         }
-
                     },
                     error: function(xhr) {
-
                         let errors = xhr.responseJSON?.errors;
                         let errorMessage = "Terjadi kesalahan!";
 

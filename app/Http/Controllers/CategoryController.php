@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Menu;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -153,7 +154,9 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         $query = Category::findOrfail($id);
+        $menu = Menu::where('menu_slug', $query->category_slug)->first();
 
+        $menu->delete();
         $query->delete();
         return response()->json(['message' => 'Data berhasil dihapus.']);
     }

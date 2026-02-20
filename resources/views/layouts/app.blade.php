@@ -35,6 +35,12 @@
 
 
     <style>
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #3c8dbc, #00c0ef);
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(60, 141, 188, .35);
+        }
+
         .note-editor {
             margin-bottom: 0;
         }
