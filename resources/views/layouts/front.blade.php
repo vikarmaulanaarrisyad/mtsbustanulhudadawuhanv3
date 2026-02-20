@@ -580,6 +580,176 @@
                 text-align: justify;
             }
         }
+
+        /* Footer full-width gradient + pattern */
+        .footer-premium {
+            position: relative;
+            width: 100%;
+            background: #0b8c89;
+            color: #fff;
+            font-size: 0.95rem;
+            padding: 60px 0 20px 0;
+            flex-shrink: 0;
+            /* agar sticky footer tetap */
+            overflow: hidden;
+        }
+
+        .footer-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('{{ asset('images/footer-pattern.png') }}');
+            opacity: 0.05;
+            /* pattern tipis */
+            background-repeat: repeat;
+            z-index: 0;
+        }
+
+        /* Container text & icons */
+        .footer-premium .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Links */
+        .footer-premium a {
+            color: rgba(255, 255, 255, 0.8);
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .footer-premium a:hover {
+            color: #07374d;
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        /* Social icons */
+        .footer-premium .social-icons a {
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 1.2rem;
+            color: #fff;
+            transition: all 0.3s;
+        }
+
+        .footer-premium .social-icons a:hover {
+            color: #0b8c89;
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        /* Divider */
+        .footer-premium hr {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .footer-premium {
+                padding: 40px 0 20px 0;
+            }
+
+            .footer-premium .social-icons a {
+                margin-right: 5px;
+            }
+        }
+
+        /* Full screen preloader */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0b8c89, #1d1d1d);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        /* Wrapper logo + ring */
+        .preloader-wrapper {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Logo statis di tengah */
+        .logo-loading {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        /* Ring loader animasi */
+        .loader-ring {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #28a745;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+            z-index: 1;
+        }
+
+        /* Ring spin animasi */
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Preloader text */
+        .preloader-text {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 25px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeSlideIn 1s forwards;
+            animation-delay: 0.5s;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        /* Fade + slide animasi */
+        @keyframes fadeSlideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .preloader-wrapper {
+                width: 120px;
+                height: 120px;
+            }
+
+            .logo-loading {
+                width: 80px;
+                height: 80px;
+            }
+
+            .preloader-text {
+                font-size: 1.2rem;
+            }
+        }
     </style>
 
 
@@ -588,6 +758,15 @@
 </head>
 
 <body>
+    <!-- Preloader Ring Effect -->
+    <div id="preloader">
+        <div class="preloader-wrapper">
+            <div class="loader-ring"></div>
+            <img src="{{ Storage::url($setting->path_image ?? 'images/logo.png') }}" alt="Logo"
+                class="logo-loading">
+        </div>
+    </div>
+
 
     {{-- Header Atas --}}
     {{--  <div class="topbar d-flex justify-content-between align-items-center">
@@ -682,85 +861,70 @@
                 @endforeach
             </ul>
         </div>
-
     </nav>
-
-    {{--
-    <nav class="navbar navbar-expand-sm sticky-top fixed-top navbar-light bg-white border-bottom">
-        <a class="navbar-brand font-weight-bold text-success" href="{{ url('/') }}">
-            <img src="{{ Storage::url($setting->path_image_header) }}" alt="Logo" class="logo-image">
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar1">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbar1">
-            <ul class="navbar-nav ml-auto mr-5">
-                @foreach ($menus as $menu)
-                    @php
-                        $children = \App\Models\Menu::where('menu_parent_id', $menu->id)
-                            ->orderBy('menu_position')
-                            ->get();
-
-                        // Tentukan URL berdasarkan menu_type
-                        if ($menu->menu_type === 'pages' || $menu->menu_type === 'modul') {
-                            $url = route('front.handle', $menu->menu_slug);
-                        } elseif ($menu->menu_type === 'link') {
-                            $url = $menu->menu_url; // langsung ke external
-                        } else {
-                            $url = '#';
-                        }
-
-                        // cek active: cocok dengan slug sekarang
-                        $isActive = request()->is($menu->menu_slug . '*');
-                    @endphp
-
-                    @if ($children->count() > 0)
-                        <li class="nav-item dropdown {{ $isActive ? 'active' : '' }}">
-                            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-                                {{ $menu->menu_title }}
-                            </a>
-                            <div class="dropdown-menu">
-                                @foreach ($children as $child)
-                                    @php
-                                        if ($child->menu_type === 'pages' || $child->menu_type === 'modul') {
-                                            $childUrl = route('front.handle', $child->menu_slug);
-                                        } elseif ($child->menu_type === 'link') {
-                                            $childUrl = $child->menu_url;
-                                        } else {
-                                            $childUrl = '#';
-                                        }
-
-                                        $childActive = request()->is($child->menu_slug . '*');
-                                    @endphp
-
-                                    <a class="dropdown-item {{ $childActive ? 'active' : '' }}"
-                                        href="{{ $childUrl }}" target="{{ $child->menu_target }}">
-                                        {{ $child->menu_title }}
-                                    </a>
-                                @endforeach
-                            </div>
-                        </li>
-                    @else
-                        <li class="nav-item {{ $isActive ? 'active' : '' }}">
-                            <a class="nav-link" href="{{ $url }}" target="{{ $menu->menu_target }}">
-                                {{ $menu->menu_title }}
-                            </a>
-                        </li>
-                    @endif
-                @endforeach
-
-            </ul>
-        </div>
-    </nav>  --}}
 
     @yield('content')
 
     {{-- Footer --}}
-    <div class="footer">
-        <p class="mb-1">&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>
-        <p><a href="{{ url('/about') }}">Tentang Kami</a> | <a href="{{ url('/contact') }}">Kontak</a> | <a
-                href="{{ url('/ppdb') }}">PPDB</a></p>
-    </div>
+    {{--  <div class="footer">
+        <p class="mb-1">&copy; 2025 - {{ date('Y') }} {{ $setting->company_name }}.
+        </p>
+    </div>  --}}
+
+    {{-- Footer --}}
+    <footer class="footer-premium">
+        <div class="footer-pattern"></div>
+        <div class="container">
+            <div class="row">
+
+                {{-- Tentang --}}
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5 class="text-white fw-bold mb-3">{{ $setting->company_name }}</h5>
+                    <p class="text-light">
+                        {{ $setting->company_description ?? 'Selamat datang di website resmi madrasah kami. Kami berkomitmen memberikan pendidikan terbaik.' }}
+                    </p>
+                </div>
+
+                {{-- Link Penting --}}
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5 class="text-white fw-bold mb-3">Link Penting</h5>
+                    <ul class="list-unstyled text-light">
+                        <li><a href="{{ url('/') }}">Beranda</a></li>
+                        <li><a href="{{ url('/about') }}">Tentang Kami</a></li>
+                        <li><a href="{{ url('/contact') }}">Kontak</a></li>
+                        <li><a href="{{ url('/blog') }}">Berita</a></li>
+                    </ul>
+                </div>
+
+                {{-- Kontak & Sosial Media --}}
+                <div class="col-md-4">
+                    <h5 class="text-white fw-bold mb-3">Kontak</h5>
+                    <p class="text-light mb-1"><i class="fa fa-map-marker-alt me-2"></i>{{ $setting->address ?? '-' }}
+                    </p>
+                    <p class="text-light mb-1"><i class="fa fa-phone me-2"></i>{{ $setting->phone ?? '-' }}</p>
+                    <p class="text-light mb-3"><i class="fa fa-envelope me-2"></i>{{ $setting->email ?? '-' }}</p>
+                    <div class="social-icons">
+                        @if ($setting->facebook)
+                            <a href="{{ $setting->facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        @endif
+                        @if ($setting->twitter)
+                            <a href="{{ $setting->twitter }}" target="_blank"><i class="fab fa-twitter"></i></a>
+                        @endif
+                        @if ($setting->instagram)
+                            <a href="{{ $setting->instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>
+                        @endif
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- Bottom Footer --}}
+            <hr class="border-light mt-4">
+            <div class="text-center pt-3 text-light">
+                &copy; 2025 - {{ date('Y') }} {{ $setting->company_name }}. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -788,6 +952,17 @@
                 mobileMenu.classList.remove('show');
                 overlay.classList.remove('active');
             }
+        });
+    </script>
+
+    <script>
+        window.addEventListener('load', function() {
+            const preloader = document.getElementById('preloader');
+            preloader.style.transition = 'opacity 0.7s ease';
+            preloader.style.opacity = 0;
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 700);
         });
     </script>
 

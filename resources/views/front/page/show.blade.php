@@ -227,9 +227,8 @@
             </div>
 
             <!-- Sidebar -->
-            <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="col-lg-4 mt-4 mt-lg-0 mb-5">
                 <div class="sidebar">
-
                     <!-- Sambutan Kepala Madrasah -->
                     @include('layouts.partials.sambutan-kepala')
 
