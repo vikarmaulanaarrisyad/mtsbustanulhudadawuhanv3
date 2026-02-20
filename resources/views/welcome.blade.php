@@ -49,6 +49,40 @@
             color: white;
         }
     </style>
+
+    <style>
+        .hover-effect {
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: default;
+        }
+
+        .hover-effect:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Card hover effect */
+        .hover-effect {
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: default;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .hover-effect:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Gradient border effect */
+        .gradient-border {
+            position: relative;
+            border: 3px solid;
+            border-radius: 15px;
+            background-clip: padding-box;
+            border-color: #04a30f;
+        }
+    </style>
 @endpush
 
 
@@ -101,7 +135,6 @@
             <span class="sr-only">Next</span>
         </a>
     </div>
-
     {{-- Breaking News --}}
     <div class="breaking-news">
         <div class="news-text">
@@ -214,7 +247,53 @@
         </div>
     </section>
 
-    {{-- Section Agenda Sekolah --}}
+    {{--  Section Statistik Sekolah Profesional  --}}
+    {{--  <section id="statistik-sekolah" class="py-5" style="background: linear-gradient(135deg, #0eaaa6, #17ccc6);">
+        <div class="container">
+            <div class="text-center mb-5" style="color: rgb(255, 254, 254);">
+                <h2 class="fw-bold">Statistik Sekolah</h2>
+                <p class="lead">Beberapa data penting yang menunjukkan prestasi dan kekuatan sekolah kami</p>
+            </div>
+            <div class="row g-4 justify-content-center">
+
+                <!-- Card Statistik -->
+                <div class="col-md-3">
+
+                    <div
+                        class="card gradient-border hover-effect bg-white bg-opacity-10 border-0 shadow-lg text-center py-4 px-3 hover-effect">
+                        <i class="bi bi-people-fill display-3 mb-3 "></i>
+                        <h3 class="counter" data-target="1200">0</h3>
+                        <p class="fw-bold">Siswa</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-white bg-opacity-10 border-0 shadow-lg text-center py-4 px-3 hover-effect">
+                        <i class="bi bi-person-badge-fill display-3 mb-3 text-white"></i>
+                        <h3 class="counter" data-target="75">0</h3>
+                        <p class="fw-bold">Guru</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card bg-white bg-opacity-10 border-0 shadow-lg text-center py-4 px-3 hover-effect">
+                        <i class="bi bi-building display-3 mb-3 text-white"></i>
+                        <h3 class="counter" data-target="36">0</h3>
+                        <p class="fw-bold">Kelas</p>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card bg-white bg-opacity-10 border-0 shadow-lg text-center py-4 px-3 hover-effect">
+                        <i class="bi bi-trophy-fill display-3 mb-3 text-white"></i>
+                        <h3 class="counter" data-target="150">0</h3>
+                        <p class="fw-bold">Prestasi</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>  --}}
+    {{--  End Section  --}}
+
     <section class="py-5 bg-white mb-5">
         <div class="text-center mb-4 px-3">
             <h2 class="font-weight-bold text-success">Agenda Sekolah</h2>
@@ -255,32 +334,6 @@
         </div>
     </section>
 
-    {{-- Statistik Sekolah --}}
-    <section class="py-5 bg-success text-white">
-        <div class="row text-center m-0">
-            <div class="col-md-3 col-6 mb-4">
-                <i class="fa fa-users fa-2x mb-2"></i>
-                <h3 class="counter" data-count="1200">0</h3>
-                <p>Siswa</p>
-            </div>
-            <div class="col-md-3 col-6 mb-4">
-                <i class="fa fa-user-tie fa-2x mb-2"></i>
-                <h3 class="counter" data-count="80">0</h3>
-                <p>Guru & Staff</p>
-            </div>
-            <div class="col-md-3 col-6 mb-4">
-                <i class="fa fa-graduation-cap fa-2x mb-2"></i>
-                <h3 class="counter" data-count="500">0</h3>
-                <p>Alumni</p>
-            </div>
-            <div class="col-md-3 col-6 mb-4">
-                <i class="fa fa-trophy fa-2x mb-2"></i>
-                <h3 class="counter" data-count="50">0</h3>
-                <p>Prestasi</p>
-            </div>
-        </div>
-    </section>
-
     {{-- Lokasi Sekolah --}}
     {{--  <section class="py-5 bg-light text-center">
         <h2 class="font-weight-bold text-success mb-4">Lokasi Sekolah</h2>
@@ -295,6 +348,24 @@
 @endsection
 
 @push('scripts')
+    <script>
+        const counters = document.querySelectorAll('.counter');
+        counters.forEach(counter => {
+            const updateCount = () => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const increment = target / 200;
+
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(updateCount, 10);
+                } else {
+                    counter.innerText = target;
+                }
+            }
+            updateCount();
+        });
+    </script>
     <script>
         $('#carouselExampleCaptions').carousel({
             interval: 3000, // 3 detik

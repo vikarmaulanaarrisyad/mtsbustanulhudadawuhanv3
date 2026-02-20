@@ -9,6 +9,10 @@
     {{-- Bootstrap & Font Awesome --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{{ asset('/AdminLTE/plugins/fontawesome-free/css/all.min.css') }}">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 
     <meta name="description" content="{{ $setting->nama_aplikasi }}" />
 
@@ -17,7 +21,10 @@
     <link rel="icon" href="{{ Storage::url($setting->path_image ?? '') }}" type="image/*">
     <link rel="stylesheet" href="{{ asset('/public/css/mycss.css') }}">
     <link rel="stylesheet" href="{{ secure_asset('css/custom.css') }}">
-
+    <!-- SweetAler2 -->
+    <link rel="stylesheet" href="{{ asset('/AdminLTE/plugins/sweetalert2/sweetalert2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/toastr/toastr.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('AdminLTE/dist/css/adminlte.min.css?v=3.2.0') }}">
     <style>
         /* =====================================================
    1. ROOT & GLOBAL
@@ -928,6 +935,14 @@
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- sweetalert2 -->
+    <script src="{{ asset('/AdminLTE/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/toastr/toastr.min.js') }}"></script>
+    <!-- ChartJS -->
+    <script src="{{ asset('/AdminLTE/plugins/chart.js/Chart.min.js') }}"></script>
+    <!-- AdminLTE App -->
+    <script src="{{ asset('AdminLTE/dist/js/adminlte.js?v=3.2.0') }}"></script>
+    <script src="{{ asset('AdminLTE/dist/js/pages/dashboard.js') }}"></script>
 
     <script>
         const toggleBtn = document.getElementById('mobileMenuToggle');

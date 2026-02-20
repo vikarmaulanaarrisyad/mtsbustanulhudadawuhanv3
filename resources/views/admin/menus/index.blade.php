@@ -68,9 +68,10 @@
                                 <ul class="nav nav-pills ml-auto p-2">
                                     <li class="nav-item"><a class="nav-link active" href="#tautan"
                                             data-toggle="tab">Tautan</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="#halaman"
-                                            data-toggle="tab">Halaman</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="#kategori" data-toggle="tab">Kategori</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="#halaman" data-toggle="tab">Halaman</a>
+                                    </li>
+                                    <li class="nav-item"><a class="nav-link" href="#kategori" data-toggle="tab">Kategori</a>
+                                    </li>
                                     <li class="nav-item"><a class="nav-link" href="#modul" data-toggle="tab">Modul</a></li>
                                 </ul>
                             </div><!-- /.card-header -->
@@ -119,7 +120,7 @@
                                     </div>
                                     <!-- /.tab-pane -->
                                     <div class="tab-pane" id="kategori">
-                                       <form onsubmit="addCustomMenu(event)">
+                                        <form onsubmit="addCustomMenu(event)">
                                             @csrf
                                             <input type="hidden" name="menu_type" value="links">
 
@@ -293,6 +294,73 @@
                     }
                 })
                 .catch(() => Swal.fire('Error', 'Tidak dapat mengirim data ke server', 'error'));
+        }
+
+        function deleteData(url, name) {
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: true,
+            });
+
+            swalWithBootstrapButtons.fire({
+                title: 'Delete Data!',
+                text: 'Apakah Anda yakin ingin menghapus ' + name +
+                    ' ? Data yang dihapus tidak dapat dikembalikan!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: 'Iya!',
+                cancelButtonText: 'Batalkan',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Tampilkan Swal loading sebelum menghapus
+                    Swal.fire({
+                        title: 'Menghapus...',
+                        text: 'Mohon tunggu sebentar',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        type: "DELETE",
+                        url: url,
+                        dataType: "json",
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: response.message,
+                                showConfirmButton: false,
+                                timer: 3000
+                            }).then(() => {
+                                refreshMenuList(); // Reload DataTables setelah penghapusan
+                            });
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops! Gagal',
+                                text: xhr.responseJSON ? xhr.responseJSON.message :
+                                    'Terjadi kesalahan!',
+                                showConfirmButton: true,
+                            }).then(() => {
+                                table.ajax.reload(); // Reload tabel jika terjadi error
+                            });
+                        }
+                    });
+                }
+            });
         }
     </script>
 @endpush
