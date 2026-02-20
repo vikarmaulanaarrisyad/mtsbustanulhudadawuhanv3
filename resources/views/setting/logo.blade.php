@@ -4,7 +4,9 @@
 
     <x-card>
         <div class="row justify-content-center">
-            <div class="col-lg-4">
+
+            {{-- Favicon --}}
+            <div class="col-lg-3">
                 <strong class="d-block text-center">Favicon</strong>
                 <div class="text-center">
                     <img src="{{ Storage::url($setting->path_image ?? '') }}" alt=""
@@ -18,8 +20,9 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-2"></div>
-            <div class="col-lg-4">
+
+            {{-- Header --}}
+            <div class="col-lg-3">
                 <strong class="d-block text-center">Header</strong>
                 <div class="text-center">
                     <img src="{{ Storage::url($setting->path_image_header ?? '') }}" alt=""
@@ -33,9 +36,9 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-lg-4">
+
+            {{-- Footer --}}
+            <div class="col-lg-3">
                 <strong class="d-block text-center">Footer</strong>
                 <div class="text-center">
                     <img src="{{ Storage::url($setting->path_image_footer ?? '') }}" alt=""
@@ -49,7 +52,25 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Breadcrumb --}}
+            <div class="col-lg-3">
+                <strong class="d-block text-center">Breadcrumb</strong>
+                <div class="text-center">
+                    <img src="{{ Storage::url($setting->path_breadcrumb ?? '') }}" alt=""
+                        class="img-thumbnail preview-path_breadcrumb" width="200">
+                </div>
+                <div class="form-group mt-3">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="path_breadcrumb" name="path_breadcrumb"
+                            onchange="preview('.preview-path_breadcrumb', this.files[0])">
+                        <label class="custom-file-label" for="path_breadcrumb">Choose file</label>
+                    </div>
+                </div>
+            </div>
+
         </div>
+
         <x-slot name="footer">
             <button type="reset" class="btn btn-dark">Reset</button>
             <button class="btn btn-primary">Simpan</button>

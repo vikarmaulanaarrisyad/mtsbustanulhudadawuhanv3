@@ -105,6 +105,7 @@ class SettingController extends Controller
         if ($request->has('pills') && $request->pills == 'logo') {
             $rules = [
                 'path_image' => 'nullable|mimes:png,jpg,jpeg|max:2048',
+                'path_breadcrumb' => 'nullable|mimes:png,jpg,jpeg|max:2048',
                 'path_image_header' => 'nullable|mimes:png,jpg,jpeg|max:2048',
                 'path_image_footer' => 'nullable|mimes:png,jpg,jpeg|max:2048',
             ];
@@ -119,7 +120,7 @@ class SettingController extends Controller
             ];
         }
 
-        $data = $request->except('path_image', 'path_image_header', 'path_image_footer');
+        $data = $request->except('path_image', 'path_image_header', 'path_breadcrumb', 'path_image_footer');
 
         if ($request->hasFile('path_image') && $setting->path_image) {
             if (Storage::disk('public')->exists($setting->path_image)) {
@@ -127,6 +128,14 @@ class SettingController extends Controller
             }
 
             $data['path_image'] = upload('setting', $request->file('path_image'), 'setting');
+        }
+
+        if ($request->hasFile('path_breadcrumb') && $setting->path_breadcrumb) {
+            if (Storage::disk('public')->exists($setting->path_breadcrumb)) {
+                Storage::disk('public')->delete($setting->path_breadcrumb);
+            }
+
+            $data['path_breadcrumb'] = upload('setting', $request->file('path_breadcrumb'), 'setting');
         }
 
         if ($request->hasFile('path_image_header') && $setting->path_image_header) {
