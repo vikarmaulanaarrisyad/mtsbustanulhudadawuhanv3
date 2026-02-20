@@ -59,6 +59,102 @@
             background: none !important;
             outline: none !important;
         }
+
+        /* Full screen preloader */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0b8c89, #1d1d1d);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        /* Wrapper logo + ring */
+        .preloader-wrapper {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Logo statis di tengah */
+        .logo-loading {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        /* Ring loader animasi */
+        .loader-ring {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #28a745;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+            z-index: 1;
+        }
+
+        /* Ring spin animasi */
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Preloader text */
+        .preloader-text {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 25px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeSlideIn 1s forwards;
+            animation-delay: 0.5s;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        /* Fade + slide animasi */
+        @keyframes fadeSlideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .preloader-wrapper {
+                width: 120px;
+                height: 120px;
+            }
+
+            .logo-loading {
+                width: 80px;
+                height: 80px;
+            }
+
+            .preloader-text {
+                font-size: 1.2rem;
+            }
+        }
     </style>
 
     @stack('css')
@@ -67,11 +163,13 @@
 <body class="sidebar-mini layout-fixed layout-footer-fixed">
     <div class="wrapper">
 
-        <!-- Preloader -->
-        {{--  <div class="preloader flex-column justify-content-center align-items-center">
-            <img class="animation__shake" src="{{ asset('/AdminLTE/dist/img/AdminLTELogo.png') }}" alt="AdminLTELogo"
-                height="60" width="60">
-        </div>  --}}
+        <div id="preloader">
+            <div class="preloader-wrapper">
+                <div class="loader-ring"></div>
+                <img src="{{ Storage::url($setting->path_image ?? 'images/logo.png') }}" alt="Logo"
+                    class="logo-loading">
+            </div>
+        </div>
 
         <!-- Navbar -->
         @includeIf('layouts.partials.header')
@@ -160,6 +258,17 @@
     <script>
         $(function() {
             $('#spinner-border').hide();
+        });
+    </script>
+
+    <script>
+        window.addEventListener('load', function() {
+            const preloader = document.getElementById('preloader');
+            preloader.style.transition = 'opacity 0.7s ease';
+            preloader.style.opacity = 0;
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 700);
         });
     </script>
 
