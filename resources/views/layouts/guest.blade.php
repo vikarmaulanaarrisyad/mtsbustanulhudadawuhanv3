@@ -42,7 +42,7 @@
         }
 
         .bg-image {
-            background-image: url('{{ Storage::url($setting->path_image_header) }}');
+            background-image: url('{{ Storage::url($setting->path_image) }}');
             background-size: cover;
             background-position: center;
         }

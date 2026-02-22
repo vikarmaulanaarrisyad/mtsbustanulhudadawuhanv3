@@ -12,81 +12,63 @@
 @section('content')
     <form id="post-form" action="{{ route('pages.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
+
         <div class="row">
+
+            {{-- ================= LEFT CONTENT ================= --}}
             <div class="col-lg-8">
                 <x-card>
+                    <x-slot name="header">
+                        FORM HALAMAN
+                    </x-slot>
+
                     <div class="form-group">
-                        <label for="title">Judul Halaman</label>
-                        <input id="title" class="form-control" type="text" name="title" autocomplete="off"
-                            placeholder="Masukkan judul halaman">
+                        <label for="title" class="font-weight-semibold">
+                            Judul Halaman
+                        </label>
+                        <input id="title" type="text" name="title" class="form-control"
+                            placeholder="Masukkan judul halaman..." autocomplete="off" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="body">Isi Halaman</label>
-                        <textarea name="body" id="body" cols="200" rows="60" class="form-control summernote"></textarea>
+                        <label for="body" class="font-weight-semibold">
+                            Isi Halaman
+                        </label>
+                        <textarea name="body" id="body" rows="15" class="form-control summernote"></textarea>
                     </div>
                 </x-card>
             </div>
 
+
+            {{-- ================= RIGHT SIDEBAR ================= --}}
             <div class="col-lg-4">
                 <x-card>
-                    <x-slot name="header">PUBLIKASI</x-slot>
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="post_status">Status</label>
-                                <select name="post_status" class="form-control" id="post_status">
-                                    <option value="draft">Draft</option>
-                                    <option value="publish" selected>Diterbitkan</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="post_visibility">Akses</label>
-                                <select name="post_visibility" class="form-control" id="post_visibility">
-                                    <option value="public">Publik</option>
-                                    <option value="private">Privat</option>
-                                </select>
-                            </div>
-                        </div>
+                    <div class="d-flex flex-column gap-2">
+
+                        <a href="{{ route('pages.index') }}" class="btn btn-warning btn-sm mb-2">
+                            <i class="fas fa-arrow-left mr-1"></i>
+                            Kembali
+                        </a>
+
+                        <button type="button" onclick="resetPostForm()" class="btn btn-secondary btn-sm mb-2">
+                            <i class="fas fa-sync-alt mr-1"></i>
+                            Atur Ulang
+                        </button>
+
+                        <button type="button" onclick="submitForm(this.form)" class="btn btn-success btn-sm"
+                            id="submitBtn">
+
+                            <span id="spinner-border" class="spinner-border spinner-border-sm d-none mr-1"
+                                role="status"></span>
+
+                            <i class="fas fa-save mr-1"></i>
+                            Simpan
+                        </button>
+
                     </div>
-
-                    <div class="form-group">
-                        <label for="post_comment_status">Komentar</label>
-                        <select name="post_comment_status" class="form-control" id="post_comment_status">
-                            <option value="open">Diizinkan</option>
-                            <option value="close">Tidak Diizinkan</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group mt-2">
-                        <label for="post_image">Gambar</label>
-                        <input type="file" name="post_image" class="form-control-file" id="post_image">
-                    </div>
-
-                    <x-slot name="footer">
-                        <div class="d-flex justify-content-between mt-3">
-
-                            <a href="{{ route('pages.index') }}" class="btn btn-sm btn-warning">
-                                <i class="fas fa-undo-alt"></i> Kembali
-                            </a>
-
-                            <button type="button" onclick="resetPostForm()" class="btn btn-sm btn-warning">
-                                <i class="fas fa-undo-alt"></i> Atur Ulang
-                            </button>
-
-                            <button type="button" onclick="submitForm(this.form)" class="btn btn-sm btn-outline-info"
-                                id="submitBtn">
-                                <span id="spinner-border" class="spinner-border spinner-border-sm d-none" role="status"
-                                    aria-hidden="true"></span>
-                                <i class="fas fa-save mr-1"></i> Simpan
-                            </button>
-                        </div>
-                    </x-slot>
                 </x-card>
-
             </div>
+
         </div>
     </form>
 @endsection

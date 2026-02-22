@@ -17,19 +17,19 @@
                     <a href="{{ route('pages.create') }}" class="btn btn-sm btn-info"><i class="fas fa-plus-circle"></i>
                         Tambah Data
                     </a>
-
+                    {{--
                     <button id="deleteSelectedBtn" class="btn btn-sm btn-danger ml-2" disabled>
                         <i class="fas fa-trash"></i> Hapus Data Terpilih
-                    </button>
+                    </button>  --}}
                 </x-slot>
                 <x-table id="table">
                     <x-slot name="thead">
-                        <th width="5%">
+                        {{--  <th width="5%">
                             <div class="form-check form-check-inline">
                                 <input id="selectAll" class="form-check-input" type="checkbox" name="selectAll"
                                     value="true">
                             </div>
-                        </th>
+                        </th>  --}}
                         <th width="5%">NO</th>
                         <th width="35%">JUDUL HALAMAN</th>
                         <th>SLUG</th>
@@ -39,8 +39,6 @@
             </x-card>
         </div>
     </div>
-
-    {{--  @include('admin.blog.posts.form')  --}}
 @endsection
 
 @include('includes.datatable')
@@ -65,12 +63,6 @@
                 url: '{{ route('pages.data') }}',
             },
             columns: [{
-                    data: 'selectAll',
-                    name: 'selectAll',
-                    orderable: false,
-                    searchable: false
-                },
-                {
                     data: 'DT_RowIndex',
                     name: 'DT_RowIndex',
                     orderable: false,

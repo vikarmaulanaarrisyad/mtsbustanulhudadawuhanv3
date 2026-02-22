@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Menu;
 use App\Models\Page;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -102,7 +103,7 @@ class PageController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Pendidikan berhasil ditambahkan.',
+                'message' => 'Data berhasil ditambahkan.',
                 'data' => $data
             ]);
         } catch (\Exception $e) {
@@ -141,8 +142,24 @@ class PageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        DB::transaction(function () use ($id) {
+
+            $page = Page::findOrFail($id);
+
+            $menu = Menu::where('menu_slug', $page->slug)->first();
+
+            $page->delete();
+
+            if ($menu) {
+                $menu->delete();
+            }
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data berhasil dihapus.',
+        ]);
     }
 }
