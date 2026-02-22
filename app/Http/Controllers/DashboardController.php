@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\AcademicYear;
 use App\Models\AdmissionType;
 use App\Models\Category;
+use App\Models\Page;
 use App\Models\Post;
+use App\Models\Quotes;
+use App\Models\SchoolAgenda;
 use App\Models\StudentAdmission;
 use App\Models\Tag;
 
@@ -39,6 +42,9 @@ class DashboardController extends Controller
         $postsCount = Post::count();
         $categoriesCount = Category::count();
         $tagsCount = Tag::count();
+        $pageCount = Page::count();
+        $quetesCount = Quotes::count();
+        $agendaCount = SchoolAgenda::count();
 
         return view('admin.dashboard.index', compact(
             'academicYear',
@@ -47,7 +53,10 @@ class DashboardController extends Controller
             'admissionTypes',
             'postsCount',
             'categoriesCount',
-            'tagsCount'
+            'tagsCount',
+            'pageCount',
+            'quetesCount',
+            'agendaCount'
         ));
     }
 }

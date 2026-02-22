@@ -38,7 +38,7 @@
     <div class="col-lg-3 col-6">
         <div class="small-box bg-danger">
             <div class="inner">
-                <h3>230</h3>
+                <h3>0</h3>
                 <p>Komentar</p>
             </div>
             <div class="icon">
@@ -56,7 +56,7 @@
 
             <div class="info-box-content">
                 <span class="info-box-text">Tautan</span>
-                <span class="info-box-number">75</span>
+                <span class="info-box-number">0</span>
             </div>
         </div>
     </div>
@@ -68,7 +68,7 @@
 
             <div class="info-box-content">
                 <span class="info-box-text">Halaman</span>
-                <span class="info-box-number">10</span>
+                <span class="info-box-number">{{ $pageCount }}</span>
             </div>
         </div>
     </div>
@@ -79,8 +79,8 @@
             <!-- icon untuk Tulisan -->
 
             <div class="info-box-content">
-                <span class="info-box-text">Tulisan</span>
-                <span class="info-box-number">100</span>
+                <span class="info-box-text">Agenda</span>
+                <span class="info-box-number">{{ $agendaCount }}</span>
             </div>
         </div>
     </div>
@@ -92,7 +92,7 @@
 
             <div class="info-box-content">
                 <span class="info-box-text">Kutipan</span>
-                <span class="info-box-number">20</span>
+                <span class="info-box-number">{{ $quetesCount }}</span>
             </div>
         </div>
     </div>
