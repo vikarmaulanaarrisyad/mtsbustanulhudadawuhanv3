@@ -165,8 +165,6 @@
                                     <li class="nav-item"><a class="nav-link" href="#kategori" data-toggle="tab">Kategori
                                             Tulisan</a>
                                     </li>
-                                    <li class="nav-item"><a class="nav-link" href="#modul" data-toggle="tab">Kategori
-                                            File</a></li>
                                     <li class="nav-item"><a class="nav-link" href="#modul" data-toggle="tab">Modul</a></li>
                                 </ul>
                             </div>
@@ -206,6 +204,9 @@
                                             Struktur Menu Website
                                         </h5>
                                     </div>
+                                    <button onclick="resetMenu()" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-undo"></i> Reset Menu
+                                    </button>
                                     <button onclick="refreshMenuList()" class="btn btn-light btn-sm">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
@@ -214,7 +215,7 @@
 
                             <div class="menu-info">
                                 <i class="fas fa-info-circle text-info mr-1"></i>
-                                Tarik menu untuk membuat sub-menu hingga 5 level.
+                                Tarik menu untuk membuat sub-menu hingga 2 level.
                             </div>
 
                             <ul class="sortable-menu" id="menuList">
@@ -280,6 +281,17 @@
         }
 
         function refreshMenuList() {
+
+            // Tampilkan loading
+            Swal.fire({
+                title: 'Memuat menu...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             fetch(`{{ route('menus.index') }}`)
                 .then(res => res.text())
                 .then(html => {
@@ -287,8 +299,65 @@
                     const newList = doc.querySelector("#menuList");
                     $("#menuList").html(newList.innerHTML);
                     initSortableMenu();
+
+                    Swal.close(); // Tutup loading
                 })
-                .catch(() => toastr.error("Gagal memuat ulang menu"));
+                .catch(() => {
+                    Swal.close();
+                    toastr.error("Gagal memuat ulang menu");
+                });
+        }
+
+        function resetMenu() {
+
+            Swal.fire({
+                title: 'Reset Menu?',
+                text: "Semua susunan menu akan dikembalikan ke default!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Reset!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    Swal.fire({
+                        title: 'Mereset menu...',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    fetch(`{{ route('menus.reset') }}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(response => {
+
+                            if (response.success) {
+                                refreshMenuList(); // reload daftar menu
+                                toastr.success("Menu berhasil direset");
+                            } else {
+                                toastr.error("Gagal reset menu");
+                            }
+
+                        })
+                        .catch(() => {
+                            toastr.error("Terjadi kesalahan");
+                        })
+                        .finally(() => {
+                            Swal.close();
+                        });
+                }
+            });
         }
 
         function deleteData(url, name) {

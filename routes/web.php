@@ -335,6 +335,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::put('/configuration/menus/{id}', 'update')->name('menus.update');
         Route::post('/configuration/menus/update-order', 'updateOrder')->name('menus.updateOrder');
         Route::post('/configuration/menus', 'store')->name('menus.store');
+        Route::post('/configuration/menus/reset', 'reset')->name('menus.reset');
         Route::delete('/configuration/menus/{id}/destroy', 'destroy')->name('menus.destroy');
     });
 

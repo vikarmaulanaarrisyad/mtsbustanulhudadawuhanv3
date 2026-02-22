@@ -310,4 +310,12 @@ class MenuController extends Controller
             'data' => $submenus
         ]);
     }
+
+    public function reset()
+    {
+        // Hapus semua menu selain Beranda dan Login
+        Menu::whereNotIn('menu_title', ['Beranda', 'Login'])->delete();
+
+        return response()->json(['success' => true]);
+    }
 }
