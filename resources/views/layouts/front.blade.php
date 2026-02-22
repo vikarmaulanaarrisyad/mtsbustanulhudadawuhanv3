@@ -16,7 +16,7 @@
 
     <meta name="description" content="{{ $setting->nama_aplikasi }}" />
 
-    <!-- FAVICONS ICON ============================================= -->
+    <!-- FAVICONS ICON ==== -->
     <link rel="icon" href="{{ $setting->path_image }}" type="image/x-icon" />
     <link rel="icon" href="{{ Storage::url($setting->path_image ?? '') }}" type="image/*">
     <link rel="stylesheet" href="{{ asset('/public/css/mycss.css') }}">
@@ -26,9 +26,7 @@
     <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/toastr/toastr.min.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE/dist/css/adminlte.min.css?v=3.2.0') }}">
     <style>
-        /* =====================================================
-   1. ROOT & GLOBAL
-===================================================== */
+        /* ROOT & GLOBAL */
         :root {
             --primary-color: #0eaaa6;
             --primary-light: #17ccc6;
@@ -44,36 +42,7 @@
             background: #f9f9f9;
         }
 
-        /* =====================================================
-   2. TOPBAR
-===================================================== */
-        .topbar {
-            background: var(--primary-color);
-            color: #fff;
-            font-size: 14px;
-            padding: 5px 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        .topbar img {
-            max-height: 80px;
-            width: auto;
-        }
-
-        .topbar a {
-            color: #0eaaa6;
-            margin-left: 15px;
-            transition: 0.3s;
-        }
-
-        .topbar a:hover {
-            color: var(--primary-light);
-        }
-
-        /* =====================================================
-   3. NAVBAR
-===================================================== */
+        /* NAVBAR */
         .logo-image {
             max-height: 50px;
             width: auto;
@@ -91,27 +60,10 @@
             position: relative;
         }
 
-        .navbar .nav-link::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: -5px;
-            width: 0%;
-            height: 2px;
-            background: var(--primary-color);
-            transition: 0.4s;
-        }
-
         li.nav-item.active {
             border-radius: 10px 5px;
             border-bottom: 3px solid #0eaaa6;
             /* garis bawah */
-        }
-
-
-        .navbar .nav-link:hover::after,
-        .navbar .nav-link.active::after {
-            width: 100%;
         }
 
         .navbar .dropdown:hover>.dropdown-menu {
@@ -120,11 +72,55 @@
         }
 
         .dropdown-menu {
-            margin-top: 3px;
-            border-radius: 8px 8px;
-            border: none;
-            box-shadow: var(--shadow-medium);
-            color: #0eaaa6;
+            position: relative;
+            margin-top: 0px;
+            padding: 8px 0;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            background: #ffffff;
+            min-width: 220px;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        /* Segitiga lancip di atas */
+        .dropdown-menu::before {
+            content: "";
+            position: absolute;
+            top: -8px;
+            left: 30px;
+            /* atur posisi lancip */
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid #ffffff;
+        }
+
+        /* Item */
+        .dropdown-menu .dropdown-item {
+            padding: 10px 18px;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background: #0eaaa6;
+            color: #ffffff;
+            padding-left: 22px;
+            border-radius: 6px;
+        }
+
+        /* Animasi */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .dropdown-menu .dropdown-item:hover {
@@ -132,9 +128,7 @@
             color: #ffff;
         }
 
-        /* =====================================================
-   4. CAROUSEL
-===================================================== */
+        /* CAROUSEL */
         .carousel-item img {
             height: 70vh;
             object-fit: cover;
@@ -152,9 +146,7 @@
             z-index: 2;
         }
 
-        /* =====================================================
-   5. BREAKING NEWS
-===================================================== */
+        /* BREAKING NEWS  */
         .breaking-news {
             background: var(--primary-color);
             color: #fff;
@@ -171,9 +163,7 @@
             font-weight: 500;
         }
 
-        /* =====================================================
-   6. NEWS CARD - PREMIUM VERSION
-===================================================== */
+        /*  NEWS CARD - PREMIUM VERSION */
 
         .news .card {
             border: none;
@@ -264,9 +254,7 @@
         }
 
 
-        /* =====================================================
-   7. FOOTER
-===================================================== */
+        /* FOOTER */
         .footer {
             background: var(--dark-color);
             color: var(--text-light);
@@ -283,9 +271,7 @@
             color: #0eaaa6;
         }
 
-        /* =====================================================
-   8. ANIMATIONS
-===================================================== */
+        /* ANIMATIONS */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -308,9 +294,7 @@
             }
         }
 
-        /* =====================================================
-   9. RESPONSIVE
-===================================================== */
+        /* RESPONSIVE  */
 
         /* Tablet */
         @media (max-width: 768px) {
@@ -348,9 +332,7 @@
             }
         }
 
-        /* =========================================
-   MOBILE OFFCANVAS ONLY
-========================================= */
+        /* MOBILE OFFCANVAS ONLY */
 
         @media (max-width: 575.98px) {
 
@@ -397,9 +379,7 @@
             }
         }
 
-        /* =========================================
-   DESKTOP NORMAL NAVBAR
-========================================= */
+        /* DESKTOP NORMAL NAVBAR */
 
         @media (min-width: 576px) {
 
@@ -416,9 +396,7 @@
             }
         }
 
-        /* =====================================================
-   SIDEBAR PROFESSIONAL SCHOOL STYLE
-===================================================== */
+        /* SIDEBAR PROFESSIONAL SCHOOL STYLE */
 
         .sidebar-card {
             background: #ffffff;
@@ -492,9 +470,7 @@
             color: #0eaaa6;
         }
 
-        /* =====================================================
-   SAMBUTAN KEPALA MADRASAH - PREMIUM STYLE
-===================================================== */
+        /*SAMBUTAN KEPALA MADRASAH - PREMIUM STYLE */
 
         .kepala-card {
             background: #ffffff;
@@ -577,9 +553,9 @@
             color: #fff;
         }
 
-        /* =========================================
+        /*
    RESPONSIVE
-========================================= */
+ */
         @media (max-width: 768px) {
             .sambutan-scroll {
                 max-height: 200px;
@@ -759,7 +735,6 @@
         }
     </style>
 
-
     @stack('css')
 
 </head>
@@ -773,23 +748,6 @@
                 class="logo-loading">
         </div>
     </div>
-
-
-    {{-- Header Atas --}}
-    {{--  <div class="topbar d-flex justify-content-between align-items-center">
-        <div class="topbar">
-            <img src="{{ Storage::url($setting->path_image_header) }}" alt="Logo">
-        </div>
-        <div class="topbar-info">
-            <i class="fa fa-map-marker-alt"></i> {{ $setting->address }}
-            <span class="ml-3"><i class="fa fa-phone"></i> {{ $setting->phone }}</span>
-            <span class="ml-3"><i class="fa fa-envelope"></i> {{ $setting->email }}</span>
-            <a href="{{ $setting->fanpage_link }}"><i class="fab fa-facebook-f"></i></a>
-            <a href="{{ $setting->instagram_link }}"><i class="fab fa-instagram"></i></a>
-            <a href="{{ $setting->twitter_link }}"><i class="fab fa-youtube"></i></a>
-        </div>
-
-    </div>  --}}
 
     @php
         $menus = App\Models\Menu::where('menu_parent_id', 0)->orderBy('menu_position')->get();
@@ -941,11 +899,6 @@
 
     @yield('content')
 
-    {{-- Footer --}}
-    {{--  <div class="footer">
-        <p class="mb-1">&copy; 2025 - {{ date('Y') }} {{ $setting->company_name }}.
-        </p>
-    </div>  --}}
 
     {{-- Footer --}}
     <footer class="footer-premium">
