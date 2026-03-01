@@ -203,7 +203,7 @@
                             <li class="nav-header">Operasional</li>
 
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('students.index') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Data Siswa</p>
                                 </a>

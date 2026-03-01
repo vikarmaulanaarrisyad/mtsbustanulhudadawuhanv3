@@ -23,6 +23,7 @@ use App\Http\Controllers\{
     SchoolAgendaController,
     SettingController,
     StudentAdmissionController,
+    StudentController,
     StudentStatusController,
     TagController,
     TransportationController,
@@ -361,6 +362,18 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/academic/agenda/delete-selected', 'deleteSelected')->name('agenda.deleteSelected');
             Route::delete('/academic/agenda/{id}/destroy', 'destroy')->name('agenda.destroy');
         });
+    });
+
+
+    Route::controller(StudentController::class)->group(function () {
+        Route::get('/academic/students/data', 'data')->name('students.data');
+        Route::get('/academic/students', 'index')->name('students.index');
+        Route::get('/academic/students/{id}', 'show')->name('students.show');
+        Route::put('/academic/students/{id}', 'update')->name('students.update');
+        Route::post('/academic/students/import-excel', 'importEXCEL')->name('students.import_excel');
+        Route::post('/academic/students', 'store')->name('students.store');
+        Route::post('/academic/students/delete-selected', 'deleteSelected')->name('students.deleteSelected');
+        Route::delete('/academic/students/{id}/destroy', 'destroy')->name('students.destroy');
     });
 });
 
