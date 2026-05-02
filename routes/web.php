@@ -68,7 +68,7 @@ Route::post('/ppdb/check', [FrontController::class, 'checkPpdbStatus'])->name('f
 Route::get('/post/{id}/comments', [FrontController::class, 'showComments'])->name('post.showComments');
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view']], function () {
+    Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view|Super Admin|Admin|Guru']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/teacher/schedule', [DashboardController::class, 'teacherSchedule'])->name('teacher.schedule');
         Route::get('/class-students/{id}', [DashboardController::class, 'getClassStudents'])->name('teacher.class-students');

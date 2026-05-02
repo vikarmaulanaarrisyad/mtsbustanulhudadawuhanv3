@@ -121,22 +121,23 @@
                                 <p>Kelulusan Siswa</p>
                             </a>
                         </li>
-                        @can('subjects.view')
+                        @if(auth()->user()->hasAnyRole(['Super Admin', 'Admin']) || auth()->user()->can('subjects.view'))
                         <li class="nav-item">
                             <a href="{{ route('subjects.index') }}" class="nav-link {{ request()->is('subjects*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Mata Pelajaran</p>
                             </a>
                         </li>
-                        @endcan
-                        @can('class-schedules.view')
+                        @endif
+
+                        @if(auth()->user()->hasAnyRole(['Super Admin', 'Admin']) || auth()->user()->can('class-schedules.view'))
                         <li class="nav-item">
                             <a href="{{ route('class-schedules.index') }}" class="nav-link {{ request()->is('class-schedules*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Jadwal Pelajaran</p>
                             </a>
                         </li>
-                        @endcan
+                        @endif
                     </ul>
                 </li>
 

@@ -19,7 +19,9 @@ class DatabaseSeeder extends Seeder
             UserTableSeeder::class,
             SettingSeeder::class,
             SemesterSeeder::class,
-            StudentStatusSeeder::class
+            StudentStatusSeeder::class,
+            NewPermissionsSeeder::class,
+            FeatureTestingSeeder::class,
         ]);
     }
 }
