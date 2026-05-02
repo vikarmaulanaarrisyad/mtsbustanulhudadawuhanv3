@@ -230,7 +230,7 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::group(['middleware' => ['permission:student-admission.view']], function () {
+    Route::group(['middleware' => ['permission:student-admissions.view']], function () {
         Route::controller(StudentAdmissionController::class)->group(function () {
             Route::get('/admission/student-admissions/data', 'data')->name('student-admissions.data');
             Route::get('/admission/student-admissions', 'index')->name('student-admissions.index');
