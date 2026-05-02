@@ -14,13 +14,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PermissionGroupTableSeeder::class,
             PermissionTableSeeder::class,
+            NewPermissionsSeeder::class,
             RoleTableSeeder::class,
             RolesAndPermissionsSeeder::class,
             UserTableSeeder::class,
             SettingSeeder::class,
             SemesterSeeder::class,
             StudentStatusSeeder::class,
-            NewPermissionsSeeder::class,
             FeatureTestingSeeder::class,
         ]);
     }
