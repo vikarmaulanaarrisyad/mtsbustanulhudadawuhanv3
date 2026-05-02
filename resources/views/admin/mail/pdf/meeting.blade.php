@@ -70,7 +70,7 @@
         <div class="signature-box">
             <p>{{ $meeting->signer_position ?? 'Kepala Madrasah' }},</p>
             <div class="signature-space"></div>
-            <p><strong><u>{{ $meeting->signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
+            <p><strong><u>{{ $meeting->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
                 NIP. {{ $meeting->signer_nip ?? '-' }}</p>
         </div>
         <div style="clear: both;"></div>

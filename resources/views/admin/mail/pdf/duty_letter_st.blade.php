@@ -53,7 +53,7 @@
         <div class="signature-box">
             <p>{{ $general->city ?? 'Dawuhan' }}, {{ \Carbon\Carbon::parse($letter->letter_date)->translatedFormat('d F Y') }}<br>{{ $letter->signer_position ?? 'Kepala Madrasah' }},</p>
             <div class="signature-space"></div>
-            <p><strong><u>{{ $letter->signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
+            <p><strong><u>{{ $letter->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
             NIP. {{ $letter->signer_nip ?? '-' }}</p>
         </div>
         <div style="clear: both;"></div>

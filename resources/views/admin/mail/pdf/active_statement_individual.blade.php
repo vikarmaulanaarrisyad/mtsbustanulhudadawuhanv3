@@ -64,7 +64,7 @@
                 {{ tanggal_indonesia($statement->letter_date) }}<br>{{ $statement->signer_position ?? 'Kepala Madrasah' }},
             </p>
             <div class="signature-space"></div>
-            <p><strong><u>{{ $statement->signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
+            <p><strong><u>{{ $statement->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
                 NIP. {{ $statement->signer_nip ?? '-' }}</p>
         </div>
         <div style="clear: both;"></div>

@@ -70,8 +70,14 @@
                     table.ajax.reload();
                     toastr.success(response.message);
                 },
-                error: function(errors) {
-                    toastr.error('Tidak dapat menyimpan data');
+                error: function(xhr) {
+                    let message = 'Tidak dapat menyimpan data';
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        message = Object.values(xhr.responseJSON.errors).flat().join('<br>');
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+                    toastr.error(message);
                 }
             });
 

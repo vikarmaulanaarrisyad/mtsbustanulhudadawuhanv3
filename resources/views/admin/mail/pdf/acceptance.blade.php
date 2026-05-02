@@ -70,7 +70,7 @@
                 {{--  {{ \Carbon\Carbon::parse($acceptance->acceptance_date)->translatedFormat('d F Y') }}<br>{{ $acceptance->signer_position ?? 'Kepala Madrasah' }},  --}}
             </p>
             <div class="signature-space"></div>
-            <p><strong><u>{{ $acceptance->signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
+            <p><strong><u>{{ $acceptance->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
                 NIP. {{ $acceptance->signer_nip ?? '-' }}</p>
         </div>
         <div style="clear: both;"></div>

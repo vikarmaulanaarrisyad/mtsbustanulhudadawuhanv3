@@ -66,7 +66,7 @@
             </p>
             {{--  <p>{{ $general->city ?? 'Dawuhan' }}, {{ \Carbon\Carbon::parse($student->tanggal_keluar)->translatedFormat('d F Y') }}<br>{{ $setting->default_signer_position ?? 'Kepala Madrasah' }},</p>  --}}
             <div class="signature-space" style="height: 80px;"></div>
-            <p><strong><u>{{ $setting->default_signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
+            <p><strong><u>{{ $setting->default_signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
                 NIP. {{ $setting->default_signer_nip ?? '-' }}</p>
         </div>
         <div style="clear: both;"></div>
