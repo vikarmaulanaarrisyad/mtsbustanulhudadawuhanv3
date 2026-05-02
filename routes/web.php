@@ -49,7 +49,8 @@ use App\Http\Controllers\{
     StudentAttendanceController,
     StudyPeriodController,
     StudentPlacementController,
-    StudentAcceptanceController
+    StudentAcceptanceController,
+    AnnouncementController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -70,6 +71,20 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/teacher/schedule', [DashboardController::class, 'teacherSchedule'])->name('teacher.schedule');
+        Route::get('/class-students/{id}', [DashboardController::class, 'getClassStudents'])->name('teacher.class-students');
+        
+        // Announcements
+        Route::get('/announcements', [AnnouncementController::class, 'teacherIndex'])->name('teacher.announcements');
+        Route::get('/announcements/{id}', [AnnouncementController::class, 'show'])->name('announcements.show');
+    });
+
+    // Admin Announcements
+    Route::group(['prefix' => 'admin', 'middleware' => ['role:Super Admin|Admin']], function () {
+        Route::get('/manage-announcements', [AnnouncementController::class, 'adminIndex'])->name('announcements.admin');
+        Route::get('/announcements-data', [AnnouncementController::class, 'data'])->name('announcements.data');
+        Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+        Route::put('/announcements/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
+        Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
     });
 
     Route::group(['middleware' => ['permission:user.view']], function () {

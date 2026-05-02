@@ -38,6 +38,20 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12">
+            <div class="form-group">
+                <label for="teacher_id">Wali Kelas</label>
+                <select name="teacher_id" id="teacher_id" class="form-control select2">
+                    <option value="">-- Pilih Wali Kelas --</option>
+                    @foreach($teachers as $teacher)
+                        <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+    </div>
+
     <x-slot name="footer">
         <button type="button" onclick="submitForm(this.form)" class="btn btn-sm btn-outline-primary" id="submitBtn">
             <span id="spinner-border" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>

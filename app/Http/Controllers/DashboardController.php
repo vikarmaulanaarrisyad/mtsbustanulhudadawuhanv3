@@ -58,7 +58,24 @@ class DashboardController extends Controller
             // Total Jam Mengajar Minggu Ini
             $totalSchedules = \App\Models\ClassSchedule::where('teacher_id', $teacher->id)->count();
 
-            return view('admin.dashboard.teacher', compact('teacher', 'schedules', 'myAttendances', 'todayAttendance', 'totalSchedules'));
+            // Cek apakah Guru adalah Wali Kelas
+            $homeroomClass = ClassGroup::where('teacher_id', $teacher->id)->first();
+            $myStudents = [];
+            if ($homeroomClass) {
+                $myStudents = Student::where('student_class_group_id', $homeroomClass->id)
+                    ->where('is_active', true)
+                    ->orderBy('nama_lengkap')
+                    ->get();
+            }
+
+            // Hitung Pengumuman Belum Dibaca
+            $unreadAnnouncementsCount = \App\Models\Announcement::where('is_active', true)
+                ->whereIn('type', ['Umum', 'Guru'])
+                ->whereDoesntHave('reads', function($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })->count();
+
+            return view('admin.dashboard.teacher', compact('teacher', 'schedules', 'myAttendances', 'todayAttendance', 'totalSchedules', 'homeroomClass', 'myStudents', 'unreadAnnouncementsCount'));
         }
 
         // --- Logika Dashboard Admin (Default) ---
@@ -126,6 +143,19 @@ class DashboardController extends Controller
             ->get();
 
         return view('admin.dashboard.teacher_schedule', compact('teacher', 'schedules'));
+    }
+
+    public function getClassStudents($id)
+    {
+        $students = Student::where('student_class_group_id', $id)
+            ->where('is_active', true)
+            ->orderBy('nama_lengkap')
+            ->get();
+
+        return response()->json([
+            'class' => ClassGroup::find($id)->kelas_lengkap ?? '-',
+            'students' => $students
+        ]);
     }
 
     private function getAttendanceTrend()

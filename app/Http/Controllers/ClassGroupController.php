@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClassGroup;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -14,18 +15,23 @@ class ClassGroupController extends Controller
      */
     public function index()
     {
-        return view('admin.academic.class_group.index');
+        $teachers = Teacher::orderBy('name')->get();
+        return view('admin.academic.class_group.index', compact('teachers'));
     }
 
     public function data()
     {
-        $query = ClassGroup::orderBy('class_group')
+        $query = ClassGroup::with('homeroomTeacher')
+            ->orderBy('class_group')
             ->orderBy('sub_class_group')
             ->orderBy('class_level')
             ->get();
 
         return datatables($query)
             ->addIndexColumn()
+            ->addColumn('wali_kelas', function($q) {
+                return $q->homeroomTeacher->name ?? '<span class="badge badge-warning">Belum diatur</span>';
+            })
             ->addColumn('action', function ($q) {
                 return '
                 <button onclick="editForm(`' . route('class-groups.show', $q->id) . '`)" class="btn btn-sm" style="background-color:#6755a5; color:#fff;" title="Edit">
@@ -74,11 +80,11 @@ class ClassGroupController extends Controller
                 ], 409); // 409 Conflict
             }
 
-            // Simpan data baru
             $classGroup = ClassGroup::create([
                 'class_group' => $request->class_group,
                 'sub_class_group' => $request->sub_class_group,
                 'class_level' => $request->class_level,
+                'teacher_id' => $request->teacher_id,
             ]);
 
             DB::commit();
@@ -141,9 +147,10 @@ class ClassGroupController extends Controller
 
             $classGroup = ClassGroup::findOrfail($id);
 
-            // Cek apakah kombinasi class_group dan semester_id sudah ada
+            // Cek apakah kombinasi class_group dan sub_class_group sudah ada (kecuali id saat ini)
             $exists = ClassGroup::where('class_group', $request->class_group)
                 ->where('sub_class_group', $request->sub_class_group)
+                ->where('id', '!=', $id)
                 ->exists();
 
             if ($exists) {
@@ -157,6 +164,7 @@ class ClassGroupController extends Controller
                 'class_group' => $request->class_group,
                 'sub_class_group' => $request->sub_class_group,
                 'class_level' => $request->class_level,
+                'teacher_id' => $request->teacher_id,
             ];
 
             $classGroup->update($data);

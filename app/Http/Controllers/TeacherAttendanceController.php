@@ -55,44 +55,72 @@ class TeacherAttendanceController extends Controller
 
     public function checkIn(Request $request)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
-        $setting = AttendanceSetting::first();
-        $now = Carbon::now();
-        
-        // Status logic
-        $status = 'present';
-        // Example: If check-in after start time, mark as late
-        // Actually, check_in_start is usually the earliest possible. 
-        // Let's say check_in_start is 07:00. If they check in at 07:15, is it late?
-        // Usually there's a specific "on time" threshold. 
-        // For simplicity, if they check in within the window, they are present.
-        // We could add a "late_threshold" later.
+        try {
+            $teacher = Teacher::where('user_id', Auth::id())->first();
+            if (!$teacher) return response()->json(['message' => 'Profil Guru tidak ditemukan.'], 422);
 
-        Attendance::updateOrCreate(
-            ['teacher_id' => $teacher->id, 'date' => $now->toDateString()],
-            [
-                'check_in' => $now->toTimeString(),
-                'status' => $status,
-                'check_in_ip' => $request->ip(),
-            ]
-        );
+            $setting = AttendanceSetting::first();
+            if (!$setting) return response()->json(['message' => 'Pengaturan presensi belum dikonfigurasi.'], 422);
 
-        return response()->json(['message' => 'Presensi Masuk berhasil dilakukan pada ' . $now->format('H:i')]);
+            $now = Carbon::now();
+            $time = $now->toTimeString();
+
+            // Validasi Waktu Masuk
+            if ($time < $setting->check_in_start) {
+                return response()->json(['message' => 'Belum waktunya absen masuk. Dimulai jam ' . $setting->check_in_start], 422);
+            }
+            if ($time > $setting->check_in_end) {
+                return response()->json(['message' => 'Waktu absen masuk sudah berakhir (Batas: ' . $setting->check_in_end . ')'], 422);
+            }
+
+            $attendance = Attendance::updateOrCreate(
+                ['teacher_id' => $teacher->id, 'date' => $now->toDateString()],
+                [
+                    'check_in' => $now->toTimeString(),
+                    'status' => 'present',
+                    'check_in_ip' => $request->ip(),
+                ]
+            );
+
+            return response()->json(['message' => 'Berhasil! Absen Masuk tercatat pada ' . $now->format('H:i')]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+        }
     }
 
     public function checkOut(Request $request)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
-        $now = Carbon::now();
+        try {
+            $teacher = Teacher::where('user_id', Auth::id())->first();
+            if (!$teacher) return response()->json(['message' => 'Profil Guru tidak ditemukan.'], 422);
 
-        $attendance = Attendance::where('teacher_id', $teacher->id)->where('date', $now->toDateString())->first();
-        if (!$attendance) return response()->json(['message' => 'Anda belum melakukan presensi masuk hari ini'], 422);
+            $setting = AttendanceSetting::first();
+            if (!$setting) return response()->json(['message' => 'Pengaturan presensi belum dikonfigurasi.'], 422);
 
-        $attendance->update([
-            'check_out' => $now->toTimeString(),
-            'check_out_ip' => $request->ip(),
-        ]);
+            $now = Carbon::now();
+            $time = $now->toTimeString();
 
-        return response()->json(['message' => 'Presensi Pulang berhasil dilakukan pada ' . $now->format('H:i')]);
+            // Validasi Waktu Pulang
+            if ($time < $setting->check_out_start) {
+                return response()->json(['message' => 'Belum waktunya absen pulang. Baru bisa jam ' . $setting->check_out_start], 422);
+            }
+            if ($time > $setting->check_out_end) {
+                return response()->json(['message' => 'Waktu absen pulang sudah berakhir (Batas: ' . $setting->check_out_end . ')'], 422);
+            }
+
+            $attendance = Attendance::where('teacher_id', $teacher->id)->where('date', $now->toDateString())->first();
+            if (!$attendance) {
+                return response()->json(['message' => 'Anda belum melakukan absen masuk hari ini.'], 422);
+            }
+
+            $attendance->update([
+                'check_out' => $now->toTimeString(),
+                'check_out_ip' => $request->ip(),
+            ]);
+
+            return response()->json(['message' => 'Berhasil! Absen Pulang tercatat pada ' . $now->format('H:i')]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+        }
     }
 }

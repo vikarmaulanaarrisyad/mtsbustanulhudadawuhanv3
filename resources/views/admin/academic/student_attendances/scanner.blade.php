@@ -1,62 +1,115 @@
 @extends($layout)
 
-@section('title', 'Scanner Presensi Siswa')
-@section('subtitle', 'Akademik')
+@section('title', 'Scanner Presensi')
 
 @section('content')
-<div class="row">
-    <div class="col-md-6">
-        <x-card>
-            <x-slot name="header">
-                <h3 class="card-title"><i class="fas fa-qrcode mr-1"></i> Scan QR Code Siswa</h3>
-            </x-slot>
-
-            <div id="reader" style="width: 100%; border: none;"></div>
-            
-            <div class="text-center mt-3">
-                <p id="scan-status" class="text-muted">Arahkan QR Code ke Kamera</p>
-                <button id="btn-stop" class="btn btn-danger btn-sm d-none" onclick="stopScanner()">Stop Kamera</button>
-                <button id="btn-start" class="btn btn-success btn-sm" onclick="startScanner()">Mulai Kamera</button>
+<div class="min-h-screen bg-slate-900 pb-24 overflow-hidden relative">
+    <!-- Premium Scanner Header -->
+    <div class="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-slate-900/80 to-transparent pt-10 pb-12 px-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="{{ route('dashboard') }}" class="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center text-white border border-white/20 active:scale-90 transition-all">
+                    <i class="fas fa-chevron-left text-sm"></i>
+                </a>
+                <div>
+                    <p class="text-emerald-400 text-[10px] font-black uppercase tracking-widest leading-none mb-1">Mode Kamera</p>
+                    <h1 class="text-white text-lg font-black leading-tight">Scan Kartu Siswa</h1>
+                </div>
             </div>
-        </x-card>
+            <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+                <i class="fas fa-qrcode"></i>
+            </div>
+        </div>
     </div>
 
-    <div class="col-md-6">
-        <x-card>
-            <x-slot name="header">
-                <h3 class="card-title"><i class="fas fa-history mr-1"></i> Scan Terakhir</h3>
-            </x-slot>
-
-            <div id="scan-result-box" class="text-center py-5 d-none">
-                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                <h3 id="res-nama" class="mb-0">NAMA SISWA</h3>
-                <p id="res-kelas" class="text-muted">KELAS</p>
-                <div class="badge badge-success p-2" id="res-status">HADIR</div>
-                <p class="mt-2" id="res-waktu">10:00:00</p>
-            </div>
-
-            <div id="scan-placeholder" class="text-center py-5">
-                <i class="fas fa-camera fa-4x text-light mb-3"></i>
-                <p class="text-muted">Belum ada data scan.</p>
+    <!-- Scanner Viewport -->
+    <div class="absolute inset-0 flex items-center justify-center bg-black">
+        <div id="reader" class="w-full h-full"></div>
+        
+        <!-- Scanner Overlay Decoration -->
+        <div class="absolute inset-0 z-10 pointer-events-none flex flex-col items-center justify-center">
+            <!-- Central Scan Window -->
+            <div class="w-72 h-72 border-2 border-white/20 rounded-[3rem] relative overflow-hidden shadow-[0_0_0_2000px_rgba(15,23,42,0.6)]">
+                <!-- Moving Line Animation -->
+                <div class="absolute top-0 left-0 right-0 h-0.5 bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,1)] animate-scan-line"></div>
+                
+                <!-- Corner Borders -->
+                <div class="absolute top-6 left-6 w-8 h-8 border-t-4 border-l-4 border-emerald-500 rounded-tl-xl"></div>
+                <div class="absolute top-6 right-6 w-8 h-8 border-t-4 border-r-4 border-emerald-500 rounded-tr-xl"></div>
+                <div class="absolute bottom-6 left-6 w-8 h-8 border-b-4 border-l-4 border-emerald-500 rounded-bl-xl"></div>
+                <div class="absolute bottom-6 right-6 w-8 h-8 border-b-4 border-r-4 border-emerald-500 rounded-br-xl"></div>
             </div>
             
-            <audio id="beep-success" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
-            <audio id="beep-error" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
-        </x-card>
+            <p class="mt-12 text-white/60 text-[10px] font-black uppercase tracking-[0.3em] bg-black/40 backdrop-blur-md px-6 py-2 rounded-full border border-white/10" id="scan-status">Arahkan ke QR Code</p>
+        </div>
     </div>
+
+    <!-- Floating Result Card (Appears on Success) -->
+    <div id="scan-result-card" class="fixed bottom-32 left-6 right-6 z-[100] transform translate-y-64 transition-all duration-500 ease-out opacity-0 pointer-events-none">
+        <div class="bg-white rounded-[2.5rem] p-6 shadow-2xl border border-white shadow-emerald-500/10">
+            <div class="flex items-center space-x-5">
+                <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                    <i class="fas fa-check-circle text-3xl"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-emerald-500 text-[9px] font-black uppercase tracking-widest mb-1">Berhasil Tercatat</p>
+                    <h4 id="res-nama" class="text-slate-800 font-black text-lg leading-tight mb-0.5">NAMA SISWA</h4>
+                    <p id="res-kelas" class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">KELAS 6 - A</p>
+                </div>
+                <div class="text-right">
+                    <span id="res-waktu" class="block text-slate-800 font-black text-sm mb-1 tracking-tighter">10:45</span>
+                    <span id="res-status" class="bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">Hadir</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="fixed bottom-10 left-0 right-0 z-50 flex justify-center space-x-4">
+        <button id="btn-start" onclick="startScanner()" class="bg-emerald-500 text-white px-8 py-4 rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/40 active:scale-95 transition-all">
+            <i class="fas fa-power-off mr-2"></i> Aktifkan Kamera
+        </button>
+        <button id="btn-stop" onclick="stopScanner()" class="bg-rose-500 text-white px-8 py-4 rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl shadow-rose-500/40 active:scale-95 transition-all d-none">
+            <i class="fas fa-stop mr-2"></i> Matikan
+        </button>
+    </div>
+
+    <audio id="beep-success" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
+    <audio id="beep-error" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 </div>
+
+<style>
+    @keyframes scan-line {
+        0% { top: 0%; opacity: 0; }
+        50% { opacity: 1; }
+        100% { top: 100%; opacity: 0; }
+    }
+    .animate-scan-line {
+        animation: scan-line 2.5s infinite linear;
+    }
+    #reader video {
+        object-fit: cover !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+</style>
 @endsection
 
 @push('scripts')
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
     let html5QrCode;
-    const qrConfig = { fps: 10, qrbox: { width: 250, height: 250 } };
+    const qrConfig = { fps: 15, qrbox: { width: 250, height: 250 } };
+
+    $(function() {
+        // Auto start if possible
+        setTimeout(startScanner, 1000);
+    });
 
     function startScanner() {
         $('#btn-start').addClass('d-none');
         $('#btn-stop').removeClass('d-none');
-        $('#scan-status').text('Mencari Kamera...');
+        $('#scan-status').text('Mengaktifkan Kamera...');
 
         html5QrCode = new Html5Qrcode("reader");
         html5QrCode.start(
@@ -65,7 +118,12 @@
             onScanSuccess,
             onScanError
         ).catch(err => {
-            Swal.fire('Error', 'Gagal mengakses kamera: ' + err, 'error');
+            Swal.fire({
+                icon: 'error',
+                title: 'Kamera Gagal',
+                text: 'Pastikan izin kamera sudah diberikan.',
+                customClass: { popup: 'rounded-[2rem]' }
+            });
             stopScanner();
         });
     }
@@ -75,7 +133,7 @@
             html5QrCode.stop().then(() => {
                 $('#btn-stop').addClass('d-none');
                 $('#btn-start').removeClass('d-none');
-                $('#scan-status').text('Kamera Berhenti');
+                $('#scan-status').text('Kamera Dimatikan');
             });
         }
     }
@@ -94,11 +152,9 @@
         .done(response => {
             document.getElementById('beep-success').play();
             showResult(response.data);
-            if (response.status === 'warning') {
-                toastr.warning(response.message);
-            } else {
-                toastr.success(response.message);
-            }
+            
+            // Notification toast (optional since we have floating card)
+            toastr.success(response.message);
         })
         .fail(xhr => {
             document.getElementById('beep-error').play();
@@ -108,27 +164,35 @@
             setTimeout(() => {
                 isProcessing = false;
                 $('#scan-status').text('Siap Menscan Berikutnya');
-            }, 2000); // Cooldown 2 seconds
+            }, 3000); // Cooldown for next scan
         });
     }
 
     function onScanError(errorMessage) {
-        // quiet fail for continuous scanning
+        // quiet fail
     }
 
     function showResult(data) {
-        $('#scan-placeholder').addClass('d-none');
-        $('#scan-result-box').removeClass('d-none');
+        const card = $('#scan-result-card');
         $('#res-nama').text(data.nama);
         $('#res-kelas').text(data.kelas);
         $('#res-waktu').text(data.waktu);
-        $('#res-status').text(data.status).attr('class', 'badge p-2 badge-' + (data.status === 'Terlambat' ? 'warning' : 'success'));
+        $('#res-status').text(data.status);
         
-        // Auto hide result after 5 seconds
+        // Dynamic status color
+        if (data.status === 'Terlambat') {
+            $('#res-status').attr('class', 'bg-amber-100 text-amber-600 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest');
+        } else {
+            $('#res-status').attr('class', 'bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest');
+        }
+
+        // Show card with animation
+        card.removeClass('opacity-0 translate-y-64 pointer-events-none').addClass('opacity-1 translate-y-0 pointer-events-auto');
+        
+        // Auto hide result after 4 seconds
         setTimeout(() => {
-            $('#scan-result-box').addClass('d-none');
-            $('#scan-placeholder').removeClass('d-none');
-        }, 5000);
+            card.removeClass('opacity-1 translate-y-0 pointer-events-auto').addClass('opacity-0 translate-y-64 pointer-events-none');
+        }, 4000);
     }
 </script>
 @endpush

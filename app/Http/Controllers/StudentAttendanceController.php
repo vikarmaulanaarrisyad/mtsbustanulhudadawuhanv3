@@ -96,13 +96,17 @@ class StudentAttendanceController extends Controller
 
     public function printCards(Request $request)
     {
-        $query = Student::with('classGroup');
+        $query = Student::with('classGroup', 'academicYear');
         if ($request->class_group_id) {
             $query->where('student_class_group_id', $request->class_group_id);
         }
+        if ($request->student_id) {
+            $query->where('id', $request->student_id);
+        }
         $students = $query->get();
+        $setting = \App\Models\Setting::first();
         
-        return view('admin.academic.student_attendances.cards', compact('students'));
+        return view('admin.academic.student_attendances.cards', compact('students', 'setting'));
     }
 
     public function pdf(Request $request)

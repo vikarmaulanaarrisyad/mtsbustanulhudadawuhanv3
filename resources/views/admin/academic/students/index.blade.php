@@ -412,5 +412,10 @@
             let url = '{{ route("students.export_pdf") }}?' + $.param(params);
             window.open(url, '_blank');
         }
+
+        function printCard(id) {
+            let url = '{{ route("student-attendances.cards") }}?student_id=' + id;
+            window.open(url, '_blank');
+        }
     </script>
 @endpush

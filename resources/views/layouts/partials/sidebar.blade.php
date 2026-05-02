@@ -142,7 +142,7 @@
 
                 {{-- ================= LAYANAN PERSURATAN ================= --}}
                 {{-- ================= LAYANAN PERSURATAN ================= --}}
-                @role('Admin|Super Admin')
+                @if(auth()->user()->hasAnyRole(['Admin', 'Super Admin']))
                 <li class="nav-header">ABSENSI & KEPEGAWAIAN</li>
                 <li class="nav-item">
                     <a href="{{ route('teacher.attendance.dashboard') }}" class="nav-link {{ request()->is('teacher/attendance*') ? 'active' : '' }}">
@@ -236,7 +236,7 @@
                         </ul>
                     </li>
                     @endcanany
-                @endrole
+                @endif
 
                 <li class="nav-header">LAYANAN PERSURATAN</li>
 
@@ -409,6 +409,15 @@
                     </ul>
                 </li>
                 @endcanany
+
+                @if(auth()->user()->hasAnyRole(['Super Admin', 'Admin']))
+                <li class="nav-item">
+                    <a href="{{ route('announcements.admin') }}" class="nav-link {{ request()->is('admin/manage-announcements*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-bullhorn"></i>
+                        <p>Pengumuman Madrasah</p>
+                    </a>
+                </li>
+                @endif
 
                 @can('setting.view')
                 <li class="nav-item">

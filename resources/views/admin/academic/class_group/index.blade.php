@@ -25,6 +25,7 @@
                         <th>NAMA KELAS</th>
                         <th>ROMBEL KELAS</th>
                         <th>TINGKAT KELAS</th>
+                        <th>WALI KELAS</th>
                         <th>AKSI</th>
                     </x-slot>
                 </x-table>
@@ -69,6 +70,11 @@
                 },
                 {
                     data: 'class_level',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'wali_kelas',
                     orderable: false,
                     searchable: false
                 },

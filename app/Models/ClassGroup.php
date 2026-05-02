@@ -14,4 +14,9 @@ class ClassGroup extends Model
     {
         return $this->class_group . ' - ' . $this->sub_class_group;
     }
+
+    public function homeroomTeacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
 }

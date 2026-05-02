@@ -1,197 +1,119 @@
 @extends($layout)
 
-@section('title', 'Presensi Harian')
-@section('subtitle', 'Guru & Staf')
+@section('title', 'Log Kehadiran')
 
 @section('content')
-<div class="row">
-    <div class="col-md-6">
-        <x-card>
-            <x-slot name="header">
-                <h3 class="card-title"><i class="fas fa-clock mr-1"></i> Waktu Presensi</h3>
-            </x-slot>
-
-            <div class="text-center py-4">
-                <h1 id="currentClock" class="display-4 font-weight-bold">00:00:00</h1>
-                <p class="text-muted">{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</p>
-                
-                @if($holiday)
-                    <div class="alert alert-info">
-                        <h5><i class="fas fa-calendar-times"></i> Hari Libur</h5>
-                        {{ $holiday->name }}
-                    </div>
-                @elseif($isWeekend)
-                    <div class="alert alert-secondary">
-                        <h5><i class="fas fa-couch"></i> Akhir Pekan</h5>
-                        Bukan hari kerja aktif.
-                    </div>
-                @else
-                    <div class="mt-4">
-                        <div class="row">
-                            <div class="col-6">
-                                <button type="button" onclick="doCheckIn()" class="btn btn-lg btn-success btn-block py-3" {{ $canCheckIn ? '' : 'disabled' }}>
-                                    <i class="fas fa-sign-in-alt fa-2x mb-2"></i><br>
-                                    PRESENSI MASUK
-                                </button>
-                                <small class="text-muted">Batas: {{ $setting->check_in_start }} - {{ $setting->check_in_end }}</small>
-                            </div>
-                            <div class="col-6">
-                                <button type="button" onclick="doCheckOut()" class="btn btn-lg btn-warning btn-block py-3" {{ $canCheckOut ? '' : 'disabled' }}>
-                                    <i class="fas fa-sign-out-alt fa-2x mb-2"></i><br>
-                                    PRESENSI PULANG
-                                </button>
-                                <small class="text-muted">Batas: {{ $setting->check_out_start }} - {{ $setting->check_out_end }}</small>
-                            </div>
-                        </div>
-                    </div>
-                @endif
+<div class="min-h-screen bg-slate-50 pb-24">
+    <!-- Premium Header Area -->
+    <div class="bg-indigo-600 pt-12 pb-24 px-6 rounded-b-[3.5rem] shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute left-10 bottom-0 w-32 h-32 bg-indigo-400/20 rounded-full blur-2xl"></div>
+        
+        <div class="flex items-center justify-between relative z-10 mb-8">
+            <div class="flex items-center space-x-4">
+                <a href="{{ route('dashboard') }}" class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white border border-white/30">
+                    <i class="fas fa-chevron-left text-sm"></i>
+                </a>
+                <div>
+                    <p class="text-indigo-100 text-[10px] font-black uppercase tracking-widest opacity-80">Laporan Personal</p>
+                    <h1 class="text-white text-xl font-black leading-tight">Riwayat Absensi</h1>
+                </div>
             </div>
-        </x-card>
-    </div>
-
-    <div class="col-md-6">
-        <x-card>
-            <x-slot name="header">
-                <h3 class="card-title"><i class="fas fa-calendar-day mr-1"></i> Jadwal Mengajar Hari Ini</h3>
-            </x-slot>
-            
-            @php
-                $todaySchedule = \App\Models\ClassSchedule::with(['subject', 'classGroup'])
-                    ->where('teacher_id', $teacher->id)
-                    ->where('day', \Carbon\Carbon::now()->dayOfWeekIso)
-                    ->orderBy('start_time')
-                    ->get();
-            @endphp
-
-            <div class="table-responsive">
-                <table class="table table-sm table-hover">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>Waktu</th>
-                            <th>Mata Pelajaran</th>
-                            <th>Kelas</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($todaySchedule as $js)
-                        <tr>
-                            <td><span class="badge badge-info">{{ $js->start_time }} - {{ $js->end_time }}</span></td>
-                            <td>{{ $js->subject->name }}</td>
-                            <td>{{ $js->classGroup->class_group }} {{ $js->classGroup->sub_class_group }}</td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="3" class="text-center text-muted">Tidak ada jadwal mengajar hari ini.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div class="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/30 text-white text-[10px] font-black uppercase tracking-widest">
+                {{ date('F Y') }}
             </div>
-        </x-card>
+        </div>
 
-        <x-card>
-            <x-slot name="header">
-                <h3 class="card-title"><i class="fas fa-info-circle mr-1"></i> Status Presensi Hari Ini</h3>
-            </x-slot>
-            
-            <ul class="list-group list-group-unbordered">
-                <li class="list-group-item">
-                    <b>Jam Masuk</b> <a class="float-right text-success font-weight-bold">{{ $attendance->check_in ?? '--:--' }}</a>
-                </li>
-                <li class="list-group-item">
-                    <b>Jam Pulang</b> <a class="float-right text-warning font-weight-bold">{{ $attendance->check_out ?? '--:--' }}</a>
-                </li>
-                <li class="list-group-item">
-                    <b>Status</b> <a class="float-right"><span class="badge badge-{{ $attendance->status_color ?? 'secondary' }}">{{ $attendance->status_label ?? 'Belum Presensi' }}</span></a>
-                </li>
-                <li class="list-group-item">
-                    <b>IP Address</b> <a class="float-right text-muted text-sm">{{ $attendance->check_in_ip ?? '-' }}</a>
-                </li>
-            </ul>
-        </x-card>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-        <x-card>
-            <x-slot name="header">
-                <h3 class="card-title"><i class="fas fa-history mr-1"></i> Histori Presensi Bulan Ini</h3>
-            </x-slot>
-            
+        <!-- Monthly Summary -->
+        <div class="grid grid-cols-3 gap-3 relative z-10">
             @php
                 $history = \App\Models\Attendance::where('teacher_id', $teacher->id)
                     ->whereMonth('date', date('m'))
                     ->whereYear('date', date('Y'))
                     ->orderBy('date', 'desc')
                     ->get();
+                
+                $present = $history->where('status', 'present')->count();
+                $late = $history->where('status', 'late')->count();
+                $absent = $history->where('status', 'absent')->count();
             @endphp
+            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center">
+                <p class="text-indigo-100 text-[8px] font-black uppercase tracking-wider mb-1">Hadir</p>
+                <p class="text-white font-black text-lg leading-none">{{ $present }}</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center">
+                <p class="text-indigo-100 text-[8px] font-black uppercase tracking-wider mb-1">Lambat</p>
+                <p class="text-white font-black text-lg leading-none">{{ $late }}</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center">
+                <p class="text-indigo-100 text-[8px] font-black uppercase tracking-wider mb-1">Izin/Sakit</p>
+                <p class="text-white font-black text-lg leading-none">{{ $absent }}</p>
+            </div>
+        </div>
+    </div>
 
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>Masuk</th>
-                        <th>Pulang</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($history as $h)
-                    <tr>
-                        <td>{{ $h->date->translatedFormat('d F Y') }}</td>
-                        <td>{{ $h->check_in ?? '-' }}</td>
-                        <td>{{ $h->check_out ?? '-' }}</td>
-                        <td><span class="badge badge-{{ $h->status_color }}">{{ $h->status_label }}</span></td>
-                    </tr>
-                    @empty
-                    <tr><td colspan="4" class="text-center">Belum ada data bulan ini.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </x-card>
+    <!-- History List -->
+    <div class="px-6 -mt-12 relative z-20">
+        <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 p-6 mb-8 border border-slate-50 min-h-[400px]">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-slate-800 font-black text-base tracking-tight">Log Bulan Ini</h3>
+                <i class="fas fa-history text-slate-200 text-xl"></i>
+            </div>
+
+            <div class="space-y-4">
+                @forelse($history as $h)
+                <div class="flex items-start space-x-4 p-4 bg-slate-50 rounded-[1.5rem] border border-slate-100 group transition-all active:scale-[0.98]">
+                    <div class="w-12 h-12 bg-white rounded-2xl flex flex-col items-center justify-center border border-slate-200 shadow-sm">
+                        <span class="text-slate-400 text-[8px] font-black uppercase leading-none mb-1">{{ $h->date->translatedFormat('M') }}</span>
+                        <span class="text-slate-800 font-black text-base leading-none">{{ $h->date->translatedFormat('d') }}</span>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-2">
+                            <h5 class="text-slate-800 font-black text-sm mb-0 leading-tight">{{ $h->date->translatedFormat('l') }}</h5>
+                            <span class="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest bg-{{ $h->status == 'present' ? 'emerald-100 text-emerald-600' : ($h->status == 'late' ? 'amber-100 text-amber-600' : 'rose-100 text-rose-600') }}">
+                                {{ $h->status == 'present' ? 'Hadir' : ($h->status == 'late' ? 'Terlambat' : 'Absen') }}
+                            </span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                                <p class="text-[10px] text-slate-500 font-bold tracking-tight">In: <span class="text-slate-700">{{ $h->check_in ? \Carbon\Carbon::parse($h->check_in)->format('H:i') : '--:--' }}</span></p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-rose-400"></div>
+                                <p class="text-[10px] text-slate-500 font-bold tracking-tight">Out: <span class="text-slate-700">{{ $h->check_out ? \Carbon\Carbon::parse($h->check_out)->format('H:i') : '--:--' }}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="text-center py-20">
+                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-slate-200">
+                        <i class="fas fa-folder-open text-3xl text-slate-200"></i>
+                    </div>
+                    <p class="text-slate-400 font-black text-xs uppercase tracking-widest">Belum ada data absensi</p>
+                </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Export Action -->
+        <button class="w-full bg-slate-800 text-white rounded-3xl py-4 font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-200 flex items-center justify-center space-x-3 active:scale-95 transition-all">
+            <i class="fas fa-file-pdf"></i>
+            <span>Unduh Laporan PDF</span>
+        </button>
     </div>
 </div>
+
+<style>
+    body { background-color: #f8fafc; }
+    .bg-emerald-100 { background-color: #d1fae5; }
+    .text-emerald-600 { color: #059669; }
+    .bg-amber-100 { background-color: #fef3c7; }
+    .text-amber-600 { color: #d97706; }
+    .bg-rose-100 { background-color: #fee2e2; }
+    .text-rose-600 { color: #dc2626; }
+</style>
 @endsection
-
-@push('scripts')
-<script>
-    function updateClock() {
-        let now = new Date();
-        let h = String(now.getHours()).padStart(2, '0');
-        let m = String(now.getMinutes()).padStart(2, '0');
-        let s = String(now.getSeconds()).padStart(2, '0');
-        $('#currentClock').text(h + ":" + m + ":" + s);
-    }
-    
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    function doCheckIn() {
-        Swal.fire({
-            title: 'Kirim Presensi Masuk?',
-            text: 'Pastikan Anda sudah berada di lokasi kerja.',
-            icon: 'question', showCancelButton: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.post('{{ route("teacher.attendance.check-in") }}', { _token: '{{ csrf_token() }}' })
-                .done(response => {
-                    Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message }).then(() => location.reload());
-                });
-            }
-        });
-    }
-
-    function doCheckOut() {
-        Swal.fire({
-            title: 'Kirim Presensi Pulang?',
-            icon: 'question', showCancelButton: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.post('{{ route("teacher.attendance.check-out") }}', { _token: '{{ csrf_token() }}' })
-                .done(response => {
-                    Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message }).then(() => location.reload());
-                });
-            }
-        });
-    }
-</script>
-@endpush
