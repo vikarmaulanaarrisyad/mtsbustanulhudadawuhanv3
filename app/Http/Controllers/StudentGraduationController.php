@@ -50,7 +50,7 @@ class StudentGraduationController extends Controller
             ->addColumn('kelas', fn($s) => $s->kelas_lengkap)
             ->addColumn('action', function ($s) {
                 if ($s->student_status_id == 2) {
-                    return '<a href="' . route('graduations.print-skl', $s->id) . '" target="_blank" class="btn btn-xs btn-primary"><i class="fas fa-print"></i> SKL</a>';
+                    return '<a href="' . route('graduations.print-skl', $s->id) . '" target="_blank" class="btn btn-xs btn-info" title="Cetak Surat Keterangan Lulus"><i class="fas fa-print mr-1"></i> Cetak SKL</a>';
                 }
                 return '-';
             })

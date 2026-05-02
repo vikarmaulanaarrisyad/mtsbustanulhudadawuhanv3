@@ -40,8 +40,9 @@
         </table>
 
         <div class="signature" style="margin-top: 20px;">
+            @php $general = \App\Models\Setting::first(); @endphp
             <div class="signature-box">
-                <p>Dikeluarkan di : Dawuhan<br>Tanggal : {{ \Carbon\Carbon::parse($letter->letter_date)->translatedFormat('d F Y') }}</p>
+                <p>Dikeluarkan di : {{ $general->city ?? 'Dawuhan' }}<br>Tanggal : {{ \Carbon\Carbon::parse($letter->letter_date)->translatedFormat('d F Y') }}</p>
                 <p>{{ $letter->signer_position ?? 'Kepala Madrasah' }},</p>
                 <div class="signature-space" style="height: 60px;"></div>
                 <p><strong><u>{{ $letter->signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>

@@ -22,8 +22,10 @@ trait AutoNumberTrait
         $romans = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
         $monthRoman = $romans[$month];
         
-        $setting = Setting::first();
-        $schoolCode = $setting->school_code ?? 'MADRASAH';
+        $mailSetting = \App\Models\MailSetting::first();
+        $generalSetting = Setting::first();
+        
+        $schoolCode = $mailSetting->school_code ?? ($generalSetting->school_code ?? 'MADRASAH');
 
         // Find last number for this type in this year
         // We look for patterns like "%/{type}/{school_code}/%/{year}"

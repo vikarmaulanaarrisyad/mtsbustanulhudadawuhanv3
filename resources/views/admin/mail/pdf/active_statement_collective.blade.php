@@ -7,9 +7,13 @@
     </div>
 
     <div class="content">
-        <p>Yang bertanda tangan di bawah ini Kepala Madrasah {{ $setting->school_name }}, dengan ini menerangkan bahwa siswa-siswa yang namanya tercantum di bawah ini:</p>
-        
-        <table class="table-content" style="width: 100%; margin-bottom: 20px; border-collapse: collapse; border: 1px solid black;">
+        @php $general = \App\Models\Setting::first(); @endphp
+        <p>Yang bertanda tangan di bawah ini Kepala Madrasah {{ $setting->school_name }}, {{ $general->city ?? '...' }},
+            Provinsi {{ $general->province ?? '...' }}, dengan ini menerangkan bahwa siswa yang namanya tercantum di bawah
+            ini adalah benar-benar siswa Madrasah {{ $setting->school_name }} yang aktif belajar:</p>
+
+        <table class="table-content"
+            style="width: 100%; margin-bottom: 20px; border-collapse: collapse; border: 1px solid black;">
             <thead>
                 <tr>
                     <th style="border: 1px solid black; padding: 5px;">No</th>
@@ -21,30 +25,37 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($statement->students as $index => $student)
-                <tr>
-                    <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ $index + 1 }}</td>
-                    <td style="border: 1px solid black; padding: 5px;">{{ $student->nama_lengkap }}</td>
-                    <td style="border: 1px solid black; padding: 5px;">{{ $student->nis }} / {{ $student->nisn ?? '-' }}</td>
-                    <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ $student->jenis_kelamin }}</td>
-                    <td style="border: 1px solid black; padding: 5px;">{{ $student->kelas_lengkap }}</td>
-                    <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ $student->academicYear->academic_year ?? '-' }}</td>
-                </tr>
+                @foreach ($statement->students as $index => $student)
+                    <tr>
+                        <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ $index + 1 }}</td>
+                        <td style="border: 1px solid black; padding: 5px;">{{ $student->nama_lengkap }}</td>
+                        <td style="border: 1px solid black; padding: 5px;">{{ $student->nis }} / {{ $student->nisn ?? '-' }}
+                        </td>
+                        <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ $student->jenis_kelamin }}
+                        </td>
+                        <td style="border: 1px solid black; padding: 5px;">{{ $student->kelas_lengkap }}</td>
+                        <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                            {{ $student->academicYear->academic_year ?? '-' }}</td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
 
-        <p>Adalah benar-benar siswa Madrasah {{ $setting->school_name }} yang aktif belajar pada Tahun Pelajaran tersebut di atas.</p>
-        
-        <p>Demikian surat keterangan ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya, yaitu untuk: <strong>{{ $statement->purpose }}</strong>.</p>
+        <p>Adalah benar-benar siswa Madrasah {{ $setting->school_name }} yang aktif belajar pada Tahun Pelajaran tersebut
+            di atas.</p>
+
+        <p>Demikian surat keterangan ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya, yaitu
+            untuk: <strong>{{ $statement->purpose }}</strong>.</p>
     </div>
 
     <div class="signature">
         <div class="signature-box">
-            <p>Dawuhan, {{ \Carbon\Carbon::parse($statement->letter_date)->translatedFormat('d F Y') }}<br>{{ $statement->signer_position ?? 'Kepala Madrasah' }},</p>
+            <p>{{ $general->city ?? 'Dawuhan' }},
+                {{ tanggal_indonesia($statement->letter_date) }}<br>{{ $statement->signer_position ?? 'Kepala Madrasah' }},
+            </p>
             <div class="signature-space"></div>
             <p><strong><u>{{ $statement->signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
-            NIP. {{ $statement->signer_nip ?? '-' }}</p>
+                NIP. {{ $statement->signer_nip ?? '-' }}</p>
         </div>
         <div style="clear: both;"></div>
     </div>

@@ -223,6 +223,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ route('student-acceptances.index') }}" class="nav-link {{ request()->is('admin/mail/student-acceptances*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Surat Diterima</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ route('student-certificates.index') }}" class="nav-link {{ request()->is('student-certificates*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Arsip Suket (Lama)</p>

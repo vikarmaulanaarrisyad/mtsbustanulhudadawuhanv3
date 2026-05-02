@@ -49,8 +49,9 @@
     </div>
 
     <div class="signature">
+        @php $general = \App\Models\Setting::first(); @endphp
         <div class="signature-box">
-            <p>Dawuhan, {{ \Carbon\Carbon::parse($letter->letter_date)->translatedFormat('d F Y') }}<br>{{ $letter->signer_position ?? 'Kepala Madrasah' }},</p>
+            <p>{{ $general->city ?? 'Dawuhan' }}, {{ \Carbon\Carbon::parse($letter->letter_date)->translatedFormat('d F Y') }}<br>{{ $letter->signer_position ?? 'Kepala Madrasah' }},</p>
             <div class="signature-space"></div>
             <p><strong><u>{{ $letter->signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
             NIP. {{ $letter->signer_nip ?? '-' }}</p>

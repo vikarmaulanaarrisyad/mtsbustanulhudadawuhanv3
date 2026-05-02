@@ -132,6 +132,8 @@
             // Gunakan data yang dilempar dari controller ($setting), jika tidak ada gunakan $mailSetting
             $source = $mailSetting;
 
+            $generalSetting = \App\Models\Setting::first();
+            
             $schoolName = $source->school_name ?? 'NAMA SEKOLAH';
             $subHeader = $source->sub_header ?? 'YAYASAN PENDIDIKAN';
             $address = $source->address ?? 'Alamat Belum Diatur';
@@ -140,6 +142,8 @@
             $website = $source->website ?? '';
             $logo = $source->logo ?? null;
             $lineStyle = $source->header_line_style ?? 'double';
+            $city = $generalSetting->city ?? 'Blitar';
+            $province = $generalSetting->province ?? 'Jawa Timur';
 
             $logoPath = null;
             if ($logo) {

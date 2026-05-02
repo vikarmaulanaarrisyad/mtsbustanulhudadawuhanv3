@@ -48,7 +48,8 @@ use App\Http\Controllers\{
     ClassScheduleController,
     StudentAttendanceController,
     StudyPeriodController,
-    StudentPlacementController
+    StudentPlacementController,
+    StudentAcceptanceController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -516,6 +517,11 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Letter Number Generator
     Route::get('/mail/generate-letter-number', [\App\Http\Controllers\LetterNumberController::class, 'generate'])->name('letter-number.generate');
+
+    // Student Acceptances (Bersedia Menerima)
+    Route::get('admin/mail/student-acceptances/data', [StudentAcceptanceController::class, 'data'])->name('student-acceptances.data');
+    Route::get('admin/mail/student-acceptances/{id}/print', [StudentAcceptanceController::class, 'print'])->name('student-acceptances.print');
+    Route::resource('admin/mail/student-acceptances', StudentAcceptanceController::class)->names('student-acceptances');
 
     // Teacher Attendance Portal
     Route::get('/teacher/attendance', [TeacherAttendanceController::class, 'dashboard'])->name('teacher.attendance.dashboard');

@@ -15,10 +15,21 @@
                     @csrf
                     <input type="file" name="logo" id="logoInput" style="display:none;" onchange="previewImage(this)">
 
-                    <div class="form-group">
-                        <label>Nama Sekolah / Lembaga</label>
-                        <input type="text" name="school_name" class="form-control"
-                            value="{{ $mailSetting->school_name }}">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label>Nama Sekolah / Lembaga</label>
+                                <input type="text" name="school_name" class="form-control"
+                                    value="{{ $mailSetting->school_name }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Singkatan (Kop)</label>
+                                <input type="text" name="school_code" class="form-control"
+                                    value="{{ $mailSetting->school_code }}" placeholder="Contoh: MTs-BH">
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Sub Header (Yayasan/Instansi di Atasnya)</label>

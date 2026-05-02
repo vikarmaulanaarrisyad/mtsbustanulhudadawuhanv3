@@ -18,6 +18,7 @@ class MailSettingController extends Controller
     {
         $request->validate([
             'school_name' => 'required|string|max:255',
+            'school_code' => 'nullable|string|max:20',
             'sub_header' => 'nullable|string|max:255',
             'address' => 'nullable|string',
             'phone' => 'nullable|string|max:30',
@@ -34,6 +35,7 @@ class MailSettingController extends Controller
 
         $data = $request->only([
             'school_name',
+            'school_code',
             'sub_header',
             'address',
             'phone',
