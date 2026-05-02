@@ -72,7 +72,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/teacher/schedule', [DashboardController::class, 'teacherSchedule'])->name('teacher.schedule');
         Route::get('/class-students/{id}', [DashboardController::class, 'getClassStudents'])->name('teacher.class-students');
-        
+
         // Announcements
         Route::get('/announcements', [AnnouncementController::class, 'teacherIndex'])->name('teacher.announcements');
         Route::get('/announcements/{id}', [AnnouncementController::class, 'show'])->name('announcements.show');
@@ -549,10 +549,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::prefix('attendance')->group(function () {
         Route::get('/settings', [AttendanceSettingController::class, 'index'])->name('attendance-settings.index');
         Route::post('/settings', [AttendanceSettingController::class, 'update'])->name('attendance-settings.update');
-        
+
         Route::get('/holidays/data', [HolidayController::class, 'data'])->name('holidays.data');
         Route::resource('/holidays', HolidayController::class);
-        
+
         Route::get('/reports/data', [AttendanceReportController::class, 'data'])->name('attendance-reports.data');
         Route::get('/reports/print', [AttendanceReportController::class, 'print'])->name('attendance-reports.print');
         Route::resource('/reports', AttendanceReportController::class)->names('attendance-reports');
@@ -566,7 +566,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/subjects/import-excel', [SubjectController::class, 'importExcel'])->name('subjects.import_excel');
     Route::get('/subjects/data', [SubjectController::class, 'data'])->name('subjects.data');
     Route::resource('/subjects', SubjectController::class);
-    
+
     Route::get('/class-schedules/download-template', [ClassScheduleController::class, 'downloadTemplate'])->name('class-schedules.download_template');
     Route::post('/class-schedules/import-excel', [ClassScheduleController::class, 'importExcel'])->name('class-schedules.import_excel');
     Route::get('/class-schedules/data', [ClassScheduleController::class, 'data'])->name('class-schedules.data');
@@ -591,3 +591,17 @@ Route::group(['middleware' => ['auth']], function () {
 Route::get('/{slug}', [FrontController::class, 'handle'])
     ->where('slug', '^(?!(admin|users|user|role|permissions|permissiongroups|setting|academic|admission|blog|media|configuration|post|home|dashboard)$)[A-Za-z0-9\-]+')
     ->name('front.handle');
+
+
+Route::get('/fix-path', function () {
+    // Menghapus cache bootstrap/cache/config.php dan services.php
+    \Artisan::call('optimize:clear');
+
+    // Mencoba menjalankan dump-autoload jika fungsi shell diizinkan hosting
+    if (function_exists('shell_exec')) {
+        shell_exec('composer dump-autoload');
+        return "Cache dibersihkan dan Autoload diperbarui.";
+    }
+
+    return "Cache dibersihkan. Jika masih error, Anda harus hapus folder 'vendor' dan upload ulang folder 'vendor' yang baru di-generate dari lokal.";
+});
