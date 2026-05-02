@@ -46,11 +46,15 @@ class NewPermissionsSeeder extends Seeder
             $group = PermissionGroup::firstOrCreate(['name' => $groupName]);
 
             foreach ($permissions as $permissionName) {
-                Permission::firstOrCreate([
-                    'name' => $permissionName,
-                    'permission_group_id' => $group->id,
-                    'guard_name' => 'web'
-                ]);
+                Permission::updateOrCreate(
+                    [
+                        'name' => $permissionName,
+                        'guard_name' => 'web'
+                    ],
+                    [
+                        'permission_group_id' => $group->id
+                    ]
+                );
             }
         }
     }
