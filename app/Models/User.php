@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(\App\Models\PpdbRegistrant::class);
     }
+
+    public function teacher()
+    {
+        return $this->hasOne(Teacher::class);
+    }
 }

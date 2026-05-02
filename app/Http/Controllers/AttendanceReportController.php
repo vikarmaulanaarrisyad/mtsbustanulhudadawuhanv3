@@ -30,7 +30,7 @@ class AttendanceReportController extends Controller
 
         return datatables($query)
             ->addIndexColumn()
-            ->addColumn('teacher_name', fn($r) => $r->teacher->name)
+            ->addColumn('teacher_name', fn($r) => $r->teacher->name ?? '-')
             ->addColumn('status_badge', function ($r) {
                 return '<span class="badge badge-' . $r->status_color . '">' . $r->status_label . '</span>';
             })

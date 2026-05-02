@@ -21,6 +21,11 @@ class TeacherAttendanceController extends Controller
 
         $today = Carbon::today();
         $setting = AttendanceSetting::first();
+        
+        if (!$setting) {
+            return redirect()->route('dashboard')->with('error', 'Pengaturan presensi belum dikonfigurasi oleh Admin.');
+        }
+
         $holiday = Holiday::where('holiday_date', $today)->first();
         $isWeekend = !in_array($today->dayOfWeekIso, $setting->work_days ?? [1, 2, 3, 4, 5, 6]);
         

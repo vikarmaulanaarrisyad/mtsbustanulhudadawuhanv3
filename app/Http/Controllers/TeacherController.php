@@ -10,7 +10,15 @@ class TeacherController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('name')->get();
+        // Ambil user yang belum terhubung dengan guru manapun
+        // dan kecualikan Super Admin jika diperlukan
+        $users = User::whereDoesntHave('teacher')
+            ->whereDoesntHave('roles', function($q) {
+                $q->where('name', 'Super Admin');
+            })
+            ->orderBy('name')
+            ->get();
+            
         return view('admin.teachers.index', compact('users'));
     }
 

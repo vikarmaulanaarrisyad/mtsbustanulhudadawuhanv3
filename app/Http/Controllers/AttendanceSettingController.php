@@ -9,9 +9,9 @@ class AttendanceSettingController extends Controller
 {
     public function index()
     {
-        $setting = AttendanceSetting::first();
-        if (!$setting) {
-            $setting = AttendanceSetting::create([
+        $settingAttendace = AttendanceSetting::first();
+        if (!$settingAttendace) {
+            $settingAttendace = AttendanceSetting::create([
                 'check_in_start' => '06:00:00',
                 'check_in_end' => '08:00:00',
                 'check_out_start' => '14:00:00',
@@ -19,12 +19,12 @@ class AttendanceSettingController extends Controller
                 'work_days' => [1, 2, 3, 4, 5, 6],
             ]);
         }
-        return view('admin.attendance.settings.index', compact('setting'));
+        return view('admin.attendance.settings.index', compact('settingAttendace'));
     }
 
     public function update(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'check_in_start' => 'required',
             'check_in_end' => 'required|after:check_in_start',
             'check_out_start' => 'required',
@@ -32,8 +32,10 @@ class AttendanceSettingController extends Controller
             'work_days' => 'required|array',
         ]);
 
-        $setting = AttendanceSetting::first();
-        $setting->update($request->all());
+        AttendanceSetting::updateOrCreate(
+            ['id' => $request->id ?? 1],
+            $data
+        );
 
         return response()->json(['message' => 'Pengaturan absensi berhasil diperbaharui']);
     }

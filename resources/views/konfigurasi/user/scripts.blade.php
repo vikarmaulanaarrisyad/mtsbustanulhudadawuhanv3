@@ -34,6 +34,12 @@
                     name: 'email'
                 },
                 {
+                    data: 'role_names',
+                    name: 'role_names',
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: 'action',
                     name: 'action',
                     orderable: false,

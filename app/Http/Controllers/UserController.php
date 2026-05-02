@@ -19,10 +19,13 @@ class UserController extends Controller
 
     public function data()
     {
-        $query = User::all();
+        $query = User::with('roles')->get();
 
         return datatables($query)
             ->addIndexColumn()
+            ->addColumn('role_names', function ($r) {
+                return $r->roles->pluck('name')->implode(', ') ?: '<span class="badge badge-secondary">No Role</span>';
+            })
             ->addColumn('action', function ($query) {
                 $aksi = '';
 

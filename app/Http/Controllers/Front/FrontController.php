@@ -19,6 +19,7 @@ use App\Models\Album;
 use App\Models\Setting;
 use App\Models\Extracurricular;
 use App\Models\Achievement;
+use App\Models\PpdbRegistrant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -188,5 +189,27 @@ class FrontController extends Controller
             default:
                 abort(404);
         }
+    }
+
+    public function showPpdbCheck()
+    {
+        return view('front.ppdb.check');
+    }
+
+    public function checkPpdbStatus(Request $request)
+    {
+        $request->validate([
+            'registration_number' => 'required|string',
+        ]);
+
+        $registrant = PpdbRegistrant::with(['admissionPhase', 'admissionType'])
+            ->where('registration_number', $request->registration_number)
+            ->first();
+
+        if (!$registrant) {
+            return redirect()->back()->with('error', 'Nomor pendaftaran tidak ditemukan.');
+        }
+
+        return view('front.ppdb.result', compact('registrant'));
     }
 }

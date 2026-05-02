@@ -58,6 +58,10 @@ Route::get('/', [FrontController::class, 'index'])->name('front.index');
 // Route untuk postingan detail & komentar
 Route::get('/post/{slug}', [FrontController::class, 'show'])->name('front.post_show');
 Route::post('/post/{id}/comment', [FrontController::class, 'postComment'])->name('post.comment');
+
+// PPDB Check
+Route::get('/ppdb/check', [FrontController::class, 'showPpdbCheck'])->name('front.ppdb_check');
+Route::post('/ppdb/check', [FrontController::class, 'checkPpdbStatus'])->name('front.ppdb_submit');
 Route::get('/post/{id}/comments', [FrontController::class, 'showComments'])->name('post.showComments');
 
 Route::group(['middleware' => ['auth']], function () {

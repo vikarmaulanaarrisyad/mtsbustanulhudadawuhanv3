@@ -115,28 +115,35 @@
                                 <p>Kelulusan Siswa</p>
                             </a>
                         </li>
+                        @can('subjects.view')
                         <li class="nav-item">
                             <a href="{{ route('subjects.index') }}" class="nav-link {{ request()->is('subjects*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Mata Pelajaran</p>
                             </a>
                         </li>
+                        @endcan
+                        @can('class-schedules.view')
                         <li class="nav-item">
                             <a href="{{ route('class-schedules.index') }}" class="nav-link {{ request()->is('class-schedules*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Jadwal Pelajaran</p>
                             </a>
                         </li>
+                        @endcan
+                        @can('student-attendance.view')
                         <li class="nav-item">
                             <a href="{{ route('student-attendances.index') }}" class="nav-link {{ request()->is('student-attendances*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Presensi Siswa (QR)</p>
                             </a>
                         </li>
+                        @endcan
                     </ul>
                 </li>
 
                 {{-- ================= LAYANAN PERSURATAN ================= --}}
+                @canany(['teacher-attendance.view', 'attendance-settings.view'])
                 <li class="nav-header">ABSENSI & KEPEGAWAIAN</li>
                 <li class="nav-item">
                     <a href="{{ route('teacher.attendance.dashboard') }}" class="nav-link {{ request()->is('teacher/attendance*') ? 'active' : '' }}">
@@ -153,26 +160,31 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
+                        @can('teacher-attendance.view')
                         <li class="nav-item">
                             <a href="{{ route('attendance-reports.index') }}" class="nav-link {{ request()->is('attendance/reports*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Log Presensi</p>
                             </a>
                         </li>
+                        @endcan
                         <li class="nav-item">
                             <a href="{{ route('holidays.index') }}" class="nav-link {{ request()->is('attendance/holidays*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Hari Libur</p>
                             </a>
                         </li>
+                        @can('attendance-settings.view')
                         <li class="nav-item">
                             <a href="{{ route('attendance-settings.index') }}" class="nav-link {{ request()->is('attendance/settings*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Pengaturan Jam</p>
+                                <p>Pengaturan Absensi</p>
                             </a>
                         </li>
+                        @endcan
                     </ul>
                 </li>
+                @endcanany
 
                 <li class="nav-header">LAYANAN PERSURATAN</li>
 
@@ -246,6 +258,7 @@
 
 
                 {{-- ================= PPDB ================= --}}
+                @canany(['ppdb.view', 'student-admissions.view'])
                 <li class="nav-header">PENERIMAAN SISWA</li>
                 <li class="nav-item {{ request()->is('ppdb*') || request()->is('admission*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('ppdb*') || request()->is('admission*') ? 'active' : '' }}">
@@ -256,20 +269,25 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
+                        @can('ppdb.view')
                         <li class="nav-item">
                             <a href="{{ route('ppdb.index') }}" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Data Pendaftar</p>
                             </a>
                         </li>
+                        @endcan
+                        @can('student-admissions.view')
                         <li class="nav-item">
                             <a href="{{ route('student-admissions.index') }}" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Pengaturan PPDB</p>
                             </a>
                         </li>
+                        @endcan
                     </ul>
                 </li>
+                @endcanany
 
 
                 {{-- ================= WEBSITE & PUBLIKASI ================= --}}

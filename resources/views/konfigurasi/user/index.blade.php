@@ -20,10 +20,11 @@
 
                 <x-table id="userTable" class="userTable" style="width: 100%">
                     <x-slot name="thead">
-                        <th>No</th>
-                        <th>Name</th>
+                        <th width="5%">No</th>
+                        <th>Nama</th>
                         <th>Email</th>
-                        <th>Action</th>
+                        <th>Role</th>
+                        <th width="12%">Aksi</th>
                     </x-slot>
                 </x-table>
             </x-card>
