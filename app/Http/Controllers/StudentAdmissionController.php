@@ -19,22 +19,26 @@ class StudentAdmissionController extends Controller
         // Ambil tahun ajaran yang sedang aktif untuk semester penerimaan
         $academicYear = AcademicYear::where('admission_semester', 1)->first();
 
-        if (!$academicYear) {
-            abort(404, 'Tahun ajaran dengan semester penerimaan tidak ditemukan.');
-        }
-
         // Hitung jumlah data pendaftaran siswa untuk tahun ajaran tersebut
-        $studentAdmissions = StudentAdmission::where('academic_year_id', $academicYear->id)->count();
+        $studentAdmissions = $academicYear
+            ? StudentAdmission::where('academic_year_id', $academicYear->id)->count()
+            : 0;
 
         return view('admin.admission.student-admissions.index', [
             'studentAdmissions' => $studentAdmissions,
-            'academicYear' => $academicYear // jika ingin menampilkan tahun ajaran juga di view
+            'academicYear' => $academicYear
         ]);
     }
 
     public function data()
     {
         $academicYear = AcademicYear::where('admission_semester', 1)->first();
+
+        if (!$academicYear) {
+            return datatables(collect([]))
+                ->addIndexColumn()
+                ->make(true);
+        }
 
         $query = StudentAdmission::with('academicYear')
             ->where('academic_year_id', $academicYear->id)
