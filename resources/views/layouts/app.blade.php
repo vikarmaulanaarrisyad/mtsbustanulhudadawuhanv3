@@ -66,6 +66,24 @@
             outline: none !important;
         }
 
+        /* Sidebar scroll */
+        .sidebar {
+            overflow-y: auto;
+            max-height: calc(100vh - 57px);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0,0,0,.2) transparent;
+        }
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,.2);
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
         /* Full screen preloader */
         #preloader {
             position: fixed;

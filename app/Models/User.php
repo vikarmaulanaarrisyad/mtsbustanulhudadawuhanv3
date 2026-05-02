@@ -66,4 +66,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function ppdbRegistrant()
+    {
+        return $this->hasOne(\App\Models\PpdbRegistrant::class);
+    }
 }

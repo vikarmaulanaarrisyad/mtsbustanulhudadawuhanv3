@@ -28,7 +28,8 @@ use App\Http\Controllers\{
     TagController,
     TransportationController,
     UserController,
-    WelcomeMessageController
+    WelcomeMessageController,
+    PpdbRegistrantController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -365,16 +366,43 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
 
+    Route::controller(PpdbRegistrantController::class)->group(function () {
+        Route::get('/admission/ppdb/data', 'data')->name('ppdb.data');
+        Route::get('/admission/ppdb', 'index')->name('ppdb.index');
+        Route::get('/admission/ppdb/{id}', 'show')->name('ppdb.show');
+        Route::put('/admission/ppdb/{id}', 'update')->name('ppdb.update');
+        Route::post('/admission/ppdb', 'store')->name('ppdb.store');
+        Route::post('/admission/ppdb/{id}/verify', 'verify')->name('ppdb.verify');
+        Route::get('/admission/ppdb/document/{id}/download', 'downloadBerkas')->name('ppdb.download_berkas');
+        Route::delete('/admission/ppdb/{id}/destroy', 'destroy')->name('ppdb.destroy');
+    });
+
     Route::controller(StudentController::class)->group(function () {
         Route::get('/academic/students/data', 'data')->name('students.data');
+        Route::get('/academic/students/download-template', 'downloadTemplate')->name('students.download_template');
         Route::get('/academic/students', 'index')->name('students.index');
         Route::get('/academic/students/{id}', 'show')->name('students.show');
         Route::put('/academic/students/{id}', 'update')->name('students.update');
-        Route::post('/academic/students/import-excel', 'importEXCEL')->name('students.import_excel');
         Route::post('/academic/students', 'store')->name('students.store');
-        Route::post('/academic/students/delete-selected', 'deleteSelected')->name('students.deleteSelected');
+        Route::post('/academic/students/import-excel', 'importEXCEL')->name('students.import_excel');
         Route::delete('/academic/students/{id}/destroy', 'destroy')->name('students.destroy');
+        Route::delete('/academic/students/batch-delete', 'batchDelete')->name('students.batch_delete');
     });
+
+    // PPDB Student Area
+    Route::group(['middleware' => ['role:ppdb'], 'prefix' => 'ppdb'], function () {
+        Route::get('/dashboard', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'index'])->name('ppdb.dashboard');
+        Route::post('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeBiodata'])->name('ppdb.store_biodata');
+        Route::put('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'updateBiodata'])->name('ppdb.update_biodata');
+    });
+
+    // Root redirect based on role
+    Route::get('/home', function () {
+        if (auth()->user()->hasRole('ppdb')) {
+            return redirect()->route('ppdb.dashboard');
+        }
+        return redirect()->route('dashboard');
+    })->name('home');
 });
 
 /*

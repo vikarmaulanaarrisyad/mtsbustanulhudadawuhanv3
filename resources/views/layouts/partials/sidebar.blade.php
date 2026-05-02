@@ -268,7 +268,14 @@
                             <li class="nav-item">
                                 <a href="{{ route('student-admissions.index') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Data Pendaftar</p>
+                                    <p>Pengaturan PPDB</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('ppdb.index') }}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Pendaftar PPDB</p>
                                 </a>
                             </li>
 

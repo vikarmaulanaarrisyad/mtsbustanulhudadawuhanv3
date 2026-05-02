@@ -150,7 +150,7 @@
                         showConfirmButton: false,
                         timer: 3000
                     }).then(() => {
-                        window.location.href = '{{ route('dashboard') }}';
+                        window.location.href = '{{ route('home') }}';
                     });
                 },
                 error: function(errors) {

@@ -29,6 +29,9 @@ class DashboardController extends Controller
                 'postsCount' => Post::count(),
                 'categoriesCount' => Category::count(),
                 'tagsCount' => Tag::count(),
+                'pageCount' => Page::count(),
+                'quetesCount' => Quotes::count(),
+                'agendaCount' => SchoolAgenda::count(),
             ]);
         }
 

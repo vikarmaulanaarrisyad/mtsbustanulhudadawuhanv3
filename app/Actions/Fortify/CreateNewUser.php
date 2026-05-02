@@ -27,11 +27,16 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'username' => $input['username'],
             'password' => Hash::make($input['password']),
         ]);
+
+        // Auto-assign role ppdb untuk calon siswa
+        $user->assignRole('ppdb');
+
+        return $user;
     }
 }
