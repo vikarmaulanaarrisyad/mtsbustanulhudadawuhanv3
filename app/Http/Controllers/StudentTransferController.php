@@ -14,7 +14,8 @@ class StudentTransferController extends Controller
     public function index()
     {
         $students = Student::orderBy('nama_lengkap')->get();
-        return view('admin.mail.transfers.index', compact('students'));
+        $mailSetting = MailSetting::first();
+        return view('admin.mail.transfers.index', compact('students', 'mailSetting'));
     }
 
     public function data()

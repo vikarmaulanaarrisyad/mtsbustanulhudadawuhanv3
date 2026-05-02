@@ -25,9 +25,9 @@
 
     <div class="signature">
         <div class="signature-box">
-            <p>Mengetahui,<br>Kepala Madrasah,</p>
+            <p>{{ $mail->signer_position ?? 'Kepala Madrasah' }},</p>
             <div class="signature-space"></div>
-            <p><strong><u>{{ $mail->signer_name ?? $setting->school_name }}</u></strong><br>
+            <p><strong><u>{{ $mail->signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
             NIP. {{ $mail->signer_nip ?? '-' }}</p>
         </div>
         <div style="clear: both;"></div>

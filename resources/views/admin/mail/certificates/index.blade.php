@@ -66,13 +66,13 @@
         <div class="col-md-6">
             <div class="form-group">
                 <label>Penandatangan (Nama)</label>
-                <input type="text" name="signer_name" class="form-control" placeholder="KEPALA MADRASAH">
+                <input type="text" name="signer_name" class="form-control" value="{{ $mailSetting->default_signer_name ?? '' }}" placeholder="KEPALA MADRASAH">
             </div>
         </div>
         <div class="col-md-6">
             <div class="form-group">
                 <label>NIP Penandatangan</label>
-                <input type="text" name="signer_nip" class="form-control" placeholder="Contoh: 1980...">
+                <input type="text" name="signer_nip" class="form-control" value="{{ $mailSetting->default_signer_nip ?? '' }}" placeholder="Contoh: 1980...">
             </div>
         </div>
     </div>
@@ -116,6 +116,11 @@
         $('#modal-form form').attr('action', url);
         $('#modal-form [name=_method]').val('POST');
         resetForm('#modal-form form');
+        
+        // Re-fill defaults after reset
+        $('#modal-form [name=signer_name]').val(`{{ $mailSetting->default_signer_name ?? '' }}`);
+        $('#modal-form [name=signer_nip]').val(`{{ $mailSetting->default_signer_nip ?? '' }}`);
+        
         $('.select2').val('').trigger('change');
     }
 

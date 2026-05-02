@@ -12,7 +12,8 @@ class OutgoingMailController extends Controller
 {
     public function index()
     {
-        return view('admin.mail.outgoing.index');
+        $mailSetting = MailSetting::first();
+        return view('admin.mail.outgoing.index', compact('mailSetting'));
     }
 
     public function data()

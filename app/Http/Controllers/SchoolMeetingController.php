@@ -12,7 +12,8 @@ class SchoolMeetingController extends Controller
 {
     public function index()
     {
-        return view('admin.mail.meetings.index');
+        $mailSetting = MailSetting::first();
+        return view('admin.mail.meetings.index', compact('mailSetting'));
     }
 
     public function data()

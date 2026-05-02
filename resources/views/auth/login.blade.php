@@ -3,84 +3,74 @@
 @section('title', 'Login')
 
 @section('content')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="d-none d-md-flex col-md-4 col-lg-6 bg-image"></div>
+    <div class="login-page-wrapper">
+        <div class="login-bg-overlay"></div>
 
-            <div class="col-md-8 col-lg-6">
-                <div class="login d-flex align-items-center py-5">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-9 col-lg-8 mx-auto">
-                                <a href="{{ url('/') }}">
-                                    @if ($setting->path_image)
-                                        <img src="{{ Storage::url($setting->path_image) }}" alt="" class="w-50 mb-4">
-                                    @else
-                                        <img src="{{ asset('/img/logo.png') }}" alt="" class="w-50 mb-4">
-                                    @endif
+        <div class="login-card">
+            <div class="text-center">
+                <a href="{{ url('/') }}">
+                    @if ($setting->path_image)
+                        <img src="{{ Storage::url($setting->path_image) }}" alt="Logo" class="login-logo">
+                    @else
+                        <img src="{{ asset('/img/logo.png') }}" alt="Logo" class="login-logo">
+                    @endif
+                </a>
+                <h3 class="font-weight-bold mb-1">Selamat Datang</h3>
+                <p class="text-muted mb-4">Silahkan masuk ke akun Anda</p>
+            </div>
 
-                                </a>
-                                <h4 class="login-heading mb-4">Selamat Datang Kembali!</h4>
+            <form id="loginForm" action="{{ route('login') }}" method="post">
+                @csrf
 
-                                {{-- Form --}}
-                                <form id="loginForm" action="{{ route('login') }}" method="post">
-                                    @csrf
+                <div class="form-group mb-3">
+                    <label for="auth" class="form-label">Username atau Email</label>
+                    <input type="text" class="form-control @error('auth') is-invalid @enderror"
+                        id="auth" name="auth" value="{{ old('auth') }}" 
+                        placeholder="Masukkan username" autocomplete="off">
 
-                                    <div class="form-group mb-3">
-                                        <label for="auth">Username</label>
-                                        <input type="text" class="form-control @error('auth') is-invalid @enderror"
-                                            id="auth" name="auth" value="{{ old('auth') }}" autocomplete="off"
-                                            onfocus=this.value=''>
+                    @error('auth')
+                        <span class="invalid-feedback">
+                            {{ $message }}
+                        </span>
+                    @enderror
+                </div>
 
-                                        @error('auth')
-                                            <span class="invalid-feedback">
-                                                {{ $message }}
-                                            </span>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label for="password">Password</label>
-                                        <input type="password"
-                                            class="form-control @error('password') is-invalid @enderror password"
-                                            id="password" name="password" onfocus=this.value='' autocomplete="off">
-
-                                        @error('password')
-                                            <span class="invalid-feedback">
-                                                {{ $message }}
-                                            </span>
-                                        @enderror
-                                    </div>
-
-                                    <div class="form-group d-flex justify-content-between align-items-center mb-3">
-                                        <div class="custom-control custom-checkbox" id="showPassword">
-                                            <input type="checkbox" class="custom-control-input" id="customCheck1">
-                                            <label for="customCheck1" class="custom-control-label" id="showPassword">Show
-                                                Password</label>
-                                        </div>
-                                        <a href="#" class="small mt-1 text-muted">Lupa Password?</a>
-                                    </div>
-
-                                    <div>
-                                        <button type="button" onclick="login()" id="loginButton"
-                                            class="btn btn-lg btn-primary btn-login mb-2">
-                                            <i class="fas fa-sign-in-alt"></i> <span id="buttonText">Masuk</span>
-                                            <span id="loadingSpinner" style="display:none;"><i
-                                                    class="fas fa-spinner fa-spin"></i></span>
-                                        </button>
-                                    </div>
-
-                                    <div class="text-center mt-3">
-                                        <div class="text-muted">
-                                            Jika belum punya akun silahkan registrasi
-                                            <a href="{{ route('register') }}" class="text-muted">disini</a>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                <div class="form-group mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="position-relative">
+                        <input type="password"
+                            class="form-control @error('password') is-invalid @enderror password"
+                            id="password" name="password" placeholder="••••••••" autocomplete="off">
+                        @error('password')
+                            <span class="invalid-feedback">
+                                {{ $message }}
+                            </span>
+                        @enderror
                     </div>
                 </div>
-            </div>
+
+                <div class="form-group d-flex justify-content-between align-items-center mb-4">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="customCheck1">
+                        <label for="customCheck1" class="custom-control-label text-muted small" style="cursor: pointer;">Tampilkan Password</label>
+                    </div>
+                    <a href="#" class="small text-primary-custom">Lupa Password?</a>
+                </div>
+
+                <button type="button" onclick="login()" id="loginButton" class="btn btn-login">
+                    <span id="buttonText"><i class="fas fa-sign-in-alt mr-2"></i> Masuk Sekarang</span>
+                    <span id="loadingSpinner" style="display:none;">
+                        <i class="fas fa-spinner fa-spin mr-2"></i> Memproses...
+                    </span>
+                </button>
+
+                <div class="text-center mt-4">
+                    <p class="text-muted small">
+                        Belum punya akun? 
+                        <a href="{{ route('register') }}" class="text-primary-custom">Daftar disini</a>
+                    </p>
+                </div>
+            </form>
         </div>
     </div>
 @endsection
@@ -100,7 +90,7 @@
             let password = $('.password').val();
 
             if (!auth) {
-                toastr.info('Emsil wajib diisi');
+                toastr.info('Username atau Email wajib diisi');
                 return;
             }
 
