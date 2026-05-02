@@ -12,54 +12,82 @@ use App\Models\SchoolAgenda;
 use App\Models\StudentAdmission;
 use App\Models\Tag;
 
+use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\Subject;
+use App\Models\Attendance;
+use App\Models\StudentAttendance;
+use App\Models\ClassGroup;
+use Carbon\Carbon;
+
 class DashboardController extends Controller
 {
     public function index()
     {
-        $academicYear = AcademicYear::with('semester')
-            ->where('current_semester', 1)
-            ->first();
+        $today = Carbon::today()->toDateString();
+        $academicYear = AcademicYear::where('current_semester', 1)->first();
 
-        if (!$academicYear) {
-            return view('admin.dashboard.index', [
-                'academicYear' => null,
-                'statusPendaftaran' => 'Tidak Ada Tahun Akademik Aktif',
-                'studentAdmission' => null,
-                'admissionTypes' => [],
-                'postsCount' => Post::count(),
-                'categoriesCount' => Category::count(),
-                'tagsCount' => Tag::count(),
-                'pageCount' => Page::count(),
-                'quetesCount' => Quotes::count(),
-                'agendaCount' => SchoolAgenda::count(),
-            ]);
-        }
+        // Basic Stats
+        $studentsCount = Student::where('is_active', true)->count();
+        $teachersCount = Teacher::count();
+        $subjectsCount = Subject::count();
+        $classesCount = ClassGroup::count();
 
-        $studentAdmission = StudentAdmission::where('academic_year_id', $academicYear->id)->first();
-        $statusPendaftaran = ($studentAdmission && $studentAdmission->admission_status == 'open') ? 'Dibuka' : 'Ditutup';
-
-        $admissionTypes = AdmissionType::with('quota')
-            ->where('academic_year_id', $academicYear->id)
+        // Attendance Stats Today
+        $teacherAttendanceCount = Attendance::where('date', $today)->count();
+        $studentAttendanceCount = StudentAttendance::where('date', $today)->count();
+        
+        // Recent Student Attendance
+        $recentAttendances = StudentAttendance::with(['student', 'classGroup'])
+            ->where('date', $today)
+            ->latest('time')
+            ->take(5)
             ->get();
 
+        // Original Stats
         $postsCount = Post::count();
         $categoriesCount = Category::count();
         $tagsCount = Tag::count();
         $pageCount = Page::count();
-        $quetesCount = Quotes::count();
         $agendaCount = SchoolAgenda::count();
+        $attendanceTrend = $this->getAttendanceTrend();
 
         return view('admin.dashboard.index', compact(
             'academicYear',
-            'statusPendaftaran',
-            'studentAdmission',
-            'admissionTypes',
+            'studentsCount',
+            'teachersCount',
+            'subjectsCount',
+            'classesCount',
+            'teacherAttendanceCount',
+            'studentAttendanceCount',
+            'recentAttendances',
             'postsCount',
             'categoriesCount',
             'tagsCount',
             'pageCount',
-            'quetesCount',
-            'agendaCount'
+            'agendaCount',
+            'attendanceTrend'
         ));
+    }
+
+    private function getAttendanceTrend()
+    {
+        $days = [];
+        $studentCounts = [];
+        $teacherCounts = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i)->toDateString();
+            $days[] = Carbon::parse($date)->format('d M');
+            
+            $studentCounts[] = StudentAttendance::where('date', $date)->count();
+            $teacherCounts[] = Attendance::where('date', $date)->count();
+        }
+
+        return [
+            'labels' => $days,
+            'students' => $studentCounts,
+            'teachers' => $teacherCounts,
+        ];
     }
 }

@@ -50,6 +50,30 @@
         </div>
     </div>
 
+    {{-- CHARTS --}}
+    <div class="row">
+        <div class="col-md-8">
+            <x-card>
+                <x-slot name="header">
+                    <h3 class="card-title"><i class="fas fa-chart-line mr-1"></i> Tren Pendaftaran (30 Hari Terakhir)</h3>
+                </x-slot>
+                <div class="chart">
+                    <canvas id="regTrendChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+            </x-card>
+        </div>
+        <div class="col-md-4">
+            <x-card>
+                <x-slot name="header">
+                    <h3 class="card-title"><i class="fas fa-chart-pie mr-1"></i> Distribusi Jalur</h3>
+                </x-slot>
+                <div class="chart">
+                    <canvas id="typeChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+            </x-card>
+        </div>
+    </div>
+
     {{-- TABLE --}}
     <div class="row">
         <div class="col-lg-12">
@@ -117,12 +141,45 @@
 @include('includes.datatable')
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let table;
         let modal = '#modal-form';
         let button = '#submitBtn';
 
         $(function() {
+            // Trend Chart
+            const trendCtx = document.getElementById('regTrendChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: {!! json_encode($trendData->pluck('date')) !!},
+                    datasets: [{
+                        label: 'Pendaftar',
+                        data: {!! json_encode($trendData->pluck('total')) !!},
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Type Chart
+            const typeCtx = document.getElementById('typeChart').getContext('2d');
+            new Chart(typeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: {!! json_encode($typeDistribution->pluck('label')) !!},
+                    datasets: [{
+                        data: {!! json_encode($typeDistribution->pluck('value')) !!},
+                        backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6610f2']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
             table = $('.table').DataTable({
                 processing: true,
                 serverSide: true,

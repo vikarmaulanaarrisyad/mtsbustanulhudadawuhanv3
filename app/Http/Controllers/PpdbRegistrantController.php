@@ -44,12 +44,31 @@ class PpdbRegistrantController extends Controller
             'ditolak' => (clone $baseQuery)->byStatus('ditolak')->count(),
         ];
 
+        // Chart Data: Registration Trend (Last 30 Days)
+        $trendData = PpdbRegistrant::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+            ->where('created_at', '>=', now()->subDays(30))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        // Chart Data: By Admission Type
+        $typeDistribution = PpdbRegistrant::select('admission_type_id', DB::raw('count(*) as total'))
+            ->with('admissionType')
+            ->groupBy('admission_type_id')
+            ->get()
+            ->map(fn($item) => [
+                'label' => $item->admissionType->admission_type_name ?? 'Lainnya',
+                'value' => $item->total
+            ]);
+
         return view('admin.admission.ppdb.index', compact(
             'academicYear',
             'admission',
             'phases',
             'types',
-            'stats'
+            'stats',
+            'trendData',
+            'typeDistribution'
         ));
     }
 
