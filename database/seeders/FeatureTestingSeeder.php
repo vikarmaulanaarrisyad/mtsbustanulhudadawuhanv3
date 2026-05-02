@@ -92,12 +92,20 @@ class FeatureTestingSeeder extends Seeder
         }
 
         // 6. Subjects
-        $subjectNames = ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'IPA', 'IPS', 'PAI', 'PJOK'];
+        $subjectData = [
+            'Matematika' => 'MTK01',
+            'Bahasa Indonesia' => 'BIN01',
+            'Bahasa Inggris' => 'BIG01',
+            'IPA' => 'IPA01',
+            'IPS' => 'IPS01',
+            'PAI' => 'PAI01',
+            'PJOK' => 'PJK01'
+        ];
         $subjects = [];
-        foreach ($subjectNames as $name) {
+        foreach ($subjectData as $name => $code) {
             $subjects[] = Subject::updateOrCreate(
                 ['name' => $name],
-                ['code' => strtoupper(substr($name, 0, 3)) . rand(100, 999)]
+                ['code' => $code]
             );
         }
 
@@ -164,6 +172,7 @@ class FeatureTestingSeeder extends Seeder
             Announcement::updateOrCreate(
                 ['title' => 'Selamat Datang di Sistem Baru'],
                 [
+                    'slug' => Str::slug('Selamat Datang di Sistem Baru'),
                     'content' => '<p>Ini adalah pengumuman testing untuk semua user.</p>',
                     'type' => 'Umum',
                     'user_id' => $admin->id,
@@ -173,6 +182,7 @@ class FeatureTestingSeeder extends Seeder
             Announcement::updateOrCreate(
                 ['title' => 'Rapat Guru Senin Depan'],
                 [
+                    'slug' => Str::slug('Rapat Guru Senin Depan'),
                     'content' => '<p>Mohon kehadiran semua guru pada rapat hari senin.</p>',
                     'type' => 'Guru',
                     'user_id' => $admin->id,
