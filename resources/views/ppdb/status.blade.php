@@ -3,95 +3,121 @@
 {{-- STATUS CARD --}}
 <div class="status-card {{ $registrant->status }}">
     @if($registrant->status === 'pending')
-        <i class="fas fa-clock fa-2x mb-2"></i>
+        <i class="fas fa-history fa-2x mb-3"></i>
     @elseif($registrant->status === 'berkas_lengkap')
-        <i class="fas fa-folder-open fa-2x mb-2"></i>
+        <i class="fas fa-folder-open fa-2x mb-3"></i>
     @elseif($registrant->status === 'berkas_tidak_lengkap')
-        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+        <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
     @elseif($registrant->status === 'diterima')
-        <i class="fas fa-check-circle fa-2x mb-2"></i>
+        <i class="fas fa-check-double fa-2x mb-3"></i>
     @elseif($registrant->status === 'ditolak')
-        <i class="fas fa-times-circle fa-2x mb-2"></i>
+        <i class="fas fa-times-circle fa-2x mb-3"></i>
     @endif
-    <h3>{{ $registrant->status_label }}</h3>
-    <p>No. Pendaftaran: <strong>{{ $registrant->registration_number }}</strong></p>
+    <h3 class="mb-1">{{ $registrant->status_label }}</h3>
+    <p class="mb-0 font-weight-normal opacity-75">Nomor Registrasi: <span class="font-weight-bold">{{ $registrant->registration_number }}</span></p>
 </div>
 
 {{-- CATATAN VERIFIKASI --}}
 @if($registrant->catatan_verifikasi)
-    <div class="alert alert-{{ $registrant->status_color }} mb-3">
-        <i class="fas fa-comment-alt mr-1"></i>
-        <strong>Catatan dari Verifikator:</strong><br>
-        {{ $registrant->catatan_verifikasi }}
+    <div class="alert alert-{{ $registrant->status_color }} border-0 shadow-sm mb-4 p-4 rounded-xl" style="background: #fff; border-left: 5px solid currentColor !important;">
+        <div class="d-flex align-items-start">
+            <i class="fas fa-comment-dots mt-1 mr-3 fa-lg"></i>
+            <div>
+                <h6 class="font-weight-bold mb-1">Catatan dari Verifikator:</h6>
+                <div class="text-dark">{{ $registrant->catatan_verifikasi }}</div>
+            </div>
+        </div>
     </div>
 @endif
 
 {{-- DATA RINGKASAN --}}
-<div class="ppdb-card mb-4">
+<div class="ppdb-card">
     <div class="card-header">
-        <i class="fas fa-id-card mr-1"></i> Data Pendaftaran
+        <i class="fas fa-user-shield mr-2"></i> Ringkasan Profil Pendaftar
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-md-3 text-center mb-3">
-                @if($registrant->foto)
-                    <img src="{{ Storage::url($registrant->foto) }}" class="img-fluid rounded-circle mb-2"
-                        style="width:100px;height:100px;object-fit:cover;border:3px solid #28a745;">
-                @else
-                    <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-2"
-                        style="width:100px;height:100px;">
-                        <i class="fas fa-user fa-2x text-white"></i>
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center mb-4 mb-md-0">
+                <div class="position-relative d-inline-block">
+                    @if($registrant->foto)
+                        <img src="{{ Storage::url($registrant->foto) }}" class="img-fluid rounded shadow"
+                            style="width:140px;height:180px;object-fit:cover;border:4px solid #fff;">
+                    @else
+                        <div class="rounded bg-light d-flex align-items-center justify-content-center shadow-sm"
+                            style="width:140px;height:180px;border:2px dashed #cbd5e0;">
+                            <i class="fas fa-user-tie fa-4x text-light"></i>
+                        </div>
+                    @endif
+                    <div class="mt-2">
+                        <span class="badge badge-success px-3 py-2 rounded-pill shadow-sm">Pendaftar Aktif</span>
                     </div>
-                @endif
+                </div>
             </div>
             <div class="col-md-9">
-                <table class="table table-sm table-borderless mb-0">
-                    <tr><td width="30%"><strong>Nama Lengkap</strong></td><td>{{ $registrant->nama_lengkap }}</td></tr>
-                    <tr><td><strong>NISN</strong></td><td>{{ $registrant->nisn ?? '-' }}</td></tr>
-                    <tr><td><strong>NIK</strong></td><td>{{ $registrant->nik ?? '-' }}</td></tr>
-                    <tr><td><strong>Jenis Kelamin</strong></td><td>{{ $registrant->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</td></tr>
-                    <tr><td><strong>TTL</strong></td><td>{{ $registrant->tempat_lahir }}, {{ $registrant->tanggal_lahir->format('d F Y') }}</td></tr>
-                    <tr><td><strong>Asal Sekolah</strong></td><td>{{ $registrant->asal_sekolah ?? '-' }}</td></tr>
-                    <tr><td><strong>Gelombang</strong></td><td>{{ $registrant->admissionPhase->phase_name ?? '-' }}</td></tr>
-                    <tr><td><strong>Jalur</strong></td><td>{{ $registrant->admissionType->admission_type_name ?? '-' }}</td></tr>
-                    <tr><td><strong>Nama Ayah</strong></td><td>{{ $registrant->nama_ayah ?? '-' }}</td></tr>
-                    <tr><td><strong>Nama Ibu</strong></td><td>{{ $registrant->nama_ibu ?? '-' }}</td></tr>
-                    <tr><td><strong>No. HP Ortu</strong></td><td>{{ $registrant->no_hp_ortu ?? '-' }}</td></tr>
-                    <tr><td><strong>Alamat</strong></td><td>{{ $registrant->alamat ?? '-' }}</td></tr>
-                </table>
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">Nama Lengkap</small>
+                        <p class="mb-0 font-weight-bold text-dark">{{ $registrant->nama_lengkap }}</p>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">NISN / NIK</small>
+                        <p class="mb-0 text-dark">{{ $registrant->nisn ?? '-' }} / {{ $registrant->nik ?? '-' }}</p>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">Tempat, Tgl Lahir</small>
+                        <p class="mb-0 text-dark">{{ $registrant->tempat_lahir }}, {{ $registrant->tanggal_lahir->format('d M Y') }}</p>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">Asal Sekolah</small>
+                        <p class="mb-0 text-dark">{{ $registrant->asal_sekolah ?? '-' }}</p>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">Gelombang / Jalur</small>
+                        <p class="mb-0 text-dark">{{ $registrant->admissionPhase->phase_name ?? '-' }} ({{ $registrant->admissionType->admission_type_name ?? '-' }})</p>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">Kontak Orang Tua</small>
+                        <p class="mb-0 text-dark"><i class="fab fa-whatsapp text-success mr-1"></i> {{ $registrant->no_hp_ortu ?? '-' }}</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 {{-- BERKAS --}}
-<div class="ppdb-card mb-4">
+<div class="ppdb-card">
     <div class="card-header">
-        <i class="fas fa-folder-open mr-1"></i> Berkas Persyaratan
+        <i class="fas fa-file-invoice mr-2"></i> Verifikasi Berkas Persyaratan
     </div>
     <div class="card-body p-0">
         @if($registrant->documents->count() > 0)
             @foreach($registrant->documents as $doc)
                 <div class="doc-item">
-                    <div>
-                        <span class="doc-name">{{ $doc->document_name }}</span>
-                        @if($doc->verification_note)
-                            <br><small class="text-muted">{{ $doc->verification_note }}</small>
-                        @endif
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light p-2 rounded mr-3">
+                            <i class="fas fa-file-alt text-primary"></i>
+                        </div>
+                        <div>
+                            <span class="doc-name">{{ $doc->document_name }}</span>
+                            @if($doc->verification_note)
+                                <br><small class="text-danger font-italic"><i class="fas fa-exclamation-circle mr-1"></i> {{ $doc->verification_note }}</small>
+                            @endif
+                        </div>
                     </div>
                     <div>
                         @if($doc->is_verified)
-                            <span class="badge badge-success"><i class="fas fa-check"></i> Terverifikasi</span>
+                            <span class="badge badge-success px-3 py-2 rounded-pill"><i class="fas fa-check-circle mr-1"></i> Terverifikasi</span>
                         @else
-                            <span class="badge badge-secondary"><i class="fas fa-clock"></i> Menunggu</span>
+                            <span class="badge badge-warning px-3 py-2 rounded-pill text-dark"><i class="fas fa-clock mr-1"></i> Sedang Ditinjau</span>
                         @endif
                     </div>
                 </div>
             @endforeach
         @else
-            <div class="text-center py-4 text-muted">
-                <i class="fas fa-inbox fa-2x mb-2"></i>
-                <p>Belum ada berkas diupload.</p>
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-folder-open fa-3x mb-3 opacity-25"></i>
+                <p class="mb-0">Belum ada dokumen yang diunggah ke sistem.</p>
             </div>
         @endif
     </div>
@@ -99,19 +125,23 @@
 
 {{-- TOMBOL EDIT --}}
 @if(in_array($registrant->status, ['pending', 'berkas_tidak_lengkap']))
-    <div class="ppdb-card">
+    <div class="ppdb-card border-top border-warning" style="border-top-width: 4px !important;">
         <div class="card-body">
-            <p class="mb-3 text-muted">
-                <i class="fas fa-info-circle mr-1"></i>
-                @if($registrant->status === 'berkas_tidak_lengkap')
-                    Berkas Anda belum lengkap. Silakan edit dan lengkapi data pendaftaran.
-                @else
-                    Anda masih dapat mengubah data pendaftaran selama belum diverifikasi.
-                @endif
-            </p>
-            <button type="button" class="btn btn-ppdb" id="btnShowEdit">
-                <i class="fas fa-edit mr-1"></i> Edit Data Pendaftaran
-            </button>
+            <div class="d-md-flex align-items-center justify-content-between">
+                <div class="mb-3 mb-md-0">
+                    <h6 class="font-weight-bold text-dark mb-1">Perlu melakukan perubahan data?</h6>
+                    <p class="mb-0 text-muted small">
+                        @if($registrant->status === 'berkas_tidak_lengkap')
+                            <i class="fas fa-exclamation-triangle text-warning mr-1"></i> Mohon segera lengkapi berkas Anda sesuai catatan verifikator.
+                        @else
+                            <i class="fas fa-info-circle text-info mr-1"></i> Data masih dapat diubah selama status pendaftaran masih dalam peninjauan.
+                        @endif
+                    </p>
+                </div>
+                <button type="button" class="btn btn-ppdb shadow-sm" id="btnShowEdit">
+                    <i class="fas fa-pencil-alt mr-2"></i> Perbarui Data Sekarang
+                </button>
+            </div>
         </div>
     </div>
 
@@ -128,8 +158,8 @@
     <script>
         $('#btnShowEdit').on('click', function() {
             $(this).closest('.ppdb-card').hide();
-            $('#editFormContainer').slideDown(300);
-            $('html, body').animate({ scrollTop: $('#editFormContainer').offset().top - 20 }, 500);
+            $('#editFormContainer').slideDown(400);
+            $('html, body').animate({ scrollTop: $('#editFormContainer').offset().top - 30 }, 600);
         });
     </script>
     @endpush
@@ -137,13 +167,11 @@
 
 {{-- VERIFIKASI INFO --}}
 @if($registrant->verified_at)
-    <div class="ppdb-card mt-4">
-        <div class="card-body text-muted text-center">
-            <small>
-                <i class="fas fa-shield-alt mr-1"></i>
-                Diverifikasi oleh <strong>{{ $registrant->verifier->name ?? '-' }}</strong>
-                pada {{ $registrant->verified_at->format('d F Y, H:i') }} WIB
-            </small>
-        </div>
+    <div class="text-center py-4 text-muted">
+        <small class="font-italic">
+            <i class="fas fa-shield-alt mr-1"></i>
+            Validasi sistem otomatis — Verifikator: <strong>{{ $registrant->verifier->name ?? 'Admin Sistem' }}</strong>
+            <br>Waktu Verifikasi: {{ $registrant->verified_at->format('d M Y, H:i') }} WIB
+        </small>
     </div>
 @endif

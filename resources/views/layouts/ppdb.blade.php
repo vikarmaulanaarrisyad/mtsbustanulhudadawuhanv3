@@ -19,98 +19,150 @@
 
     <style>
         * { font-family: 'Poppins', sans-serif; }
-        body { background: #f0f4f8; min-height: 100vh; }
+        body { background: #f4f7f6; min-height: 100vh; color: #2d3748; }
 
         .ppdb-navbar {
-            background: linear-gradient(135deg, #1a7431 0%, #28a745 50%, #20c997 100%);
-            box-shadow: 0 2px 15px rgba(0,0,0,0.15);
+            background: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 0.75rem 0;
         }
         .ppdb-navbar .navbar-brand {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: #fff !important;
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: #1a7431 !important;
+            letter-spacing: -0.025em;
         }
-        .ppdb-navbar .nav-link { color: rgba(255,255,255,0.9) !important; }
-        .ppdb-navbar .nav-link:hover { color: #fff !important; }
+        .ppdb-navbar .nav-link { 
+            color: #4a5568 !important; 
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.2s;
+        }
+        .ppdb-navbar .nav-link:hover { color: #1a7431 !important; }
 
-        .ppdb-container { max-width: 900px; margin: 0 auto; padding: 30px 15px; }
+        .ppdb-container { max-width: 1000px; margin: 0 auto; padding: 40px 15px; }
 
         .ppdb-card {
             background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
             border: none;
             overflow: hidden;
+            margin-bottom: 2rem;
         }
         .ppdb-card .card-header {
-            background: linear-gradient(135deg, #1a7431 0%, #28a745 100%);
-            color: #fff;
-            font-weight: 600;
-            padding: 15px 25px;
-            border: none;
+            background: #ffffff;
+            color: #1a7431;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 20px 30px;
+            border-bottom: 1px solid #edf2f7;
+            display: flex;
+            align-items: center;
         }
-        .ppdb-card .card-body { padding: 25px; }
+        .ppdb-card .card-body { padding: 30px; }
 
         .status-card {
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 30px;
             text-align: center;
             color: #fff;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
-        .status-card.pending { background: linear-gradient(135deg, #ffc107, #ffca2c); color: #333; }
-        .status-card.berkas_lengkap { background: linear-gradient(135deg, #17a2b8, #20c9e0); }
-        .status-card.berkas_tidak_lengkap { background: linear-gradient(135deg, #dc3545, #e45561); }
-        .status-card.diterima { background: linear-gradient(135deg, #28a745, #34d058); }
-        .status-card.ditolak { background: linear-gradient(135deg, #343a40, #555); }
+        .status-card.pending { background: linear-gradient(135deg, #f6e05e 0%, #ecc94b 100%); color: #744210; }
+        .status-card.berkas_lengkap { background: linear-gradient(135deg, #4fd1c5 0%, #38b2ac 100%); }
+        .status-card.berkas_tidak_lengkap { background: linear-gradient(135deg, #feb2b2 0%, #f56565 100%); }
+        .status-card.diterima { background: linear-gradient(135deg, #68d391 0%, #48bb78 100%); }
+        .status-card.ditolak { background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%); }
 
-        .status-card h3 { font-weight: 700; margin: 0; }
-        .status-card p { margin: 5px 0 0; opacity: 0.9; }
+        .status-card h3 { font-weight: 800; margin: 0; font-size: 1.75rem; }
+        .status-card p { margin: 8px 0 0; opacity: 0.9; font-weight: 500; }
 
         .doc-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
+            padding: 15px 20px;
+            border-bottom: 1px solid #edf2f7;
+            transition: background 0.2s;
         }
+        .doc-item:hover { background: #f7fafc; }
         .doc-item:last-child { border-bottom: none; }
-        .doc-item .doc-name { font-weight: 500; }
+        .doc-item .doc-name { font-weight: 600; color: #2d3748; }
 
         .form-section-title {
-            font-weight: 600;
+            font-weight: 700;
             color: #1a7431;
-            border-bottom: 2px solid #28a745;
-            padding-bottom: 8px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
             margin-bottom: 20px;
-            margin-top: 10px;
+            margin-top: 30px;
+        }
+        .form-section-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #edf2f7;
+            margin-left: 15px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            height: auto;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            transition: all 0.2s;
+        }
+        .form-control:focus {
+            background: #fff;
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.15);
         }
 
         .btn-ppdb {
-            background: linear-gradient(135deg, #1a7431, #28a745);
+            background: #1a7431;
             color: #fff;
             border: none;
-            padding: 10px 30px;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 12px 35px;
+            border-radius: 10px;
+            font-weight: 700;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             transition: all 0.3s;
         }
         .btn-ppdb:hover {
-            background: linear-gradient(135deg, #155d27, #1e8338);
+            background: #146c43;
             color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(40,167,69,0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(26, 116, 49, 0.3);
         }
 
         .welcome-banner {
-            background: linear-gradient(135deg, #1a7431 0%, #28a745 50%, #20c997 100%);
+            background: linear-gradient(135deg, #1a7431 0%, #28a745 100%);
             color: #fff;
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 25px;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 15px -3px rgba(26, 116, 49, 0.2);
+            position: relative;
+            overflow: hidden;
         }
-        .welcome-banner h4 { font-weight: 700; margin-bottom: 5px; }
-        .welcome-banner p { opacity: 0.9; margin: 0; }
+        .welcome-banner::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        .welcome-banner h4 { font-weight: 800; margin-bottom: 10px; font-size: 1.5rem; }
+        .welcome-banner p { opacity: 0.9; margin: 0; font-size: 1.05rem; }
     </style>
     @stack('css')
 </head>

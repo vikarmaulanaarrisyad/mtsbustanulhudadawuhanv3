@@ -85,5 +85,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'tags.view',
         ])->get();
         $siswa->syncPermissions($siswaPermissions);
+
+        // 5. PPDB (Calon Siswa) Permissions
+        $ppdb = Role::firstOrCreate(['name' => 'ppdb']);
+        $ppdbPermissions = Permission::whereIn('name', [
+            'dashboard.view',
+        ])->get();
+        $ppdb->syncPermissions($ppdbPermissions);
     }
 }

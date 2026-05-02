@@ -30,11 +30,11 @@
 
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.18);
+            --primary: #198754;
+            --primary-hover: #146c43;
+            --bg-gradient: linear-gradient(135deg, #198754 0%, #0eaaa6 100%);
+            --glass-bg: rgba(255, 255, 255, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.2);
             --text-main: #1f2937;
             --text-muted: #6b7280;
             --input-bg: #f9fafb;
