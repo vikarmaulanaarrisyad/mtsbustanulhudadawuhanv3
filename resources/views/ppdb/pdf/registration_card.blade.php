@@ -79,9 +79,9 @@
             <div style="padding: 10px;">
                 @php
                     $url = route('ppdb.check_verify', $registrant->registration_number);
-                    $qrcode = base64_encode(QrCode::format('png')->size(100)->margin(1)->generate($url));
+                    $qrcode = base64_encode(QrCode::format('svg')->size(100)->margin(1)->generate($url));
                 @endphp
-                <img src="data:image/png;base64, {!! $qrcode !!}" style="width: 100px; height: 100px;">
+                <img src="data:image/svg+xml;base64, {!! $qrcode !!}" style="width: 100px; height: 100px;">
             </div>
             <p style="margin-top: 5px;">Verifikasi Keaslian Data</p>
         </div>
