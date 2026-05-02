@@ -83,6 +83,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'posts.view',
             'categories.view',
             'tags.view',
+            'announcements.view',
         ])->get();
         $siswa->syncPermissions($siswaPermissions);
 
@@ -90,6 +91,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $ppdb = Role::firstOrCreate(['name' => 'ppdb']);
         $ppdbPermissions = Permission::whereIn('name', [
             'dashboard.view',
+            'announcements.view',
         ])->get();
         $ppdb->syncPermissions($ppdbPermissions);
     }
