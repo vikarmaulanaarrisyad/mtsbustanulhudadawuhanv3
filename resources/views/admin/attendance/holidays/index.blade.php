@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Data Guru & Staf')
-@section('subtitle', 'Akademik')
+@section('title', 'Hari Libur Nasional')
+@section('subtitle', 'Persuratan')
 
 @section('content')
 <div class="row">
@@ -9,9 +9,9 @@
         <x-card>
             <x-slot name="header">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h3 class="card-title"><i class="fas fa-users mr-1"></i> Daftar Guru & Staf</h3>
-                    <button onclick="addForm(`{{ route('teachers.store') }}`)" class="btn btn-sm btn-primary">
-                        <i class="fas fa-plus-circle"></i> Tambah Guru/Staf
+                    <h3 class="card-title"><i class="fas fa-calendar-times mr-1"></i> Daftar Hari Libur</h3>
+                    <button onclick="addForm(`{{ route('holidays.store') }}`)" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus-circle"></i> Tambah Hari Libur
                     </button>
                 </div>
             </x-slot>
@@ -19,10 +19,8 @@
             <x-table>
                 <x-slot name="thead">
                     <th width="5%">NO</th>
-                    <th>NAMA LENGKAP</th>
-                    <th>NIP</th>
-                    <th>JABATAN</th>
-                    <th>PANGKAT/GOL</th>
+                    <th>TANGGAL</th>
+                    <th>KETERANGAN / NAMA LIBUR</th>
                     <th width="10%">AKSI</th>
                 </x-slot>
             </x-table>
@@ -31,34 +29,16 @@
 </div>
 
 <x-modal>
-    <x-slot name="title">Form Guru/Staf</x-slot>
+    <x-slot name="title">Form Hari Libur</x-slot>
 
     @method('POST')
     <div class="form-group">
-        <label>Nama Lengkap <span class="text-danger">*</span></label>
-        <input type="text" name="name" class="form-control" required>
+        <label>Tanggal Libur <span class="text-danger">*</span></label>
+        <input type="date" name="holiday_date" class="form-control" required>
     </div>
     <div class="form-group">
-        <label>NIP</label>
-        <input type="text" name="nip" class="form-control" placeholder="Kosongkan jika tidak ada">
-    </div>
-    <div class="form-group">
-        <label>Jabatan</label>
-        <input type="text" name="position" class="form-control" placeholder="Contoh: Guru Madya / Bendahara">
-    </div>
-    <div class="form-group">
-        <label>Pangkat / Golongan</label>
-        <input type="text" name="rank" class="form-control" placeholder="Contoh: Penata / III.c">
-    </div>
-    <div class="form-group">
-        <label>Hubungkan Akun Login</label>
-        <select name="user_id" class="form-control select2">
-            <option value="">-- Tanpa Akun / Belum Ada --</option>
-            @foreach($users as $u)
-                <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
-            @endforeach
-        </select>
-        <small class="text-muted">Pilih akun user agar guru ini bisa melakukan presensi mandiri.</small>
+        <label>Nama Libur / Keterangan <span class="text-danger">*</span></label>
+        <input type="text" name="name" class="form-control" placeholder="Contoh: Idul Fitri 1447 H" required>
     </div>
 
     <x-slot name="footer">
@@ -69,7 +49,6 @@
 @endsection
 
 @include('includes.datatable')
-@include('includes.select2')
 
 @push('scripts')
 <script>
@@ -78,13 +57,11 @@
     $(function() {
         table = $('.table').DataTable({
             processing: true, serverSide: true, autoWidth: false,
-            ajax: { url: '{{ route("teachers.data") }}' },
+            ajax: { url: '{{ route("holidays.data") }}' },
             columns: [
                 { data: 'DT_RowIndex', searchable: false, sortable: false },
+                { data: 'holiday_date' },
                 { data: 'name' },
-                { data: 'nip' },
-                { data: 'position' },
-                { data: 'rank' },
                 { data: 'action', searchable: false, sortable: false },
             ]
         });
@@ -92,7 +69,7 @@
 
     function addForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Tambah Guru & Staf');
+        $('#modal-form .modal-title').text('Tambah Hari Libur');
         $('#modal-form form').attr('action', url);
         $('#modal-form [name=_method]').val('POST');
         resetForm('#modal-form form');
@@ -103,7 +80,7 @@
         $.get(url).done(response => {
             Swal.close();
             $('#modal-form').modal('show');
-            $('#modal-form .modal-title').text('Edit Guru & Staf');
+            $('#modal-form .modal-title').text('Edit Hari Libur');
             $('#modal-form form').attr('action', url.replace('/show', ''));
             $('#modal-form [name=_method]').val('PUT');
             loopForm(response.data);
@@ -127,7 +104,7 @@
     function deleteData(url, name) {
         Swal.fire({
             title: 'Hapus Data?',
-            text: 'Apakah Anda yakin ingin menghapus data ' + name + '?',
+            text: 'Apakah Anda yakin ingin menghapus hari libur ' + name + '?',
             icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {

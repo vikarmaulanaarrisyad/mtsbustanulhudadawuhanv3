@@ -98,6 +98,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ route('study-periods.index') }}" class="nav-link {{ request()->is('study-periods*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Jam Pelajaran</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ route('promotions.index') }}" class="nav-link {{ request()->is('promotions*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Kenaikan & Rombel</p>
@@ -109,10 +115,65 @@
                                 <p>Kelulusan Siswa</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('subjects.index') }}" class="nav-link {{ request()->is('subjects*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Mata Pelajaran</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('class-schedules.index') }}" class="nav-link {{ request()->is('class-schedules*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Jadwal Pelajaran</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('student-attendances.index') }}" class="nav-link {{ request()->is('student-attendances*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Presensi Siswa (QR)</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
                 {{-- ================= LAYANAN PERSURATAN ================= --}}
+                <li class="nav-header">ABSENSI & KEPEGAWAIAN</li>
+                <li class="nav-item">
+                    <a href="{{ route('teacher.attendance.dashboard') }}" class="nav-link {{ request()->is('teacher/attendance*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-user-clock"></i>
+                        <p>Presensi Harian</p>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->is('attendance*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->is('attendance*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-clipboard-list"></i>
+                        <p>
+                            Manajemen Absensi
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('attendance-reports.index') }}" class="nav-link {{ request()->is('attendance/reports*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Log Presensi</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('holidays.index') }}" class="nav-link {{ request()->is('attendance/holidays*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Hari Libur</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('attendance-settings.index') }}" class="nav-link {{ request()->is('attendance/settings*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Pengaturan Jam</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 <li class="nav-header">LAYANAN PERSURATAN</li>
 
                 <li class="nav-item {{ request()->is('duty-letters*') ? 'menu-open' : '' }}">

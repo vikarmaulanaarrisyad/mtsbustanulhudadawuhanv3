@@ -8,4 +8,10 @@ class ClassGroup extends Model
 {
     use HasFactory;
     protected $table = 'class_groups';
+    protected $guarded = [];
+
+    public function getKelasLengkapAttribute()
+    {
+        return $this->class_group . ' - ' . $this->sub_class_group;
+    }
 }

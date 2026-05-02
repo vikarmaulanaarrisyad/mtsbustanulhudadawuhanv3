@@ -39,7 +39,15 @@ use App\Http\Controllers\{
     TeacherController,
     DutyLetterController,
     StudentPromotionController,
-    StudentGraduationController
+    StudentGraduationController,
+    AttendanceSettingController,
+    HolidayController,
+    AttendanceReportController,
+    TeacherAttendanceController,
+    SubjectController,
+    ClassScheduleController,
+    StudentAttendanceController,
+    StudyPeriodController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -494,6 +502,47 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/graduations/undo', [StudentGraduationController::class, 'undo'])->name('graduations.undo');
     Route::get('/graduations/{id}/print-skl', [StudentGraduationController::class, 'printSKL'])->name('graduations.print-skl');
     Route::resource('/graduations', StudentGraduationController::class);
+
+    // Teacher Attendance Portal
+    Route::get('/teacher/attendance', [TeacherAttendanceController::class, 'dashboard'])->name('teacher.attendance.dashboard');
+    Route::post('/teacher/attendance/check-in', [TeacherAttendanceController::class, 'checkIn'])->name('teacher.attendance.check-in');
+    Route::post('/teacher/attendance/check-out', [TeacherAttendanceController::class, 'checkOut'])->name('teacher.attendance.check-out');
+
+    // Admin Attendance Management
+    Route::prefix('attendance')->group(function () {
+        Route::get('/settings', [AttendanceSettingController::class, 'index'])->name('attendance-settings.index');
+        Route::post('/settings', [AttendanceSettingController::class, 'update'])->name('attendance-settings.update');
+        
+        Route::get('/holidays/data', [HolidayController::class, 'data'])->name('holidays.data');
+        Route::resource('/holidays', HolidayController::class);
+        
+        Route::get('/reports/data', [AttendanceReportController::class, 'data'])->name('attendance-reports.data');
+        Route::get('/reports/print', [AttendanceReportController::class, 'print'])->name('attendance-reports.print');
+        Route::resource('/reports', AttendanceReportController::class)->names('attendance-reports');
+    });
+
+    Route::get('/study-periods/data', [StudyPeriodController::class, 'data'])->name('study-periods.data');
+    Route::resource('/study-periods', StudyPeriodController::class);
+
+    // Subjects & Schedules
+    Route::get('/subjects/download-template', [SubjectController::class, 'downloadTemplate'])->name('subjects.download_template');
+    Route::post('/subjects/import-excel', [SubjectController::class, 'importExcel'])->name('subjects.import_excel');
+    Route::get('/subjects/data', [SubjectController::class, 'data'])->name('subjects.data');
+    Route::resource('/subjects', SubjectController::class);
+    
+    Route::get('/class-schedules/download-template', [ClassScheduleController::class, 'downloadTemplate'])->name('class-schedules.download_template');
+    Route::post('/class-schedules/import-excel', [ClassScheduleController::class, 'importExcel'])->name('class-schedules.import_excel');
+    Route::get('/class-schedules/data', [ClassScheduleController::class, 'data'])->name('class-schedules.data');
+    Route::resource('/class-schedules', ClassScheduleController::class);
+
+    // Student Attendance (QR Scan)
+    Route::prefix('student-attendances')->group(function () {
+        Route::get('/data', [StudentAttendanceController::class, 'data'])->name('student-attendances.data');
+        Route::get('/scanner', [StudentAttendanceController::class, 'scanner'])->name('student-attendances.scanner');
+        Route::post('/scan', [StudentAttendanceController::class, 'scan'])->name('student-attendances.scan');
+        Route::get('/cards', [StudentAttendanceController::class, 'printCards'])->name('student-attendances.cards');
+    });
+    Route::resource('/student-attendances', StudentAttendanceController::class);
 });
 
 /*

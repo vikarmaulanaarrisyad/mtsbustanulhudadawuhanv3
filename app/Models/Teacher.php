@@ -10,6 +10,16 @@ class Teacher extends Model
 
     protected $guarded = [];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
     public function dutyLetters()
     {
         return $this->belongsToMany(DutyLetter::class, 'duty_letter_teachers');

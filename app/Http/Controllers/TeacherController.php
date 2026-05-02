@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TeacherController extends Controller
 {
     public function index()
     {
-        return view('admin.teachers.index');
+        $users = User::orderBy('name')->get();
+        return view('admin.teachers.index', compact('users'));
     }
 
     public function data()
