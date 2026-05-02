@@ -13,6 +13,10 @@ use App\Models\Post;
 use App\Models\Quotes;
 use App\Models\SchoolAgenda;
 use App\Models\Tag;
+use App\Models\AcademicYear;
+use App\Models\StudentAdmission;
+use App\Models\Album;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,7 +36,21 @@ class FrontController extends Controller
             ->limit(5)
             ->get();
 
-        return view('welcome', compact('posts', 'quetes', 'breakingNews', 'sliders', 'agendas'));
+        // 👉 Cek Status PPDB
+        $academicYear = AcademicYear::where('admission_semester', 1)->first();
+        $ppdbOpen = false;
+        if ($academicYear) {
+            $admission = StudentAdmission::where('academic_year_id', $academicYear->id)->first();
+            if ($admission && $admission->admission_status === 'open') {
+                $ppdbOpen = true;
+            }
+        }
+
+        // 👉 Ambil Data Galeri & Setting
+        $albums = Album::latest()->take(6)->get();
+        $site_setting = Setting::first(); // get site setting for youtube_link
+
+        return view('welcome', compact('posts', 'quetes', 'breakingNews', 'sliders', 'agendas', 'ppdbOpen', 'academicYear', 'albums', 'site_setting'));
     }
 
     // Method untuk detail berita

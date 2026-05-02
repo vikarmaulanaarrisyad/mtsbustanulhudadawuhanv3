@@ -4,277 +4,266 @@
 
 @push('css')
     <style>
-        /* ===============================
-                                                                                                   HERO TITLE SLUG
-                                                                                                =============================== */
         .post-hero {
             position: relative;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            padding: 120px 20px;
             color: #fff;
-            text-align: center;
+            overflow: hidden;
         }
 
         .post-hero::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65));
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4));
+            z-index: 1;
         }
 
         .post-hero-content {
             position: relative;
             z-index: 2;
+            text-align: center;
+            max-width: 900px;
+            padding: 0 20px;
         }
 
         .post-hero h1 {
-            font-size: 2.4rem;
-            font-weight: 700;
-            margin-bottom: 10px;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            line-height: 1.2;
         }
 
-        .post-hero p {
-            font-size: 1rem;
-            opacity: 0.9;
+        .breadcrumb {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            display: inline-flex;
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-top: 10px;
         }
 
-        /* ===============================
-                                                                                                   KONTEN BERITA
-                                                                                                =============================== */
+        .breadcrumb-item a, .breadcrumb-item.active {
+            color: #fff !important;
+            font-weight: 500;
+        }
+
+        .post-card-container {
+            margin-top: -80px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .post-main-card {
+            border-radius: 25px;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+        }
+
         .post-content {
-            line-height: 1.8;
-            font-size: 1.2rem;
-            color: #343a40;
+            font-size: 1.25rem;
+            line-height: 1.9;
+            color: #2c3e50;
             text-align: justify;
         }
 
-        /* Breadcrumb */
-        .breadcrumb {
-            background: none;
-            padding: 0;
-            margin-bottom: 20px;
+        .post-meta-v2 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 35px;
         }
 
-        .breadcrumb a {
+        .meta-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+            color: #7f8c8d;
+        }
+
+        .meta-item i {
+            font-size: 1.1rem;
             color: #0eaaa6;
-            text-decoration: none;
+            margin-right: 8px;
         }
 
-        .breadcrumb a:hover {
-            text-decoration: none;
+        /* Comments Styling */
+        .comment-bubble {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            margin-bottom: 25px;
+            border: 1px solid #eee;
+            transition: 0.3s;
         }
 
-        /* Judul */
-        .post-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: #212529;
+        .comment-bubble:hover {
+            background: #fff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
 
-        /* Meta info */
-        .post-meta span {
-            margin-right: 15px;
-            color: #6c757d;
-            font-size: 1rem;
-        }
-
-        .post-meta i {
-            color: #0eaaa6;
-            margin-right: 5px;
-        }
-
-        /* Gambar utama */
-        .post-image {
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            margin-bottom: 30px;
-        }
-
-        /* Share buttons */
-        .share-buttons a {
-            margin-right: 12px;
-            color: #0eaaa6;
-            font-size: 1.2rem;
-            transition: all 0.3s;
-        }
-
-        .share-buttons a:hover {
-            color: #0eaaa6;
-        }
-
-        /* Tombol kembali */
-        .btn-back {
-            background-color: #fff;
-            color: #0eaaa6;
-            border: 1px solid #0eaaa6;
-            transition: all 0.3s;
-        }
-
-        .btn-back:hover {
-            background-color: #0eaaa6;
+        .comment-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #0eaaa6;
             color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(14, 170, 166, 0.3);
         }
 
-        /* Sidebar */
-        .sidebar {
-            position: sticky;
-            top: 100px;
+        .comment-input-area {
+            background: #fff;
+            border: 2px solid #eee;
+            border-radius: 20px;
+            padding: 15px;
+            transition: 0.3s;
         }
 
-        /* Komentar */
-        .comment-card {
-            margin-bottom: 15px;
+        .comment-input-area:focus-within {
+            border-color: #0eaaa6;
+            box-shadow: 0 0 0 4px rgba(14, 170, 166, 0.1);
         }
 
-        .comment-card .card-body p {
-            margin-bottom: 0;
+        .comment-input-area textarea {
+            border: none !important;
+            box-shadow: none !important;
+            resize: none;
+            font-size: 1.05rem;
         }
 
-        /* Responsive */
+        .share-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: #f1f2f6;
+            border-radius: 50px;
+            color: #2f3542;
+            text-decoration: none;
+            margin-right: 10px;
+            transition: 0.3s;
+            font-weight: 600;
+        }
+
+        .share-pill:hover {
+            background: #0eaaa6;
+            color: #fff;
+            text-decoration: none;
+            transform: translateY(-3px);
+        }
+
         @media (max-width: 768px) {
-            .post-hero {
-                padding: 80px 15px;
-            }
-
-            .post-hero h1 {
-                font-size: 1.6rem;
-            }
-
-            .post-content {
-                font-size: 1rem;
-            }
+            .post-hero h1 { font-size: 2rem; }
+            .post-content { font-size: 1.1rem; }
         }
     </style>
 @endpush
 
 @section('content')
-    <div class="post-hero"
-        style="background-image: url('{{ $setting->path_breadcrumb ? asset('storage/' . $setting->path_breadcrumb) : asset('images/default-banner.jpg') }}');">
-
+    <div class="post-hero" style="background-image: url('{{ Storage::url($post->post_image) }}');">
         <div class="post-hero-content">
-            <h1>{!! $post->post_title !!}</h1>
-            <!-- Breadcrumb -->
-            <nav aria-label="breadcrumb" class="px-4">
+            <h1 class="animate__animated animate__fadeInDown">{!! $post->post_title !!}</h1>
+            <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}">Beranda</a></li>
                     <li class="breadcrumb-item"><a href="#">Berita</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ $post->post_slug }}</li>
+                    <li class="breadcrumb-item active">{{ Str::limit($post->post_title, 20) }}</li>
                 </ol>
             </nav>
-
         </div>
     </div>
 
-    <section class="py-5">
-        <div class="row no-gutters px-4">
-
-            <!-- Konten Berita -->
-            <div class="col-lg-8 pr-lg-4">
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body p-5">
-
-                        <h1 class="post-title">{!! $post->post_title !!}</h1>
-
-                        <div class="post-meta mb-4">
-                            <span><i class="fa fa-user"></i> {{ $post->author->name ?? 'Admin' }}</span>
-                            <span><i class="fa fa-calendar-alt"></i> {{ $post->created_at->format('d M Y') }}</span>
-                            <span><i class="fa fa-folder-open"></i>
-                                @foreach ($post->categories as $category)
-                                    <a href="#" class="text-success">{{ $category->category_name }}</a>
-                                    @if (!$loop->last)
-                                        ,
-                                    @endif
+    <div class="container post-card-container mb-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card post-main-card mb-4">
+                    <div class="card-body p-4 p-md-5">
+                        
+                        <div class="post-meta-v2">
+                            <div class="meta-item"><i class="fa fa-user-circle"></i> {{ $post->user->name ?? 'Admin' }}</div>
+                            <div class="meta-item"><i class="fa fa-calendar-check"></i> {{ $post->created_at->format('d F Y') }}</div>
+                            <div class="meta-item"><i class="fa fa-tag"></i> 
+                                @foreach ($post->categories as $cat)
+                                    <span class="badge badge-light px-2">{{ $cat->category_name }}</span>
                                 @endforeach
-                            </span>
+                            </div>
                         </div>
 
-                        @if ($post->post_image)
-                            <img src="{{ asset('storage/' . $post->post_image) }}" alt="{{ $post->post_title }}"
-                                class="post-image d-block mx-auto" style="width:80%; height:auto;">
-                        @endif
-
-                        <div class="post-content mb-5">
+                        <div class="post-content">
                             {!! $post->post_content !!}
                         </div>
 
-                        <!-- Share -->
-                        <div class="share-buttons mb-4">
-                            <span>Bagikan:</span>
-                            <a href="#"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                            <a href="#"><i class="fab fa-whatsapp"></i></a>
-                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <hr class="my-5">
+
+                        <div class="d-flex flex-wrap align-items-center justify-content-between">
+                            <div class="mb-3">
+                                <h6 class="font-weight-bold mb-3">Bagikan Berita:</h6>
+                                <a href="#" class="share-pill"><i class="fab fa-facebook-f mr-2"></i> Facebook</a>
+                                <a href="#" class="share-pill"><i class="fab fa-whatsapp mr-2"></i> WhatsApp</a>
+                            </div>
+                            <div class="mb-3">
+                                <a href="{{ url('/') }}" class="btn btn-outline-success btn-lg rounded-pill px-4">
+                                    <i class="fa fa-chevron-left mr-2"></i> Kembali
+                                </a>
+                            </div>
                         </div>
 
-                        <a href="{{ url('/') }}" class="btn btn-back mb-5">
-                            <i class="fa fa-arrow-left"></i> Kembali ke Berita
-                        </a>
+                        <!-- Comments Section -->
+                        <div class="mt-5 pt-4 border-top">
+                            <h4 class="font-weight-bold mb-4 text-dark"><i class="fa fa-comments text-success mr-2"></i> {{ $post->comments->count() }} Komentar</h4>
 
-                        <!-- ===============================
-                                                                                                                     KOMENTAR
-                                                                                                                =============================== -->
-                        <div class="comments-section mt-5">
-                            <h5 class="mb-3">Komentar</h5>
-
-                            @php
-                                $totalComments = $post->comments->count();
-                                $latestComments = $post->comments->sortByDesc('created_at');
-                                $visibleComments = $latestComments->take(10);
-                            @endphp
-
-                            <div id="comment-list">
-                                @foreach ($visibleComments as $comment)
-                                    <div class="card comment-card shadow-sm p-2 mb-3">
-                                        <div class="card-body">
-                                            <strong>{{ $comment->name ?? 'Guest' }}</strong>
-                                            <small class="text-muted float-right">
-                                                {{ $comment->created_at->diffForHumans() }}
-                                            </small>
-                                            <p>{{ $comment->comment }}</p>
-                                        </div>
+                            <div class="comment-form mb-5">
+                                <div class="card border-0 bg-light rounded-xl shadow-sm">
+                                    <div class="card-body p-4">
+                                        <h5 class="font-weight-bold mb-3">Tinggalkan Jejak Anda</h5>
+                                        <form action="{{ route('post.comment', $post->id) }}" method="POST">
+                                            @csrf
+                                            <div class="comment-input-area mb-3">
+                                                <textarea name="comment" class="form-control" rows="3" placeholder="Apa pendapat Anda tentang berita ini?" required></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 shadow-sm">
+                                                Kirim Komentar <i class="fa fa-paper-plane ml-2"></i>
+                                            </button>
+                                        </form>
                                     </div>
-                                @endforeach
+                                </div>
                             </div>
 
-                            @if ($totalComments > 10)
-                                <div class="text-center mt-3 mb-2">
-                                    <button id="show-all-comments" class="btn btn-outline-success btn-sm">
-                                        Lihat semua komentar ({{ $totalComments }})
-                                    </button>
-                                </div>
-                            @endif
-
-                            <div id="all-comments" class="d-none">
-                                @foreach ($latestComments as $comment)
-                                    <div class="card comment-card shadow-sm p-2 mb-3">
-                                        <div class="card-body">
-                                            <strong>{{ $comment->name ?? 'Guest' }}</strong>
-                                            <small class="text-muted float-right">
-                                                {{ $comment->created_at->diffForHumans() }}
-                                            </small>
-                                            <p>{{ $comment->comment }}</p>
+                            <div id="comment-container">
+                                @forelse($post->comments->sortByDesc('created_at')->take(10) as $comment)
+                                    <div class="d-flex mb-4">
+                                        <div class="comment-avatar mr-3">
+                                            {{ strtoupper(substr($comment->user->name ?? 'G', 0, 1)) }}
+                                        </div>
+                                        <div class="comment-bubble flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="font-weight-bold mb-0">{{ $comment->user->name ?? 'Pengunjung' }}</h6>
+                                                <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                            </div>
+                                            <p class="mb-0 text-dark">{{ $comment->comment }}</p>
                                         </div>
                                     </div>
-                                @endforeach
-                            </div>
-
-                            <div class="card mb-4 shadow-sm">
-                                <div class="card-body">
-                                    <form action="{{ route('post.comment', $post->id) }}" method="POST">
-                                        @csrf
-                                        <div class="form-group">
-                                            <label for="comment">Tulis komentar</label>
-                                            <textarea name="comment" id="comment" class="form-control" rows="3" placeholder="Tulis komentar..."></textarea>
-                                        </div>
-                                        <button type="submit" class="btn btn-success mt-2">
-                                            Kirim
-                                        </button>
-                                    </form>
-                                </div>
+                                @empty
+                                    <div class="text-center py-5 text-muted">
+                                        <i class="fa fa-comment-slash fa-3x mb-3 opacity-20"></i>
+                                        <p>Belum ada komentar. Jadilah yang pertama memberikan pendapat!</p>
+                                    </div>
+                                @endforelse
                             </div>
 
                         </div>
@@ -282,63 +271,49 @@
                 </div>
             </div>
 
-            <!-- ===============================
-                                                                                                         SIDEBAR
-                                                                                                    =============================== -->
-            <div class="col-lg-4 mt-4 mt-lg-0">
-                <div class="sidebar">
-
-                    <!-- Sambutan Kepala Madrasah -->
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="sidebar sticky-top" style="top: 100px; z-index: 1;">
                     @include('layouts.partials.sambutan-kepala')
-
-                    <!-- Breaking News -->
-                    <div class="sidebar-card">
-                        <div class="sidebar-header">
-                            <i class="fa fa-bullhorn"></i>
-                            <span>Breaking News</span>
+                    
+                    <div class="card border-0 shadow-sm rounded-xl mb-4 overflow-hidden">
+                        <div class="card-header bg-success text-white py-3 border-0">
+                            <h6 class="mb-0 font-weight-bold"><i class="fa fa-fire mr-2"></i> Berita Terkait</h6>
                         </div>
-                        <div class="sidebar-body">
-                            @include('layouts.partials.breaking-news')
-                        </div>
-                    </div>
-
-                    <!-- Pengumuman -->
-                    <div class="sidebar-card">
-                        <div class="sidebar-header">
-                            <i class="fa fa-info-circle"></i>
-                            <span>Pengumuman</span>
-                        </div>
-                        <div class="sidebar-body">
-                            @include('layouts.partials.announcements')
-                        </div>
-                    </div>
-
-                    <!-- Prestasi -->
-                    <div class="sidebar-card">
-                        <div class="sidebar-header">
-                            <i class="fa fa-trophy"></i>
-                            <span>Prestasi</span>
-                        </div>
-                        <div class="sidebar-body">
-                            @include('layouts.partials.prestasi')
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush">
+                                @foreach($related ?? [] as $rel)
+                                    <a href="{{ route('front.post_show', $rel->post_slug) }}" class="list-group-item list-group-item-action py-3">
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ Storage::url($rel->post_image) }}" class="rounded mr-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                            <div>
+                                                <h6 class="mb-1 font-weight-bold small text-dark">{{ Str::limit($rel->post_title, 45) }}</h6>
+                                                <small class="text-muted">{{ $rel->created_at->format('d M Y') }}</small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </ul>
                         </div>
                     </div>
 
-
+                    @include('layouts.partials.announcements')
                 </div>
             </div>
-
         </div>
-    </section>
+    </div>
 @endsection
-
 
 @push('scripts')
     <script>
-        document.getElementById('show-all-comments')?.addEventListener('click', function() {
-            document.getElementById('comment-list').classList.add('d-none');
-            document.getElementById('all-comments').classList.remove('d-none');
-            this.style.display = 'none';
+        // Smooth scroll for anchors
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
         });
     </script>
 @endpush
