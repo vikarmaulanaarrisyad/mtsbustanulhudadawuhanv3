@@ -92,6 +92,10 @@ class PpdbRegistrantController extends Controller
             ->addColumn('gelombang', fn($r) => $r->admissionPhase->phase_name ?? '-')
             ->addColumn('jalur', fn($r) => $r->admissionType->admission_type_name ?? '-')
             ->addColumn('jk_label', fn($r) => $r->jenis_kelamin === 'L' ? 'L' : 'P')
+            ->addColumn('registration_number', function ($r) {
+                return '<span class="font-weight-bold text-primary">' . $r->registration_number . '</span>' . 
+                       ($r->letter_number ? '<br><small class="text-muted">SK: ' . $r->letter_number . '</small>' : '');
+            })
             ->addColumn('status_badge', function ($r) {
                 return '<span class="badge badge-' . $r->status_color . '">' . $r->status_label . '</span>';
             })
@@ -325,12 +329,19 @@ class PpdbRegistrantController extends Controller
 
             $registrant = PpdbRegistrant::findOrFail($id);
 
-            $registrant->update([
+            $updateData = [
                 'status' => $request->status,
                 'catatan_verifikasi' => $request->catatan_verifikasi,
                 'verified_by' => Auth::id(),
                 'verified_at' => now(),
-            ]);
+            ];
+
+            // Generate nomor surat jika diterima dan belum ada nomornya
+            if ($request->status === 'diterima' && !$registrant->letter_number) {
+                $updateData['letter_number'] = PpdbRegistrant::generateLetterNumber();
+            }
+
+            $registrant->update($updateData);
 
             // Update verifikasi per dokumen
             if ($request->has('doc_verified')) {
@@ -405,14 +416,64 @@ class PpdbRegistrantController extends Controller
     public function printLetter($id)
     {
         $registrant = PpdbRegistrant::with(['admissionPhase', 'admissionType'])->findOrFail($id);
+        
+        // Security Check: Student can only print their own letter
+        if (Auth::user()->hasRole('ppdb') && $registrant->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses ke dokumen ini.');
+        }
+
         $setting = \App\Models\Setting::first();
         $source = \App\Models\MailSetting::first();
         $admission = StudentAdmission::find($registrant->student_admission_id);
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.admission.ppdb.letter', compact('registrant', 'setting', 'source', 'admission'));
-        $pdf->setPaper('a4', 'portrait');
+        $pdf->setPaper([0, 0, 612, 936], 'portrait');
 
         $filename = 'SK_PPDB_' . str_replace('/', '_', $registrant->registration_number) . '.pdf';
         return $pdf->download($filename);
+    }
+
+    /**
+     * Cetak Berita Acara Penerimaan Kolektif.
+     */
+    public function printBeritaAcara()
+    {
+        $source = \App\Models\MailSetting::first();
+        $academicYear = AcademicYear::where('admission_semester', 1)->first();
+        $admission = StudentAdmission::where('academic_year_id', $academicYear->id)->first();
+
+        $query = PpdbRegistrant::where('student_admission_id', $admission->id);
+        
+        $total_applicants = (clone $query)->count();
+        $total_accepted = (clone $query)->where('status', 'diterima')->count();
+        $total_rejected = (clone $query)->where('status', 'ditolak')->count();
+        $total_pending = $total_applicants - $total_accepted - $total_rejected;
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.admission.ppdb.pdf.berita_acara', compact(
+            'source', 'admission', 'total_applicants', 'total_accepted', 'total_rejected', 'total_pending'
+        ));
+        $pdf->setPaper([0, 0, 612, 936], 'portrait');
+        
+        return $pdf->download('Berita_Acara_PPDB_' . date('Y') . '.pdf');
+    }
+
+    /**
+     * Cetak SK Kolektif / Pengumuman Daftar Lulus.
+     */
+    public function printCollectiveSK()
+    {
+        $source = \App\Models\MailSetting::first();
+        $academicYear = AcademicYear::where('admission_semester', 1)->first();
+        $admission = StudentAdmission::where('academic_year_id', $academicYear->id)->first();
+
+        $registrants = PpdbRegistrant::where('student_admission_id', $admission->id)
+            ->where('status', 'diterima')
+            ->orderBy('registration_number', 'asc')
+            ->get();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.admission.ppdb.pdf.collective_sk', compact('source', 'admission', 'registrants'));
+        $pdf->setPaper([0, 0, 612, 936], 'portrait');
+        
+        return $pdf->download('Daftar_Lulus_PPDB_' . date('Y') . '.pdf');
     }
 }

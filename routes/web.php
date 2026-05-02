@@ -67,6 +67,9 @@ Route::get('/ppdb/check', [FrontController::class, 'showPpdbCheck'])->name('fron
 Route::post('/ppdb/check', [FrontController::class, 'checkPpdbStatus'])->name('front.ppdb_submit');
 Route::get('/post/{id}/comments', [FrontController::class, 'showComments'])->name('post.showComments');
 
+// QR Code Verification
+Route::get('/ppdb/cek/{regNumber}', [\App\Http\Controllers\Ppdb\PpdbVerificationController::class, 'check'])->name('ppdb.check_verify');
+
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view|Super Admin|Admin|Guru|Siswa|ppdb']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -404,6 +407,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::controller(PpdbRegistrantController::class)->group(function () {
         Route::get('/admission/ppdb/data', 'data')->name('ppdb.data');
         Route::get('/admission/ppdb', 'index')->name('ppdb.index');
+        Route::get('/admission/ppdb/print-berita-acara', 'printBeritaAcara')->name('ppdb.print_berita_acara');
+        Route::get('/admission/ppdb/print-collective-sk', 'printCollectiveSK')->name('ppdb.print_collective_sk');
         Route::get('/admission/ppdb/{id}', 'show')->name('ppdb.show');
         Route::put('/admission/ppdb/{id}', 'update')->name('ppdb.update');
         Route::post('/admission/ppdb', 'store')->name('ppdb.store');

@@ -237,7 +237,7 @@ class PpdbDashboardController extends Controller
         $admission = StudentAdmission::find($registrant->student_admission_id);
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('ppdb.pdf.registration_card', compact('registrant', 'source', 'admission'));
-        $pdf->setPaper('a4', 'portrait');
+        $pdf->setPaper([0, 0, 612, 936], 'portrait');
 
         return $pdf->download('Bukti_Pendaftaran_' . $registrant->registration_number . '.pdf');
     }
@@ -253,7 +253,7 @@ class PpdbDashboardController extends Controller
         $admission = StudentAdmission::find($registrant->student_admission_id);
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('ppdb.pdf.verification_checklist', compact('registrant', 'source', 'admission'));
-        $pdf->setPaper('a4', 'portrait');
+        $pdf->setPaper([0, 0, 612, 936], 'portrait');
 
         return $pdf->download('Lembar_Verifikasi_' . $registrant->registration_number . '.pdf');
     }

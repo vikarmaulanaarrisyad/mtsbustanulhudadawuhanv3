@@ -53,6 +53,22 @@
     </div>
 </div>
 
+@if($registrant->status === 'diterima')
+    <div class="ppdb-card border-left-success shadow-sm mb-4 animate__animated animate__pulse animate__infinite animate__slow">
+        <div class="card-body">
+            <div class="d-md-flex align-items-center justify-content-between">
+                <div class="mb-3 mb-md-0">
+                    <h5 class="font-weight-bold text-success mb-1"><i class="fas fa-award mr-2"></i>Selamat! Anda Dinyatakan Lulus</h5>
+                    <p class="mb-0 text-muted">Silakan unduh Surat Keterangan Kelulusan (SK) resmi Anda di sini.</p>
+                </div>
+                <a href="{{ route('ppdb.print_letter', $registrant->id) }}" class="btn btn-success btn-lg px-4 shadow">
+                    <i class="fas fa-file-pdf mr-2"></i> Cetak SK Kelulusan
+                </a>
+            </div>
+        </div>
+    </div>
+@endif
+
 <style>
     .border-left-success { border-left: 4px solid #28a745 !important; }
     .border-left-primary { border-left: 4px solid #007bff !important; }

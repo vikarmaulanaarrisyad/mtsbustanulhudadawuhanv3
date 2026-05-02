@@ -105,9 +105,22 @@
                             <button onclick="resetFilter()" class="btn btn-sm btn-outline-secondary"><i class="fas fa-sync"></i> Reset</button>
                         </div>
                         <div class="d-flex flex-wrap mt-2 mt-md-0" style="gap:8px;">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-info dropdown-toggle shadow-sm" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-print mr-1"></i> Cetak Kolektif
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right shadow border-0">
+                                    <a class="dropdown-item" href="{{ route('ppdb.print_berita_acara') }}" target="_blank">
+                                        <i class="fas fa-file-alt mr-2 text-info"></i> Berita Acara Penerimaan
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('ppdb.print_collective_sk') }}" target="_blank">
+                                        <i class="fas fa-users mr-2 text-success"></i> SK Kolektif (Daftar Lulus)
+                                    </a>
+                                </div>
+                            </div>
                             @if ($admission)
-                                <button onclick="addForm(`{{ route('ppdb.store') }}`)" class="btn btn-sm btn-info">
-                                    <i class="fas fa-plus-circle"></i> Tambah Pendaftar
+                                <button onclick="addForm(`{{ route('ppdb.store') }}`)" class="btn btn-sm btn-primary shadow-sm">
+                                    <i class="fas fa-plus-circle mr-1"></i> Tambah Pendaftar
                                 </button>
                             @endif
                         </div>
