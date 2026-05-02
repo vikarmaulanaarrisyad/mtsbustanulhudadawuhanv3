@@ -169,6 +169,41 @@
             font-weight: 600;
             z-index: 5;
         }
+
+        /* Ekskul & Prestasi Styles */
+        .ekskul-card {
+            background: #fff;
+            border-radius: 20px;
+            transition: 0.3s;
+            border: 1px solid #eee;
+        }
+        .ekskul-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-color: #0eaaa6;
+        }
+        .achievement-card {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: 0.3s;
+        }
+        .achievement-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .medal-badge {
+            width: 40px;
+            height: 40px;
+            background: gold;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
     </style>
 @endpush
 
@@ -283,6 +318,33 @@
                         <p class="text-muted">Terbukti melahirkan siswa berprestasi di bidang akademik maupun non-akademik.</p>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- Dynamic Extracurricular Section --}}
+    <section class="ekskul py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="font-weight-bold text-success d-inline-block shadow-sm px-4 py-2 rounded bg-white">Ekstrakurikuler</h2>
+                <p class="text-muted mt-3">Wadah pengembangan bakat dan minat siswa Madrasah</p>
+            </div>
+            <div class="row">
+                @forelse($extracurriculars as $ekskul)
+                    <div class="col-md-3 col-6 mb-4">
+                        <div class="ekskul-card p-4 text-center h-100 shadow-sm">
+                            <div class="feature-icon mb-3">
+                                <i class="fa {{ $ekskul->icon ?? 'fa-users' }}"></i>
+                            </div>
+                            <h5 class="font-weight-bold mb-2">{{ $ekskul->name }}</h5>
+                            <p class="text-muted small mb-0">{{ Str::limit($ekskul->description, 60) }}</p>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-12 text-center text-muted">
+                        <p>Data ekstrakurikuler belum tersedia.</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </section>
@@ -426,6 +488,41 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- Dynamic Achievements Section --}}
+    <section class="achievements py-5 bg-white">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="font-weight-bold text-success d-inline-block shadow-sm px-4 py-2 rounded bg-light">Prestasi Siswa</h2>
+                <p class="text-muted mt-3">Bangga atas pencapaian luar biasa santri-santri kami</p>
+            </div>
+            <div class="row justify-content-center">
+                @forelse($achievements as $prestasi)
+                    <div class="col-md-4 mb-4">
+                        <div class="achievement-card card h-100 p-4 border-light bg-light">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="medal-badge mr-3">
+                                    <i class="fa fa-trophy"></i>
+                                </div>
+                                <div>
+                                    <h6 class="font-weight-bold mb-0 text-success">{{ $prestasi->title }}</h6>
+                                    <small class="text-muted">Tahun {{ $prestasi->year }}</small>
+                                </div>
+                            </div>
+                            <div class="student-info border-top pt-3 mt-auto">
+                                <p class="mb-0 font-weight-bold text-dark"><i class="fa fa-user-graduate mr-2 text-success"></i> {{ $prestasi->student_name }}</p>
+                                <p class="mb-0 text-muted small">Juara {{ $prestasi->rank }}</p>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-12 text-center text-muted">
+                        <p>Data prestasi belum tersedia.</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </section>

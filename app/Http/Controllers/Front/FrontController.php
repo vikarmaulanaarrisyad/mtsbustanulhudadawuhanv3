@@ -17,6 +17,8 @@ use App\Models\AcademicYear;
 use App\Models\StudentAdmission;
 use App\Models\Album;
 use App\Models\Setting;
+use App\Models\Extracurricular;
+use App\Models\Achievement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -49,8 +51,10 @@ class FrontController extends Controller
         // 👉 Ambil Data Galeri & Setting
         $albums = Album::latest()->take(6)->get();
         $site_setting = Setting::first(); // get site setting for youtube_link
+        $extracurriculars = Extracurricular::all();
+        $achievements = Achievement::latest()->take(6)->get();
 
-        return view('welcome', compact('posts', 'quetes', 'breakingNews', 'sliders', 'agendas', 'ppdbOpen', 'academicYear', 'albums', 'site_setting'));
+        return view('welcome', compact('posts', 'quetes', 'breakingNews', 'sliders', 'agendas', 'ppdbOpen', 'academicYear', 'albums', 'site_setting', 'extracurriculars', 'achievements'));
     }
 
     // Method untuk detail berita
