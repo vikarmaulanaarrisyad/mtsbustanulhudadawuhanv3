@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StudentsExport;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Setting;
 
 class StudentController extends Controller
 {
@@ -491,5 +494,34 @@ class StudentController extends Controller
         $writer->save($tempPath);
 
         return response()->download($tempPath, $fileName)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Export to Excel.
+     */
+    public function exportExcel(Request $request)
+    {
+        return Excel::download(new StudentsExport($request), 'data_siswa_' . date('YmdHis') . '.xlsx');
+    }
+
+    /**
+     * Export to PDF.
+     */
+    public function exportPDF(Request $request)
+    {
+        $students = Student::with(['classGroup', 'academicYear', 'studentStatus'])
+            ->when($request->academic_year_id, fn($q) => $q->where('academic_year_id', $request->academic_year_id))
+            ->when($request->class_group_id, fn($q) => $q->where('student_class_group_id', $request->class_group_id))
+            ->when($request->status_id, fn($q) => $q->where('student_status_id', $request->status_id))
+            ->when($request->jenis_kelamin, fn($q) => $q->where('jenis_kelamin', $request->jenis_kelamin))
+            ->latest()
+            ->get();
+
+        $setting = Setting::first();
+
+        $pdf = Pdf::loadView('admin.academic.students.pdf', compact('students', 'setting'));
+        $pdf->setPaper('a4', 'landscape');
+
+        return $pdf->download('data_siswa_' . date('YmdHis') . '.pdf');
     }
 }

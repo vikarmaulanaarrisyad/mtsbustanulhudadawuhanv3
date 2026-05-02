@@ -36,9 +36,9 @@
 
     <div class="signature">
         <div class="signature-box">
-            <p>Kepala Madrasah,</p>
+            <p>{{ $meeting->signer_position ?? 'Kepala Madrasah' }},</p>
             <div class="signature-space"></div>
-            <p><strong><u>{{ $meeting->signer_name ?? $setting->school_name }}</u></strong><br>
+            <p><strong><u>{{ $meeting->signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
             NIP. {{ $meeting->signer_nip ?? '-' }}</p>
         </div>
         <div style="clear: both;"></div>

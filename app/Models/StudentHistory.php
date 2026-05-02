@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class StudentHistory extends Model
 {
     use HasFactory;
+    protected $guarded = [];
 
     protected $casts = [
         'entry_date' => 'date',

@@ -86,17 +86,25 @@
     </div>
 
     <hr>
+    <hr>
+    <h5><i class="fas fa-file-signature mr-1"></i> Penandatangan</h5>
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="form-group">
-                <label>Penandatangan (Nama)</label>
-                <input type="text" name="signer_name" class="form-control" placeholder="Kosongkan jika default">
+                <label>Nama</label>
+                <input type="text" name="signer_name" class="form-control" value="{{ $mailSetting->default_signer_name ?? '' }}" placeholder="Nama Penandatangan">
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="form-group">
-                <label>NIP Penandatangan</label>
-                <input type="text" name="signer_nip" class="form-control">
+                <label>Jabatan</label>
+                <input type="text" name="signer_position" class="form-control" value="{{ $mailSetting->default_signer_position ?? 'Kepala Madrasah' }}" placeholder="Jabatan">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>NIP</label>
+                <input type="text" name="signer_nip" class="form-control" value="{{ $mailSetting->default_signer_nip ?? '' }}" placeholder="NIP">
             </div>
         </div>
     </div>
@@ -137,6 +145,11 @@
         $('#modal-form form').attr('action', url);
         $('#modal-form [name=_method]').val('POST');
         resetForm('#modal-form form');
+
+        // Re-fill defaults after reset
+        $('#modal-form [name=signer_name]').val(`{{ $mailSetting->default_signer_name ?? '' }}`);
+        $('#modal-form [name=signer_position]').val(`{{ $mailSetting->default_signer_position ?? 'Kepala Madrasah' }}`);
+        $('#modal-form [name=signer_nip]').val(`{{ $mailSetting->default_signer_nip ?? '' }}`);
     }
 
     function editForm(url) {

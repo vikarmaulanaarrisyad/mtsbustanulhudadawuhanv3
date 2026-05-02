@@ -109,10 +109,6 @@ class FrontController extends Controller
 
     public function handle($slug)
     {
-        if ($slug === 'dashboard') {
-            return redirect()->route('dashboard');
-        }
-
         $menu = Menu::where('menu_slug', $slug)->firstOrFail();
 
         switch ($menu->menu_type) {

@@ -14,12 +14,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
         integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Fontawesome -->
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
@@ -30,38 +28,139 @@
 
     @stack('css')
 
-
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --input-bg: #f9fafb;
+            --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
         body {
-            font-family: 'Roboto', sans-serif;
-            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            background: #f3f4f6;
+            color: var(--text-main);
+            overflow-x: hidden;
         }
 
-        .login {
+        .login-page-wrapper {
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: var(--bg-gradient);
+            padding: 2rem;
         }
 
-        .bg-image {
-            background-image: url('{{ Storage::url($setting->path_image) }}');
+        .login-bg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('{{ asset('/img/bg-login.jpg') }}');
             background-size: cover;
             background-position: center;
+            opacity: 0.4;
+            filter: blur(2px);
+            z-index: 0;
         }
 
-        .login-heading {
-            font-weight: 300;
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-soft);
+            width: 100%;
+            max-width: 450px;
+            padding: 3rem;
+            z-index: 1;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .login .form-control {
-            height: calc(1.5em + 1rem + 2px);
-            padding: 0.5rem 1rem;
-            line-height: 1.5;
-            border-radius: 0.3rem;
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-logo {
+            width: 100px;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .login-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .form-control {
+            height: 52px;
+            background: var(--input-bg);
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 0 1.25rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            background: #fff;
         }
 
         .btn-login {
+            background: var(--primary);
+            color: white;
+            border: none;
+            height: 52px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.025em;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-login:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+            color: white;
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .form-label {
+            font-weight: 500;
             font-size: 0.9rem;
-            letter-spacing: 0.05rem;
-            padding: 0.75rem 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .custom-checkbox .custom-control-label::before {
+            border-radius: 6px;
+        }
+
+        .text-primary-custom {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .text-primary-custom:hover {
+            text-decoration: underline;
         }
     </style>
 </head>

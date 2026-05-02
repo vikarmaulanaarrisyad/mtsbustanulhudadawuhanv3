@@ -10,8 +10,8 @@ class MailSettingController extends Controller
 {
     public function index()
     {
-        $setting = MailSetting::first() ?? new MailSetting();
-        return view('admin.mail.settings.index', compact('setting'));
+        $mailSetting = MailSetting::first() ?? new MailSetting();
+        return view('admin.mail.settings.index', compact('mailSetting'));
     }
 
     public function update(Request $request)
@@ -25,13 +25,24 @@ class MailSettingController extends Controller
             'website' => 'nullable|string|max:100',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'header_line_style' => 'nullable|in:none,solid,double',
+            'default_signer_name' => 'nullable|string|max:255',
+            'default_signer_position' => 'nullable|string|max:255',
+            'default_signer_nip' => 'nullable|string|max:30',
         ]);
 
         $setting = MailSetting::first() ?? new MailSetting();
-        
+
         $data = $request->only([
-            'school_name', 'sub_header', 'address', 'phone', 
-            'email', 'website', 'header_line_style'
+            'school_name',
+            'sub_header',
+            'address',
+            'phone',
+            'email',
+            'website',
+            'header_line_style',
+            'default_signer_name',
+            'default_signer_position',
+            'default_signer_nip'
         ]);
 
         if ($request->hasFile('logo')) {

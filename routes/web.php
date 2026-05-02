@@ -34,7 +34,12 @@ use App\Http\Controllers\{
     OutgoingMailController,
     StudentCertificateController,
     StudentTransferController,
-    SchoolMeetingController
+    SchoolMeetingController,
+    StudentActiveStatementController,
+    TeacherController,
+    DutyLetterController,
+    StudentPromotionController,
+    StudentGraduationController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -47,14 +52,10 @@ Route::get('/post/{slug}', [FrontController::class, 'show'])->name('front.post_s
 Route::post('/post/{id}/comment', [FrontController::class, 'postComment'])->name('post.comment');
 Route::get('/post/{id}/comments', [FrontController::class, 'showComments'])->name('post.showComments');
 
-// Route dinamis berdasarkan slug menu
-Route::get('/{slug}', [FrontController::class, 'handle'])->name('front.handle');
-
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     });
-
 
     Route::group(['middleware' => ['permission:user.view']], function () {
         Route::controller(UserController::class)->group(function () {
@@ -66,7 +67,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::put('/users/{users}/update', 'update')->name('users.update');
             Route::post('/users', 'store')->name('users.store');
             Route::delete('/users/{users}/destroy', 'destroy')->name('users.destroy');
-            Route::delete('/user/profile', 'show')->name('profile.show');
+            Route::get('/user/profile', 'show')->name('profile.show');
         });
     });
 
@@ -326,7 +327,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['permission:opening-speech.view']], function () {
         Route::controller(WelcomeMessageController::class)->group(function () {
             Route::get('/blog/opening-speech', 'index')->name('opening_speech.index');
-            // Route::put('/blog/opening-speech/{id}', 'update')->name('opening_speech.update');
             Route::get('opening-speech/edit', 'edit')->name('opening_speech.edit');
             Route::post('opening-speech/store', 'store')->name('opening_speech.store');
             Route::put('opening-speech/update/{id}', 'update')->name('opening_speech.update');
@@ -370,7 +370,6 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-
     Route::controller(PpdbRegistrantController::class)->group(function () {
         Route::get('/admission/ppdb/data', 'data')->name('ppdb.data');
         Route::get('/admission/ppdb', 'index')->name('ppdb.index');
@@ -386,10 +385,12 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/academic/students/data', 'data')->name('students.data');
         Route::get('/academic/students/download-template', 'downloadTemplate')->name('students.download_template');
         Route::get('/academic/students', 'index')->name('students.index');
-        Route::get('/academic/students/{id}', 'show')->name('students.show');
-        Route::put('/academic/students/{id}', 'update')->name('students.update');
+        Route::get('/academic/students/export-excel', 'exportExcel')->name('students.export_excel');
+        Route::get('/academic/students/export-pdf', 'exportPDF')->name('students.export_pdf');
         Route::post('/academic/students', 'store')->name('students.store');
         Route::post('/academic/students/import-excel', 'importEXCEL')->name('students.import_excel');
+        Route::get('/academic/students/{id}', 'show')->name('students.show');
+        Route::put('/academic/students/{id}', 'update')->name('students.update');
         Route::delete('/academic/students/{id}/destroy', 'destroy')->name('students.destroy');
         Route::post('/academic/students/delete-selected', 'deleteSelected')->name('students.deleteSelected');
     });
@@ -437,6 +438,17 @@ Route::group(['middleware' => ['auth']], function () {
             Route::delete('/certificates/{id}/destroy', 'destroy')->name('student-certificates.destroy');
         });
 
+        // Student Active Statements
+        Route::controller(StudentActiveStatementController::class)->group(function () {
+            Route::get('/active-statements/data', 'data')->name('active-statements.data');
+            Route::get('/active-statements', 'index')->name('active-statements.index');
+            Route::get('/active-statements/{id}/show', 'show')->name('active-statements.show');
+            Route::get('/active-statements/{id}/print', 'print')->name('active-statements.print');
+            Route::post('/active-statements', 'store')->name('active-statements.store');
+            Route::put('/active-statements/{id}', 'update')->name('active-statements.update');
+            Route::delete('/active-statements/{id}/destroy', 'destroy')->name('active-statements.destroy');
+        });
+
         // Student Transfers (Mutasi)
         Route::controller(StudentTransferController::class)->group(function () {
             Route::get('/transfers/data', 'data')->name('student-transfers.data');
@@ -459,6 +471,29 @@ Route::group(['middleware' => ['auth']], function () {
             Route::delete('/meetings/{id}/destroy', 'destroy')->name('school-meetings.destroy');
         });
     });
+
+    // Teacher Management
+    Route::get('/teachers/data', [TeacherController::class, 'data'])->name('teachers.data');
+    Route::resource('/teachers', TeacherController::class);
+
+    // Duty Letters (Surat Tugas & SPPD)
+    Route::get('/duty-letters/data', [DutyLetterController::class, 'data'])->name('duty-letters.data');
+    Route::get('/duty-letters/{id}/print-st', [DutyLetterController::class, 'printST'])->name('duty-letters.print-st');
+    Route::get('/duty-letters/{id}/print-sppd', [DutyLetterController::class, 'printSPPD'])->name('duty-letters.print-sppd');
+    Route::resource('/duty-letters', DutyLetterController::class);
+
+    // Student Promotions (Kenaikan Kelas / Rombel)
+    Route::get('/promotions/data', [StudentPromotionController::class, 'data'])->name('promotions.data');
+    Route::post('/promotions/promote', [StudentPromotionController::class, 'promote'])->name('promotions.promote');
+    Route::post('/promotions/undo', [StudentPromotionController::class, 'undo'])->name('promotions.undo');
+    Route::resource('/promotions', StudentPromotionController::class);
+
+    // Student Graduations (Kelulusan)
+    Route::get('/graduations/data', [StudentGraduationController::class, 'data'])->name('graduations.data');
+    Route::post('/graduations/graduate', [StudentGraduationController::class, 'graduate'])->name('graduations.graduate');
+    Route::post('/graduations/undo', [StudentGraduationController::class, 'undo'])->name('graduations.undo');
+    Route::get('/graduations/{id}/print-skl', [StudentGraduationController::class, 'printSKL'])->name('graduations.print-skl');
+    Route::resource('/graduations', StudentGraduationController::class);
 });
 
 /*
@@ -467,5 +502,5 @@ Route::group(['middleware' => ['auth']], function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/{slug}', [FrontController::class, 'handle'])
-    ->where('slug', '^(?!admin|users|user|role|permissions|permissiongroups|setting|academic|admission|blog|media|configuration|post$)[A-Za-z0-9\-]+')
+    ->where('slug', '^(?!(admin|users|user|role|permissions|permissiongroups|setting|academic|admission|blog|media|configuration|post|home|dashboard)$)[A-Za-z0-9\-]+')
     ->name('front.handle');

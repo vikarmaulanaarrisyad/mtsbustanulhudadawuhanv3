@@ -34,7 +34,7 @@
 
     <div class="signature">
         <div class="signature-box">
-            <p>Dawuhan, {{ \Carbon\Carbon::parse($transfer->transfer_date)->translatedFormat('d F Y') }}<br>Kepala Madrasah,</p>
+            <p>Dawuhan, {{ \Carbon\Carbon::parse($transfer->transfer_date)->translatedFormat('d F Y') }}<br>{{ $transfer->signer_position ?? 'Kepala Madrasah' }},</p>
             <div class="signature-space"></div>
             <p><strong><u>{{ $transfer->signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
             NIP. {{ $transfer->signer_nip ?? '-' }}</p>

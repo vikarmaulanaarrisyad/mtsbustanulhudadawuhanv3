@@ -83,6 +83,12 @@
                             <button data-toggle="modal" data-target="#importExcelModal" class="btn btn-sm btn-success">
                                 <i class="fas fa-file-import"></i> Import Excel
                             </button>
+                            <button onclick="exportExcel()" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-file-excel"></i> Export Excel
+                            </button>
+                            <button onclick="exportPDF()" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-file-pdf"></i> Export PDF
+                            </button>
                             <button onclick="deleteSelected()" class="btn btn-sm btn-danger">
                                 <i class="fas fa-trash"></i> Hapus Terpilih
                             </button>
@@ -386,6 +392,25 @@
                     });
                 }
             });
+        }
+        function exportExcel() {
+            let params = {
+                academic_year_id: $('#filter_academic_year').val(),
+                class_group_id: $('#filter_class_group').val(),
+                jenis_kelamin: $('#filter_jk').val()
+            };
+            let url = '{{ route("students.export_excel") }}?' + $.param(params);
+            window.open(url, '_blank');
+        }
+
+        function exportPDF() {
+            let params = {
+                academic_year_id: $('#filter_academic_year').val(),
+                class_group_id: $('#filter_class_group').val(),
+                jenis_kelamin: $('#filter_jk').val()
+            };
+            let url = '{{ route("students.export_pdf") }}?' + $.param(params);
+            window.open(url, '_blank');
         }
     </script>
 @endpush
