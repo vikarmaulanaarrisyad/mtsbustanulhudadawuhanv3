@@ -47,7 +47,7 @@ class FeatureTestingSeeder extends Seeder
         );
 
         // 3. Student Status
-        $statusAktif = StudentStatus::updateOrCreate(['status' => 'Aktif']);
+        $statusAktif = \App\Models\StudentStatus::updateOrCreate(['student_status_name' => 'Aktif']);
 
         // 4. Study Periods
         $periods = [];
