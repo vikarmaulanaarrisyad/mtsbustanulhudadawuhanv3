@@ -11,6 +11,14 @@ class NewPermissionsSeeder extends Seeder
     public function run(): void
     {
         $data = [
+            'Website & Konten' => [
+                'posts.view', 'posts.create', 'posts.edit', 'posts.delete',
+                'categories.view', 'categories.create', 'categories.edit', 'categories.delete',
+                'tags.view', 'tags.create', 'tags.edit', 'tags.delete',
+                'pages.view', 'pages.create', 'pages.edit', 'pages.delete',
+                'albums.view', 'albums.create', 'albums.edit', 'albums.delete',
+                'menus.view',
+            ],
             'Akademik Lanjutan' => [
                 'subjects.view', 'subjects.create', 'subjects.edit', 'subjects.delete',
                 'class-schedules.view', 'class-schedules.create', 'class-schedules.edit', 'class-schedules.delete',

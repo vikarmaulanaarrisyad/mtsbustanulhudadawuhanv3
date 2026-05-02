@@ -378,6 +378,14 @@
                                 <p>Galeri Foto</p>
                             </a>
                         </li>
+                        @can('menus.view')
+                        <li class="nav-item">
+                            <a href="{{ route('menus.index') }}" class="nav-link {{ request()->is('configuration/menus*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Manajemen Menu</p>
+                            </a>
+                        </li>
+                        @endcan
                     </ul>
                 </li>
 

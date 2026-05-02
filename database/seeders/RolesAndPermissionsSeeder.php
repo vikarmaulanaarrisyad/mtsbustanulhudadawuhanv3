@@ -40,6 +40,7 @@ class RolesAndPermissionsSeeder extends Seeder
               ->orWhere('name', 'like', 'image-sliders.%')
               ->orWhere('name', 'like', 'opening-speech.%')
               ->orWhere('name', 'like', 'quotes.%')
+              ->orWhere('name', 'menus.view')
               ->orWhere('name', 'like', 'user.%') // Admin can manage users
               ->orWhere('name', 'like', 'students.%') // If exists
               ->orWhere('name', 'like', 'teachers.%') // If exists
