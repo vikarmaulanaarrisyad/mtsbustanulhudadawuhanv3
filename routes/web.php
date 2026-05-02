@@ -409,6 +409,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/admission/ppdb', 'store')->name('ppdb.store');
         Route::post('/admission/ppdb/{id}/verify', 'verify')->name('ppdb.verify');
         Route::get('/admission/ppdb/document/{id}/download', 'downloadBerkas')->name('ppdb.download_berkas');
+        Route::get('/admission/ppdb/{id}/print-letter', 'printLetter')->name('ppdb.print_letter');
         Route::delete('/admission/ppdb/{id}/destroy', 'destroy')->name('ppdb.destroy');
     });
 
@@ -429,6 +430,8 @@ Route::group(['middleware' => ['auth']], function () {
     // PPDB Student Area
     Route::group(['middleware' => ['role:ppdb'], 'prefix' => 'ppdb'], function () {
         Route::get('/dashboard', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'index'])->name('ppdb.dashboard');
+        Route::get('/print-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printRegistration'])->name('ppdb.print_registration');
+        Route::get('/print-verification', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printVerification'])->name('ppdb.print_verification');
         Route::post('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeBiodata'])->name('ppdb.store_biodata');
         Route::put('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'updateBiodata'])->name('ppdb.update_biodata');
     });

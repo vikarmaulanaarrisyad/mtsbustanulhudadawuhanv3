@@ -129,7 +129,10 @@
                 </div>
             </div>
             <div class="modal-footer bg-light border-top">
-                <button type="button" class="btn btn-secondary px-4" data-dismiss="modal">
+                <a id="btn-print-letter" href="#" target="_blank" class="btn btn-primary px-4 shadow-sm d-none">
+                    <i class="fas fa-file-pdf mr-1"></i> Cetak Surat Keterangan
+                </a>
+                <button type="button" class="btn btn-secondary px-4 shadow-sm" data-dismiss="modal">
                     <i class="fas fa-times mr-1"></i> Tutup
                 </button>
             </div>

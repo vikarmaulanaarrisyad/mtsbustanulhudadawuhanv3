@@ -110,6 +110,10 @@ class PpdbRegistrantController extends Controller
                     <button onclick="deleteData(`' . route('ppdb.destroy', $r->id) . '`, `' . $r->nama_lengkap . '`)" class="btn btn-xs" style="background-color:#d81b60;color:#fff;" title="Hapus">
                         <i class="fas fa-trash"></i>
                     </button>
+                    ' . (($r->status == 'diterima' || $r->status == 'ditolak') ? '
+                    <a href="' . route('ppdb.print_letter', $r->id) . '" target="_blank" class="btn btn-xs btn-primary" title="Cetak Surat Keterangan">
+                        <i class="fas fa-file-pdf"></i>
+                    </a>' : '') . '
                 </div>';
             })
             ->escapeColumns([])
@@ -393,5 +397,22 @@ class PpdbRegistrantController extends Controller
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Generate PDF Letter for Registrant Status.
+     */
+    public function printLetter($id)
+    {
+        $registrant = PpdbRegistrant::with(['admissionPhase', 'admissionType'])->findOrFail($id);
+        $setting = \App\Models\Setting::first();
+        $source = \App\Models\MailSetting::first();
+        $admission = StudentAdmission::find($registrant->student_admission_id);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.admission.ppdb.letter', compact('registrant', 'setting', 'source', 'admission'));
+        $pdf->setPaper('a4', 'portrait');
+
+        $filename = 'SK_PPDB_' . str_replace('/', '_', $registrant->registration_number) . '.pdf';
+        return $pdf->download($filename);
     }
 }

@@ -263,6 +263,13 @@
                     $('#det_catatan').text(d.catatan_verifikasi || '-');
                     $('#det_verifier').text(d.verifier ? d.verifier.name : '-');
                     $('#det_verified_at').text(d.verified_at ? new Date(d.verified_at).toLocaleString('id-ID') : '-');
+                    
+                    // Handle Print Button
+                    if (d.status === 'diterima' || d.status === 'ditolak') {
+                        $('#btn-print-letter').attr('href', `{{ url('/admission/ppdb') }}/${d.id}/print-letter`).removeClass('d-none');
+                    } else {
+                        $('#btn-print-letter').addClass('d-none');
+                    }
 
                     if (d.foto) {
                         $('#det_foto').attr('src', '/storage/' + d.foto).show();

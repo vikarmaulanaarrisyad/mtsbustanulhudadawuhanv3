@@ -225,4 +225,36 @@ class PpdbDashboardController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
+
+    /**
+     * Cetak Bukti Pendaftaran (Kartu).
+     */
+    public function printRegistration()
+    {
+        $user = Auth::user();
+        $registrant = $user->ppdbRegistrant()->with(['admissionPhase', 'admissionType'])->firstOrFail();
+        $source = \App\Models\MailSetting::first();
+        $admission = StudentAdmission::find($registrant->student_admission_id);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('ppdb.pdf.registration_card', compact('registrant', 'source', 'admission'));
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download('Bukti_Pendaftaran_' . $registrant->registration_number . '.pdf');
+    }
+
+    /**
+     * Cetak Lembar Verifikasi Berkas.
+     */
+    public function printVerification()
+    {
+        $user = Auth::user();
+        $registrant = $user->ppdbRegistrant()->with(['documents', 'admissionPhase', 'admissionType'])->firstOrFail();
+        $source = \App\Models\MailSetting::first();
+        $admission = StudentAdmission::find($registrant->student_admission_id);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('ppdb.pdf.verification_checklist', compact('registrant', 'source', 'admission'));
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download('Lembar_Verifikasi_' . $registrant->registration_number . '.pdf');
+    }
 }

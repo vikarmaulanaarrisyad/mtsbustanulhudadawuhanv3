@@ -17,6 +17,49 @@
     <p class="mb-0 font-weight-normal opacity-75">Nomor Registrasi: <span class="font-weight-bold">{{ $registrant->registration_number }}</span></p>
 </div>
 
+{{-- TOMBOL CETAK --}}
+<div class="row mb-4">
+    <div class="col-md-6 mb-3 mb-md-0">
+        <div class="ppdb-card h-100 mb-0 border-left-success">
+            <div class="card-body d-flex align-items-center">
+                <div class="bg-success-light p-3 rounded-circle mr-3">
+                    <i class="fas fa-id-card fa-2x text-success"></i>
+                </div>
+                <div>
+                    <h6 class="font-weight-bold mb-1">Bukti Pendaftaran</h6>
+                    <p class="small text-muted mb-2">Gunakan sebagai kartu tanda pengenal pendaftar.</p>
+                    <a href="{{ route('ppdb.print_registration') }}" class="btn btn-sm btn-success px-3 shadow-sm">
+                        <i class="fas fa-download mr-1"></i> Unduh Kartu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="ppdb-card h-100 mb-0 border-left-primary">
+            <div class="card-body d-flex align-items-center">
+                <div class="bg-primary-light p-3 rounded-circle mr-3">
+                    <i class="fas fa-file-signature fa-2x text-primary"></i>
+                </div>
+                <div>
+                    <h6 class="font-weight-bold mb-1">Lembar Verifikasi</h6>
+                    <p class="small text-muted mb-2">Bawa saat verifikasi berkas fisik di sekolah.</p>
+                    <a href="{{ route('ppdb.print_verification') }}" class="btn btn-sm btn-primary px-3 shadow-sm">
+                        <i class="fas fa-print mr-1"></i> Cetak Lembar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-success { border-left: 4px solid #28a745 !important; }
+    .border-left-primary { border-left: 4px solid #007bff !important; }
+    .bg-success-light { background-color: rgba(40, 167, 69, 0.1); }
+    .bg-primary-light { background-color: rgba(0, 123, 255, 0.1); }
+</style>
+
 {{-- CATATAN VERIFIKASI --}}
 @if($registrant->catatan_verifikasi)
     <div class="alert alert-{{ $registrant->status_color }} border-0 shadow-sm mb-4 p-4 rounded-xl" style="background: #fff; border-left: 5px solid currentColor !important;">
