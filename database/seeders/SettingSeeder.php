@@ -23,6 +23,7 @@ class SettingSeeder extends Seeder
                 'phone_hours' => 'Senin - Jum\'at, 08:00 s/d 16:00',
                 'owner_name' => 'Administrator',
                 'company_name' => 'W2 Charity',
+                'school_code' => 'MTs-BH',
                 'short_description' => '-',
                 'keyword' => '-',
                 'about' => '-',

@@ -68,7 +68,14 @@
         <div class="col-md-6">
             <div class="form-group">
                 <label>Nomor Surat <span class="text-danger">*</span></label>
-                <input type="text" name="letter_number" class="form-control" placeholder="Contoh: 421.3/001/MTs-BH/V/2026">
+                <div class="input-group">
+                    <input type="text" name="letter_number" id="letter_number" class="form-control" placeholder="Contoh: 001/S-AKT/MTs-BH/V/2026">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-primary" onclick="generateNumber('StudentActiveStatement', 'S-AKT', '#letter_number')">
+                            <i class="fas fa-sync-alt mr-1"></i> Generate
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-md-6">

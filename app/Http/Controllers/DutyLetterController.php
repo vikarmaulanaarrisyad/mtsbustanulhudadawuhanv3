@@ -157,7 +157,7 @@ class DutyLetterController extends Controller
         $letter = DutyLetter::with('teachers')->findOrFail($id);
         $setting = MailSetting::first();
         $pdf = Pdf::loadView('admin.mail.pdf.duty_letter_st', compact('letter', 'setting'));
-        return $pdf->stream('Surat_Tugas_' . $letter->letter_number . '.pdf');
+        return $pdf->stream('Surat_Tugas_' . str_replace('/', '-', $letter->letter_number) . '.pdf');
     }
 
     public function printSPPD($id)
@@ -165,6 +165,6 @@ class DutyLetterController extends Controller
         $letter = DutyLetter::with('teachers')->findOrFail($id);
         $setting = MailSetting::first();
         $pdf = Pdf::loadView('admin.mail.pdf.duty_letter_sppd', compact('letter', 'setting'));
-        return $pdf->stream('SPPD_' . $letter->letter_number . '.pdf');
+        return $pdf->stream('SPPD_' . str_replace('/', '-', $letter->letter_number) . '.pdf');
     }
 }

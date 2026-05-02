@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+use App\Traits\AutoNumberTrait;
+
 class DutyLetter extends Model
 {
-    use HasFactory;
+    use HasFactory, AutoNumberTrait;
 
     protected $guarded = [];
 

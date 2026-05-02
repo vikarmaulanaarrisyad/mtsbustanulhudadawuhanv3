@@ -149,6 +149,6 @@ class StudentActiveStatementController extends Controller
             : 'admin.mail.pdf.active_statement_collective';
 
         $pdf = Pdf::loadView($view, compact('statement', 'setting'));
-        return $pdf->stream('Surat_Keterangan_Aktif_' . $statement->letter_number . '.pdf');
+        return $pdf->stream('Surat_Keterangan_Aktif_' . str_replace('/', '-', $statement->letter_number) . '.pdf');
     }
 }

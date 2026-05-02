@@ -92,6 +92,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ route('student-placements.index') }}" class="nav-link {{ request()->is('academic/student-placements*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Penempatan Rombel</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ route('academic-years.index') }}" class="nav-link {{ request()->is('academic/academic-years*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Tahun Pelajaran</p>
@@ -106,7 +112,7 @@
                         <li class="nav-item">
                             <a href="{{ route('promotions.index') }}" class="nav-link {{ request()->is('promotions*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Kenaikan & Rombel</p>
+                                <p>Kenaikan Kelas</p>
                             </a>
                         </li>
                         <li class="nav-item">

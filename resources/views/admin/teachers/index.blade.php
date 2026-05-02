@@ -10,9 +10,14 @@
             <x-slot name="header">
                 <div class="d-flex justify-content-between align-items-center">
                     <h3 class="card-title"><i class="fas fa-users mr-1"></i> Daftar Guru & Staf</h3>
-                    <button onclick="addForm(`{{ route('teachers.store') }}`)" class="btn btn-sm btn-primary">
-                        <i class="fas fa-plus-circle"></i> Tambah Guru/Staf
-                    </button>
+                    <div class="btn-group">
+                        <button onclick="importForm()" class="btn btn-sm btn-success">
+                            <i class="fas fa-file-excel"></i> Import Excel
+                        </button>
+                        <button onclick="addForm(`{{ route('teachers.store') }}`)" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus-circle"></i> Tambah Guru/Staf
+                        </button>
+                    </div>
                 </div>
             </x-slot>
 
@@ -66,6 +71,37 @@
         <button type="button" data-dismiss="modal" class="btn btn-secondary">Tutup</button>
     </x-slot>
 </x-modal>
+
+<div class="modal fade" id="modal-import" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form action="{{ route('teachers.import_excel') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import Guru & Staf</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>File Excel <span class="text-danger">*</span></label>
+                        <input type="file" name="file" class="form-control" required accept=".xlsx, .xls, .csv">
+                        <small class="text-muted">Format file: .xlsx, .xls, .csv</small>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i> Belum punya template?
+                        <a href="{{ route('teachers.download_template') }}" class="font-weight-bold">Download Template Disini</a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="submitImport(this.form)" class="btn btn-primary" id="importSubmitBtn">Import</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-secondary">Tutup</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @include('includes.datatable')
@@ -136,6 +172,35 @@
                     table.ajax.reload();
                     Swal.fire({ icon: 'success', title: 'Terhapus', text: response.message });
                 });
+            }
+        });
+    }
+
+    function importForm() {
+        $('#modal-import').modal('show');
+        $('#modal-import form')[0].reset();
+    }
+
+    function submitImport(form) {
+        let formData = new FormData(form);
+        $('#importSubmitBtn').prop('disabled', true).text('Sedang mengimport...');
+
+        $.ajax({
+            url: $(form).attr('action'),
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                $('#modal-import').modal('hide');
+                table.ajax.reload();
+                Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message });
+            },
+            error: function(xhr) {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan saat import' });
+            },
+            complete: function() {
+                $('#importSubmitBtn').prop('disabled', false).text('Import');
             }
         });
     }

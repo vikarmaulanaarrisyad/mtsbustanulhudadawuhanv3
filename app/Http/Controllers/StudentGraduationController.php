@@ -15,21 +15,31 @@ class StudentGraduationController extends Controller
     public function index()
     {
         $academicYears = AcademicYear::orderBy('academic_year', 'desc')->get();
-        return view('admin.academic.graduations.index', compact('academicYears'));
+        $classGroups = \App\Models\ClassGroup::whereIn('class_level', [6, 9, 12])
+            ->orderBy('class_group')
+            ->orderBy('sub_class_group')
+            ->get();
+        return view('admin.academic.graduations.index', compact('academicYears', 'classGroups'));
     }
 
     public function data(Request $request)
     {
-        // Status 2 is "Lulus" based on earlier investigation
         $query = Student::with(['classGroup', 'academicYear'])
+            ->whereHas('classGroup', function($q) {
+                $q->whereIn('class_level', [6, 9, 12]);
+            })
             ->where(function($q) use ($request) {
                 if ($request->is_graduated == '1') {
                     $q->where('student_status_id', 2);
                 } else {
-                    $q->where('student_status_id', '!=', 2)->where('is_active', true);
+                    $q->where(function($sq) {
+                        $sq->where('student_status_id', '!=', 2)
+                           ->orWhereNull('student_status_id');
+                    })->where('is_active', true);
                 }
             })
             ->when($request->academic_year_id, fn($q) => $q->where('academic_year_id', $request->academic_year_id))
+            ->when($request->class_group_id, fn($q) => $q->where('student_class_group_id', $request->class_group_id))
             ->orderBy('nama_lengkap');
 
         return datatables($query)
@@ -77,6 +87,7 @@ class StudentGraduationController extends Controller
                     'student_status_id' => 2, // Lulus
                     'is_active' => false,
                     'tanggal_keluar' => $request->exit_date,
+                    'skl_number' => Student::generateLetterNumber('SKL', 'skl_number'),
                 ]);
             }
 
@@ -103,6 +114,7 @@ class StudentGraduationController extends Controller
                     'student_status_id' => 1, // Aktif
                     'is_active' => true,
                     'tanggal_keluar' => null,
+                    'skl_number' => null,
                 ]);
 
                 // Delete 'graduated' history
@@ -122,6 +134,6 @@ class StudentGraduationController extends Controller
         $student = Student::with(['profile', 'parents', 'classGroup'])->findOrFail($id);
         $setting = MailSetting::first(); // Use mail settings for signer
         $pdf = Pdf::loadView('admin.mail.pdf.skl', compact('student', 'setting'));
-        return $pdf->stream('SKL_' . $student->nis . '.pdf');
+        return $pdf->stream('SKL_' . str_replace('/', '-', ($student->skl_number ?? $student->nis)) . '.pdf');
     }
 }

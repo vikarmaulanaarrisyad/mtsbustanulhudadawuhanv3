@@ -187,13 +187,13 @@
 <body class="sidebar-mini layout-fixed layout-footer-fixed">
     <div class="wrapper">
 
-        <div id="preloader">
+        <!-- <div id="preloader">
             <div class="preloader-wrapper">
                 <div class="loader-ring"></div>
                 <img src="{{ Storage::url($setting->path_image ?? 'images/logo.png') }}" alt="Logo"
                     class="logo-loading">
             </div>
-        </div>
+        </div> -->
 
         <!-- Navbar -->
         @includeIf('layouts.partials.header')
@@ -298,6 +298,17 @@
 
     <x-toast />
     @stack('scripts')
+    <script>
+        function generateNumber(model, type, targetSelector, column = 'letter_number') {
+            $.get('{{ route("letter-number.generate") }}', { model, type, column })
+                .done(response => {
+                    $(targetSelector).val(response.number);
+                })
+                .fail(xhr => {
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal mendapatkan nomor surat otomatis.' });
+                });
+        }
+    </script>
 </body>
 
 </html>

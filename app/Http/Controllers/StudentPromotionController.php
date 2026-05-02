@@ -14,14 +14,23 @@ class StudentPromotionController extends Controller
     public function index()
     {
         $academicYears = AcademicYear::orderBy('academic_year', 'desc')->get();
-        $classGroups = ClassGroup::orderBy('class_group')->orderBy('sub_class_group')->get();
-        return view('admin.academic.promotions.index', compact('academicYears', 'classGroups'));
+        $sourceClassGroups = ClassGroup::whereNotIn('class_level', [6, 9, 12])
+            ->orderBy('class_group')
+            ->orderBy('sub_class_group')
+            ->get();
+        $targetClassGroups = ClassGroup::orderBy('class_group')
+            ->orderBy('sub_class_group')
+            ->get();
+        return view('admin.academic.promotions.index', compact('academicYears', 'sourceClassGroups', 'targetClassGroups'));
     }
 
     public function data(Request $request)
     {
         $query = Student::with(['classGroup', 'academicYear'])
             ->where('is_active', true)
+            ->whereHas('classGroup', function($q) {
+                $q->whereNotIn('class_level', [6, 9, 12]);
+            })
             ->when($request->academic_year_id, fn($q) => $q->where('academic_year_id', $request->academic_year_id))
             ->when($request->class_group_id, fn($q) => $q->where('student_class_group_id', $request->class_group_id))
             ->orderBy('nama_lengkap');

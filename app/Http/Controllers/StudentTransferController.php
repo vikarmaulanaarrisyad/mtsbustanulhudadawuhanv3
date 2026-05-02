@@ -93,6 +93,6 @@ class StudentTransferController extends Controller
         $setting = MailSetting::first();
 
         $pdf = Pdf::loadView('admin.mail.pdf.transfer', compact('transfer', 'setting'));
-        return $pdf->stream('Surat_Mutasi_' . $transfer->student->nama_lengkap . '.pdf');
+        return $pdf->stream('Surat_Mutasi_' . str_replace('/', '-', $transfer->transfer_number) . '.pdf');
     }
 }

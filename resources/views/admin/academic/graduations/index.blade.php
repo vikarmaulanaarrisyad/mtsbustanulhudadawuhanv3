@@ -20,6 +20,15 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label>Kelas</label>
+                    <select id="filter_class" class="form-control select2">
+                        <option value="">-- Semua Kelas (Tingkat Akhir) --</option>
+                        @foreach($classGroups as $cg)
+                            <option value="{{ $cg->id }}">{{ $cg->class_group }} - {{ $cg->sub_class_group }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Status Kelulusan</label>
                     <select id="filter_is_graduated" class="form-control">
                         <option value="0">Belum Lulus (Siswa Aktif)</option>
@@ -67,6 +76,12 @@
     </div>
 
     <div class="col-md-8">
+        <div class="alert alert-info alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            <h5><i class="icon fas fa-info-circle"></i> Petunjuk Cetak SKL</h5>
+            Untuk mencetak SKL, silakan gunakan filter <strong>Status Kelulusan: "Sudah Lulus"</strong> kemudian klik tombol <strong>"Tampilkan"</strong>. Tombol cetak akan muncul di kolom aksi.
+        </div>
+
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-list mr-1"></i> Daftar Siswa</h3>
@@ -111,6 +126,7 @@
                 url: '{{ route("graduations.data") }}',
                 data: function(d) {
                     d.academic_year_id = $('#filter_academic_year').val();
+                    d.class_group_id = $('#filter_class').val();
                     d.is_graduated = $('#filter_is_graduated').val();
                 }
             },

@@ -4,10 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Teacher;
 use App\Models\User;
+use App\Imports\TeachersImport;
+use App\Exports\TeachersTemplateExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
 class TeacherController extends Controller
 {
+    public function downloadTemplate()
+    {
+        return Excel::download(new TeachersTemplateExport, 'template_guru.xlsx');
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate(['file' => 'required|mimes:xlsx,xls,csv']);
+        Excel::import(new TeachersImport, $request->file('file'));
+        return response()->json(['message' => 'Data guru berhasil diimport']);
+    }
+
     public function index()
     {
         // Ambil user yang belum terhubung dengan guru manapun

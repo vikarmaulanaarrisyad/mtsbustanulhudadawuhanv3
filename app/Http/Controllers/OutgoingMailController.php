@@ -92,6 +92,6 @@ class OutgoingMailController extends Controller
         $setting = MailSetting::first();
 
         $pdf = Pdf::loadView('admin.mail.pdf.outgoing', compact('mail', 'setting'));
-        return $pdf->stream('Surat_Keluar_' . $mail->mail_number . '.pdf');
+        return $pdf->stream('Surat_Keluar_' . str_replace('/', '-', $mail->mail_number) . '.pdf');
     }
 }

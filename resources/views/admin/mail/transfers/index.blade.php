@@ -48,7 +48,14 @@
         <div class="col-md-6">
             <div class="form-group">
                 <label>Nomor Surat <span class="text-danger">*</span></label>
-                <input type="text" name="transfer_number" class="form-control" placeholder="Contoh: 422/001/MTs-BH/V/2026">
+                <div class="input-group">
+                    <input type="text" name="transfer_number" id="transfer_number" class="form-control" placeholder="Contoh: 001/MUT/MTs-BH/V/2026">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-primary" onclick="generateNumber('StudentTransfer', 'MUT', '#transfer_number', 'transfer_number')">
+                            <i class="fas fa-sync-alt mr-1"></i> Generate
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-md-6">

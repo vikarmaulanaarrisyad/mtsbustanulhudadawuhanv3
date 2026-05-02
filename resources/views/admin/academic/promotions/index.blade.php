@@ -23,7 +23,7 @@
                     <label>Kelas Saat Ini</label>
                     <select id="filter_class" class="form-control select2">
                         <option value="">-- Semua Kelas --</option>
-                        @foreach($classGroups as $cg)
+                        @foreach($sourceClassGroups as $cg)
                             <option value="{{ $cg->id }}">{{ $cg->class_group }} - {{ $cg->sub_class_group }}</option>
                         @endforeach
                     </select>
@@ -50,7 +50,7 @@
                     <div class="form-group">
                         <label>Pindah ke Kelas</label>
                         <select name="target_class_group_id" class="form-control select2" required>
-                            @foreach($classGroups as $cg)
+                            @foreach($targetClassGroups as $cg)
                                 <option value="{{ $cg->id }}">{{ $cg->class_group }} - {{ $cg->sub_class_group }}</option>
                             @endforeach
                         </select>

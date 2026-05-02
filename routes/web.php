@@ -47,7 +47,8 @@ use App\Http\Controllers\{
     SubjectController,
     ClassScheduleController,
     StudentAttendanceController,
-    StudyPeriodController
+    StudyPeriodController,
+    StudentPlacementController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -486,6 +487,8 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Teacher Management
     Route::get('/teachers/data', [TeacherController::class, 'data'])->name('teachers.data');
+    Route::get('/teachers/download-template', [TeacherController::class, 'downloadTemplate'])->name('teachers.download_template');
+    Route::post('/teachers/import-excel', [TeacherController::class, 'importExcel'])->name('teachers.import_excel');
     Route::resource('/teachers', TeacherController::class);
 
     // Duty Letters (Surat Tugas & SPPD)
@@ -500,12 +503,19 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/promotions/undo', [StudentPromotionController::class, 'undo'])->name('promotions.undo');
     Route::resource('/promotions', StudentPromotionController::class);
 
+    // Student Placements (Penempatan Rombel)
+    Route::get('academic/student-placements/data', [StudentPlacementController::class, 'data'])->name('student-placements.data');
+    Route::resource('academic/student-placements', StudentPlacementController::class);
+
     // Student Graduations (Kelulusan)
     Route::get('/graduations/data', [StudentGraduationController::class, 'data'])->name('graduations.data');
     Route::post('/graduations/graduate', [StudentGraduationController::class, 'graduate'])->name('graduations.graduate');
     Route::post('/graduations/undo', [StudentGraduationController::class, 'undo'])->name('graduations.undo');
     Route::get('/graduations/{id}/print-skl', [StudentGraduationController::class, 'printSKL'])->name('graduations.print-skl');
     Route::resource('/graduations', StudentGraduationController::class);
+
+    // Letter Number Generator
+    Route::get('/mail/generate-letter-number', [\App\Http\Controllers\LetterNumberController::class, 'generate'])->name('letter-number.generate');
 
     // Teacher Attendance Portal
     Route::get('/teacher/attendance', [TeacherAttendanceController::class, 'dashboard'])->name('teacher.attendance.dashboard');

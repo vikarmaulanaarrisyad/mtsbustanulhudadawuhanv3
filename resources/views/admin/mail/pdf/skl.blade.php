@@ -3,7 +3,7 @@
 @section('main-content')
     <div class="mail-title">
         <h3 style="text-decoration: underline; margin-bottom: 5px;">SURAT KETERANGAN LULUS (SKL)</h3>
-        <p>Nomor: [NOMOR_SKL_OTOMATIS]</p>
+        <p>Nomor: {{ $student->skl_number ?? '... / SKL / ' . ($setting->school_code ?? 'MTs-BH') . ' / ' . date('Y') }}</p>
     </div>
 
     <div class="content" style="margin-top: 30px;">

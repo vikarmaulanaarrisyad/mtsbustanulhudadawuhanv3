@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\AutoNumberTrait;
+
 class StudentTransfer extends Model
 {
-    use HasFactory;
+    use HasFactory, AutoNumberTrait;
 
     protected $guarded = [];
 

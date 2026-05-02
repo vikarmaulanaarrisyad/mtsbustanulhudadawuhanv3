@@ -31,35 +31,33 @@
 </div>
 
 <x-modal id="modal-form" size="modal-md">
-    <form action="" method="post" onsubmit="submitForm(this)">
-        @csrf
-        @method('POST')
-        <div class="form-group">
-            <label>Jam Ke-</label>
-            <input type="number" name="period_number" class="form-control" required>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>Jam Mulai</label>
-                    <input type="time" name="start_time" class="form-control" required>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>Jam Selesai</label>
-                    <input type="time" name="end_time" class="form-control" required>
-                </div>
+    @csrf
+    <input type="hidden" name="_method" value="POST">
+    <div class="form-group">
+        <label>Jam Ke-</label>
+        <input type="number" name="period_number" class="form-control" required>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Jam Mulai</label>
+                <input type="time" name="start_time" class="form-control" required>
             </div>
         </div>
-        <div class="form-group">
-            <label>Status</label>
-            <select name="is_break" class="form-control">
-                <option value="0">Jam Pelajaran</option>
-                <option value="1">Istirahat</option>
-            </select>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Jam Selesai</label>
+                <input type="time" name="end_time" class="form-control" required>
+            </div>
         </div>
-    </form>
+    </div>
+    <div class="form-group">
+        <label>Status</label>
+        <select name="is_break" class="form-control">
+            <option value="0">Jam Pelajaran</option>
+            <option value="1">Istirahat</option>
+        </select>
+    </div>
     <x-slot name="footer">
         <button type="button" onclick="submitForm(this.form)" class="btn btn-primary" id="submitBtn">Simpan</button>
         <button type="button" data-dismiss="modal" class="btn btn-secondary">Tutup</button>
@@ -105,7 +103,7 @@
             $('#modal-form form').attr('action', url.replace('/show', ''));
             $('#modal-form [name=_method]').val('PUT');
             
-            fillForm('#modal-form form', response.data);
+            loopForm(response.data);
         });
     }
 
@@ -120,6 +118,7 @@
             .fail(xhr => {
                 let errors = xhr.responseJSON?.errors;
                 if (errors) {
+                    loopErrors(errors);
                     for (let key in errors) toastr.error(errors[key][0]);
                 } else {
                     toastr.error(xhr.responseJSON?.message || 'Terjadi kesalahan');

@@ -39,7 +39,14 @@
         <div class="col-md-6">
             <div class="form-group">
                 <label>Nomor Surat <span class="text-danger">*</span></label>
-                <input type="text" name="meeting_number" class="form-control" placeholder="Contoh: 005/MTs-BH/V/2026">
+                <div class="input-group">
+                    <input type="text" name="meeting_number" id="meeting_number" class="form-control" placeholder="Contoh: 005/UND/MTs-BH/V/2026">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-primary" onclick="generateNumber('SchoolMeeting', 'UND', '#meeting_number', 'meeting_number')">
+                            <i class="fas fa-sync-alt mr-1"></i> Generate
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-md-6">

@@ -30,9 +30,9 @@
                 <label for="class_level">Tingkat Kelas <span class="text-danger">*</span></label>
                 <select name="class_level" id="class_level" class="form-control">
                     <option disabled selected>Pilih salah satu</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
+                    @for($i=1; $i<=12; $i++)
+                        <option value="{{ $i }}">{{ $i }}</option>
+                    @endfor
                 </select>
             </div>
         </div>
