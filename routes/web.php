@@ -29,7 +29,12 @@ use App\Http\Controllers\{
     TransportationController,
     UserController,
     WelcomeMessageController,
-    PpdbRegistrantController
+    PpdbRegistrantController,
+    MailSettingController,
+    OutgoingMailController,
+    StudentCertificateController,
+    StudentTransferController,
+    SchoolMeetingController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -386,7 +391,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/academic/students', 'store')->name('students.store');
         Route::post('/academic/students/import-excel', 'importEXCEL')->name('students.import_excel');
         Route::delete('/academic/students/{id}/destroy', 'destroy')->name('students.destroy');
-        Route::delete('/academic/students/batch-delete', 'batchDelete')->name('students.batch_delete');
+        Route::post('/academic/students/delete-selected', 'deleteSelected')->name('students.deleteSelected');
     });
 
     // PPDB Student Area
@@ -403,6 +408,57 @@ Route::group(['middleware' => ['auth']], function () {
         }
         return redirect()->route('dashboard');
     })->name('home');
+
+    // Persuratan
+    Route::prefix('mail')->group(function () {
+        // Mail Settings (Kop Surat)
+        Route::get('/settings', [MailSettingController::class, 'index'])->name('mail-settings.index');
+        Route::post('/settings', [MailSettingController::class, 'update'])->name('mail-settings.update');
+
+        // Outgoing Mail
+        Route::controller(OutgoingMailController::class)->group(function () {
+            Route::get('/outgoing/data', 'data')->name('outgoing-mails.data');
+            Route::get('/outgoing', 'index')->name('outgoing-mails.index');
+            Route::get('/outgoing/{id}/show', 'show')->name('outgoing-mails.show');
+            Route::get('/outgoing/{id}/print', 'print')->name('outgoing-mails.print');
+            Route::post('/outgoing', 'store')->name('outgoing-mails.store');
+            Route::put('/outgoing/{id}', 'update')->name('outgoing-mails.update');
+            Route::delete('/outgoing/{id}/destroy', 'destroy')->name('outgoing-mails.destroy');
+        });
+
+        // Student Certificates
+        Route::controller(StudentCertificateController::class)->group(function () {
+            Route::get('/certificates/data', 'data')->name('student-certificates.data');
+            Route::get('/certificates', 'index')->name('student-certificates.index');
+            Route::get('/certificates/{id}/show', 'show')->name('student-certificates.show');
+            Route::get('/certificates/{id}/print', 'print')->name('student-certificates.print');
+            Route::post('/certificates', 'store')->name('student-certificates.store');
+            Route::put('/certificates/{id}', 'update')->name('student-certificates.update');
+            Route::delete('/certificates/{id}/destroy', 'destroy')->name('student-certificates.destroy');
+        });
+
+        // Student Transfers (Mutasi)
+        Route::controller(StudentTransferController::class)->group(function () {
+            Route::get('/transfers/data', 'data')->name('student-transfers.data');
+            Route::get('/transfers', 'index')->name('student-transfers.index');
+            Route::get('/transfers/{id}/show', 'show')->name('student-transfers.show');
+            Route::get('/transfers/{id}/print', 'print')->name('student-transfers.print');
+            Route::post('/transfers', 'store')->name('student-transfers.store');
+            Route::put('/transfers/{id}', 'update')->name('student-transfers.update');
+            Route::delete('/transfers/{id}/destroy', 'destroy')->name('student-transfers.destroy');
+        });
+
+        // School Meetings (Undangan Rapat)
+        Route::controller(SchoolMeetingController::class)->group(function () {
+            Route::get('/meetings/data', 'data')->name('school-meetings.data');
+            Route::get('/meetings', 'index')->name('school-meetings.index');
+            Route::get('/meetings/{id}/show', 'show')->name('school-meetings.show');
+            Route::get('/meetings/{id}/print', 'print')->name('school-meetings.print');
+            Route::post('/meetings', 'store')->name('school-meetings.store');
+            Route::put('/meetings/{id}', 'update')->name('school-meetings.update');
+            Route::delete('/meetings/{id}/destroy', 'destroy')->name('school-meetings.destroy');
+        });
+    });
 });
 
 /*

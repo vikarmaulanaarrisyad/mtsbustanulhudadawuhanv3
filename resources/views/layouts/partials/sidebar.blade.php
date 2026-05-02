@@ -280,6 +280,51 @@
                             </li>
 
                         </ul>
+                @endif
+
+
+                {{-- ================= PERSURATAN ================= --}}
+                @if(auth()->user()->can('dashboard.view'))
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-envelope"></i>
+                            <p>
+                                Persuratan
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('outgoing-mails.index') }}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Surat Keluar</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('student-certificates.index') }}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Suket Siswa Aktif</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('student-transfers.index') }}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Surat Mutasi Siswa</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('school-meetings.index') }}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Surat Undangan Rapat</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('mail-settings.index') }}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Pengaturan Kop</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 @endif
 
