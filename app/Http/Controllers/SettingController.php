@@ -116,7 +116,8 @@ class SettingController extends Controller
                 'instagram_link' => 'required|url',
                 'twitter_link' => 'required|url',
                 'fanpage_link' => 'required|url',
-                'google_plus_link' => 'required|url'
+                'google_plus_link' => 'required|url',
+                'youtube_link' => 'nullable|url'
             ];
         }
 
