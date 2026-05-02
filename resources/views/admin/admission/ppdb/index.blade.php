@@ -274,19 +274,30 @@
                     let docHtml = '';
                     if (d.documents && d.documents.length > 0) {
                         d.documents.forEach(doc => {
-                            let verified = doc.is_verified
-                                ? '<span class="badge badge-success"><i class="fas fa-check"></i> Terverifikasi</span>'
-                                : '<span class="badge badge-secondary"><i class="fas fa-clock"></i> Belum</span>';
-                            docHtml += `<tr>
-                                <td>${doc.document_name}</td>
-                                <td>${verified}</td>
-                                <td><a href="/admission/ppdb/document/${doc.id}/download" class="btn btn-xs btn-outline-primary"><i class="fas fa-download"></i></a></td>
-                            </tr>`;
+                            let verifiedClass = doc.is_verified ? 'success' : 'secondary';
+                            let verifiedIcon = doc.is_verified ? 'check-circle' : 'clock';
+                            let verifiedText = doc.is_verified ? 'Terverifikasi' : 'Belum';
+                            
+                            docHtml += `
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center p-2 border rounded shadow-xs bg-white">
+                                    <div class="mr-3 text-info"><i class="fas fa-file-alt fa-2x"></i></div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="small font-weight-bold text-truncate" title="${doc.document_name}">${doc.document_name}</div>
+                                        <div class="extra-small text-${verifiedClass}">
+                                            <i class="fas fa-${verifiedIcon} mr-1"></i> ${verifiedText}
+                                        </div>
+                                    </div>
+                                    <a href="/admission/ppdb/document/${doc.id}/download" class="btn btn-sm btn-light border ml-2" title="Unduh">
+                                        <i class="fas fa-download text-primary"></i>
+                                    </a>
+                                </div>
+                            </div>`;
                         });
                     } else {
-                        docHtml = '<tr><td colspan="3" class="text-center text-muted">Belum ada berkas</td></tr>';
+                        docHtml = '<div class="col-12 text-center text-muted py-3">Belum ada berkas diupload</div>';
                     }
-                    $('#det_docs_tbody').html(docHtml);
+                    $('#det_docs_container').html(docHtml);
 
                     $('#modal-detail').modal('show');
                 })

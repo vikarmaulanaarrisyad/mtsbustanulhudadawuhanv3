@@ -330,7 +330,7 @@
                     <ul class="nav nav-treeview">
                         @can('ppdb.view')
                         <li class="nav-item">
-                            <a href="{{ route('ppdb.index') }}" class="nav-link">
+                            <a href="{{ route('ppdb.index') }}" class="nav-link {{ request()->is('admission/ppdb*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Data Pendaftar</p>
                             </a>
@@ -338,9 +338,33 @@
                         @endcan
                         @can('student-admissions.view')
                         <li class="nav-item">
-                            <a href="{{ route('student-admissions.index') }}" class="nav-link">
+                            <a href="{{ route('student-admissions.index') }}" class="nav-link {{ request()->is('admission/student-admissions*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Pengaturan PPDB</p>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('admission-phases.view')
+                        <li class="nav-item">
+                            <a href="{{ route('admission-phases.index') }}" class="nav-link {{ request()->is('admission/admission-phases*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Gelombang PPDB</p>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('admission-types.view')
+                        <li class="nav-item">
+                            <a href="{{ route('admission-types.index') }}" class="nav-link {{ request()->is('admission/admission-types*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Jalur PPDB</p>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('admission-quotas.view')
+                        <li class="nav-item">
+                            <a href="{{ route('admission-quotas.index') }}" class="nav-link {{ request()->is('admission/admission-quotas*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Kuota PPDB</p>
                             </a>
                         </li>
                         @endcan

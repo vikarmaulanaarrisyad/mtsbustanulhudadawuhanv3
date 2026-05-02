@@ -45,6 +45,7 @@ class RolesAndPermissionsSeeder extends Seeder
               ->orWhere('name', 'like', 'students.%') // If exists
               ->orWhere('name', 'like', 'teachers.%') // If exists
               ->orWhere('name', 'like', 'admission.%')
+              ->orWhere('name', 'like', 'admission-%')
               ->orWhere('name', 'like', 'student-admissions.%')
               ->orWhere('name', 'like', 'mail.%')
               ->orWhere('name', 'like', 'outgoing-mails.%')

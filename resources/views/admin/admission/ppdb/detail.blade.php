@@ -1,75 +1,145 @@
 {{-- MODAL DETAIL PENDAFTAR --}}
 <div class="modal fade" id="modal-detail" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-info">
-                <h5 class="modal-title text-white"><i class="fas fa-user-graduate mr-1"></i> Detail Pendaftar PPDB</h5>
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-info shadow-sm">
+                <h5 class="modal-title text-white font-weight-bold">
+                    <i class="fas fa-user-graduate mr-2"></i> Detail Pendaftar PPDB
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-3 text-center mb-3">
+            <div class="modal-body p-0">
+                {{-- Profile Header --}}
+                <div class="p-4 bg-light border-bottom d-flex align-items-center">
+                    <div class="mr-4">
                         <img id="det_foto" src="{{ asset('AdminLTE/dist/img/user1-128x128.jpg') }}"
-                            class="img-fluid img-circle elevation-2" style="width:110px;height:110px;object-fit:cover;">
-                        <p class="mt-2 mb-0"><strong id="det_reg_no" class="text-primary">-</strong></p>
+                            class="img-thumbnail rounded-circle shadow-sm" style="width:120px;height:120px;object-fit:cover;border: 4px solid #fff;">
                     </div>
-                    <div class="col-md-9">
-                        <h5 class="mb-1 font-weight-bold" id="det_nama">-</h5>
-                        <table class="table table-sm table-borderless mb-0">
-                            <tr><td width="35%"><strong>NISN</strong></td><td id="det_nisn">-</td></tr>
-                            <tr><td><strong>NIK</strong></td><td id="det_nik">-</td></tr>
-                            <tr><td><strong>Jenis Kelamin</strong></td><td id="det_jk">-</td></tr>
-                            <tr><td><strong>TTL</strong></td><td id="det_ttl">-</td></tr>
-                            <tr><td><strong>Asal Sekolah</strong></td><td id="det_asal">-</td></tr>
-                        </table>
+                    <div>
+                        <h4 class="mb-1 font-weight-bold text-dark" id="det_nama">-</h4>
+                        <div class="badge badge-primary px-3 py-2" id="det_reg_no" style="font-size: 1rem;">-</div>
+                        <div class="mt-2 text-muted small">
+                            <i class="fas fa-school mr-1"></i> <span id="det_asal">-</span>
+                        </div>
                     </div>
                 </div>
 
-                <hr>
+                <div class="p-4">
+                    <div class="row">
+                        {{-- Data Pribadi --}}
+                        <div class="col-md-6 mb-4">
+                            <h6 class="text-uppercase text-muted font-weight-bold mb-3" style="letter-spacing: 1px;">
+                                <i class="fas fa-user mr-2 text-info"></i> Data Pribadi
+                            </h6>
+                            <div class="list-group list-group-flush border rounded shadow-sm">
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span class="text-muted small">NISN</span>
+                                    <span class="font-weight-bold" id="det_nisn">-</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span class="text-muted small">NIK</span>
+                                    <span class="font-weight-bold" id="det_nik">-</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span class="text-muted small">Jenis Kelamin</span>
+                                    <span class="font-weight-bold" id="det_jk">-</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between border-bottom-0">
+                                    <span class="text-muted small">TTL</span>
+                                    <span class="font-weight-bold" id="det_ttl">-</span>
+                                </div>
+                            </div>
+                        </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="text-primary"><i class="fas fa-info-circle mr-1"></i> Info Pendaftaran</h6>
-                        <table class="table table-sm table-borderless">
-                            <tr><td width="40%"><strong>Gelombang</strong></td><td id="det_gelombang">-</td></tr>
-                            <tr><td><strong>Jalur</strong></td><td id="det_jalur">-</td></tr>
-                            <tr><td><strong>Nama Ayah</strong></td><td id="det_ayah">-</td></tr>
-                            <tr><td><strong>Nama Ibu</strong></td><td id="det_ibu">-</td></tr>
-                            <tr><td><strong>No. HP</strong></td><td id="det_hp">-</td></tr>
-                            <tr><td><strong>Alamat</strong></td><td id="det_alamat">-</td></tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="text-success"><i class="fas fa-clipboard-check mr-1"></i> Verifikasi</h6>
-                        <table class="table table-sm table-borderless">
-                            <tr><td width="40%"><strong>Catatan</strong></td><td id="det_catatan">-</td></tr>
-                            <tr><td><strong>Diverifikasi Oleh</strong></td><td id="det_verifier">-</td></tr>
-                            <tr><td><strong>Tanggal</strong></td><td id="det_verified_at">-</td></tr>
-                        </table>
+                        {{-- Orang Tua & Kontak --}}
+                        <div class="col-md-6 mb-4">
+                            <h6 class="text-uppercase text-muted font-weight-bold mb-3" style="letter-spacing: 1px;">
+                                <i class="fas fa-users mr-2 text-success"></i> Orang Tua & Kontak
+                            </h6>
+                            <div class="list-group list-group-flush border rounded shadow-sm">
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span class="text-muted small">Nama Ayah</span>
+                                    <span class="font-weight-bold" id="det_ayah">-</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span class="text-muted small">Nama Ibu</span>
+                                    <span class="font-weight-bold" id="det_ibu">-</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span class="text-muted small">No. HP (WhatsApp)</span>
+                                    <span class="font-weight-bold text-success" id="det_hp">-</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between border-bottom-0">
+                                    <span class="text-muted small">Alamat</span>
+                                    <span class="font-weight-bold text-right ml-3" id="det_alamat">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Info Pendaftaran --}}
+                        <div class="col-md-6 mb-4">
+                            <h6 class="text-uppercase text-muted font-weight-bold mb-3" style="letter-spacing: 1px;">
+                                <i class="fas fa-info-circle mr-2 text-primary"></i> Info Pendaftaran
+                            </h6>
+                            <div class="card shadow-sm border">
+                                <div class="card-body p-3">
+                                    <div class="row text-center">
+                                        <div class="col-6 border-right">
+                                            <div class="text-muted small mb-1">Gelombang</div>
+                                            <div class="font-weight-bold text-primary" id="det_gelombang">-</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-muted small mb-1">Jalur</div>
+                                            <div class="font-weight-bold text-primary" id="det_jalur">-</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Status Verifikasi --}}
+                        <div class="col-md-6 mb-4">
+                            <h6 class="text-uppercase text-muted font-weight-bold mb-3" style="letter-spacing: 1px;">
+                                <i class="fas fa-clipboard-check mr-2 text-warning"></i> Status Verifikasi
+                            </h6>
+                            <div class="card shadow-sm border bg-light">
+                                <div class="card-body p-3">
+                                    <div class="mb-2">
+                                        <span class="text-muted small d-block">Catatan:</span>
+                                        <span class="font-italic small" id="det_catatan">-</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+                                        <span class="text-muted extra-small" id="det_verified_at">-</span>
+                                        <span class="badge badge-light shadow-xs border" id="det_verifier">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Berkas Dokumen --}}
+                        <div class="col-md-12">
+                            <h6 class="text-uppercase text-muted font-weight-bold mb-3" style="letter-spacing: 1px;">
+                                <i class="fas fa-folder-open mr-2 text-purple"></i> Berkas Dokumen
+                            </h6>
+                            <div id="det_docs_container" class="row">
+                                {{-- Berkas akan dimuat via JS --}}
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <hr>
-
-                <h6 class="text-primary"><i class="fas fa-folder-open mr-1"></i> Berkas Persyaratan</h6>
-                <table class="table table-sm table-bordered">
-                    <thead class="bg-light">
-                        <tr>
-                            <th>Nama Berkas</th>
-                            <th width="25%">Status</th>
-                            <th width="10%">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="det_docs_tbody">
-                        <tr><td colspan="3" class="text-center text-muted">Memuat...</td></tr>
-                    </tbody>
-                </table>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-outline-secondary" data-dismiss="modal">
-                    <i class="fas fa-times"></i> Tutup
+            <div class="modal-footer bg-light border-top">
+                <button type="button" class="btn btn-secondary px-4" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Tutup
                 </button>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .extra-small { font-size: 0.75rem; }
+    .text-purple { color: #6f42c1; }
+    #det_alamat { max-width: 250px; line-height: 1.2; }
+    .shadow-xs { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05); }
+</style>
