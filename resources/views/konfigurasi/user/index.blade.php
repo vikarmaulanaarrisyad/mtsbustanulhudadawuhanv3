@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends($layout)
 
 @section('title', 'Data Pengguna')
 
@@ -31,6 +31,7 @@
         </div>
     </div>
     @include('konfigurasi.user.form')
+    @include('konfigurasi.user.reset_password')
 @endsection
 
 @include('konfigurasi.user.scripts')

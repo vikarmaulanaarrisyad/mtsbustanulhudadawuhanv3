@@ -21,6 +21,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         view()->composer('*', function ($view) {
+            // Tentukan layout secara dinamis
+            $layout = 'layouts.app';
+            if (auth()->check() && auth()->user()->hasRole('Guru')) {
+                $layout = 'layouts.teacher';
+            }
+            
+            $view->with('layout', $layout);
             $view->with('setting', Setting::first());
         });
     }

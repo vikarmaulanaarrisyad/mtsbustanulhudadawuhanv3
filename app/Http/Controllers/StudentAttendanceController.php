@@ -9,6 +9,7 @@ use App\Models\ClassGroup;
 use App\Models\AttendanceSetting;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
 class StudentAttendanceController extends Controller
@@ -102,5 +103,27 @@ class StudentAttendanceController extends Controller
         $students = $query->get();
         
         return view('admin.academic.student_attendances.cards', compact('students'));
+    }
+
+    public function pdf(Request $request)
+    {
+        $query = StudentAttendance::with(['student', 'classGroup']);
+
+        if ($request->class_group_id) {
+            $query->where('class_group_id', $request->class_group_id);
+        }
+        if ($request->date) {
+            $query->where('date', $request->date);
+        } else {
+            $query->where('date', Carbon::today()->toDateString());
+        }
+
+        $attendances = $query->latest('time')->get();
+        $date = $request->date ?? Carbon::today()->toDateString();
+        $classGroup = $request->class_group_id ? ClassGroup::find($request->class_group_id) : null;
+        $setting = \App\Models\Setting::first();
+
+        $pdf = Pdf::loadView('admin.academic.student_attendances.pdf', compact('attendances', 'date', 'classGroup', 'setting'));
+        return $pdf->stream('Laporan_Presensi_Siswa_' . $date . '.pdf');
     }
 }

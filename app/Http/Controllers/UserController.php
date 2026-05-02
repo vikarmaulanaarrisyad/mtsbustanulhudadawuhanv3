@@ -42,6 +42,7 @@ class UserController extends Controller
                 }
                 if (Auth::user()->hasPermissionTo("user.delete")) {
                     $aksi .= '
+                        <button onclick="resetPassword(`' . route('users.reset_password', $query->id) . '`, `' . $query->name . '`)" class="btn btn-sm btn-warning"><i class="fas fa-key"></i></button>
                         <button onclick="deleteData(`' . route('users.destroy', $query->id) . '`, `' . $query->name . '`)" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i></button>
                     ';
                 }
@@ -187,5 +188,27 @@ class UserController extends Controller
             ->get();
 
         return $result;
+    }
+
+    public function resetPassword(Request $request, User $users)
+    {
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+                'message' => 'Inputan tidak valid'
+            ], 422);
+        }
+
+        $users->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        return response()->json([
+            'message' => 'Password user ' . $users->name . ' berhasil direset'
+        ], 200);
     }
 }

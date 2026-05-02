@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends($layout)
 
 @section('title', 'Kelola Menu')
 @section('subtitle', 'Manajemen Struktur Menu')

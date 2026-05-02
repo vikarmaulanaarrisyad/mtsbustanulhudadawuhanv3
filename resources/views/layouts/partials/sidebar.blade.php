@@ -137,19 +137,12 @@
                             </a>
                         </li>
                         @endcan
-                        @can('student-attendance.view')
-                        <li class="nav-item">
-                            <a href="{{ route('student-attendances.index') }}" class="nav-link {{ request()->is('student-attendances*') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Presensi Siswa (QR)</p>
-                            </a>
-                        </li>
-                        @endcan
                     </ul>
                 </li>
 
                 {{-- ================= LAYANAN PERSURATAN ================= --}}
-                @canany(['teacher-attendance.view', 'attendance-settings.view'])
+                {{-- ================= LAYANAN PERSURATAN ================= --}}
+                @role('Admin|Super Admin')
                 <li class="nav-header">ABSENSI & KEPEGAWAIAN</li>
                 <li class="nav-item">
                     <a href="{{ route('teacher.attendance.dashboard') }}" class="nav-link {{ request()->is('teacher/attendance*') ? 'active' : '' }}">
@@ -166,31 +159,84 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        @can('teacher-attendance.view')
                         <li class="nav-item">
                             <a href="{{ route('attendance-reports.index') }}" class="nav-link {{ request()->is('attendance/reports*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Log Presensi</p>
+                                <p>Log Presensi Guru</p>
                             </a>
                         </li>
-                        @endcan
+                        <li class="nav-item">
+                            <a href="{{ route('student-attendances.index') }}" class="nav-link {{ request()->is('student-attendances*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Log Presensi Siswa</p>
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a href="{{ route('holidays.index') }}" class="nav-link {{ request()->is('attendance/holidays*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Hari Libur</p>
                             </a>
                         </li>
-                        @can('attendance-settings.view')
                         <li class="nav-item">
                             <a href="{{ route('attendance-settings.index') }}" class="nav-link {{ request()->is('attendance/settings*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Pengaturan Absensi</p>
                             </a>
                         </li>
-                        @endcan
                     </ul>
                 </li>
-                @endcanany
+                @else
+                    @canany(['teacher-attendance.view', 'attendance-settings.view'])
+                    <li class="nav-header">ABSENSI & KEPEGAWAIAN</li>
+                    <li class="nav-item">
+                        <a href="{{ route('teacher.attendance.dashboard') }}" class="nav-link {{ request()->is('teacher/attendance*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-user-clock"></i>
+                            <p>Presensi Harian</p>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ request()->is('attendance*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ request()->is('attendance*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-clipboard-list"></i>
+                            <p>
+                                Manajemen Absensi
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @can('teacher-attendance.view')
+                            <li class="nav-item">
+                                <a href="{{ route('attendance-reports.index') }}" class="nav-link {{ request()->is('attendance/reports*') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Log Presensi Guru</p>
+                                </a>
+                            </li>
+                            @endcan
+                            @if(auth()->user()->can('student-attendance.view') || auth()->user()->hasRole('Guru'))
+                            <li class="nav-item">
+                                <a href="{{ route('student-attendances.index') }}" class="nav-link {{ request()->is('student-attendances*') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Log Presensi Siswa</p>
+                                </a>
+                            </li>
+                            @endif
+                            <li class="nav-item">
+                                <a href="{{ route('holidays.index') }}" class="nav-link {{ request()->is('attendance/holidays*') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Hari Libur</p>
+                                </a>
+                            </li>
+                            @can('attendance-settings.view')
+                            <li class="nav-item">
+                                <a href="{{ route('attendance-settings.index') }}" class="nav-link {{ request()->is('attendance/settings*') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Pengaturan Absensi</p>
+                                </a>
+                            </li>
+                            @endcan
+                        </ul>
+                    </li>
+                    @endcanany
+                @endrole
 
                 <li class="nav-header">LAYANAN PERSURATAN</li>
 

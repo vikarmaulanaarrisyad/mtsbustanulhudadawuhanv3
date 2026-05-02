@@ -262,5 +262,43 @@
                     }
                 });
         }
+
+        function resetPassword(url, name) {
+            $('#modalResetPassword').modal('show');
+            $('#resetUserName').text(name);
+            $('#formResetPassword').attr('action', url);
+            $('#formResetPassword')[0].reset();
+        }
+
+        function submitResetPassword(form) {
+            let url = $(form).attr('action');
+            let data = $(form).serialize();
+            
+            $('#btnSubmitReset').prop('disabled', true).text('Sedang Memproses...');
+
+            $.post(url, data)
+                .done(response => {
+                    $('#modalResetPassword').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message,
+                    });
+                })
+                .fail(errors => {
+                    let message = errors.responseJSON.message || 'Gagal mereset password';
+                    if (errors.status == 422) {
+                        message = 'Password minimal 6 karakter dan harus sama dengan konfirmasi';
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: message,
+                    });
+                })
+                .always(() => {
+                    $('#btnSubmitReset').prop('disabled', false).text('Simpan Password');
+                });
+        }
     </script>
 @endpush

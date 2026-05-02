@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends($layout)
 
 @section('title', 'Kuota Penerimaan')
 @section('subtitle', 'Kuota Penerimaan')

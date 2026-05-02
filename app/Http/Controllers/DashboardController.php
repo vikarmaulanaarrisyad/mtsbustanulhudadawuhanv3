@@ -19,12 +19,49 @@ use App\Models\Attendance;
 use App\Models\StudentAttendance;
 use App\Models\ClassGroup;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
         $today = Carbon::today()->toDateString();
+        $dayOfWeek = Carbon::today()->dayOfWeekIso; // 1 (Senin) - 7 (Minggu)
+        
+        // Cek apakah user adalah Guru
+        if ($user->hasRole('Guru')) {
+            $teacher = Teacher::where('user_id', $user->id)->first();
+            
+            if (!$teacher) {
+                return view('admin.dashboard.index')->with('error', 'Profil Guru tidak ditemukan.');
+            }
+
+            // Jadwal Mengajar Hari Ini
+            $schedules = \App\Models\ClassSchedule::with(['subject', 'classGroup', 'studyPeriod'])
+                ->where('teacher_id', $teacher->id)
+                ->where('day', $dayOfWeek)
+                ->orderBy('study_period_id')
+                ->get();
+
+            // Ringkasan Kehadiran Guru (7 hari terakhir)
+            $myAttendances = Attendance::where('teacher_id', $teacher->id)
+                ->where('date', '>=', Carbon::today()->subDays(7))
+                ->orderBy('date', 'desc')
+                ->get();
+
+            // Kehadiran Hari Ini (untuk tombol Check-in/out)
+            $todayAttendance = Attendance::where('teacher_id', $teacher->id)
+                ->where('date', $today)
+                ->first();
+
+            // Total Jam Mengajar Minggu Ini
+            $totalSchedules = \App\Models\ClassSchedule::where('teacher_id', $teacher->id)->count();
+
+            return view('admin.dashboard.teacher', compact('teacher', 'schedules', 'myAttendances', 'todayAttendance', 'totalSchedules'));
+        }
+
+        // --- Logika Dashboard Admin (Default) ---
         $academicYear = AcademicYear::where('current_semester', 1)->first();
 
         // Basic Stats
@@ -68,6 +105,27 @@ class DashboardController extends Controller
             'agendaCount',
             'attendanceTrend'
         ));
+    }
+
+    public function teacherSchedule(Request $request)
+    {
+        $user = auth()->user();
+        $teacher = Teacher::where('user_id', $user->id)->first();
+        
+        if (!$teacher) {
+            return redirect()->route('dashboard')->with('error', 'Profil Guru tidak ditemukan.');
+        }
+
+        $currentDay = $request->get('day', Carbon::today()->dayOfWeekIso);
+        if($currentDay > 6) $currentDay = 1;
+
+        $schedules = \App\Models\ClassSchedule::with(['subject', 'classGroup', 'studyPeriod'])
+            ->where('teacher_id', $teacher->id)
+            ->where('day', $currentDay)
+            ->orderBy('study_period_id')
+            ->get();
+
+        return view('admin.dashboard.teacher_schedule', compact('teacher', 'schedules'));
     }
 
     private function getAttendanceTrend()

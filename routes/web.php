@@ -69,6 +69,7 @@ Route::get('/post/{id}/comments', [FrontController::class, 'showComments'])->nam
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/teacher/schedule', [DashboardController::class, 'teacherSchedule'])->name('teacher.schedule');
     });
 
     Route::group(['middleware' => ['permission:user.view']], function () {
@@ -81,6 +82,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::put('/users/{users}/update', 'update')->name('users.update');
             Route::post('/users', 'store')->name('users.store');
             Route::delete('/users/{users}/destroy', 'destroy')->name('users.destroy');
+            Route::post('/users/{users}/reset-password', 'resetPassword')->name('users.reset_password');
             Route::get('/user/profile', 'show')->name('profile.show');
         });
     });
@@ -561,6 +563,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/scanner', [StudentAttendanceController::class, 'scanner'])->name('student-attendances.scanner');
         Route::post('/scan', [StudentAttendanceController::class, 'scan'])->name('student-attendances.scan');
         Route::get('/cards', [StudentAttendanceController::class, 'printCards'])->name('student-attendances.cards');
+        Route::get('/pdf', [StudentAttendanceController::class, 'pdf'])->name('student-attendances.pdf');
     });
     Route::resource('/student-attendances', StudentAttendanceController::class);
 });
