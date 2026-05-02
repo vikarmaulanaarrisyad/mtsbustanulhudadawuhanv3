@@ -58,7 +58,7 @@
 
     <div class="signature" style="margin-top: 40px;">
         @php
-            $general = \App\Models\Setting::first();
+            $general = \App\Models\MailSetting::first();
         @endphp
         <div class="signature-box">
             <p>{{ $general->city ?? 'Dawuhan' }},
