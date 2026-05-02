@@ -29,7 +29,7 @@ class FeatureTestingSeeder extends Seeder
             ['id' => 1],
             [
                 'company_name' => 'MTs Bustanul Huda',
-                'short_name' => 'MTSBH',
+                'owner_name' => 'Kepala Madrasah',
                 'email' => 'info@mtsbh.sch.id',
                 'phone' => '08123456789',
                 'address' => 'Dawuhan, Indonesia',
@@ -39,10 +39,10 @@ class FeatureTestingSeeder extends Seeder
 
         // 2. Academic Year
         $academicYear = AcademicYear::updateOrCreate(
-            ['year' => '2025/2026'],
+            ['academic_year' => '2025/2026'],
             [
+                'semester_id' => 1,
                 'current_semester' => 1,
-                'is_active' => true
             ]
         );
 
@@ -53,10 +53,11 @@ class FeatureTestingSeeder extends Seeder
         $periods = [];
         for ($i = 1; $i <= 8; $i++) {
             $periods[] = StudyPeriod::updateOrCreate(
-                ['name' => 'Jam ke-' . $i],
+                ['period_number' => $i],
                 [
                     'start_time' => sprintf('%02d:00', 7 + $i),
                     'end_time' => sprintf('%02d:45', 7 + $i),
+                    'is_break' => false
                 ]
             );
         }
@@ -150,6 +151,8 @@ class FeatureTestingSeeder extends Seeder
                         'subject_id' => $subjects[array_rand($subjects)]->id,
                         'teacher_id' => $teachers[array_rand($teachers)]->id,
                         'academic_year_id' => $academicYear->id,
+                        'start_time' => $periods[$i]->start_time,
+                        'end_time' => $periods[$i]->end_time,
                     ]
                 );
             }
@@ -179,18 +182,24 @@ class FeatureTestingSeeder extends Seeder
         }
 
         // 11. Blog
-        $category = Category::updateOrCreate(['name' => 'Berita'], ['slug' => 'berita']);
-        $tag = Tag::updateOrCreate(['name' => 'Madrasah'], ['slug' => 'madrasah']);
+        $category = Category::updateOrCreate(
+            ['category_name' => 'Berita'],
+            ['category_slug' => 'berita', 'category_description' => 'Berita Madrasah']
+        );
+        $tag = Tag::updateOrCreate(
+            ['tag_name' => 'Madrasah'],
+            ['tag_slug' => 'madrasah']
+        );
 
         for ($i = 1; $i <= 3; $i++) {
             $post = Post::updateOrCreate(
-                ['title' => 'Berita Testing Ke-' . $i],
+                ['post_title' => 'Berita Testing Ke-' . $i],
                 [
-                    'slug' => Str::slug('Berita Testing Ke-' . $i),
-                    'content' => 'Konten berita testing yang panjang untuk simulasi fitur blog.',
+                    'post_slug' => Str::slug('Berita Testing Ke-' . $i),
+                    'post_content' => 'Konten berita testing yang panjang untuk simulasi fitur blog.',
+                    'post_type' => 'post',
                     'user_id' => $admin ? $admin->id : 1,
-                    'status' => 'publish',
-                    'published_at' => now(),
+                    'post_status' => 'publish',
                 ]
             );
             $post->categories()->sync([$category->id]);
