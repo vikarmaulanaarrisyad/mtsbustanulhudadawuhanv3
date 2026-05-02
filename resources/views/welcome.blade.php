@@ -149,6 +149,27 @@
         </div>
     </div>
 
+    <section class="ppdb-banner py-4 bg-light mt-3">
+        <div class="container text-center rounded shadow-sm p-4" style="border-left: 5px solid #198754; background-color: #fff;">
+            <h3 class="font-weight-bold text-success mb-3">Informasi PPDB</h3>
+            @if(isset($ppdbOpen) && $ppdbOpen)
+                <p class="lead mb-4">Pendaftaran Peserta Didik Baru (PPDB) Tahun Ajaran {{ $academicYear->academic_year ?? '' }} <strong>Telah Dibuka!</strong> Segera daftarkan diri Anda dan lengkapi biodata serta berkas persyaratan.</p>
+                <div class="d-flex justify-content-center flex-wrap" style="gap: 15px;">
+                    <a href="{{ route('register') }}" class="btn btn-success btn-lg shadow-sm">
+                        <i class="fa fa-user-plus mr-2"></i> Daftar Akun PPDB Baru
+                    </a>
+                    <a href="{{ route('login') }}" class="btn btn-outline-success btn-lg shadow-sm">
+                        <i class="fa fa-sign-in-alt mr-2"></i> Login Pendaftar
+                    </a>
+                </div>
+            @else
+                <div class="alert alert-warning mb-0 border-0 shadow-sm text-dark d-inline-block px-5" role="alert" style="background-color: #fff3cd;">
+                    <i class="fa fa-info-circle mr-2 text-warning"></i> Pendaftaran Peserta Didik Baru (PPDB) saat ini sedang <strong>Ditutup</strong>. Silakan pantau terus informasi terbaru.
+                </div>
+            @endif
+        </div>
+    </section>
+
     <section class="news py-5">
         <div class="px-3">
             <div class="text-center mb-5">
