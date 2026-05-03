@@ -26,6 +26,12 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
+
+        // Redirect Petugas Verifikator PPDB langsung ke scanner
+        if ($user->hasRole('Petugas Verifikasi PPDB')) {
+            return redirect()->route('ppdb.scanner');
+        }
+
         $today = Carbon::today()->toDateString();
         $dayOfWeek = Carbon::today()->dayOfWeekIso; // 1 (Senin) - 7 (Minggu)
         

@@ -50,7 +50,8 @@ use App\Http\Controllers\{
     StudyPeriodController,
     StudentPlacementController,
     StudentAcceptanceController,
-    AnnouncementController
+    AnnouncementController,
+    StudentCardController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -69,9 +70,11 @@ Route::get('/post/{id}/comments', [FrontController::class, 'showComments'])->nam
 
 // QR Code Verification
 Route::get('/ppdb/cek/{regNumber}', [\App\Http\Controllers\Ppdb\PpdbVerificationController::class, 'check'])->name('ppdb.check_verify');
+Route::post('/ppdb/process-verify', [\App\Http\Controllers\Ppdb\PpdbVerificationController::class, 'processVerify'])->name('ppdb.process_verify_scan');
+Route::get('/admin/ppdb/scanner', [\App\Http\Controllers\Ppdb\PpdbVerificationController::class, 'scanner'])->name('ppdb.scanner');
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view|Super Admin|Admin|Guru|Siswa|ppdb']], function () {
+    Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view|Super Admin|Admin|Guru|Siswa|ppdb|Petugas Verifikasi PPDB']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/teacher/schedule', [DashboardController::class, 'teacherSchedule'])->name('teacher.schedule');
         Route::get('/class-students/{id}', [DashboardController::class, 'getClassStudents'])->name('teacher.class-students');
@@ -448,6 +451,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/academic/students/delete-selected', 'deleteSelected')->name('students.deleteSelected');
     });
 
+    // Student ID Cards
+    Route::get('/academic/students/{id}/card', [StudentCardController::class, 'print'])->name('students.card');
+    Route::get('/academic/students/class/{class_id}/cards', [StudentCardController::class, 'printByClass'])->name('students.class_cards');
+
     // PPDB Student Area
     Route::group(['middleware' => ['role:ppdb'], 'prefix' => 'ppdb'], function () {
         Route::get('/dashboard', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'index'])->name('ppdb.dashboard');
@@ -456,12 +463,17 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeBiodata'])->name('ppdb.store_biodata');
         Route::put('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'updateBiodata'])->name('ppdb.update_biodata');
         Route::post('/confirm-re-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'confirmReRegistration'])->name('ppdb.confirm_re_registration');
+        Route::post('/store-attendance', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeAttendance'])->name('ppdb.store_attendance');
     });
 
     // Root redirect based on role
     Route::get('/home', function () {
-        if (auth()->user()->hasRole('ppdb')) {
+        $user = auth()->user();
+        if ($user->hasRole('ppdb')) {
             return redirect()->route('ppdb.dashboard');
+        }
+        if ($user->hasRole('Petugas Verifikasi PPDB')) {
+            return redirect()->route('ppdb.scanner');
         }
         return redirect()->route('dashboard');
     })->name('home');

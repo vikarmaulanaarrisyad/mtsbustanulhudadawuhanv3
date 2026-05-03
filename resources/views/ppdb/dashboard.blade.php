@@ -44,6 +44,32 @@
                         
                         <div class="badge badge-success px-3 py-2 mb-3">Status: Siswa Aktif</div>
                         
+                        {{-- TOMBOL ABSENSI MANDIRI --}}
+                        <div id="attendance-section" class="mb-3">
+                            @if(!$hasCheckedInToday)
+                                @if($isWorkDay && $isCheckInTime && !$isHoliday)
+                                    <button type="button" onclick="submitAttendance()" class="btn btn-primary btn-block shadow-sm py-2">
+                                        <i class="fas fa-check-circle mr-1"></i> Absen Hari Ini
+                                    </button>
+                                @else
+                                    <div class="alert alert-warning py-2 mb-0 text-sm">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i> {{ $attendanceMessage }}
+                                    </div>
+                                @endif
+                            @else
+                                <div class="alert alert-success py-2 mb-0 text-sm">
+                                    <i class="fas fa-check-double mr-1"></i> Anda Sudah Absen
+                                </div>
+                            @endif
+                        </div>
+                        
+                        {{-- TOMBOL CETAK KARTU --}}
+                        <div class="mb-3">
+                            <a href="{{ route('students.card', $student->id) }}" target="_blank" class="btn btn-outline-success btn-block shadow-sm py-2 text-sm font-weight-bold">
+                                <i class="fas fa-id-card mr-1"></i> Cetak Kartu Siswa
+                            </a>
+                        </div>
+                        
                         <hr>
                         
                         <div class="text-left">
@@ -53,6 +79,54 @@
                             <p class="mb-1 mt-3 text-sm text-muted">Wali Kelas:</p>
                             <p class="font-weight-bold mb-0"><i class="fas fa-user-tie mr-2"></i>{{ $student->classGroup->homeroomTeacher->name ?? 'Belum Ditentukan' }}</p>
                         </div>
+                        
+                        <hr>
+                        
+                        {{-- PRESENSI SUMMARY --}}
+                        <div class="row no-gutters mt-3">
+                            <div class="col-3 text-center">
+                                <div class="text-xs text-muted">Hadir</div>
+                                <div class="font-weight-bold text-success">{{ $attendanceStats['H'] }}</div>
+                            </div>
+                            <div class="col-3 text-center border-left">
+                                <div class="text-xs text-muted">Izin</div>
+                                <div class="font-weight-bold text-info">{{ $attendanceStats['I'] }}</div>
+                            </div>
+                            <div class="col-3 text-center border-left">
+                                <div class="text-xs text-muted">Sakit</div>
+                                <div class="font-weight-bold text-warning">{{ $attendanceStats['S'] }}</div>
+                            </div>
+                            <div class="col-3 text-center border-left">
+                                <div class="text-xs text-muted">Alfa</div>
+                                <div class="font-weight-bold text-danger">{{ $attendanceStats['A'] }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- AGENDA SEKOLAH --}}
+                <div class="ppdb-card mt-4">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="card-title font-weight-bold mb-0"><i class="fas fa-calendar-check mr-2 text-primary"></i> Agenda Terdekat</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        @if($agendas->isEmpty())
+                            <div class="p-4 text-center">
+                                <p class="text-muted text-sm mb-0">Belum ada agenda terdekat.</p>
+                            </div>
+                        @else
+                            <ul class="list-group list-group-flush">
+                                @foreach($agendas as $agenda)
+                                    <li class="list-group-item px-3 py-2 border-0">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1 font-weight-bold text-sm">{{ $agenda->title }}</h6>
+                                            <small class="text-primary font-weight-bold">{{ \Carbon\Carbon::parse($agenda->start_date)->format('d M') }}</small>
+                                        </div>
+                                        <p class="mb-0 text-xs text-muted text-truncate">{{ $agenda->description }}</p>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -128,3 +202,31 @@
     @endif
 
 @endsection
+
+@push('scripts')
+<script>
+    function submitAttendance() {
+        Swal.fire({
+            title: 'Konfirmasi Kehadiran',
+            text: 'Apakah Anda ingin melakukan absensi hadir untuk hari ini?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#007bff',
+            confirmButtonText: 'Ya, Absen Sekarang',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                $.post('{{ route("ppdb.store_attendance") }}', { _token: '{{ csrf_token() }}' })
+                    .done(response => {
+                        Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message })
+                            .then(() => location.reload());
+                    })
+                    .fail(xhr => {
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan' });
+                    });
+            }
+        });
+    }
+</script>
+@endpush

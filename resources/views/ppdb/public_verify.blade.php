@@ -212,11 +212,45 @@
                     <span class="data-label">Gelombang / Jalur</span>
                     <span class="data-value">{{ $registrant->admissionPhase->phase_name ?? '-' }} ({{ $registrant->admissionType->admission_type_name ?? '-' }})</span>
                 </div>
+                @if($registrant->verifier)
                 <div class="data-item">
-                    <span class="data-label">Tanggal Daftar</span>
-                    <span class="data-value">{{ $registrant->created_at->translatedFormat('d F Y, H:i') }} WIB</span>
+                    <span class="data-label">Diverifikasi Oleh</span>
+                    <span class="data-value text-success"><i class="fas fa-user-check mr-1"></i> {{ $registrant->verifier->name }}</span>
                 </div>
+                @endif
             </div>
+
+            @auth
+                @if(auth()->user()->can('ppdb.verify'))
+                    <div class="admin-panel mt-4 p-3 bg-light rounded-lg border">
+                        <h5 class="text-left font-weight-bold mb-3"><i class="fas fa-shield-alt mr-2 text-primary"></i> Panel Verifikator</h5>
+                        
+                        <div class="documents-list mb-3 text-left">
+                            <span class="data-label">Berkas Upload:</span>
+                            @if($registrant->documents->isEmpty())
+                                <p class="text-muted text-sm">Belum ada berkas diupload.</p>
+                            @else
+                                <div class="d-flex flex-wrap gap-2 mt-2">
+                                    @foreach($registrant->documents as $doc)
+                                        <a href="{{ Storage::url($doc->file_path) }}" target="_blank" class="btn-doc">
+                                            <i class="fas fa-file-pdf mr-1"></i> {{ strtoupper($doc->document_type) }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="action-buttons d-grid gap-2">
+                            <button onclick="confirmVerify('verify_doc')" class="btn-verify btn-doc-verify">
+                                <i class="fas fa-file-signature mr-2"></i> Verifikasi Berkas
+                            </button>
+                            <button onclick="confirmVerify('verify_payment')" class="btn-verify btn-pay-verify mt-2">
+                                <i class="fas fa-money-check-alt mr-2"></i> Verifikasi Pembayaran
+                            </button>
+                        </div>
+                    </div>
+                @endif
+            @endauth
 
             <a href="/" class="btn-home">Kembali ke Halaman Utama</a>
         </div>
@@ -226,5 +260,91 @@
             Jl. Raya Dawuhan, Kec. Pilangkenceng, Kab. Madiun
         </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmVerify(action) {
+            let title = action === 'verify_doc' ? 'Verifikasi Berkas?' : 'Verifikasi Pembayaran?';
+            let text = action === 'verify_doc' ? 'Pastikan berkas fisik sudah sesuai dengan upload.' : 'Pastikan bukti bayar sudah valid.';
+            
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Verifikasi!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('{{ route("ppdb.process_verify_scan") }}', {
+                        _token: '{{ csrf_token() }}',
+                        id: '{{ $registrant->id }}',
+                        action: action
+                    })
+                    .done(response => {
+                        Swal.fire('Berhasil!', response.message, 'success')
+                            .then(() => location.reload());
+                    })
+                    .fail(xhr => {
+                        Swal.fire('Gagal!', xhr.responseJSON.message || 'Terjadi kesalahan', 'error');
+                    });
+                }
+            });
+        }
+    </script>
 </body>
 </html>
+
+<style>
+    .admin-panel {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        text-align: left;
+    }
+    .btn-doc {
+        display: inline-block;
+        padding: 6px 12px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        color: #1e293b;
+        text-decoration: none;
+        margin-right: 5px;
+        margin-bottom: 5px;
+        transition: all 0.2s;
+    }
+    .btn-doc:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+    .btn-verify {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-doc-verify {
+        background: #10b981;
+        color: white;
+    }
+    .btn-pay-verify {
+        background: #3b82f6;
+        color: white;
+    }
+    .btn-verify:hover {
+        filter: brightness(1.1);
+        transform: translateY(-2px);
+    }
+    .gap-2 { gap: 0.5rem; }
+    .d-grid { display: grid; }
+</style>

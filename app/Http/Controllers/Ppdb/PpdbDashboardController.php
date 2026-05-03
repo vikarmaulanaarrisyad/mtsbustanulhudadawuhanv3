@@ -52,18 +52,73 @@ class PpdbDashboardController extends Controller
 
         $student = null;
         $schedules = collect();
+        $attendanceStats = ['H' => 0, 'I' => 0, 'S' => 0, 'A' => 0];
+        $agendas = collect();
+        $hasCheckedInToday = false;
+        
+        // Data Pembatasan Absen
+        $attendanceSetting = \App\Models\AttendanceSetting::first();
+        $isWorkDay = true;
+        $isCheckInTime = true;
+        $isHoliday = false;
+        $attendanceMessage = "";
+
         if ($registrant && $registrant->status == 'sudah_masuk_siswa') {
             $student = \App\Models\Student::where('nisn', $registrant->nisn)
                 ->with(['classGroup.homeroomTeacher', 'academicYear'])
                 ->first();
             
-            if ($student && $student->student_class_group_id) {
-                $schedules = \App\Models\ClassSchedule::where('class_group_id', $student->student_class_group_id)
-                    ->with(['subject', 'teacher', 'studyPeriod'])
-                    ->orderBy('day')
-                    ->orderBy('start_time')
-                    ->get()
-                    ->groupBy('day');
+            if ($student) {
+                // 1. Jadwal Pelajaran
+                if ($student->student_class_group_id) {
+                    $schedules = \App\Models\ClassSchedule::where('class_group_id', $student->student_class_group_id)
+                        ->with(['subject', 'teacher', 'studyPeriod'])
+                        ->orderBy('day')
+                        ->orderBy('start_time')
+                        ->get()
+                        ->groupBy('day');
+                }
+
+                // 2. Statistik Presensi
+                $attendances = \App\Models\StudentAttendance::where('student_id', $student->id)
+                    ->select('status', DB::raw('count(*) as total'))
+                    ->groupBy('status')
+                    ->pluck('total', 'status')
+                    ->toArray();
+                
+                $attendanceStats['H'] = $attendances['present'] ?? 0;
+                $attendanceStats['I'] = $attendances['permit'] ?? 0;
+                $attendanceStats['S'] = $attendances['sick'] ?? 0;
+                $attendanceStats['A'] = $attendances['absent'] ?? 0;
+
+                // 3. Kalender Akademik / Agenda (3 Event Terdekat)
+                $agendas = \App\Models\SchoolAgenda::where('start_date', '>=', now()->format('Y-m-d'))
+                    ->orderBy('start_date', 'asc')
+                    ->limit(3)
+                    ->get();
+
+                // 4. Cek apakah sudah absen hari ini
+                $hasCheckedInToday = \App\Models\StudentAttendance::where('student_id', $student->id)
+                    ->where('date', now()->format('Y-m-d'))
+                    ->exists();
+
+                // 5. Validasi Aturan Absensi
+                if ($attendanceSetting) {
+                    $now = now();
+                    $isWorkDay = in_array($now->dayOfWeekIso, (array) $attendanceSetting->work_days);
+                    $isCheckInTime = $now->between($attendanceSetting->check_in_start, $attendanceSetting->check_in_end);
+                    $isHoliday = \App\Models\Holiday::where('date', $now->format('Y-m-d'))->exists();
+
+                    if (!$isWorkDay) $attendanceMessage = "Hari ini bukan hari sekolah.";
+                    elseif ($isHoliday) $attendanceMessage = "Hari ini adalah hari libur sekolah.";
+                    elseif (!$isCheckInTime) {
+                        if ($now->lessThan($attendanceSetting->check_in_start)) {
+                            $attendanceMessage = "Absen dibuka jam " . substr($attendanceSetting->check_in_start, 0, 5);
+                        } else {
+                            $attendanceMessage = "Waktu absen masuk sudah berakhir.";
+                        }
+                    }
+                }
             }
         }
 
@@ -77,8 +132,74 @@ class PpdbDashboardController extends Controller
             'isAnnouncementActive',
             'academicYear',
             'student',
-            'schedules'
+            'schedules',
+            'attendanceStats',
+            'agendas',
+            'hasCheckedInToday',
+            'isWorkDay',
+            'isCheckInTime',
+            'isHoliday',
+            'attendanceMessage'
         ));
+    }
+
+    /**
+     * Absensi Mandiri Siswa.
+     */
+    public function storeAttendance(Request $request)
+    {
+        $user = Auth::user();
+        $registrant = $user->ppdbRegistrant;
+
+        if (!$registrant || $registrant->status != 'sudah_masuk_siswa') {
+            return response()->json(['message' => 'Akses ditolak.'], 403);
+        }
+
+        $student = \App\Models\Student::where('nisn', $registrant->nisn)->first();
+
+        if (!$student) {
+            return response()->json(['message' => 'Data siswa tidak ditemukan.'], 404);
+        }
+
+        // Cek Aturan Absensi Global
+        $setting = \App\Models\AttendanceSetting::first();
+        if ($setting) {
+            $now = now();
+            if (!in_array($now->dayOfWeekIso, (array) $setting->work_days)) {
+                return response()->json(['message' => 'Hari ini bukan hari sekolah.'], 422);
+            }
+            if (!$now->between($setting->check_in_start, $setting->check_in_end)) {
+                return response()->json(['message' => 'Waktu absen sudah ditutup atau belum dibuka.'], 422);
+            }
+            if (\App\Models\Holiday::where('date', $now->format('Y-m-d'))->exists()) {
+                return response()->json(['message' => 'Hari ini adalah hari libur.'], 422);
+            }
+        }
+
+        // Cek sudah absen hari ini
+        $exists = \App\Models\StudentAttendance::where('student_id', $student->id)
+            ->where('date', now()->format('Y-m-d'))
+            ->exists();
+
+        if ($exists) {
+            return response()->json(['message' => 'Anda sudah melakukan absensi hari ini.'], 422);
+        }
+
+        try {
+            \App\Models\StudentAttendance::create([
+                'student_id' => $student->id,
+                'academic_year_id' => $student->academic_year_id,
+                'class_group_id' => $student->student_class_group_id,
+                'date' => now()->format('Y-m-d'),
+                'time' => now()->format('H:i:s'),
+                'status' => 'present',
+                'notes' => 'Absensi Mandiri Dashboard',
+            ]);
+
+            return response()->json(['message' => 'Absensi berhasil! Selamat belajar.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal melakukan absensi: ' . $e->getMessage()], 500);
+        }
     }
 
     /**

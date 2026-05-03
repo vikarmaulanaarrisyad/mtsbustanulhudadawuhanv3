@@ -73,14 +73,21 @@
             <tr>
                 <td style="text-align: center; width: 40%;">
                     <p>Orang Tua / Wali Murid,</p>
-                    <div style="height: 80px;"></div>
+                    <div style="height: 60px;"></div>
                     <p>( ........................................ )</p>
                 </td>
-                <td style="width: 20%;"></td>
+                <td style="text-align: center; width: 20%;">
+                    @php
+                        $url = route('ppdb.check_verify', $registrant->registration_number);
+                        $qrcode = base64_encode(QrCode::format('svg')->size(100)->margin(1)->generate($url));
+                    @endphp
+                    <img src="data:image/svg+xml;base64, {!! $qrcode !!}" style="width: 80px; height: 80px;">
+                    <p style="font-size: 7pt; margin-top: 5px;">Scan untuk Verifikasi</p>
+                </td>
                 <td style="text-align: center; width: 40%;">
                     <p>{{ $source->city ?? 'Dawuhan' }}, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</p>
                     <p>Petugas Verifikator,</p>
-                    <div style="height: 80px;"></div>
+                    <div style="height: 60px;"></div>
                     <p>( ........................................ )</p>
                 </td>
             </tr>
