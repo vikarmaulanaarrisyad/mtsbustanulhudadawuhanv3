@@ -232,24 +232,24 @@
 
     <script>
         $(function() {
-            // Inisialisasi datetimepicker
+            // Inisialisasi datetimepicker dengan format YYYY-MM-DD
             $('#admission_start_date').datetimepicker({
-                format: 'DD-MM-YYYY'
+                format: 'YYYY-MM-DD'
             });
 
             $('#admission_end_date').datetimepicker({
                 useCurrent: false,
-                format: 'DD-MM-YYYY'
+                format: 'YYYY-MM-DD'
             });
 
             $('#announcement_start_date').datetimepicker({
                 useCurrent: false,
-                format: 'DD-MM-YYYY'
+                format: 'YYYY-MM-DD'
             });
 
             $('#announcement_end_date').datetimepicker({
                 useCurrent: false,
-                format: 'DD-MM-YYYY'
+                format: 'YYYY-MM-DD'
             });
 
             // Reset dan atur minDate setelah admission_start_date berubah
