@@ -710,7 +710,12 @@
 @endif
 
 {{-- UNGGAH BERKAS SATU-PER-SATU (Hanya tampil jika belum verifikasi lengkap) --}}
-@if(!in_array($registrant->status, ['berkas_lengkap', 'diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi']))
+@if(!$ppdbOpen && !in_array($registrant->status, ['berkas_lengkap', 'diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi', 'sudah_masuk_siswa']))
+    <div class="alert alert-danger border-0 shadow-sm mb-4 p-4 rounded-xl" style="background: #fff; border-left: 5px solid #dc3545 !important;">
+        <h6 class="font-weight-bold text-danger mb-2"><i class="fas fa-lock mr-2"></i> Pendaftaran Telah Ditutup</h6>
+        <p class="mb-0 text-muted">Masa pendaftaran dan perbaikan berkas telah ditutup. Anda tidak dapat lagi mengunggah atau mengubah dokumen.</p>
+    </div>
+@elseif(!in_array($registrant->status, ['berkas_lengkap', 'diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi', 'ditolak', 'sudah_masuk_siswa']))
     <div class="ppdb-card mb-4" style="border-top: 4px solid #007bff;">
     <div class="card-header bg-white py-3">
         <div class="d-flex justify-content-between align-items-center">

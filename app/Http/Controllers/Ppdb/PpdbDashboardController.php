@@ -296,6 +296,15 @@ class PpdbDashboardController extends Controller
             return response()->json(['message' => 'Silakan lengkapi data identitas terlebih dahulu.'], 403);
         }
 
+        if (in_array($registrant->status, ['berkas_lengkap', 'diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi', 'sudah_masuk_siswa', 'ditolak'])) {
+            return response()->json(['success' => false, 'message' => 'Status pendaftaran Anda saat ini tidak mengizinkan unggah ulang berkas.'], 403);
+        }
+
+        $admission = StudentAdmission::find($registrant->student_admission_id);
+        if (!$admission || $admission->admission_status !== 'open') {
+            return response()->json(['success' => false, 'message' => 'Pendaftaran sudah ditutup. Anda tidak dapat mengubah atau mengunggah berkas lagi.'], 403);
+        }
+
         $request->validate([
             'file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'type' => 'required|string'
@@ -324,6 +333,11 @@ class PpdbDashboardController extends Controller
                 'document_type' => $type,
                 'file_path' => $path,
             ]);
+
+            // Jika status berkas tidak lengkap, otomatis ubah kembali ke pending agar dicek admin
+            if ($registrant->status === 'berkas_tidak_lengkap') {
+                $registrant->update(['status' => 'pending']);
+            }
 
             return response()->json([
                 'message' => $name . ' berhasil diunggah.',
