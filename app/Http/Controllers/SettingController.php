@@ -181,4 +181,30 @@ class SettingController extends Controller
             'success' => true
         ]);
     }
+
+    public function testMidtrans(Request $request)
+    {
+        $setting = Setting::first();
+        if (!$setting || !$setting->midtrans_server_key) {
+            return response()->json(['success' => false, 'message' => 'Server Key belum diisi/disimpan. Silakan simpan pengaturan terlebih dahulu.']);
+        }
+
+        \Midtrans\Config::$serverKey = trim($setting->midtrans_server_key);
+        \Midtrans\Config::$isProduction = (bool) $setting->midtrans_is_production;
+
+        try {
+            // Test connection by fetching a dummy transaction status
+            $status = \Midtrans\Transaction::status('test-connection-ping-12345');
+            return response()->json(['success' => true, 'message' => 'Koneksi ke Midtrans berhasil! Kunci API valid.']);
+        } catch (\Exception $e) {
+            // Midtrans returns 404 for non-existent transactions, which means authentication SUCCESS!
+            // If it returns 401, authentication FAILED.
+            $errorMsg = $e->getMessage();
+            if (strpos($errorMsg, '404') !== false || strpos(strtolower($errorMsg), "doesn't exist") !== false || strpos(strtolower($errorMsg), "tidak ditemukan") !== false) {
+                return response()->json(['success' => true, 'message' => 'Koneksi ke Midtrans berhasil! Kunci API valid. (' . ($setting->midtrans_is_production ? 'Production' : 'Sandbox') . ')']);
+            }
+            
+            return response()->json(['success' => false, 'message' => 'Gagal terkoneksi: Kunci API salah atau environment tidak sesuai. (' . $errorMsg . ')']);
+        }
+    }
 }

@@ -87,7 +87,44 @@
         </div>
 
         <x-slot name="footer">
-            <button class="btn btn-primary">Simpan Pengaturan</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Pengaturan</button>
+            <button type="button" class="btn btn-info ml-2" id="test-midtrans-btn">
+                <i class="fas fa-plug"></i> Test Koneksi Midtrans
+            </button>
         </x-slot>
     </x-card>
 </form>
+
+@push('scripts')
+<script>
+    document.getElementById('test-midtrans-btn').addEventListener('click', function() {
+        let btn = this;
+        let originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengetes...';
+        btn.disabled = true;
+
+        fetch('{{ route('setting.test_midtrans') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire('Berhasil!', data.message, 'success');
+            } else {
+                Swal.fire('Gagal!', data.message, 'error');
+            }
+        })
+        .catch(err => {
+            Swal.fire('Error!', 'Terjadi kesalahan sistem saat mencoba menghubungi server', 'error');
+        })
+        .finally(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    });
+</script>
+@endpush
