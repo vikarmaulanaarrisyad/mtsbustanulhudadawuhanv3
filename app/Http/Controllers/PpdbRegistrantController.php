@@ -466,6 +466,13 @@ class PpdbRegistrantController extends Controller
         $admission = StudentAdmission::find($registrant->student_admission_id);
         $phase = $registrant->admissionPhase;
 
+        // Auto-generate nomor surat jika diterima tapi belum ada nomornya
+        if (in_array($registrant->status, ['diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi', 'sudah_masuk_siswa']) && !$registrant->letter_number) {
+            $registrant->update([
+                'letter_number' => PpdbRegistrant::generateLetterNumber()
+            ]);
+        }
+
         // Security Check: Student can only print their own letter and only after announcement date
         if (Auth::user()->hasRole('ppdb')) {
             if ($registrant->user_id !== Auth::id()) {

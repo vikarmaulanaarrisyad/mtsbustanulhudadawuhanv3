@@ -36,6 +36,11 @@ class PpdbRegistrant extends Model
         'confirmed_at',
         'payment_proof',
         'admin_note',
+        'payment_method',
+        'payment_status',
+        'payment_amount',
+        'midtrans_snap_token',
+        'midtrans_order_id',
     ];
 
     protected $casts = [

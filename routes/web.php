@@ -30,6 +30,7 @@ use App\Http\Controllers\{
     UserController,
     WelcomeMessageController,
     PpdbRegistrantController,
+    PpdbPaymentItemController,
     MailSettingController,
     OutgoingMailController,
     StudentCertificateController,
@@ -413,6 +414,15 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
+    Route::controller(PpdbPaymentItemController::class)->group(function () {
+        Route::get('/admin/admission/ppdb/payment-items/data', 'data')->name('ppdb.payment_items_data');
+        Route::get('/admin/admission/ppdb/payment-items', 'index')->name('ppdb.payment_items');
+        Route::post('/admin/admission/ppdb/payment-items', 'store')->name('ppdb.payment_items_store');
+        Route::get('/admin/admission/ppdb/payment-items/{id}', 'show')->name('ppdb.payment_items_show');
+        Route::put('/admin/admission/ppdb/payment-items/{id}', 'update')->name('ppdb.payment_items_update');
+        Route::delete('/admin/admission/ppdb/payment-items/{id}', 'destroy')->name('ppdb.payment_items_destroy');
+    });
+
     Route::controller(PpdbRegistrantController::class)->group(function () {
         Route::get('/admission/ppdb/dashboard', 'dashboard')->name('ppdb.admin_dashboard');
         Route::get('/admission/ppdb/data', 'data')->name('ppdb.data');
@@ -436,6 +446,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/admission/ppdb/{id}/print-letter', 'printLetter')->name('ppdb.print_letter');
         Route::delete('/admission/ppdb/{id}/destroy', 'destroy')->name('ppdb.destroy');
     });
+
+
 
     Route::controller(StudentController::class)->group(function () {
         Route::get('/academic/students/data', 'data')->name('students.data');
@@ -463,6 +475,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeBiodata'])->name('ppdb.store_biodata');
         Route::put('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'updateBiodata'])->name('ppdb.update_biodata');
         Route::post('/upload-document', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'uploadDocument'])->name('ppdb.upload_document');
+        Route::get('/print-re-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printReRegistration'])->name('ppdb.print_re_registration');
+        Route::get('/print-payment', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printPayment'])->name('ppdb.print_payment');
         Route::post('/confirm-re-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'confirmReRegistration'])->name('ppdb.confirm_re_registration');
         Route::post('/store-attendance', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeAttendance'])->name('ppdb.store_attendance');
     });
@@ -623,11 +637,18 @@ Route::group(['middleware' => ['auth']], function () {
 
 /*
 |--------------------------------------------------------------------------
+| MIDTRANS CALLBACK
+|--------------------------------------------------------------------------
+*/
+Route::post('/api/midtrans/callback', [\App\Http\Controllers\Ppdb\PaymentCallbackController::class, 'callback'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+/*
+|--------------------------------------------------------------------------
 | DYNAMIC FRONTEND SLUG (WAJIB PALING BAWAH)
 |--------------------------------------------------------------------------
 */
 Route::get('/{slug}', [FrontController::class, 'handle'])
-    ->where('slug', '^(?!(admin|users|user|role|permissions|permissiongroups|setting|academic|admission|blog|media|configuration|post|home|dashboard)$)[A-Za-z0-9\-]+')
+    ->where('slug', '^(?!(admin|users|user|role|permissions|permissiongroups|setting|academic|admission|blog|media|configuration|post|home|dashboard|api)$)[A-Za-z0-9\-]+')
     ->name('front.handle');
 
 

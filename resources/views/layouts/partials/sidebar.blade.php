@@ -386,6 +386,12 @@
                             </a>
                         </li>
                         @endcan
+                        <li class="nav-item">
+                            <a href="{{ route('ppdb.payment_items') }}" class="nav-link {{ request()->is('admission/ppdb/payment-items*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Master Biaya PPDB</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 @endcanany

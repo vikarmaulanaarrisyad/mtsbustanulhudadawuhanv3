@@ -121,6 +121,21 @@ class SettingController extends Controller
             ];
         }
 
+        if ($request->has('pills') && $request->pills == 'payment') {
+            $rules = [
+                'midtrans_server_key' => 'nullable|string',
+                'midtrans_client_key' => 'nullable|string',
+                'midtrans_is_production' => 'nullable|boolean',
+                'bank_name' => 'nullable|string',
+                'bank_account_name' => 'nullable|string',
+                'bank_account_number' => 'nullable|string',
+            ];
+            // Ensure boolean value is set correctly from checkbox
+            $request->merge([
+                'midtrans_is_production' => $request->has('midtrans_is_production')
+            ]);
+        }
+
         $data = $request->except('path_image', 'path_image_header', 'path_breadcrumb', 'path_image_footer');
 
         if ($request->hasFile('path_image') && $setting->path_image) {

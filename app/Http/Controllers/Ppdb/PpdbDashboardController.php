@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Models\PpdbPaymentItem;
 
 class PpdbDashboardController extends Controller
 {
@@ -30,6 +31,7 @@ class PpdbDashboardController extends Controller
         $admission = null;
         $phases = collect();
         $types = collect();
+        $paymentItems = collect();
         $ppdbOpen = false;
         $isAnnouncementActive = false;
 
@@ -40,6 +42,11 @@ class PpdbDashboardController extends Controller
                 $phases = AdmissionPhase::where('academic_year_id', $academicYear->id)->get();
                 $types = AdmissionType::where('academic_year_id', $academicYear->id)->get();
             }
+
+            // Ambil rincian biaya
+            $paymentItems = PpdbPaymentItem::where('academic_year_id', $academicYear->id)
+                ->where('is_active', true)
+                ->get();
             
             if ($registrant) {
                 $isAnnouncementActive = ($registrant->admissionPhase && $registrant->admissionPhase->announcement_date)
@@ -128,6 +135,7 @@ class PpdbDashboardController extends Controller
             'admission',
             'phases',
             'types',
+            'paymentItems',
             'ppdbOpen',
             'isAnnouncementActive',
             'academicYear',
@@ -434,26 +442,130 @@ class PpdbDashboardController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'payment_proof' => 'required|image|mimes:jpg,jpeg,png|max:5120',
+            'payment_method' => 'required|in:transfer,tunai,midtrans',
+            'payment_proof' => 'required_if:payment_method,transfer|image|mimes:jpg,jpeg,png|max:5120',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator);
         }
 
+        // Get active academic year payment items
+        $academicYear = AcademicYear::where('admission_semester', 1)->first();
+        $paymentItems = PpdbPaymentItem::where('academic_year_id', $academicYear->id)
+            ->where('is_active', true)
+            ->get();
+        $totalAmount = $paymentItems->sum('amount');
+
         try {
-            if ($request->hasFile('payment_proof')) {
-                $path = $request->file('payment_proof')->store('ppdb/payments', 'public');
+            if ($request->payment_method === 'transfer') {
+                if ($request->hasFile('payment_proof')) {
+                    $path = $request->file('payment_proof')->store('ppdb/payments', 'public');
+                    $registrant->update([
+                        'payment_method' => 'transfer',
+                        'payment_proof' => $path,
+                        'payment_amount' => $totalAmount,
+                        'payment_status' => 'pending',
+                        'confirmed_at' => now(),
+                        'status' => 'daftar_ulang'
+                    ]);
+                }
+                return redirect()->route('ppdb.dashboard')->with('success', 'Konfirmasi daftar ulang berhasil terkirim. Admin akan memverifikasi pembayaran Anda.');
+            } 
+            elseif ($request->payment_method === 'tunai') {
                 $registrant->update([
-                    'payment_proof' => $path,
+                    'payment_method' => 'tunai',
+                    'payment_amount' => $totalAmount,
+                    'payment_status' => 'pending',
                     'confirmed_at' => now(),
                     'status' => 'daftar_ulang'
                 ]);
+                return redirect()->route('ppdb.dashboard')->with('success', 'Berhasil! Silakan lakukan pembayaran tunai di sekolah untuk menyelesaikan verifikasi.');
+            }
+            elseif ($request->payment_method === 'midtrans') {
+                $setting = \App\Models\Setting::first();
+                if (!$setting || !$setting->midtrans_server_key) {
+                    return redirect()->back()->with('error', 'Gateway pembayaran Midtrans belum dikonfigurasi oleh admin.');
+                }
+
+                \Midtrans\Config::$serverKey = $setting->midtrans_server_key;
+                \Midtrans\Config::$isProduction = $setting->midtrans_is_production;
+                \Midtrans\Config::$isSanitized = true;
+                \Midtrans\Config::$is3ds = true;
+
+                $orderId = 'PPDB-' . $registrant->id . '-' . time();
+                
+                $params = [
+                    'transaction_details' => [
+                        'order_id' => $orderId,
+                        'gross_amount' => $totalAmount,
+                    ],
+                    'customer_details' => [
+                        'first_name' => $registrant->nama_lengkap,
+                        'email' => $user->email,
+                        'phone' => $registrant->no_hp_ortu,
+                    ],
+                ];
+
+                $snapToken = \Midtrans\Snap::getSnapToken($params);
+
+                $registrant->update([
+                    'payment_method' => 'midtrans',
+                    'payment_amount' => $totalAmount,
+                    'midtrans_order_id' => $orderId,
+                    'midtrans_snap_token' => $snapToken,
+                    'payment_status' => 'unpaid',
+                    // status doesn't change to daftar_ulang until paid or pending through midtrans
+                ]);
+
+                return redirect()->route('ppdb.dashboard')->with('success', 'Silakan selesaikan pembayaran melalui popup Midtrans.');
             }
 
-            return redirect()->route('ppdb.dashboard')->with('success', 'Konfirmasi daftar ulang berhasil terkirim. Admin akan memverifikasi pembayaran Anda.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
+    }
+    /**
+     * Cetak Bukti Daftar Ulang.
+     */
+    public function printReRegistration()
+    {
+        $user = Auth::user();
+        $registrant = $user->ppdbRegistrant()->with(['admissionPhase', 'admissionType'])->firstOrFail();
+
+        // Cek apakah sudah diverifikasi daftar ulangnya
+        if ($registrant->status !== 'daftar_ulang_terverifikasi' && $registrant->status !== 'sudah_masuk_siswa') {
+            abort(403, 'Bukti daftar ulang belum tersedia. Pastikan pembayaran Anda sudah diverifikasi oleh panitia.');
+        }
+
+        $source = \App\Models\MailSetting::first();
+        $admission = StudentAdmission::find($registrant->student_admission_id);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('ppdb.pdf.re_registration_proof', compact('registrant', 'source', 'admission'));
+        $pdf->setPaper([0, 0, 612, 936], 'portrait');
+
+        return $pdf->download('Bukti_Daftar_Ulang_' . $registrant->registration_number . '.pdf');
+    }
+
+    /**
+     * Cetak Kwitansi Pembayaran / Bukti Bayar.
+     */
+    public function printPayment()
+    {
+        $user = Auth::user();
+        $registrant = $user->ppdbRegistrant()->with(['admissionPhase', 'admissionType'])->firstOrFail();
+
+        // Cek apakah sudah upload bukti bayar
+        if (!$registrant->payment_proof) {
+            abort(403, 'Anda belum mengunggah bukti pembayaran.');
+        }
+
+        $source = \App\Models\MailSetting::first();
+        $admission = StudentAdmission::find($registrant->student_admission_id);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('ppdb.pdf.payment_receipt', compact('registrant', 'source', 'admission'));
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->download('Kwitansi_PPDB_' . $registrant->registration_number . '.pdf');
     }
 }

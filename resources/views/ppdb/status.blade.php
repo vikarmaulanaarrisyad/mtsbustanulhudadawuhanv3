@@ -198,30 +198,218 @@
                 <h6 class="font-weight-bold text-primary mb-0"><i class="fas fa-file-invoice-dollar mr-2"></i> Konfirmasi Daftar Ulang</h6>
             </div>
             <div class="card-body">
-                <p class="text-muted small mb-4">Silakan lakukan pembayaran biaya daftar ulang sesuai rincian yang diberikan oleh panitia, kemudian unggah bukti transfer/pembayaran Anda di bawah ini untuk proses validasi akhir.</p>
+                <p class="text-muted small mb-4">Silakan lakukan pembayaran biaya daftar ulang sesuai rincian di bawah ini untuk proses validasi akhir.</p>
                 
-                <form action="{{ route('ppdb.confirm_re_registration') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
+                @if($paymentItems->count() > 0)
+                    <div class="billing-invoice mb-4 shadow-sm border rounded-lg overflow-hidden">
+                        <div class="billing-header bg-light p-3 border-bottom d-flex justify-content-between align-items-center">
+                            <span class="text-uppercase font-weight-bold small text-muted letter-spacing-1">Rincian Tagihan</span>
+                            <span class="badge badge-primary px-3">Daftar Ulang</span>
+                        </div>
+                        <div class="billing-body p-0">
+                            @php $totalAmount = 0; @endphp
+                            @foreach($paymentItems as $item)
+                                <div class="billing-item d-flex align-items-center justify-content-between p-3 border-bottom">
+                                    <div class="d-flex align-items-center">
+                                        <div class="billing-icon bg-primary-light text-primary rounded-circle mr-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-check-circle small"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-weight-bold text-dark">{{ $item->item_name }}</div>
+                                            @if($item->description)
+                                                <div class="text-xs text-muted">{{ $item->description }}</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="text-right font-weight-bold text-dark">
+                                        Rp {{ number_format($item->amount, 0, ',', '.') }}
+                                    </div>
+                                </div>
+                                @php $totalAmount += $item->amount; @endphp
+                            @endforeach
+                        </div>
+                        <div class="billing-footer bg-primary text-white p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-uppercase text-xs opacity-75 font-weight-bold mb-1">Total yang harus dibayar</div>
+                                    <h3 class="font-weight-bold mb-0">Rp {{ number_format($totalAmount, 0, ',', '.') }}</h3>
+                                </div>
+                                <i class="fas fa-file-invoice-dollar fa-3x opacity-25"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <style>
+                        .letter-spacing-1 { letter-spacing: 1px; }
+                        .billing-invoice { background: #fff; }
+                        .billing-item:hover { background-color: #f8fafc; transition: 0.3s; }
+                        .bg-primary-light { background-color: rgba(0, 123, 255, 0.1); }
+                        .text-xs { font-size: 0.75rem; }
+                        .rounded-lg { border-radius: 12px !important; }
+                    </style>
+                @endif
+                
+                @php
+                    $setting = \App\Models\Setting::first();
+                    $clientKey = $setting->midtrans_client_key ?? '';
+                    $isProduction = $setting->midtrans_is_production ?? false;
+                    $snapUrl = $isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js';
+                @endphp
+
+                @if($registrant->payment_method === 'midtrans' && $registrant->midtrans_snap_token && in_array($registrant->payment_status, ['unpaid', 'pending']))
+                    <div class="alert alert-warning border-0 shadow-sm p-4 rounded-xl" style="background: #fff; border-left: 5px solid #ffc107 !important;">
+                        <h6 class="font-weight-bold text-warning mb-2"><i class="fas fa-exclamation-circle mr-2"></i> Menunggu Pembayaran</h6>
+                        <p class="mb-3 text-muted">Silakan klik tombol di bawah ini untuk menyelesaikan pembayaran Anda melalui gateway aman Midtrans.</p>
+                        <button id="pay-button" class="btn btn-warning shadow-sm font-weight-bold px-4">
+                            <i class="fas fa-credit-card mr-2"></i> Bayar Sekarang
+                        </button>
+                    </div>
+
+                    <script src="{{ $snapUrl }}" data-client-key="{{ $clientKey }}"></script>
+                    <script type="text/javascript">
+                        document.getElementById('pay-button').onclick = function(){
+                            snap.pay('{{ $registrant->midtrans_snap_token }}', {
+                                onSuccess: function(result){
+                                    Swal.fire('Berhasil!', 'Pembayaran Anda telah berhasil diproses.', 'success').then(() => {
+                                        window.location.reload();
+                                    });
+                                },
+                                onPending: function(result){
+                                    Swal.fire('Menunggu', 'Menunggu pembayaran Anda.', 'info').then(() => {
+                                        window.location.reload();
+                                    });
+                                },
+                                onError: function(result){
+                                    Swal.fire('Gagal!', 'Pembayaran gagal.', 'error');
+                                },
+                                onClose: function(){
+                                    Swal.fire('Perhatian', 'Anda menutup popup tanpa menyelesaikan pembayaran', 'warning');
+                                }
+                            });
+                        };
+                    </script>
+                @else
+                    <form action="{{ route('ppdb.confirm_re_registration') }}" method="POST" enctype="multipart/form-data" class="mt-4">
+                        @csrf
+                        <div class="form-group mb-4">
+                            <label class="font-weight-bold">Pilih Metode Pembayaran:</label>
+                            <div class="row mt-2">
+                                <div class="col-md-4 mb-2">
+                                    <div class="custom-control custom-radio p-3 border rounded shadow-sm text-center payment-option h-100">
+                                        <input type="radio" id="method_transfer" name="payment_method" class="custom-control-input" value="transfer" checked onchange="togglePaymentForm()">
+                                        <label class="custom-control-label w-100 d-block cursor-pointer" for="method_transfer">
+                                            <i class="fas fa-university fa-2x text-primary mb-2 d-block"></i>
+                                            <span class="font-weight-bold d-block">Transfer Manual</span>
+                                            <small class="text-muted d-block mt-1">Upload bukti transfer</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <div class="custom-control custom-radio p-3 border rounded shadow-sm text-center payment-option h-100">
+                                        <input type="radio" id="method_tunai" name="payment_method" class="custom-control-input" value="tunai" onchange="togglePaymentForm()">
+                                        <label class="custom-control-label w-100 d-block cursor-pointer" for="method_tunai">
+                                            <i class="fas fa-money-bill-wave fa-2x text-success mb-2 d-block"></i>
+                                            <span class="font-weight-bold d-block">Bayar Tunai</span>
+                                            <small class="text-muted d-block mt-1">Bayar langsung di sekolah</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <div class="custom-control custom-radio p-3 border rounded shadow-sm text-center payment-option h-100">
+                                        <input type="radio" id="method_midtrans" name="payment_method" class="custom-control-input" value="midtrans" onchange="togglePaymentForm()">
+                                        <label class="custom-control-label w-100 d-block cursor-pointer" for="method_midtrans">
+                                            <i class="fas fa-credit-card fa-2x text-warning mb-2 d-block"></i>
+                                            <span class="font-weight-bold d-block">Otomatis (Midtrans)</span>
+                                            <small class="text-muted d-block mt-1">VA, E-Wallet, QRIS</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="transfer_section" class="payment-section p-3 bg-light rounded border mb-3">
+                            @if($setting->bank_name && $setting->bank_account_number)
+                            <div class="alert alert-info border-0 shadow-sm p-3 mb-3 rounded" style="background-color: #e8f4fd; border-left: 4px solid #007bff !important;">
+                                <h6 class="font-weight-bold text-primary mb-2"><i class="fas fa-university mr-1"></i> Informasi Rekening Transfer:</h6>
+                                <p class="mb-1 text-dark">Bank: <strong>{{ $setting->bank_name }}</strong></p>
+                                <p class="mb-1 text-dark">No. Rekening: <strong class="text-primary" style="font-size: 1.1em; letter-spacing: 1px;">{{ $setting->bank_account_number }}</strong></p>
+                                @if($setting->bank_account_name)
+                                <p class="mb-0 text-dark">Atas Nama: <strong>{{ $setting->bank_account_name }}</strong></p>
+                                @endif
+                                <hr class="my-2 border-info" style="opacity: 0.3;">
+                                <small class="text-muted">Total Tagihan: <strong class="text-danger">Rp {{ number_format($totalAmount, 0, ',', '.') }}</strong></small>
+                            </div>
+                            @endif
+
                             <div class="form-group mb-0">
                                 <label class="font-weight-bold small">Unggah Bukti Pembayaran (JPG/PNG, Max 5MB):</label>
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input @error('payment_proof') is-invalid @enderror" id="payment_proof" name="payment_proof" required>
+                                    <input type="file" class="custom-file-input @error('payment_proof') is-invalid @enderror" id="payment_proof" name="payment_proof">
                                     <label class="custom-file-label" for="payment_proof">Pilih File...</label>
                                     @error('payment_proof')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4 mt-3 mt-md-0">
-                            <button type="submit" class="btn btn-primary btn-block shadow-sm">
+
+                        <div id="tunai_section" class="payment-section p-3 bg-light rounded border mb-3" style="display:none;">
+                            <div class="d-flex align-items-start text-success">
+                                <i class="fas fa-info-circle mt-1 mr-2"></i>
+                                <p class="mb-0 text-sm">Dengan memilih metode Tunai, status Anda akan berubah menjadi Menunggu Verifikasi. Silakan datang ke sekolah untuk melakukan pembayaran tunai ke panitia.</p>
+                            </div>
+                        </div>
+                        
+                        <div id="midtrans_section" class="payment-section p-3 bg-light rounded border mb-3" style="display:none;">
+                            <div class="d-flex align-items-start text-warning">
+                                <i class="fas fa-info-circle mt-1 mr-2"></i>
+                                <p class="mb-0 text-sm">Pembayaran otomatis diverifikasi 24/7. Anda akan diarahkan untuk memilih metode pembayaran melalui sistem Midtrans setelah menekan tombol Lanjut Pembayaran.</p>
+                            </div>
+                        </div>
+
+                        <div class="text-right mt-4">
+                            <button type="submit" id="submit_btn" class="btn btn-primary shadow-sm px-4">
                                 <i class="fas fa-paper-plane mr-2"></i> Kirim Konfirmasi
                             </button>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                    
+                    <style>
+                        .payment-option { cursor: pointer; transition: all 0.2s; }
+                        .payment-option:hover { border-color: #007bff !important; background-color: #f8f9fa; }
+                        .payment-option .custom-control-label::before,
+                        .payment-option .custom-control-label::after { display: none !important; }
+                        .payment-option input:checked + label { color: #007bff; }
+                        .payment-option input:checked { border-color: #007bff; }
+                        .payment-option:has(input:checked) { border-color: #007bff !important; border-width: 2px !important; background-color: #f0f7ff; }
+                    </style>
+                    <script>
+                        function togglePaymentForm() {
+                            let method = document.querySelector('input[name="payment_method"]:checked').value;
+                            document.querySelectorAll('.payment-section').forEach(el => el.style.display = 'none');
+                            document.getElementById(method + '_section').style.display = 'block';
+                            
+                            let proofInput = document.getElementById('payment_proof');
+                            let btn = document.getElementById('submit_btn');
+                            
+                            if (method === 'transfer') {
+                                proofInput.setAttribute('required', 'required');
+                                btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Kirim Konfirmasi';
+                            } else if (method === 'tunai') {
+                                proofInput.removeAttribute('required');
+                                btn.innerHTML = '<i class="fas fa-check mr-2"></i> Konfirmasi Tunai';
+                            } else if (method === 'midtrans') {
+                                proofInput.removeAttribute('required');
+                                btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Lanjut Pembayaran';
+                            }
+                        }
+                        
+                        // Initialize state on load
+                        document.addEventListener('DOMContentLoaded', function() {
+                            togglePaymentForm();
+                        });
+                    </script>
+                @endif
             </div>
         </div>
     @elseif($registrant->status === 'daftar_ulang')
@@ -233,11 +421,11 @@
                 <div>
                     <h6 class="font-weight-bold text-primary mb-1">Daftar Ulang Sedang Diverifikasi</h6>
                     <p class="mb-0 text-muted">Bukti pembayaran Anda telah kami terima dan sedang dalam proses verifikasi oleh panitia. Mohon tunggu informasi selanjutnya.</p>
-                    @if($registrant->payment_proof)
-                        <a href="{{ Storage::url($registrant->payment_proof) }}" target="_blank" class="btn btn-link btn-sm p-0 text-primary mt-1">
-                            <i class="fas fa-image mr-1"></i> Lihat Bukti Pembayaran
+                    <div class="mt-2">
+                        <a href="{{ route('ppdb.print_payment') }}" class="btn btn-primary btn-sm shadow-sm px-3">
+                            <i class="fas fa-file-invoice mr-1"></i> Unduh Bukti Pembayaran Sementara
                         </a>
-                    @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -250,33 +438,210 @@
                 <div>
                     <h6 class="font-weight-bold text-success mb-1">Daftar Ulang Terverifikasi</h6>
                     <p class="mb-0 text-muted">Selamat! Pembayaran daftar ulang Anda telah diverifikasi. Anda kini resmi menjadi bagian dari keluarga besar kami. Silakan tunggu informasi pembagian kelas dan jadwal masuk.</p>
-                    @if($registrant->payment_proof)
-                        <a href="{{ Storage::url($registrant->payment_proof) }}" target="_blank" class="btn btn-link btn-sm p-0 text-primary mt-1">
-                            <i class="fas fa-image mr-1"></i> Lihat Bukti Pembayaran
+                    <div class="mt-2 d-flex flex-wrap" style="gap:10px;">
+                        <a href="{{ route('ppdb.print_payment') }}" class="btn btn-outline-success btn-sm px-3">
+                            <i class="fas fa-file-invoice mr-1"></i> Kwitansi Lunas
                         </a>
-                    @endif
+                        <a href="{{ route('ppdb.print_re_registration') }}" class="btn btn-success btn-sm shadow-sm px-3">
+                            <i class="fas fa-download mr-1"></i> Unduh Bukti Daftar Ulang
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
+    @elseif($registrant->status === 'berkas_lengkap')
+        {{-- STATUS: BERKAS LENGKAP & TERVERIFIKASI --}}
+        <div class="ppdb-status-card success-theme animate-in">
+            <div class="card-glow"></div>
+            <div class="d-flex align-items-center position-relative">
+                <div class="status-icon-wrapper">
+                    <i class="fas fa-file-invoice text-success"></i>
+                    <div class="icon-pulse"></div>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="status-badge-mini mb-2">Pendaftaran Terverifikasi</div>
+                    <h5 class="status-title mb-1">Alhamdulillah, Berkas Lengkap!</h5>
+                    <p class="status-desc mb-3">Seluruh dokumen Anda telah diperiksa oleh panitia dan dinyatakan valid. Saat ini Anda sedang dalam tahap seleksi.</p>
+                    
+                    <div class="announcement-glass">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-calendar-star mr-2 text-success"></i>
+                            <span class="announcement-label">Jadwal Pengumuman</span>
+                        </div>
+                        <div class="announcement-date">
+                            @if($registrant->admissionPhase && $registrant->admissionPhase->announcement_date)
+                                {{ $registrant->admissionPhase->announcement_date->format('d F Y') }}
+                            @elseif(isset($admission) && $admission->announcement_date)
+                                {{ $admission->announcement_date->format('d F Y') }}
+                            @else
+                                <span class="text-muted italic" style="font-size: 0.9rem;">Segera Diumumkan</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     @elseif($registrant->status === 'diterima' && !$isAnnouncementActive)
-        <div class="alert alert-info border-0 shadow-sm mb-4">
-            <i class="fas fa-info-circle mr-2"></i> <strong>Informasi:</strong> Hasil seleksi akhir akan diumumkan pada tanggal yang telah ditentukan. Silakan cek kembali nanti.
+        {{-- STATUS: DITERIMA TAPI BELUM PENGUMUMAN --}}
+        <div class="ppdb-status-card info-theme animate-in">
+            <div class="card-glow"></div>
+            <div class="d-flex align-items-center position-relative">
+                <div class="status-icon-wrapper">
+                    <i class="fas fa-hourglass-half text-info"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="status-badge-mini mb-2" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-color: rgba(59, 130, 246, 0.2);">Tahap Seleksi</div>
+                    <h5 class="status-title mb-1">Hasil Seleksi Sedang Diproses</h5>
+                    <p class="status-desc mb-3">Panitia sedang melakukan finalisasi data. Hasil seleksi akhir akan dibuka secara serentak pada:</p>
+                    
+                    <div class="announcement-glass" style="background: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.1);">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-clock mr-2 text-info"></i>
+                            <span class="announcement-label" style="color: #3b82f6;">Waktu Pengumuman</span>
+                        </div>
+                        <div class="announcement-date">
+                            @if($registrant->admissionPhase && $registrant->admissionPhase->announcement_date)
+                                {{ $registrant->admissionPhase->announcement_date->format('d F Y') }}
+                            @elseif(isset($admission) && $admission->announcement_date)
+                                {{ $admission->announcement_date->format('d F Y') }}
+                            @else
+                                Segera Diumumkan
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     @endif
 @else
     {{-- PESAN INSTRUKSI JIKA BELUM LENGKAP --}}
-    <div class="alert alert-warning border-0 shadow-sm mb-4 p-4 text-center">
-        <i class="fas fa-info-circle fa-2x mb-3 text-warning"></i>
-        <h5 class="font-weight-bold">Berkas Belum Lengkap!</h5>
-        <p class="mb-0">Silakan lengkapi semua unggahan berkas di bawah ini untuk mendapatkan **Nomor Registrasi** dan mengunduh **Bukti Pendaftaran**.</p>
+    <div class="ppdb-status-card warning-theme animate-in">
+        <div class="d-flex flex-column align-items-center text-center p-2">
+            <div class="status-icon-wrapper mb-3" style="width: 70px; height: 70px; font-size: 1.8rem; background: rgba(245, 158, 11, 0.1);">
+                <i class="fas fa-exclamation-triangle text-warning"></i>
+            </div>
+            <h5 class="status-title mb-2">Berkas Belum Lengkap!</h5>
+            <p class="status-desc max-width-500 mb-0">Silakan lengkapi semua unggahan berkas di bawah ini untuk mendapatkan <strong>Nomor Registrasi</strong> dan mengunduh <strong>Bukti Pendaftaran</strong>.</p>
+        </div>
     </div>
 @endif
 
 <style>
-    .border-left-success { border-left: 4px solid #28a745 !important; }
-    .border-left-primary { border-left: 4px solid #007bff !important; }
-    .bg-success-light { background-color: rgba(40, 167, 69, 0.1); }
-    .bg-primary-light { background-color: rgba(0, 123, 255, 0.1); }
+    .ppdb-status-card {
+        position: relative;
+        padding: 24px;
+        border-radius: 20px;
+        background: #fff;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+    .card-glow {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        filter: blur(50px);
+        opacity: 0.15;
+        z-index: 0;
+    }
+    .success-theme { border-left: 6px solid #10b981; }
+    .success-theme .card-glow { background: #10b981; }
+    
+    .info-theme { border-left: 6px solid #3b82f6; }
+    .info-theme .card-glow { background: #3b82f6; }
+    
+    .warning-theme { border-left: 6px solid #f59e0b; }
+    .warning-theme .card-glow { background: #f59e0b; }
+
+    .status-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 20px;
+        position: relative;
+        background: rgba(248, 250, 252, 1);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    
+    .icon-pulse {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 16px;
+        border: 2px solid #10b981;
+        opacity: 0;
+        animation: pulse-ring 2s infinite;
+    }
+
+    @keyframes pulse-ring {
+        0% { transform: scale(0.8); opacity: 0.5; }
+        100% { transform: scale(1.3); opacity: 0; }
+    }
+
+    .status-badge-mini {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-title {
+        font-weight: 800;
+        color: #1e293b;
+        letter-spacing: -0.5px;
+    }
+
+    .status-desc {
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .announcement-glass {
+        background: rgba(16, 185, 129, 0.05);
+        border: 1px solid rgba(16, 185, 129, 0.1);
+        border-radius: 12px;
+        padding: 12px 16px;
+        display: inline-block;
+    }
+
+    .announcement-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #059669;
+    }
+
+    .announcement-date {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .max-width-500 { max-width: 500px; }
+
+    .animate-in {
+        animation: slideUp 0.6s ease-out forwards;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 
 {{-- CATATAN VERIFIKASI --}}
@@ -292,8 +657,9 @@
     </div>
 @endif
 
-{{-- UNGGAH BERKAS SATU-PER-SATU --}}
-<div class="ppdb-card mb-4" style="border-top: 4px solid #007bff;">
+{{-- UNGGAH BERKAS SATU-PER-SATU (Hanya tampil jika belum verifikasi lengkap) --}}
+@if(!in_array($registrant->status, ['berkas_lengkap', 'diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi']))
+    <div class="ppdb-card mb-4" style="border-top: 4px solid #007bff;">
     <div class="card-header bg-white py-3">
         <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -662,10 +1028,11 @@
         });
     </script>
     @endpush
+@endif    </div>
 @endif
 
-{{-- VERIFIKASI INFO --}}
-@if($registrant->verified_at)
+{{-- VERIFIKASI INFO (Hanya tampil jika BELUM masuk ke tahap seleksi akhir/lengkap agar tidak double info) --}}
+@if($registrant->verified_at && !in_array($registrant->status, ['berkas_lengkap', 'diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi']))
     <div class="ppdb-card mb-4 overflow-hidden" style="border: none;">
         <div class="p-4" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
             <div class="d-flex align-items-center">

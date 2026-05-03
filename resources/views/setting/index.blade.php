@@ -22,6 +22,10 @@
                     <a class="nav-link @if (request('pills') == 'sosial-media') active @endif"
                         href="{{ route('setting.index') }}?pills=sosial-media">Sosial Media</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link @if (request('pills') == 'payment') active @endif"
+                        href="{{ route('setting.index') }}?pills=payment">Pembayaran</a>
+                </li>
             </ul>
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade @if (request('pills') == '') show active @endif" id="pills-general"
@@ -35,6 +39,10 @@
                 <div class="tab-pane fade @if (request('pills') == 'sosial-media') show active @endif" id="pills-sosial-media"
                     role="tabpanel" aria-labelledby="pills-sosial-media-tab">
                     @includeIf('setting.sosial_media')
+                </div>
+                <div class="tab-pane fade @if (request('pills') == 'payment') show active @endif" id="pills-payment"
+                    role="tabpanel" aria-labelledby="pills-payment-tab">
+                    @includeIf('setting.payment')
                 </div>
             </div>
         </div>
