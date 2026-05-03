@@ -31,6 +31,7 @@ class PpdbDashboardController extends Controller
         $phases = collect();
         $types = collect();
         $ppdbOpen = false;
+        $isAnnouncementActive = false;
 
         if ($academicYear) {
             $admission = StudentAdmission::where('academic_year_id', $academicYear->id)->first();
@@ -38,6 +39,31 @@ class PpdbDashboardController extends Controller
                 $ppdbOpen = true;
                 $phases = AdmissionPhase::where('academic_year_id', $academicYear->id)->get();
                 $types = AdmissionType::where('academic_year_id', $academicYear->id)->get();
+            }
+            
+            if ($registrant) {
+                $isAnnouncementActive = ($registrant->admissionPhase && $registrant->admissionPhase->announcement_date)
+                    ? $registrant->admissionPhase->isAnnouncementActive()
+                    : ($admission ? $admission->isAnnouncementActive() : false);
+            } elseif ($admission) {
+                $isAnnouncementActive = $admission->isAnnouncementActive();
+            }
+        }
+
+        $student = null;
+        $schedules = collect();
+        if ($registrant && $registrant->status == 'sudah_masuk_siswa') {
+            $student = \App\Models\Student::where('nisn', $registrant->nisn)
+                ->with(['classGroup.homeroomTeacher', 'academicYear'])
+                ->first();
+            
+            if ($student && $student->student_class_group_id) {
+                $schedules = \App\Models\ClassSchedule::where('class_group_id', $student->student_class_group_id)
+                    ->with(['subject', 'teacher', 'studyPeriod'])
+                    ->orderBy('day')
+                    ->orderBy('start_time')
+                    ->get()
+                    ->groupBy('day');
             }
         }
 
@@ -48,7 +74,10 @@ class PpdbDashboardController extends Controller
             'phases',
             'types',
             'ppdbOpen',
-            'academicYear'
+            'isAnnouncementActive',
+            'academicYear',
+            'student',
+            'schedules'
         ));
     }
 
@@ -256,5 +285,37 @@ class PpdbDashboardController extends Controller
         $pdf->setPaper([0, 0, 612, 936], 'portrait');
 
         return $pdf->download('Lembar_Verifikasi_' . $registrant->registration_number . '.pdf');
+    }
+    public function confirmReRegistration(Request $request)
+    {
+        $user = Auth::user();
+        $registrant = $user->ppdbRegistrant;
+
+        if (!$registrant || $registrant->status !== 'diterima') {
+            return redirect()->back()->with('error', 'Hanya siswa berstatus DITERIMA yang dapat melakukan daftar ulang.');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'payment_proof' => 'required|image|mimes:jpg,jpeg,png|max:5120',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator);
+        }
+
+        try {
+            if ($request->hasFile('payment_proof')) {
+                $path = $request->file('payment_proof')->store('ppdb/payments', 'public');
+                $registrant->update([
+                    'payment_proof' => $path,
+                    'confirmed_at' => now(),
+                    'status' => 'daftar_ulang'
+                ]);
+            }
+
+            return redirect()->route('ppdb.dashboard')->with('success', 'Konfirmasi daftar ulang berhasil terkirim. Admin akan memverifikasi pembayaran Anda.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 }

@@ -70,10 +70,13 @@
             margin-bottom: 25px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
-        .status-card.pending { background: linear-gradient(135deg, #f6e05e 0%, #ecc94b 100%); color: #744210; }
+        .status-card.pending { background: linear-gradient(135deg, #fefcbf 0%, #faf089 100%); color: #744210; }
         .status-card.berkas_lengkap { background: linear-gradient(135deg, #4fd1c5 0%, #38b2ac 100%); }
         .status-card.berkas_tidak_lengkap { background: linear-gradient(135deg, #feb2b2 0%, #f56565 100%); }
         .status-card.diterima { background: linear-gradient(135deg, #68d391 0%, #48bb78 100%); }
+        .status-card.daftar_ulang { background: linear-gradient(135deg, #63b3ed 0%, #3182ce 100%); }
+        .status-card.daftar_ulang_terverifikasi { background: linear-gradient(135deg, #38b2ac 0%, #2c7a7b 100%); }
+        .status-card.cadangan { background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%); }
         .status-card.ditolak { background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%); }
 
         .status-card h3 { font-weight: 800; margin: 0; font-size: 1.75rem; }
@@ -161,8 +164,74 @@
             background: rgba(255,255,255,0.1);
             border-radius: 50%;
         }
-        .welcome-banner h4 { font-weight: 800; margin-bottom: 10px; font-size: 1.5rem; }
         .welcome-banner p { opacity: 0.9; margin: 0; font-size: 1.05rem; }
+
+        /* Stepper UI */
+        .ppdb-stepper {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            position: relative;
+        }
+        .ppdb-stepper .step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+        .ppdb-stepper .step-icon {
+            width: 45px;
+            height: 45px;
+            background: #edf2f7;
+            color: #a0aec0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+            border: 4px solid #fff;
+        }
+        .ppdb-stepper .step.active .step-icon {
+            background: #1a7431;
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(26, 116, 49, 0.1);
+        }
+        .ppdb-stepper .step.success .step-icon {
+            background: #28a745;
+            color: #fff;
+        }
+        .ppdb-stepper .step.danger .step-icon {
+            background: #dc3545;
+            color: #fff;
+        }
+        .ppdb-stepper .step-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #4a5568;
+            margin-bottom: 2px;
+        }
+        .ppdb-stepper .step-desc {
+            font-size: 0.7rem;
+            color: #a0aec0;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .ppdb-stepper .step-line {
+            position: absolute;
+            top: 22px;
+            height: 3px;
+            background: #edf2f7;
+            z-index: 1;
+        }
+        .ppdb-stepper .step-line.active { background: #1a7431; }
+        
+        /* Line positions for 4 steps */
+        .ppdb-stepper .step-line:nth-of-type(2) { left: 12.5%; width: 25%; }
+        .ppdb-stepper .step-line:nth-of-type(4) { left: 37.5%; width: 25%; }
+        .ppdb-stepper .step-line:nth-of-type(6) { left: 62.5%; width: 25%; }
     </style>
     @stack('css')
 </head>

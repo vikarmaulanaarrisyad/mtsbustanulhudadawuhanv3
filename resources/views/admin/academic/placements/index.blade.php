@@ -37,9 +37,9 @@
             </div>
         </div>
 
-        <div class="card card-outline card-success">
+        <div class="card card-outline card-success shadow-sm border-0">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-arrow-right mr-1"></i> Tujuan Penempatan</h3>
+                <h3 class="card-title font-weight-bold text-success"><i class="fas fa-arrow-right mr-1"></i> Penempatan Manual</h3>
             </div>
             <div class="card-body">
                 <form id="placementForm">
@@ -66,8 +66,51 @@
                         <input type="text" name="notes" class="form-control" placeholder="Contoh: Penempatan Siswa Pindahan">
                     </div>
                     <hr>
-                    <button type="button" onclick="submitPlacement()" class="btn btn-success btn-block" id="btnSubmit">
+                    <button type="button" onclick="submitPlacement()" class="btn btn-success btn-block shadow-sm" id="btnSubmit">
                         <i class="fas fa-check-circle mr-1"></i> Simpan Penempatan
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {{-- PLOTTING OTOMATIS --}}
+        <div class="card card-outline card-primary shadow-sm border-0">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title font-weight-bold"><i class="fas fa-magic mr-1"></i> Plotting Otomatis</h3>
+            </div>
+            <div class="card-body">
+                <form id="autoPlacementForm">
+                    @csrf
+                    <div class="form-group">
+                        <label>Tahun Pelajaran</label>
+                        <select name="academic_year_id" class="form-control select2" required>
+                            @foreach($academicYears as $ay)
+                                <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pilih Kelas Tujuan (Multi)</label>
+                        <select name="class_group_ids[]" class="form-control select2" multiple required data-placeholder="Pilih beberapa kelas...">
+                            @foreach($classGroups as $cg)
+                                <option value="{{ $cg->id }}">{{ $cg->class_group }} - {{ $cg->sub_class_group }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapasitas Maksimal Per Kelas</label>
+                        <input type="number" name="max_capacity" class="form-control" value="32" min="1" required>
+                        <small class="text-muted italic">Sistem akan memperhitungkan jumlah siswa yang sudah ada di kelas tersebut.</small>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="gender_balanced" name="gender_balanced" value="1" checked>
+                            <label class="custom-control-label text-sm" for="gender_balanced">Bagi Merata Laki-laki & Perempuan</label>
+                        </div>
+                    </div>
+                    <hr>
+                    <button type="button" onclick="submitAutoPlacement()" class="btn btn-primary btn-block shadow-sm" id="btnAutoSubmit">
+                        <i class="fas fa-bolt mr-1"></i> Mulai Plotting Otomatis
                     </button>
                 </form>
             </div>
@@ -170,6 +213,31 @@
                     })
                     .always(() => {
                         $('#btnSubmit').prop('disabled', false).html('<i class="fas fa-check-circle mr-1"></i> Simpan Penempatan');
+                    });
+            }
+        });
+    }
+    function submitAutoPlacement() {
+        let formData = $('#autoPlacementForm').serialize();
+        
+        Swal.fire({
+            title: 'Konfirmasi Plotting Otomatis',
+            text: 'Sistem akan membagi siswa baru (tanpa rombel) ke dalam kelas terpilih dengan pembagian gender yang merata. Lanjutkan?',
+            icon: 'info', showCancelButton: true, confirmButtonColor: '#007bff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#btnAutoSubmit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...');
+                
+                $.post('{{ route("student-placements.auto") }}', formData)
+                    .done(response => {
+                        Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message });
+                        table.ajax.reload();
+                    })
+                    .fail(xhr => {
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan' });
+                    })
+                    .always(() => {
+                        $('#btnAutoSubmit').prop('disabled', false).html('<i class="fas fa-bolt mr-1"></i> Mulai Plotting Otomatis');
                     });
             }
         });

@@ -79,6 +79,20 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-lg-12">
+            <div class="form-group">
+                <label for="ba_letter_number">Nomor Berita Acara (Otomatis jika kosong)</label>
+                <input id="ba_letter_number" name="ba_letter_number" type="text" class="form-control" placeholder="Contoh: 001/BA-PPDB/MTs-BH/2026">
+            </div>
+        </div>
+
+        <div class="col-lg-12">
+            <div class="form-group">
+                <label for="sk_letter_number">Nomor SK Kolektif (Otomatis jika kosong)</label>
+                <input id="sk_letter_number" name="sk_letter_number" type="text" class="form-control" placeholder="Contoh: 001/SK-PPDB/MTs-BH/2026">
+            </div>
+        </div>
     </div>
 
     <x-slot name="footer">

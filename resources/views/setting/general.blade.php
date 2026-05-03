@@ -36,7 +36,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <div class="form-group">
                     <label for="owner_name">Nama Pemilik</label>
                     <input type="text" class="form-control @error('owner_name') is-invalid @enderror"
@@ -46,13 +46,24 @@
                     @enderror
                 </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <div class="form-group">
                     <label for="company_name">Nama Perusahaan</label>
                     <input type="text" class="form-control @error('company_name') is-invalid @enderror"
                         name="company_name" id="company_name"
                         value="{{ old('company_name') ?? $setting->company_name }}">
                     @error('company_name')
+                        <span class="invalid-feedback">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label for="nsm">NSM (Nomor Statistik Madrasah)</label>
+                    <input type="text" class="form-control @error('nsm') is-invalid @enderror"
+                        name="nsm" id="nsm"
+                        value="{{ old('nsm') ?? $setting->nsm }}">
+                    @error('nsm')
                         <span class="invalid-feedback">{{ $message }}</span>
                     @enderror
                 </div>

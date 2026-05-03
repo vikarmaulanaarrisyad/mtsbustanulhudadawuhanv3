@@ -24,6 +24,31 @@
                     </div>
                 </div>
 
+                {{-- Stepper Admin --}}
+                <div class="px-4 py-3 bg-white border-bottom">
+                    <div class="ppdb-stepper" id="det_stepper">
+                        <div class="step" id="step_1">
+                            <div class="step-icon shadow-xs"><i class="fas fa-file-alt"></i></div>
+                            <div class="step-label">Pendaftaran</div>
+                        </div>
+                        <div class="step-line" id="line_1"></div>
+                        <div class="step" id="step_2">
+                            <div class="step-icon shadow-xs"><i class="fas fa-clipboard-check"></i></div>
+                            <div class="step-label">Verifikasi</div>
+                        </div>
+                        <div class="step-line" id="line_2"></div>
+                        <div class="step" id="step_3">
+                            <div class="step-icon shadow-xs"><i class="fas fa-user-graduate"></i></div>
+                            <div class="step-label">Seleksi</div>
+                        </div>
+                        <div class="step-line" id="line_3"></div>
+                        <div class="step" id="step_4">
+                            <div class="step-icon shadow-xs"><i class="fas fa-award"></i></div>
+                            <div class="step-label">Hasil</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="p-4">
                     <div class="row">
                         {{-- Data Pribadi --}}
@@ -102,7 +127,7 @@
                             <h6 class="text-uppercase text-muted font-weight-bold mb-3" style="letter-spacing: 1px;">
                                 <i class="fas fa-clipboard-check mr-2 text-warning"></i> Status Verifikasi
                             </h6>
-                            <div class="card shadow-sm border bg-light">
+                            <div class="card shadow-sm border bg-light h-100">
                                 <div class="card-body p-3">
                                     <div class="mb-2">
                                         <span class="text-muted small d-block">Catatan:</span>
@@ -111,6 +136,42 @@
                                     <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
                                         <span class="text-muted extra-small" id="det_verified_at">-</span>
                                         <span class="badge badge-light shadow-xs border" id="det_verifier">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Bukti Pembayaran (Daftar Ulang) --}}
+                        <div class="col-md-12 mb-4 d-none" id="det_payment_section">
+                            <h6 class="text-uppercase text-muted font-weight-bold mb-3" style="letter-spacing: 1px;">
+                                <i class="fas fa-money-check-alt mr-2 text-success"></i> Bukti Daftar Ulang
+                            </h6>
+                            <div class="card shadow-sm border border-success">
+                                <div class="card-body p-3">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-4 text-center">
+                                            <a id="det_payment_link" href="#" target="_blank">
+                                                <img id="det_payment_img" src="" class="img-thumbnail shadow-sm" style="max-height: 150px;">
+                                            </a>
+                                        </div>
+                                         <div class="col-md-8">
+                                             <div class="alert alert-success-light border-0 mb-0">
+                                                 <h6 class="font-weight-bold mb-1 text-success">Konfirmasi Daftar Ulang Diterima</h6>
+                                                 <p class="small mb-3">Pendaftar telah mengunggah bukti pembayaran pada <span id="det_payment_date" class="font-weight-bold">-</span>.</p>
+                                                 
+                                                 <div id="payment_status_verified" class="d-none">
+                                                     <div class="d-flex align-items-center text-success small font-weight-bold">
+                                                         <i class="fas fa-check-circle mr-2 fa-lg"></i> Pembayaran Telah Divalidasi
+                                                     </div>
+                                                 </div>
+
+                                                 <div id="payment_status_pending" class="d-none">
+                                                     <button type="button" id="btn-verify-payment" class="btn btn-success btn-sm px-3 shadow-sm">
+                                                         <i class="fas fa-check-circle mr-1"></i> Verifikasi Pembayaran
+                                                     </button>
+                                                 </div>
+                                             </div>
+                                         </div>
                                     </div>
                                 </div>
                             </div>
@@ -130,8 +191,11 @@
             </div>
             <div class="modal-footer bg-light border-top">
                 <a id="btn-print-letter" href="#" target="_blank" class="btn btn-primary px-4 shadow-sm d-none">
-                    <i class="fas fa-file-pdf mr-1"></i> Cetak Surat Keterangan
+                    <i class="fas fa-file-pdf mr-1"></i> Cetak SK
                 </a>
+                <button id="btn-move-student" type="button" class="btn btn-success px-4 shadow-sm d-none">
+                    <i class="fas fa-user-check mr-1"></i> Pindahkan ke Data Siswa
+                </button>
                 <button type="button" class="btn btn-secondary px-4 shadow-sm" data-dismiss="modal">
                     <i class="fas fa-times mr-1"></i> Tutup
                 </button>
@@ -145,4 +209,5 @@
     .text-purple { color: #6f42c1; }
     #det_alamat { max-width: 250px; line-height: 1.2; }
     .shadow-xs { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05); }
+    .alert-success-light { background-color: rgba(40, 167, 69, 0.05); border: 1px solid rgba(40, 167, 69, 0.1); }
 </style>

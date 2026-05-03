@@ -15,7 +15,7 @@ class PpdbVerificationController extends Controller
      */
     public function check($regNumber)
     {
-        $registrant = PpdbRegistrant::with(['admissionPhase', 'admissionType'])
+        $registrant = PpdbRegistrant::with(['admissionPhase', 'admissionType', 'studentAdmission'])
             ->where('registration_number', $regNumber)
             ->firstOrFail();
             

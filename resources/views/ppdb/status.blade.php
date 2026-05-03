@@ -1,4 +1,33 @@
-{{-- STATUS PENDAFTARAN --}}
+{{-- STEPPER PROSES --}}
+<div class="ppdb-card mb-4 overflow-hidden">
+    <div class="card-body p-4">
+        <div class="ppdb-stepper">
+            <div class="step active">
+                <div class="step-icon shadow-sm"><i class="fas fa-file-alt"></i></div>
+                <div class="step-label">Pendaftaran</div>
+                <div class="step-desc">Biodata Terkirim</div>
+            </div>
+            <div class="step-line {{ in_array($registrant->status, ['berkas_lengkap', 'diterima', 'ditolak', 'daftar_ulang', 'daftar_ulang_terverifikasi']) ? 'active' : '' }}"></div>
+            <div class="step {{ in_array($registrant->status, ['berkas_lengkap', 'diterima', 'ditolak', 'daftar_ulang', 'daftar_ulang_terverifikasi']) ? 'active' : '' }}">
+                <div class="step-icon shadow-sm"><i class="fas fa-clipboard-check"></i></div>
+                <div class="step-label">Verifikasi</div>
+                <div class="step-desc">{{ $registrant->status == 'pending' ? 'Menunggu' : ($registrant->status == 'berkas_tidak_lengkap' ? 'Bermasalah' : 'Selesai') }}</div>
+            </div>
+            <div class="step-line {{ in_array($registrant->status, ['diterima', 'ditolak', 'daftar_ulang', 'daftar_ulang_terverifikasi']) ? 'active' : '' }}"></div>
+            <div class="step {{ in_array($registrant->status, ['diterima', 'ditolak', 'daftar_ulang', 'daftar_ulang_terverifikasi']) ? 'active' : '' }}">
+                <div class="step-icon shadow-sm"><i class="fas fa-user-graduate"></i></div>
+                <div class="step-label">Seleksi</div>
+                <div class="step-desc">{{ in_array($registrant->status, ['diterima', 'ditolak', 'daftar_ulang', 'daftar_ulang_terverifikasi']) ? 'Selesai' : 'Tahap Peringkat' }}</div>
+            </div>
+            <div class="step-line {{ in_array($registrant->status, ['diterima', 'ditolak', 'daftar_ulang', 'daftar_ulang_terverifikasi']) ? 'active' : '' }}"></div>
+            <div class="step {{ in_array($registrant->status, ['diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi']) ? 'success' : ($registrant->status === 'ditolak' ? 'danger' : '') }}">
+                <div class="step-icon shadow-sm"><i class="fas fa-award"></i></div>
+                <div class="step-label">Hasil Akhir</div>
+                <div class="step-desc">{{ in_array($registrant->status, ['diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi']) ? 'Lulus' : ($registrant->status == 'ditolak' ? 'Tidak Lulus' : 'Belum Ada') }}</div>
+            </div>
+        </div>
+    </div>
+</div>
 
 {{-- STATUS CARD --}}
 <div class="status-card {{ $registrant->status }}">
@@ -10,10 +39,14 @@
         <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
     @elseif($registrant->status === 'diterima')
         <i class="fas fa-check-double fa-2x mb-3"></i>
+    @elseif($registrant->status === 'daftar_ulang' || $registrant->status === 'daftar_ulang_terverifikasi')
+        <i class="fas fa-user-check fa-2x mb-3"></i>
+    @elseif($registrant->status === 'cadangan')
+        <i class="fas fa-clock fa-2x mb-3"></i>
     @elseif($registrant->status === 'ditolak')
         <i class="fas fa-times-circle fa-2x mb-3"></i>
     @endif
-    <h3 class="mb-1">{{ $registrant->status_label }}</h3>
+    <h3 class="mb-1">{{ $registrant->public_status_label }}</h3>
     <p class="mb-0 font-weight-normal opacity-75">Nomor Registrasi: <span class="font-weight-bold">{{ $registrant->registration_number }}</span></p>
 </div>
 
@@ -53,7 +86,7 @@
     </div>
 </div>
 
-@if($registrant->status === 'diterima')
+@if($registrant->status === 'diterima' && $isAnnouncementActive)
     <div class="ppdb-card border-left-success shadow-sm mb-4 animate__animated animate__pulse animate__infinite animate__slow">
         <div class="card-body">
             <div class="d-md-flex align-items-center justify-content-between">
@@ -66,6 +99,77 @@
                 </a>
             </div>
         </div>
+    </div>
+
+    {{-- RE-REGISTRATION FORM --}}
+    <div class="ppdb-card border-top border-primary shadow-sm mb-4" style="border-top-width: 4px !important;">
+        <div class="card-header bg-white">
+            <h6 class="font-weight-bold text-primary mb-0"><i class="fas fa-file-invoice-dollar mr-2"></i> Konfirmasi Daftar Ulang</h6>
+        </div>
+        <div class="card-body">
+            <p class="text-muted small mb-4">Silakan lakukan pembayaran biaya daftar ulang sesuai rincian yang diberikan oleh panitia, kemudian unggah bukti transfer/pembayaran Anda di bawah ini untuk proses validasi akhir.</p>
+            
+            <form action="{{ route('ppdb.confirm_re_registration') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="form-group mb-0">
+                            <label class="font-weight-bold small">Unggah Bukti Pembayaran (JPG/PNG, Max 5MB):</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input @error('payment_proof') is-invalid @enderror" id="payment_proof" name="payment_proof" required>
+                                <label class="custom-file-label" for="payment_proof">Pilih File...</label>
+                                @error('payment_proof')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mt-3 mt-md-0">
+                        <button type="submit" class="btn btn-primary btn-block shadow-sm">
+                            <i class="fas fa-paper-plane mr-2"></i> Kirim Konfirmasi
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+@elseif($registrant->status === 'daftar_ulang')
+    <div class="alert alert-info border-0 shadow-sm mb-4 p-4 rounded-xl" style="background: #fff; border-left: 5px solid #007bff !important;">
+        <div class="d-flex align-items-center">
+            <div class="bg-primary-light p-3 rounded-circle mr-3">
+                <i class="fas fa-clock fa-2x text-primary"></i>
+            </div>
+            <div>
+                <h6 class="font-weight-bold text-primary mb-1">Daftar Ulang Sedang Diverifikasi</h6>
+                <p class="mb-0 text-muted">Bukti pembayaran Anda telah kami terima dan sedang dalam proses verifikasi oleh panitia. Mohon tunggu informasi selanjutnya.</p>
+                @if($registrant->payment_proof)
+                    <a href="{{ Storage::url($registrant->payment_proof) }}" target="_blank" class="btn btn-link btn-sm p-0 text-primary mt-1">
+                        <i class="fas fa-image mr-1"></i> Lihat Bukti Pembayaran
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+@elseif($registrant->status === 'daftar_ulang_terverifikasi')
+    <div class="alert alert-success border-0 shadow-sm mb-4 p-4 rounded-xl" style="background: #fff; border-left: 5px solid #28a745 !important;">
+        <div class="d-flex align-items-center">
+            <div class="bg-success-light p-3 rounded-circle mr-3">
+                <i class="fas fa-user-check fa-2x text-success"></i>
+            </div>
+            <div>
+                <h6 class="font-weight-bold text-success mb-1">Daftar Ulang Terverifikasi</h6>
+                <p class="mb-0 text-muted">Selamat! Pembayaran daftar ulang Anda telah diverifikasi. Anda kini resmi menjadi bagian dari keluarga besar kami. Silakan tunggu informasi pembagian kelas dan jadwal masuk.</p>
+                @if($registrant->payment_proof)
+                    <a href="{{ Storage::url($registrant->payment_proof) }}" target="_blank" class="btn btn-link btn-sm p-0 text-primary mt-1">
+                        <i class="fas fa-image mr-1"></i> Lihat Bukti Pembayaran
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+@elseif($registrant->status === 'diterima' && !$isAnnouncementActive)
+    <div class="alert alert-info border-0 shadow-sm mb-4">
+        <i class="fas fa-info-circle mr-2"></i> <strong>Informasi:</strong> Hasil seleksi akhir akan diumumkan pada tanggal yang telah ditentukan. Silakan cek kembali nanti.
     </div>
 @endif
 

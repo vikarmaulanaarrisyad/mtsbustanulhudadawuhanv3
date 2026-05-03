@@ -114,7 +114,7 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nis' => 'required|unique:students,nis|max:30',
+            'nis' => 'nullable|unique:students,nis|max:30',
             'nisn' => 'nullable|unique:students,nisn|max:30',
             'nama_lengkap' => 'required|max:150',
             'jenis_kelamin' => 'required|in:L,P',
@@ -138,7 +138,7 @@ class StudentController extends Controller
 
             // Store student
             $student = Student::create([
-                'nis' => $request->nis,
+                'nis' => $request->nis ?? Student::generateNIS(),
                 'nisn' => $request->nisn,
                 'nik' => $request->nik,
                 'no_kk' => $request->no_kk,

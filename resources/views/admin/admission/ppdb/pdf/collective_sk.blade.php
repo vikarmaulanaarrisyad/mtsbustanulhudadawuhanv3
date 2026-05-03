@@ -7,7 +7,7 @@
     </div>
 
     <div class="content" style="margin-top: 20px;">
-        <p>Berdasarkan Keputusan Kepala {{ $source->school_name ?? 'Madrasah' }} Nomor {{ '... / PPDB / ' . ($source->school_code ?? 'MTs-BH') . ' / ' . date('Y') }}, berikut adalah daftar pendaftar yang dinyatakan <strong>LULUS / DITERIMA</strong> sebagai Peserta Didik Baru:</p>
+        <p>Berdasarkan Keputusan Kepala {{ $source->school_name ?? 'Madrasah' }} Nomor {{ $admission->sk_letter_number ?? ('... / PPDB / ' . ($source->school_code ?? 'MTs-BH') . ' / ' . date('Y')) }}, berikut adalah daftar pendaftar yang dinyatakan <strong>LULUS / DITERIMA</strong> sebagai Peserta Didik Baru:</p>
 
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
             <thead>

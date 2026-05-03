@@ -13,39 +13,39 @@
     {{-- STATISTIK --}}
     <div class="row">
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-primary">
+            <div class="small-box shadow-sm border-0" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); color: white;">
                 <div class="inner">
-                    <h3>{{ $stats['total'] }}</h3>
-                    <p>Total Pendaftar</p>
+                    <h3 class="font-weight-bold">{{ $stats['total'] }}</h3>
+                    <p class="mb-0 opacity-75">Total Pendaftar</p>
                 </div>
-                <div class="icon"><i class="fas fa-user-plus"></i></div>
+                <div class="icon" style="color: rgba(255,255,255,0.3);"><i class="fas fa-user-plus"></i></div>
             </div>
         </div>
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning">
+            <div class="small-box shadow-sm border-0" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
                 <div class="inner">
-                    <h3>{{ $stats['pending'] }}</h3>
-                    <p>Menunggu Verifikasi</p>
+                    <h3 class="font-weight-bold">{{ $stats['pending'] }}</h3>
+                    <p class="mb-0 opacity-75">Menunggu Verifikasi</p>
                 </div>
-                <div class="icon"><i class="fas fa-clock"></i></div>
+                <div class="icon" style="color: rgba(255,255,255,0.3);"><i class="fas fa-clock"></i></div>
             </div>
         </div>
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
+            <div class="small-box shadow-sm border-0" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
                 <div class="inner">
-                    <h3>{{ $stats['diterima'] }}</h3>
-                    <p>Diterima</p>
+                    <h3 class="font-weight-bold">{{ $stats['diterima'] }}</h3>
+                    <p class="mb-0 opacity-75">Diterima / Lulus</p>
                 </div>
-                <div class="icon"><i class="fas fa-check-circle"></i></div>
+                <div class="icon" style="color: rgba(255,255,255,0.3);"><i class="fas fa-check-circle"></i></div>
             </div>
         </div>
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
+            <div class="small-box shadow-sm border-0" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
                 <div class="inner">
-                    <h3>{{ $stats['ditolak'] }}</h3>
-                    <p>Ditolak</p>
+                    <h3 class="font-weight-bold">{{ $stats['ditolak'] }}</h3>
+                    <p class="mb-0 opacity-75">Ditolak / Tidak Lulus</p>
                 </div>
-                <div class="icon"><i class="fas fa-times-circle"></i></div>
+                <div class="icon" style="color: rgba(255,255,255,0.3);"><i class="fas fa-times-circle"></i></div>
             </div>
         </div>
     </div>
@@ -105,6 +105,23 @@
                             <button onclick="resetFilter()" class="btn btn-sm btn-outline-secondary"><i class="fas fa-sync"></i> Reset</button>
                         </div>
                         <div class="d-flex flex-wrap mt-2 mt-md-0" style="gap:8px;">
+                            <div class="dropdown" id="bulk_actions" style="display:none;">
+                                <button class="btn btn-sm btn-outline-success dropdown-toggle shadow-sm" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-tasks mr-1"></i> Aksi Kolektif (<span id="selected_count">0</span>)
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right shadow border-0">
+                                    <a class="dropdown-item" href="javascript:void(0)" onclick="bulkUpdateStatus('diterima')">
+                                        <i class="fas fa-check-circle mr-2 text-success"></i> Set DITERIMA
+                                    </a>
+                                    <a class="dropdown-item" href="javascript:void(0)" onclick="bulkUpdateStatus('berkas_lengkap')">
+                                        <i class="fas fa-file-invoice mr-2 text-info"></i> Set BERKAS LENGKAP
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="javascript:void(0)" onclick="bulkUpdateStatus('ditolak')">
+                                        <i class="fas fa-times-circle mr-2 text-danger"></i> Set DITOLAK
+                                    </a>
+                                </div>
+                            </div>
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-info dropdown-toggle shadow-sm" type="button" data-toggle="dropdown">
                                     <i class="fas fa-print mr-1"></i> Cetak Kolektif
@@ -119,6 +136,9 @@
                                 </div>
                             </div>
                             @if ($admission)
+                                <a href="{{ route('ppdb.selection') }}" class="btn btn-sm btn-outline-success shadow-sm">
+                                    <i class="fas fa-tasks mr-1"></i> Proses Seleksi
+                                </a>
                                 <button onclick="addForm(`{{ route('ppdb.store') }}`)" class="btn btn-sm btn-primary shadow-sm">
                                     <i class="fas fa-plus-circle mr-1"></i> Tambah Pendaftar
                                 </button>
@@ -129,6 +149,7 @@
 
                 <x-table>
                     <x-slot name="thead">
+                        <th width="4%"><input type="checkbox" id="select_all"></th>
                         <th width="4%">NO</th>
                         <th>NO. PENDAFTARAN</th>
                         <th>NAMA LENGKAP</th>
@@ -207,6 +228,7 @@
                     }
                 },
                 columns: [
+                    { data: 'select_checkbox', orderable: false, searchable: false },
                     { data: 'DT_RowIndex', orderable: false, searchable: false },
                     { data: 'registration_number' },
                     { data: 'nama_lengkap' },
@@ -218,7 +240,78 @@
                     { data: 'action', orderable: false, searchable: false },
                 ]
             });
+
+            // Select All Checkbox
+            $('#select_all').on('click', function() {
+                $('.select-row').prop('checked', this.checked);
+                toggleBulkActions();
+            });
+
+            $(document).on('change', '.select-row', function() {
+                if ($('.select-row:checked').length == $('.select-row').length) {
+                    $('#select_all').prop('checked', true);
+                } else {
+                    $('#select_all').prop('checked', false);
+                }
+                toggleBulkActions();
+            });
         });
+
+        function toggleBulkActions() {
+            let count = $('.select-row:checked').length;
+            if (count > 0) {
+                $('#bulk_actions').show();
+                $('#selected_count').text(count);
+            } else {
+                $('#bulk_actions').hide();
+            }
+        }
+
+        function bulkUpdateStatus(status) {
+            let ids = [];
+            $('.select-row:checked').each(function() {
+                ids.push($(this).val());
+            });
+
+            if (ids.length === 0) return;
+
+            Swal.fire({
+                title: 'Konfirmasi Masal',
+                text: `Apakah Anda yakin ingin mengubah status ${ids.length} pendaftar yang dipilih menjadi ${status.toUpperCase()}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: 'Iya, Perbarui!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Memproses...', allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
+                    $.ajax({
+                        type: "POST",
+                        url: `{{ route('ppdb.bulk_update_status') }}`,
+                        data: { 
+                            _token: '{{ csrf_token() }}',
+                            ids: ids,
+                            status: status
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message, showConfirmButton: false, timer: 3000 })
+                                .then(() => { 
+                                    $('#select_all').prop('checked', false);
+                                    table.ajax.reload(); 
+                                    toggleBulkActions();
+                                });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan!' });
+                        }
+                    });
+                }
+            });
+        }
 
         function applyFilter() { table.ajax.reload(); }
         function resetFilter() {
@@ -273,15 +366,56 @@
                     $('#det_alamat').text(d.alamat || '-');
                     $('#det_gelombang').text(d.admission_phase ? d.admission_phase.phase_name : '-');
                     $('#det_jalur').text(d.admission_type ? d.admission_type.admission_type_name : '-');
-                    $('#det_catatan').text(d.catatan_verifikasi || '-');
                     $('#det_verifier').text(d.verifier ? d.verifier.name : '-');
                     $('#det_verified_at').text(d.verified_at ? new Date(d.verified_at).toLocaleString('id-ID') : '-');
                     
-                    // Handle Print Button
-                    if (d.status === 'diterima' || d.status === 'ditolak') {
+                    // Stepper Logic
+                    $('.step, .step-line').removeClass('active success danger');
+                    $('#step_1').addClass('active');
+                    
+                    if (['berkas_lengkap', 'diterima', 'ditolak'].includes(d.status)) {
+                        $('#line_1, #step_2').addClass('active');
+                    }
+                    if (['diterima', 'ditolak'].includes(d.status)) {
+                        $('#line_2, #step_3, #line_3').addClass('active');
+                        if (d.status === 'diterima') $('#step_4').addClass('success active');
+                        if (d.status === 'ditolak') $('#step_4').addClass('danger active');
+                    }
+                    
+                    // Handle Print & Move Button
+                    if (['diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi', 'ditolak'].includes(d.status)) {
                         $('#btn-print-letter').attr('href', `{{ url('/admission/ppdb') }}/${d.id}/print-letter`).removeClass('d-none');
                     } else {
                         $('#btn-print-letter').addClass('d-none');
+                    }
+
+                    if (d.status === 'daftar_ulang_terverifikasi') {
+                        $('#btn-move-student').removeClass('d-none').off('click').on('click', function() {
+                            moveIndividualToStudent(d.id, d.nama_lengkap);
+                        });
+                    } else {
+                        $('#btn-move-student').addClass('d-none');
+                    }
+
+                    // Handle Payment Proof Section
+                    if (['daftar_ulang', 'daftar_ulang_terverifikasi'].includes(d.status) && d.payment_proof) {
+                        $('#det_payment_section').removeClass('d-none');
+                        $('#det_payment_img').attr('src', '/storage/' + d.payment_proof);
+                        $('#det_payment_link').attr('href', '/storage/' + d.payment_proof);
+                        $('#det_payment_date').text(d.confirmed_at_formatted || d.confirmed_at || '-');
+                        
+                        if (d.status === 'daftar_ulang_terverifikasi') {
+                            $('#payment_status_verified').removeClass('d-none');
+                            $('#payment_status_pending').addClass('d-none');
+                        } else {
+                            $('#payment_status_verified').addClass('d-none');
+                            $('#payment_status_pending').removeClass('d-none');
+                            $('#btn-verify-payment').off('click').on('click', function() {
+                                verifyPayment(d.id);
+                            });
+                        }
+                    } else {
+                        $('#det_payment_section').addClass('d-none');
                     }
 
                     if (d.foto) {
@@ -337,6 +471,8 @@
                     $('#verify_reg_no').text(d.registration_number);
                     $(`${vm} [name=status]`).val(d.status);
                     $(`${vm} [name=catatan_verifikasi]`).val(d.catatan_verifikasi || '');
+                    $(`${vm} [name=average_score]`).val(d.average_score || '');
+                    $(`${vm} [name=distance_km]`).val(d.distance_km || '');
 
                     // Documents
                     let tbody = '';
@@ -438,6 +574,122 @@
                                 .then(() => { table.ajax.reload(); location.reload(); });
                         },
                         error: function(xhr) {
+                            Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan!' });
+                        }
+                    });
+                }
+            });
+        }
+
+        function moveToStudent(id, name) {
+            let classOptions = '';
+            @foreach($classGroups as $cg)
+                classOptions += `<option value="{{ $cg->id }}">{{ $cg->kelas_lengkap }}</option>`;
+            @endforeach
+
+            Swal.fire({
+                title: 'Pindahkan ke Data Siswa',
+                html: `
+                    <div class="text-left mb-3">
+                        <p>Apakah Anda yakin ingin memindahkan <b>${name}</b> ke database Induk Siswa?</p>
+                        <div class="form-group">
+                            <label>Pilih Kelas Tujuan:</label>
+                            <select id="swal_indiv_class_id" class="form-control">
+                                <option value="">-- Pilih Kelas --</option>
+                                ${classOptions}
+                            </select>
+                        </div>
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: 'Iya, Pindahkan!',
+                cancelButtonText: 'Batal',
+                preConfirm: () => {
+                    const classId = Swal.getPopup().querySelector('#swal_indiv_class_id').value;
+                    if (!classId) {
+                        Swal.showValidationMessage(`Silakan pilih kelas tujuan`);
+                    }
+                    return { classId: classId };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Memindahkan...', allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
+                    $.ajax({
+                        type: "POST",
+                        url: `{{ url('/admission/ppdb/move-to-student') }}/${id}`,
+                        data: { 
+                            _token: '{{ csrf_token() }}',
+                            class_group_id: result.value.classId
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message, showConfirmButton: false, timer: 3000 })
+                                .then(() => { table.ajax.reload(); $('#modal-detail').modal('hide'); });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan!' });
+                        }
+                    });
+                }
+            });
+        }
+        function verifyPayment(id) {
+            Swal.fire({
+                title: 'Verifikasi Pembayaran',
+                text: 'Apakah Anda yakin bukti pembayaran ini sudah valid?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                confirmButtonText: 'Ya, Verifikasi!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    $.ajax({
+                        url: `{{ url('/admission/ppdb') }}/${id}/verify-re-registration`,
+                        type: 'POST',
+                        data: { _token: '{{ csrf_token() }}' },
+                        success: function(response) {
+                            Swal.fire({ icon: 'success', title: 'Berhasil!', text: response.message })
+                                .then(() => { 
+                                    showDetail(id); // Reload detail modal
+                                    table.ajax.reload(); 
+                                });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({ icon: 'error', title: 'Gagal!', text: xhr.responseJSON?.message || 'Terjadi kesalahan server.' });
+                        }
+                    });
+                }
+            });
+        }
+        function moveIndividualToStudent(id, name) {
+            Swal.fire({
+                title: 'Konfirmasi Pindah',
+                text: `Apakah Anda yakin ingin memindahkan ${name} ke database Induk Siswa?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: 'Ya, Pindahkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    $.ajax({
+                        url: `{{ url('/admission/ppdb/move-to-student') }}/${id}`,
+                        type: 'POST',
+                        data: { _token: '{{ csrf_token() }}' },
+                        success: function(response) {
+                            Swal.close();
+                            Swal.fire({ icon: 'success', title: 'Berhasil!', text: response.message })
+                                .then(() => { $('#modal-detail').modal('hide'); table.ajax.reload(); });
+                        },
+                        error: function(xhr) {
+                            Swal.close();
                             Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan!' });
                         }
                     });

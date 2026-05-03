@@ -3,7 +3,7 @@
 @section('main-content')
     <div class="mail-title">
         <h3 style="text-decoration: underline; margin-bottom: 5px;">BERITA ACARA RAPAT PENETAPAN KELULUSAN PPDB</h3>
-        <p>Nomor: {{ '... / BA-PPDB / ' . ($source->school_code ?? 'MTs-BH') . ' / ' . date('Y') }}</p>
+        <p>Nomor: {{ $admission->ba_letter_number ?? ('... / BA-PPDB / ' . ($source->school_code ?? 'MTs-BH') . ' / ' . date('Y')) }}</p>
     </div>
 
     <div class="content" style="margin-top: 30px; line-height: 1.8;">

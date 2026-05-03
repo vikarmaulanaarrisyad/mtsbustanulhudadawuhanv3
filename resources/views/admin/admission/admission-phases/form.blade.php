@@ -42,6 +42,21 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-lg-12">
+            <div class="form-group">
+                <label for="announcement_date">Tanggal Pengumuman Gelombang <span
+                        class="text-danger">*</span></label>
+                <div class="input-group datepicker" id="announcement_date" data-target-input="nearest">
+                    <input type="text" name="announcement_date" class="form-control datetimepicker-input"
+                        data-target="#announcement_date" data-toggle="datetimepicker" autocomplete="off" />
+
+                    <div class="input-group-append" data-target="#announcement_date" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <x-slot name="footer">

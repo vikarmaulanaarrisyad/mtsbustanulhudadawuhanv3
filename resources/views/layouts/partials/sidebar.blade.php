@@ -141,8 +141,7 @@
                     </ul>
                 </li>
 
-                {{-- ================= LAYANAN PERSURATAN ================= --}}
-                {{-- ================= LAYANAN PERSURATAN ================= --}}
+                {{-- ================= ABSENSI ================= --}}
                 @if(auth()->user()->hasAnyRole(['Admin', 'Super Admin']))
                 <li class="nav-header">ABSENSI & KEPEGAWAIAN</li>
                 <li class="nav-item">
@@ -239,6 +238,7 @@
                     @endcanany
                 @endif
 
+                {{-- ================= PERSURATAN ================= --}}
                 <li class="nav-header">LAYANAN PERSURATAN</li>
 
                 <li class="nav-item {{ request()->is('duty-letters*') ? 'menu-open' : '' }}">
@@ -330,9 +330,27 @@
                     <ul class="nav nav-treeview">
                         @can('ppdb.view')
                         <li class="nav-item">
-                            <a href="{{ route('ppdb.index') }}" class="nav-link {{ request()->is('admission/ppdb*') ? 'active' : '' }}">
+                            <a href="{{ route('ppdb.admin_dashboard') }}" class="nav-link {{ request()->routeIs('ppdb.admin_dashboard') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Dashboard PPDB</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('ppdb.index') }}" class="nav-link {{ request()->is('admission/ppdb') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Data Pendaftar</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('ppdb.re_registration') }}" class="nav-link {{ request()->is('admission/ppdb/re-registration*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Verifikasi Daftar Ulang</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('ppdb.selection') }}" class="nav-link {{ request()->is('admission/ppdb/selection*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Proses Seleksi</p>
                             </a>
                         </li>
                         @endcan

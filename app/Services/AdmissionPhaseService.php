@@ -35,6 +35,7 @@ class AdmissionPhaseService
             'phase_name' => 'required',
             'phase_start_date' => 'required|date|after_or_equal:' . $studentAdmission->admission_start_date,
             'phase_end_date' => 'required|date|after:phase_start_date',
+            'announcement_date' => 'required|date|after_or_equal:phase_end_date',
         ]);
     }
 
@@ -48,17 +49,12 @@ class AdmissionPhaseService
                 throw new \Exception('Academic year not found.');
             }
 
-            $exists = AdmissionPhase::where('academic_year_id', $academicYear->id)->exists();
-
-            if ($exists) {
-                throw new \Exception('Admission phase for this academic year already exists.');
-            }
-
             return AdmissionPhase::create([
                 'academic_year_id' => $academicYear->id,
                 'phase_name'       => $data['phase_name'],
                 'phase_start_date' => $data['phase_start_date'],
                 'phase_end_date'   => $data['phase_end_date'],
+                'announcement_date' => $data['announcement_date'],
             ]);
         });
     }
@@ -73,6 +69,7 @@ class AdmissionPhaseService
                 'phase_name'       => $data['phase_name'],
                 'phase_start_date' => $data['phase_start_date'],
                 'phase_end_date'   => $data['phase_end_date'],
+                'announcement_date' => $data['announcement_date'],
             ]);
 
             return $admissionPhase;

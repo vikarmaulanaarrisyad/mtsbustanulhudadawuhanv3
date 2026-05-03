@@ -17,7 +17,7 @@ class AdmissionQuotaService
 
     public function getAll()
     {
-        return AdmissionQuotas::with(['academicYear', 'admissionTypes'])->get();
+        return AdmissionQuotas::with(['academicYear', 'admissionTypes', 'admissionPhase'])->get();
     }
 
     public function find($id)
@@ -29,6 +29,7 @@ class AdmissionQuotaService
     {
         return Validator::make($data, [
             'admission_types_id' => 'required|exists:admission_types,id',
+            'admission_phase_id' => 'required|exists:admission_phases,id',
             'quota'              => 'required|integer|min:0',
         ]);
     }
@@ -37,6 +38,7 @@ class AdmissionQuotaService
     {
         return Validator::make($data, [
             'admission_types_id' => 'required|exists:admission_types,id',
+            'admission_phase_id' => 'required|exists:admission_phases,id',
             'quota'              => 'required|integer|min:0',
         ]);
     }
@@ -59,15 +61,17 @@ class AdmissionQuotaService
             }
 
             $exists = AdmissionQuotas::where('academic_year_id', $academicYear->id)
+                ->where('admission_phase_id', $data['admission_phase_id'])
                 ->where('admission_types_id', $data['admission_types_id'])
                 ->exists();
 
             if ($exists) {
-                throw new \Exception('Admission quota already exists.');
+                throw new \Exception('Admission quota already exists for this phase and type.');
             }
 
             return AdmissionQuotas::create([
                 'academic_year_id'   => $academicYear->id,
+                'admission_phase_id' => $data['admission_phase_id'],
                 'admission_types_id' => $data['admission_types_id'],
                 'quota'              => $data['quota'],
             ]);
@@ -87,15 +91,17 @@ class AdmissionQuotaService
             }
 
             $exists = AdmissionQuotas::where('academic_year_id', $academicYear->id)
+                ->where('admission_phase_id', $data['admission_phase_id'])
                 ->where('admission_types_id', $data['admission_types_id'])
                 ->where('id', '!=', $quota->id)
                 ->exists();
 
             if ($exists) {
-                throw new \Exception('Admission quota already exists.');
+                throw new \Exception('Admission quota already exists for this phase and type.');
             }
 
             $quota->update([
+                'admission_phase_id' => $data['admission_phase_id'],
                 'admission_types_id' => $data['admission_types_id'],
                 'quota'              => $data['quota'],
             ]);

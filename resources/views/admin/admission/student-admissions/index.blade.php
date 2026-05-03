@@ -31,6 +31,8 @@
                         <th>Tahun PPDB</th>
                         <th>Tanggal Mulai Pengumuman</th>
                         <th>Tanggal Selesai Pengumuman</th>
+                        <th>No. BA</th>
+                        <th>No. SK</th>
                         <th>Aksi</th>
                     </x-slot>
                 </x-table>
@@ -93,6 +95,18 @@
                     data: 'announcement_end_date',
                     orderable: false,
                     searchable: false
+                },
+                {
+                    data: 'ba_letter_number',
+                    orderable: false,
+                    searchable: false,
+                    defaultContent: '<em class="text-muted">Otomatis</em>'
+                },
+                {
+                    data: 'sk_letter_number',
+                    orderable: false,
+                    searchable: false,
+                    defaultContent: '<em class="text-muted">Otomatis</em>'
                 },
                 {
                     data: 'action',

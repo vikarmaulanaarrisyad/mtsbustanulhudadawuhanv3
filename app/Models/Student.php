@@ -64,4 +64,33 @@ class Student extends Model
         }
         return '-';
     }
+
+    /**
+     * Generate automatic NIS
+     * Format: {NSM}{Year2Digit}{Sequence4Digit}
+     */
+    public static function generateNIS()
+    {
+        $setting = \App\Models\Setting::first();
+        $nsm = $setting->nsm ?? '000000000000'; // Default placeholder
+        
+        $year = date('y'); 
+        $prefix = $nsm . $year;
+        
+        $lastStudent = self::where('nis', 'like', $prefix . '%')
+            ->orderBy('nis', 'desc')
+            ->first();
+            
+        $nextNumber = 1;
+        if ($lastStudent) {
+            $lastNIS = $lastStudent->nis;
+            // Extract the last 4 digits
+            $lastSequence = substr($lastNIS, strlen($prefix));
+            if (is_numeric($lastSequence)) {
+                $nextNumber = (int)$lastSequence + 1;
+            }
+        }
+        
+        return $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+    }
 }

@@ -100,6 +100,7 @@
                         <th>GELOMBANG PENDAFTARAN</th>
                         <th>TANGGAL MULAI</th>
                         <th>TANGGAL SELESAI</th>
+                        <th>TANGGAL PENGUMUMAN</th>
                         <th>AKSI</th>
                     </x-slot>
                 </x-table>
@@ -151,6 +152,11 @@
                 },
                 {
                     data: 'phase_end_date',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'announcement_date',
                     orderable: false,
                     searchable: false
                 },

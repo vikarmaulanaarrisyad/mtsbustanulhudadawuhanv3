@@ -22,14 +22,15 @@
                 <x-table id="table">
                     <x-slot name="thead">
                         <th width="5%">NO</th>
-                        <th width="25%">TAHUN PELAJARAN</th>
+                        <th width="20%">TAHUN PELAJARAN</th>
+                        <th>GELOMBANG</th>
                         <th>JALUR PENDAFTARAN</th>
                         <th>KUOTA</th>
                         <th>AKSI</th>
                     </x-slot>
                     <tfoot>
                         <tr>
-                            <th colspan="3" class="text-end">Total Kuota:</th>
+                            <th colspan="4" class="text-end">Total Kuota:</th>
                             <th id="total-quota">0</th>
                             <th></th>
                         </tr>
@@ -71,6 +72,11 @@
                     searchable: false
                 },
                 {
+                    data: 'admission_phase',
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: 'admission_types',
                     orderable: false,
                     searchable: false
@@ -91,9 +97,9 @@
 
                 // Hitung total kuota dari semua data yang ditampilkan (atau semua data jika kamu mau)
                 let total = api
-                    .column(3, {
+                    .column(4, {
                         page: 'current'
-                    }) // index 3 = kolom kuota
+                    }) // index 4 = kolom kuota
                     .data()
                     .reduce(function(a, b) {
                         let x = typeof a === 'string' ? parseInt(a.replace(/[^\d]/g, '')) || 0 : a;

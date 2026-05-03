@@ -25,8 +25,8 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="nis">NIS <span class="text-danger">*</span></label>
-                        <input id="nis" class="form-control" type="text" name="nis" autocomplete="off">
+                        <label for="nis">NIS <span class="text-danger small font-italic">(Kosongkan untuk otomatis)</span></label>
+                        <input id="nis" class="form-control" type="text" name="nis" placeholder="Auto Generate" autocomplete="off">
                     </div>
                 </div>
                 <div class="col-md-4">

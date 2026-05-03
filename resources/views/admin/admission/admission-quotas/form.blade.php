@@ -8,6 +8,17 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="form-group">
+                <label for="admission_phase_id">Gelombang Pendaftaran</label>
+                <select name="admission_phase_id" id="admission_phase_id" class="form-control">
+                    <option disabled selected>Pilih salah satu</option>
+                    @foreach ($admissionPhases as $phase)
+                        <option value="{{ $phase->id }}">{{ $phase->phase_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="form-group">
                 <label for="admission_type_name">Jalur Pendaftaran</label>
                 <select name="admission_types_id" id="admission_types_id" class="form-control">
                     <option disabled selected>Pilih salah satu</option>

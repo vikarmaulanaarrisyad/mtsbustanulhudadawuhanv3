@@ -189,7 +189,7 @@
                 @endif
             </div>
 
-            <div class="status-badge">{{ $registrant->status_label }}</div>
+            <div class="status-badge">{{ $registrant->public_status_label }}</div>
 
             <div class="data-grid">
                 <div class="data-item">

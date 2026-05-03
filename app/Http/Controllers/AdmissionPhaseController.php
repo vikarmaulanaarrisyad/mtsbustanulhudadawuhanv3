@@ -47,6 +47,7 @@ class AdmissionPhaseController extends Controller
             })
             ->editColumn('phase_start_date', fn($q) => tanggal_indonesia($q->phase_start_date))
             ->editColumn('phase_end_date', fn($q) => tanggal_indonesia($q->phase_end_date))
+            ->editColumn('announcement_date', fn($q) => $q->announcement_date ? tanggal_indonesia($q->announcement_date) : '-')
             ->addColumn('action', function ($q) {
                 return '
                     <button onclick="editForm(`' . route('admission-phases.show', $q->id) . '`)"

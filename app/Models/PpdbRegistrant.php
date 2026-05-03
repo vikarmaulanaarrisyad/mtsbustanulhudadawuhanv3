@@ -8,10 +8,46 @@ class PpdbRegistrant extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_id',
+        'registration_number',
+        'student_admission_id',
+        'admission_phase_id',
+        'admission_type_id',
+        'nama_lengkap',
+        'nisn',
+        'nik',
+        'jenis_kelamin',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'asal_sekolah',
+        'nama_ayah',
+        'nama_ibu',
+        'no_hp_ortu',
+        'alamat',
+        'foto',
+        'status',
+        'average_score',
+        'distance_km',
+        'selection_score',
+        'catatan_verifikasi',
+        'verified_by',
+        'verified_at',
+        'confirmed_at',
+        'payment_proof',
+        'admin_note',
+    ];
+
     protected $casts = [
         'tanggal_lahir' => 'date',
         'verified_at' => 'datetime',
+        'average_score' => 'decimal:2',
+        'distance_km' => 'decimal:2',
+        'selection_score' => 'decimal:2',
+        'confirmed_at' => 'datetime',
     ];
+
+    protected $appends = ['status_label', 'status_color', 'jk_label', 'confirmed_at_formatted'];
 
     // ==================== CONSTANTS ====================
 
@@ -19,6 +55,10 @@ class PpdbRegistrant extends Model
     const STATUS_BERKAS_LENGKAP = 'berkas_lengkap';
     const STATUS_BERKAS_TIDAK_LENGKAP = 'berkas_tidak_lengkap';
     const STATUS_DITERIMA = 'diterima';
+    const STATUS_DAFTAR_ULANG = 'daftar_ulang';
+    const STATUS_DAFTAR_ULANG_VERIFIED = 'daftar_ulang_terverifikasi';
+    const STATUS_MOVED = 'sudah_masuk_siswa';
+    const STATUS_CADANGAN = 'cadangan';
     const STATUS_DITOLAK = 'ditolak';
 
     const DOCUMENT_TYPES = [
@@ -89,6 +129,10 @@ class PpdbRegistrant extends Model
             self::STATUS_BERKAS_LENGKAP => 'Berkas Lengkap',
             self::STATUS_BERKAS_TIDAK_LENGKAP => 'Berkas Tidak Lengkap',
             self::STATUS_DITERIMA => 'Diterima',
+            self::STATUS_DAFTAR_ULANG => 'Menunggu Verifikasi Pembayaran',
+            self::STATUS_DAFTAR_ULANG_VERIFIED => 'Daftar Ulang Terverifikasi',
+            self::STATUS_MOVED => 'Sudah Jadi Siswa',
+            self::STATUS_CADANGAN => 'Cadangan',
             self::STATUS_DITOLAK => 'Ditolak',
             default => '-',
         };
@@ -101,12 +145,77 @@ class PpdbRegistrant extends Model
             self::STATUS_BERKAS_LENGKAP => 'info',
             self::STATUS_BERKAS_TIDAK_LENGKAP => 'danger',
             self::STATUS_DITERIMA => 'success',
+            self::STATUS_DAFTAR_ULANG => 'primary',
+            self::STATUS_DAFTAR_ULANG_VERIFIED => 'success',
+            self::STATUS_MOVED => 'dark',
+            self::STATUS_CADANGAN => 'secondary',
             self::STATUS_DITOLAK => 'dark',
             default => 'secondary',
         };
     }
 
+    /**
+     * Label status untuk tampilan publik/siswa (menunggu pengumuman).
+     */
+    public function getPublicStatusLabelAttribute()
+    {
+        $admission = $this->studentAdmission;
+        $phase = $this->admissionPhase;
+        
+        $isAnnouncementActive = ($phase && $phase->announcement_date) 
+            ? $phase->isAnnouncementActive() 
+            : ($admission ? $admission->isAnnouncementActive() : false);
+
+        // Jika status final (Diterima/Ditolak) tapi pengumuman belum aktif
+        if (in_array($this->status, [self::STATUS_DITERIMA, self::STATUS_DITOLAK])) {
+            if (!$isAnnouncementActive) {
+                return 'Proses Seleksi';
+            }
+        }
+
+        return $this->status_label;
+    }
+
+    /**
+     * Color status untuk tampilan publik/siswa.
+     */
+    public function getPublicStatusColorAttribute()
+    {
+        $admission = $this->studentAdmission;
+        $phase = $this->admissionPhase;
+
+        $isAnnouncementActive = $phase ? $phase->isAnnouncementActive() : ($admission ? $admission->isAnnouncementActive() : false);
+
+        if (in_array($this->status, [self::STATUS_DITERIMA, self::STATUS_DITOLAK])) {
+            if (!$isAnnouncementActive) {
+                return 'info';
+            }
+        }
+
+        return $this->status_color;
+    }
+
     // ==================== HELPERS ====================
+
+    public function calculateSelectionScore()
+    {
+        $type = $this->admissionType;
+        if (!$type) return 0;
+
+        $typeName = strtolower($type->admission_type_name);
+
+        if (str_contains($typeName, 'prestasi')) {
+            // Ranking berdasarkan nilai rapor tertinggi
+            return $this->average_score ?? 0;
+        } elseif (str_contains($typeName, 'zonasi')) {
+            // Ranking berdasarkan jarak terdekat (jarak makin kecil, skor makin besar)
+            // Asumsi jarak max adalah 100km, skor = 1000 - (jarak * 10)
+            return 1000 - (($this->distance_km ?? 100) * 10);
+        }
+
+        // Default fallback
+        return $this->average_score ?? 0;
+    }
 
     public static function generateRegistrationNumber($admissionYear)
     {
@@ -142,5 +251,14 @@ class PpdbRegistrant extends Model
         }
 
         return str_pad($newSeq, 3, '0', STR_PAD_LEFT) . '/PPDB/' . $schoolCode . '/' . $year;
+    }
+    public function getJkLabelAttribute()
+    {
+        return $this->jenis_kelamin === 'L' ? 'L' : 'P';
+    }
+
+    public function getConfirmedAtFormattedAttribute()
+    {
+        return $this->confirmed_at ? $this->confirmed_at->format('d M Y, H:i') : '-';
     }
 }

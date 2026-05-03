@@ -17,8 +17,10 @@ class AdmissionQuotasController extends Controller
     public function index()
     {
         $admissionTypes = $this->service->getAdmissionTypes();
+        $academicYear = \App\Models\AcademicYear::where('admission_semester', 1)->first();
+        $admissionPhases = \App\Models\AdmissionPhase::where('academic_year_id', $academicYear->id ?? 0)->get();
 
-        return view('admin.admission.admission-quotas.index', compact('admissionTypes'));
+        return view('admin.admission.admission-quotas.index', compact('admissionTypes', 'admissionPhases'));
     }
 
     public function data()
@@ -28,6 +30,7 @@ class AdmissionQuotasController extends Controller
         return datatables($query)
             ->addIndexColumn()
             ->editColumn('academic_year', fn($q) => $q->academicYear->academic_year ?? '')
+            ->editColumn('admission_phase', fn($q) => $q->admissionPhase->phase_name ?? '')
             ->editColumn('admission_types', fn($q) => $q->admissionTypes->admission_type_name ?? '')
             ->addColumn('action', function ($q) {
                 return '

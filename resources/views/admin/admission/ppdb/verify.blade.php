@@ -39,6 +39,26 @@
 
                     <hr>
 
+                    {{-- Nilai & Jarak --}}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="verify_score"><strong>Rata-rata Nilai Rapor</strong></label>
+                                <input type="number" step="0.01" name="average_score" id="verify_score" class="form-control" placeholder="0.00">
+                                <small class="text-muted">Gunakan untuk Jalur Prestasi</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="verify_distance"><strong>Jarak Rumah (KM)</strong></label>
+                                <input type="number" step="0.01" name="distance_km" id="verify_distance" class="form-control" placeholder="0.00">
+                                <small class="text-muted">Gunakan untuk Jalur Zonasi</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
                     {{-- Status Verifikasi --}}
                     <div class="row">
                         <div class="col-md-5">

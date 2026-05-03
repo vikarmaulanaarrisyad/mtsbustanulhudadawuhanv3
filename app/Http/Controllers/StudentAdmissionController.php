@@ -82,6 +82,8 @@ class StudentAdmissionController extends Controller
             'admission_end_date' => 'required|date_format:Y-m-d|after:admission_start_date',
             'announcement_start_date' => 'required|date_format:Y-m-d|after:admission_end_date',
             'announcement_end_date' => 'required|date_format:Y-m-d|after:announcement_start_date',
+            'ba_letter_number' => 'nullable|string|max:100',
+            'sk_letter_number' => 'nullable|string|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -124,6 +126,8 @@ class StudentAdmissionController extends Controller
                 'admission_end_date' => $request->admission_end_date,
                 'announcement_start_date' => $request->announcement_start_date,
                 'announcement_end_date' => $request->announcement_end_date,
+                'ba_letter_number' => $request->ba_letter_number,
+                'sk_letter_number' => $request->sk_letter_number,
             ]);
 
             DB::commit();
@@ -165,6 +169,8 @@ class StudentAdmissionController extends Controller
             'admission_end_date' => 'required|date_format:Y-m-d|after:admission_start_date',
             'announcement_start_date' => 'required|date_format:Y-m-d|after:admission_end_date',
             'announcement_end_date' => 'required|date_format:Y-m-d|after:announcement_start_date',
+            'ba_letter_number' => 'nullable|string|max:100',
+            'sk_letter_number' => 'nullable|string|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -213,6 +219,8 @@ class StudentAdmissionController extends Controller
                 'admission_end_date' => $request->admission_end_date,
                 'announcement_start_date' => $request->announcement_start_date,
                 'announcement_end_date' => $request->announcement_end_date,
+                'ba_letter_number' => $request->ba_letter_number,
+                'sk_letter_number' => $request->sk_letter_number,
             ]);
 
             DB::commit();

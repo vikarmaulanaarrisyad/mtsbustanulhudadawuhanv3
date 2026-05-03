@@ -210,6 +210,12 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::group(['middleware' => ['permission:student-status.view']], function () {
+        Route::controller(StudentPlacementController::class)->group(function () {
+            Route::get('/academic/student-placements', 'index')->name('student-placements.index');
+            Route::get('/academic/student-placements/data', 'data')->name('student-placements.data');
+            Route::post('/academic/student-placements', 'store')->name('student-placements.store');
+            Route::post('/academic/student-placements/auto', 'autoPlacement')->name('student-placements.auto');
+        });
         Route::controller(StudentStatusController::class)->group(function () {
             Route::get('/academic/student-status/data', 'data')->name('student-status.data');
             Route::get('/academic/student-status', 'index')->name('student-status.index');
@@ -405,14 +411,24 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::controller(PpdbRegistrantController::class)->group(function () {
+        Route::get('/admission/ppdb/dashboard', 'dashboard')->name('ppdb.admin_dashboard');
         Route::get('/admission/ppdb/data', 'data')->name('ppdb.data');
         Route::get('/admission/ppdb', 'index')->name('ppdb.index');
+        Route::get('/admission/ppdb/selection', 'selection')->name('ppdb.selection');
+        Route::get('/admission/ppdb/re-registration', 'reRegistration')->name('ppdb.re_registration');
+        Route::get('/admission/ppdb/re-registration-data', 'reRegistrationData')->name('ppdb.re_registration_data');
+        Route::get('/admission/ppdb/selection-data', 'selectionData')->name('ppdb.selection_data');
+        Route::post('/admission/ppdb/process-selection', 'processSelection')->name('ppdb.process_selection');
+        Route::post('/admission/ppdb/bulk-update-status', 'bulkUpdateStatus')->name('ppdb.bulk_update_status');
+        Route::post('/admission/ppdb/move-to-student/{id}', 'moveToStudent')->name('ppdb.move_to_student');
+        Route::post('/admission/ppdb/bulk-move-to-student', 'bulkMoveToStudent')->name('ppdb.bulk_move_to_student');
         Route::get('/admission/ppdb/print-berita-acara', 'printBeritaAcara')->name('ppdb.print_berita_acara');
         Route::get('/admission/ppdb/print-collective-sk', 'printCollectiveSK')->name('ppdb.print_collective_sk');
         Route::get('/admission/ppdb/{id}', 'show')->name('ppdb.show');
         Route::put('/admission/ppdb/{id}', 'update')->name('ppdb.update');
         Route::post('/admission/ppdb', 'store')->name('ppdb.store');
         Route::post('/admission/ppdb/{id}/verify', 'verify')->name('ppdb.verify');
+        Route::post('/admission/ppdb/{id}/verify-re-registration', 'verifyReRegistration')->name('ppdb.verify_re_registration');
         Route::get('/admission/ppdb/document/{id}/download', 'downloadBerkas')->name('ppdb.download_berkas');
         Route::get('/admission/ppdb/{id}/print-letter', 'printLetter')->name('ppdb.print_letter');
         Route::delete('/admission/ppdb/{id}/destroy', 'destroy')->name('ppdb.destroy');
@@ -439,6 +455,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/print-verification', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printVerification'])->name('ppdb.print_verification');
         Route::post('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeBiodata'])->name('ppdb.store_biodata');
         Route::put('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'updateBiodata'])->name('ppdb.update_biodata');
+        Route::post('/confirm-re-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'confirmReRegistration'])->name('ppdb.confirm_re_registration');
     });
 
     // Root redirect based on role
