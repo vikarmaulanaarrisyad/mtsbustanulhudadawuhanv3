@@ -78,10 +78,10 @@ class StudentAdmissionController extends Controller
         $validator = Validator::make($request->all(), [
             'admission_status' => 'required|in:open,close',
             'admission_year' => 'required|integer|min:2000|max:2100',
-            'admission_start_date' => 'required|date_format:Y-m-d',
-            'admission_end_date' => 'required|date_format:Y-m-d|after:admission_start_date',
-            'announcement_start_date' => 'required|date_format:Y-m-d|after:admission_end_date',
-            'announcement_end_date' => 'required|date_format:Y-m-d|after:announcement_start_date',
+            'admission_start_date' => 'required|date_format:d-m-Y',
+            'admission_end_date' => 'required|date_format:d-m-Y|after_or_equal:admission_start_date',
+            'announcement_start_date' => 'required|date_format:d-m-Y|after_or_equal:admission_end_date',
+            'announcement_end_date' => 'required|date_format:d-m-Y|after_or_equal:announcement_start_date',
             'ba_letter_number' => 'nullable|string|max:100',
             'sk_letter_number' => 'nullable|string|max:100',
         ]);
@@ -96,6 +96,13 @@ class StudentAdmissionController extends Controller
 
         try {
             DB::beginTransaction();
+
+            // Konversi tanggal dari d-m-Y ke Y-m-d untuk database
+            $data = $request->all();
+            $data['admission_start_date'] = Carbon::createFromFormat('d-m-Y', $request->admission_start_date)->format('Y-m-d');
+            $data['admission_end_date'] = Carbon::createFromFormat('d-m-Y', $request->admission_end_date)->format('Y-m-d');
+            $data['announcement_start_date'] = Carbon::createFromFormat('d-m-Y', $request->announcement_start_date)->format('Y-m-d');
+            $data['announcement_end_date'] = Carbon::createFromFormat('d-m-Y', $request->announcement_end_date)->format('Y-m-d');
 
             $academicYear = AcademicYear::where('current_semester', 1)
                 ->where('admission_semester', 1)
@@ -120,14 +127,14 @@ class StudentAdmissionController extends Controller
             // Simpan data baru
             $query = StudentAdmission::create([
                 'academic_year_id' => $academicYear->id,
-                'admission_status' => $request->admission_status,
-                'admission_year' => $request->admission_year,
-                'admission_start_date' => $request->admission_start_date,
-                'admission_end_date' => $request->admission_end_date,
-                'announcement_start_date' => $request->announcement_start_date,
-                'announcement_end_date' => $request->announcement_end_date,
-                'ba_letter_number' => $request->ba_letter_number,
-                'sk_letter_number' => $request->sk_letter_number,
+                'admission_status' => $data['admission_status'],
+                'admission_year' => $data['admission_year'],
+                'admission_start_date' => $data['admission_start_date'],
+                'admission_end_date' => $data['admission_end_date'],
+                'announcement_start_date' => $data['announcement_start_date'],
+                'announcement_end_date' => $data['announcement_end_date'],
+                'ba_letter_number' => $data['ba_letter_number'],
+                'sk_letter_number' => $data['sk_letter_number'],
             ]);
 
             DB::commit();
@@ -165,10 +172,10 @@ class StudentAdmissionController extends Controller
         $validator = Validator::make($request->all(), [
             'admission_status' => 'required|in:open,close',
             'admission_year' => 'required|integer|min:2000|max:2100',
-            'admission_start_date' => 'required|date_format:Y-m-d',
-            'admission_end_date' => 'required|date_format:Y-m-d|after:admission_start_date',
-            'announcement_start_date' => 'required|date_format:Y-m-d|after:admission_end_date',
-            'announcement_end_date' => 'required|date_format:Y-m-d|after:announcement_start_date',
+            'admission_start_date' => 'required|date_format:d-m-Y',
+            'admission_end_date' => 'required|date_format:d-m-Y|after_or_equal:admission_start_date',
+            'announcement_start_date' => 'required|date_format:d-m-Y|after_or_equal:admission_end_date',
+            'announcement_end_date' => 'required|date_format:d-m-Y|after_or_equal:announcement_start_date',
             'ba_letter_number' => 'nullable|string|max:100',
             'sk_letter_number' => 'nullable|string|max:100',
         ]);
@@ -183,6 +190,13 @@ class StudentAdmissionController extends Controller
 
         try {
             DB::beginTransaction();
+
+            // Konversi tanggal dari d-m-Y ke Y-m-d untuk database
+            $data = $request->all();
+            $data['admission_start_date'] = Carbon::createFromFormat('d-m-Y', $request->admission_start_date)->format('Y-m-d');
+            $data['admission_end_date'] = Carbon::createFromFormat('d-m-Y', $request->admission_end_date)->format('Y-m-d');
+            $data['announcement_start_date'] = Carbon::createFromFormat('d-m-Y', $request->announcement_start_date)->format('Y-m-d');
+            $data['announcement_end_date'] = Carbon::createFromFormat('d-m-Y', $request->announcement_end_date)->format('Y-m-d');
 
             $studentAdmission = StudentAdmission::findOrFail($id);
 
@@ -213,14 +227,14 @@ class StudentAdmissionController extends Controller
             // Update data
             $studentAdmission->update([
                 'academic_year_id' => $academicYear->id,
-                'admission_status' => $request->admission_status,
-                'admission_year' => $request->admission_year,
-                'admission_start_date' => $request->admission_start_date,
-                'admission_end_date' => $request->admission_end_date,
-                'announcement_start_date' => $request->announcement_start_date,
-                'announcement_end_date' => $request->announcement_end_date,
-                'ba_letter_number' => $request->ba_letter_number,
-                'sk_letter_number' => $request->sk_letter_number,
+                'admission_status' => $data['admission_status'],
+                'admission_year' => $data['admission_year'],
+                'admission_start_date' => $data['admission_start_date'],
+                'admission_end_date' => $data['admission_end_date'],
+                'announcement_start_date' => $data['announcement_start_date'],
+                'announcement_end_date' => $data['announcement_end_date'],
+                'ba_letter_number' => $data['ba_letter_number'],
+                'sk_letter_number' => $data['sk_letter_number'],
             ]);
 
             DB::commit();
