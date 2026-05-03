@@ -267,26 +267,62 @@ class PpdbDashboardController extends Controller
                 $registrant->save();
             }
 
-            // Upload berkas
-            $docTypes = PpdbRegistrant::DOCUMENT_TYPES;
-            foreach ($docTypes as $type => $name) {
-                if ($request->hasFile("doc_{$type}")) {
-                    $path = $request->file("doc_{$type}")->store('ppdb/documents/' . $registrant->id, 'public');
-                    PpdbDocument::create([
-                        'ppdb_registrant_id' => $registrant->id,
-                        'document_name' => $name,
-                        'document_type' => $type,
-                        'file_path' => $path,
-                    ]);
-                }
-            }
-
             DB::commit();
 
-            return redirect()->route('ppdb.dashboard')->with('success', 'Pendaftaran berhasil! No. Pendaftaran Anda: ' . $registrant->registration_number);
+            return redirect()->route('ppdb.dashboard')->with('success', 'Data identitas berhasil disimpan! Silakan lengkapi berkas persyaratan di bawah.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Upload Berkas Satu-per-satu via AJAX
+     */
+    public function uploadDocument(Request $request)
+    {
+        $user = Auth::user();
+        $registrant = $user->ppdbRegistrant;
+
+        if (!$registrant) {
+            return response()->json(['message' => 'Silakan lengkapi data identitas terlebih dahulu.'], 403);
+        }
+
+        $request->validate([
+            'file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'type' => 'required|string'
+        ]);
+
+        try {
+            $type = $request->type;
+            $name = PpdbRegistrant::DOCUMENT_TYPES[$type] ?? $type;
+            
+            // Hapus file lama jika ada
+            $oldDoc = PpdbDocument::where('ppdb_registrant_id', $registrant->id)
+                ->where('document_type', $type)
+                ->first();
+                
+            if ($oldDoc) {
+                Storage::disk('public')->delete($oldDoc->file_path);
+                $oldDoc->delete();
+            }
+
+            // Simpan file baru
+            $path = $request->file('file')->store('ppdb/documents/' . $registrant->id, 'public');
+            
+            PpdbDocument::create([
+                'ppdb_registrant_id' => $registrant->id,
+                'document_name' => $name,
+                'document_type' => $type,
+                'file_path' => $path,
+            ]);
+
+            return response()->json([
+                'message' => $name . ' berhasil diunggah.',
+                'status' => 'success'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal mengunggah: ' . $e->getMessage()], 500);
         }
     }
 
@@ -346,25 +382,6 @@ class PpdbDashboardController extends Controller
                 if ($registrant->foto) Storage::disk('public')->delete($registrant->foto);
                 $registrant->foto = $request->file('foto')->store('ppdb/foto', 'public');
                 $registrant->save();
-            }
-
-            // Upload berkas baru (replace jika ada)
-            $docTypes = PpdbRegistrant::DOCUMENT_TYPES;
-            foreach ($docTypes as $type => $name) {
-                if ($request->hasFile("doc_{$type}")) {
-                    $oldDoc = $registrant->documents()->where('document_type', $type)->first();
-                    if ($oldDoc) {
-                        Storage::disk('public')->delete($oldDoc->file_path);
-                        $oldDoc->delete();
-                    }
-                    $path = $request->file("doc_{$type}")->store('ppdb/documents/' . $registrant->id, 'public');
-                    PpdbDocument::create([
-                        'ppdb_registrant_id' => $registrant->id,
-                        'document_name' => $name,
-                        'document_type' => $type,
-                        'file_path' => $path,
-                    ]);
-                }
             }
 
             DB::commit();

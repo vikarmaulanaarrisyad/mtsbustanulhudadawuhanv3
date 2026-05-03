@@ -22,6 +22,24 @@
                 <input type="hidden" name="student_admission_id" value="{{ $admission->id }}">
             @endif
 
+            {{-- STEPPER PENDAFTARAN --}}
+            <div class="registration-stepper mb-5">
+                <div class="step active">
+                    <div class="step-num">1</div>
+                    <div class="step-text">Identitas Diri</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">Unggah Berkas</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step">
+                    <div class="step-num"><i class="fas fa-check"></i></div>
+                    <div class="step-text">Selesai</div>
+                </div>
+            </div>
+
             {{-- DATA DIRI --}}
             <h6 class="form-section-title"><i class="fas fa-user-circle mr-2"></i> Data Identitas Diri</h6>
 
@@ -166,38 +184,13 @@
             </div>
 
             {{-- UPLOAD BERKAS --}}
-            <h6 class="form-section-title"><i class="fas fa-cloud-upload-alt mr-2"></i> Unggah Berkas Persyaratan</h6>
-
-            <div class="alert alert-warning border-0 shadow-sm" style="background-color: #fffaf0; border-left: 4px solid #ed8936 !important;">
+            <div class="alert alert-info border-0 shadow-sm mt-4">
                 <div class="d-flex align-items-center">
-                    <i class="fas fa-info-circle text-warning fa-lg mr-3"></i>
-                    <div class="text-dark small">
-                        Format: <strong>JPG, PNG, PDF</strong> (maks 2MB per file). Berkas dapat menyusul, namun wajib dilengkapi sebelum proses seleksi dimulai.
+                    <i class="fas fa-info-circle fa-lg mr-3"></i>
+                    <div class="small">
+                        <strong>Langkah Berikutnya:</strong> Setelah menyimpan data identitas ini, Anda akan diminta untuk mengunggah berkas persyaratan (Akta, KK, dll) secara satu-per-satu di halaman berikutnya.
                     </div>
                 </div>
-            </div>
-
-            @php
-                $existingDocs = isset($registrant) ? $registrant->documents->pluck('document_type')->toArray() : [];
-            @endphp
-
-            <div class="row mt-4">
-                @foreach(\App\Models\PpdbRegistrant::DOCUMENT_TYPES as $type => $name)
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 rounded border bg-light d-flex flex-column h-100">
-                            <label class="font-weight-bold mb-2 d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-file-pdf text-danger mr-2"></i> {{ $name }}</span>
-                                @if(in_array($type, $existingDocs))
-                                    <span class="badge badge-success"><i class="fas fa-check-circle"></i> Terunggah</span>
-                                @else
-                                    <span class="badge badge-secondary">Belum ada</span>
-                                @endif
-                            </label>
-                            <input type="file" class="form-control-file" name="doc_{{ $type }}" accept=".jpg,.jpeg,.png,.pdf">
-                            @if($type === 'kip') <small class="text-muted mt-1">* Hanya bagi yang memiliki</small> @endif
-                        </div>
-                    </div>
-                @endforeach
             </div>
 
             <div class="mt-5 p-4 rounded bg-light border-top">
@@ -207,8 +200,8 @@
                     </div>
                     <div class="col-md-4 text-right">
                         <button type="submit" class="btn btn-ppdb btn-lg btn-block" id="btnSubmitBiodata">
-                            <i class="fas fa-paper-plane mr-2"></i>
-                            {{ isset($registrant) ? 'Simpan Perubahan' : 'Kirim Pendaftaran' }}
+                            <i class="fas fa-arrow-right mr-2"></i>
+                            {{ isset($registrant) ? 'Simpan Perubahan' : 'Simpan & Lanjut Unggah Berkas' }}
                         </button>
                     </div>
                 </div>
@@ -216,6 +209,56 @@
         </form>
     </div>
 </div>
+
+<style>
+    .registration-stepper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 0;
+    }
+    .registration-stepper .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 2;
+    }
+    .registration-stepper .step-num {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-bottom: 8px;
+        transition: all 0.3s;
+        border: 4px solid #fff;
+        box-shadow: 0 0 0 1px #e2e8f0;
+    }
+    .registration-stepper .step-text {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #94a3b8;
+    }
+    .registration-stepper .step-line {
+        flex: 0.5;
+        height: 2px;
+        background: #e2e8f0;
+        margin-top: -20px;
+        max-width: 80px;
+    }
+    .registration-stepper .step.active .step-num {
+        background: #10b981;
+        color: white;
+        box-shadow: 0 0 0 1px #10b981;
+    }
+    .registration-stepper .step.active .step-text {
+        color: #10b981;
+    }
+</style>
 
 @push('scripts')
 <script>
@@ -229,16 +272,27 @@
             const savedData = localStorage.getItem(storageKey);
             if (savedData) {
                 const data = JSON.parse(savedData);
+                let count = 0;
                 Object.keys(data).forEach(key => {
                     const input = form.find(`[name="${key}"]`);
                     if (input.length) {
-                        // Jangan timpa jika input tipe file
-                        if (input.attr('type') !== 'file') {
+                        if (input.attr('type') !== 'file' && data[key]) {
                             input.val(data[key]);
+                            count++;
                         }
                     }
                 });
-                console.log('Draft pendaftaran dipulihkan...');
+                
+                if (count > 0) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: 'Draf pendaftaran otomatis dipulihkan',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
             }
         }
 

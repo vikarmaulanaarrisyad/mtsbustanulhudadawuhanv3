@@ -462,6 +462,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/print-verification', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printVerification'])->name('ppdb.print_verification');
         Route::post('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeBiodata'])->name('ppdb.store_biodata');
         Route::put('/biodata', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'updateBiodata'])->name('ppdb.update_biodata');
+        Route::post('/upload-document', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'uploadDocument'])->name('ppdb.upload_document');
         Route::post('/confirm-re-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'confirmReRegistration'])->name('ppdb.confirm_re_registration');
         Route::post('/store-attendance', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeAttendance'])->name('ppdb.store_attendance');
     });
