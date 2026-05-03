@@ -219,8 +219,57 @@
 
 @push('scripts')
 <script>
-    $('#formBiodata').on('submit', function() {
-        $('#btnSubmitBiodata').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...');
+    $(document).ready(function() {
+        const userId = "{{ auth()->id() }}";
+        const storageKey = 'ppdb_draft_' + userId;
+        const form = $('#formBiodata');
+
+        // 1. Fungsi untuk Memuat Data dari LocalStorage
+        function loadDraft() {
+            const savedData = localStorage.getItem(storageKey);
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                Object.keys(data).forEach(key => {
+                    const input = form.find(`[name="${key}"]`);
+                    if (input.length) {
+                        // Jangan timpa jika input tipe file
+                        if (input.attr('type') !== 'file') {
+                            input.val(data[key]);
+                        }
+                    }
+                });
+                console.log('Draft pendaftaran dipulihkan...');
+            }
+        }
+
+        // 2. Fungsi untuk Menyimpan Data ke LocalStorage
+        function saveDraft() {
+            const formData = {};
+            form.serializeArray().forEach(item => {
+                // Jangan simpan token CSRF
+                if (item.name !== '_token' && item.name !== '_method') {
+                    formData[item.name] = item.value;
+                }
+            });
+            localStorage.setItem(storageKey, JSON.stringify(formData));
+        }
+
+        // Jalankan pemulihan data saat halaman siap
+        // Hanya jalankan jika ini adalah pendaftaran baru (registrant tidak ada)
+        @if(!isset($registrant))
+            loadDraft();
+            
+            // Simpan draft setiap kali ada perubahan input
+            form.on('input change', 'input, select, textarea', function() {
+                saveDraft();
+            });
+        @endif
+
+        // Hapus draft saat form disubmit
+        form.on('submit', function() {
+            $('#btnSubmitBiodata').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...');
+            localStorage.removeItem(storageKey);
+        });
     });
 </script>
 @endpush
