@@ -148,8 +148,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['permission:setting.view']], function () {
         Route::controller(SettingController::class)->group(function () {
             Route::get('/setting', 'index')->name('setting.index');
-            Route::put('/setting/{setting}', 'update')->name('setting.update');
             Route::post('/setting/test-midtrans', 'testMidtrans')->name('setting.test_midtrans');
+            Route::put('/setting/{setting}', 'update')->name('setting.update');
         });
     });
 

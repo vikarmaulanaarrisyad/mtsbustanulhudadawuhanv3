@@ -750,9 +750,14 @@ class PpdbRegistrantController extends Controller
         try {
             DB::beginTransaction();
 
+            $student = \App\Models\Student::where('nisn', $registrant->nisn)->first();
+            $isNew = !$student;
+            $nis = $student ? $student->nis : \App\Models\Student::generateNIS();
+
             $student = \App\Models\Student::updateOrCreate(
                 ['nisn' => $registrant->nisn],
                 [
+                    'nis' => $nis,
                     'nik' => $registrant->nik,
                     'nama_lengkap' => $registrant->nama_lengkap,
                     'jenis_kelamin' => $registrant->jenis_kelamin,
@@ -767,11 +772,6 @@ class PpdbRegistrantController extends Controller
                     'is_active' => true,
                 ]
             );
-
-            // Jika siswa baru dibuat, generate NIS
-            if ($student->wasRecentlyCreated) {
-                $student->update(['nis' => \App\Models\Student::generateNIS()]);
-            }
 
             \App\Models\StudentParent::updateOrCreate(
                 ['student_id' => $student->id],
@@ -837,9 +837,14 @@ class PpdbRegistrantController extends Controller
             try {
                 DB::beginTransaction();
 
+                $student = \App\Models\Student::where('nisn', $registrant->nisn)->first();
+                $isNew = !$student;
+                $nis = $student ? $student->nis : \App\Models\Student::generateNIS();
+
                 $student = \App\Models\Student::updateOrCreate(
                     ['nisn' => $registrant->nisn],
                     [
+                        'nis' => $nis,
                         'nik' => $registrant->nik,
                         'nama_lengkap' => $registrant->nama_lengkap,
                         'jenis_kelamin' => $registrant->jenis_kelamin,
@@ -854,10 +859,6 @@ class PpdbRegistrantController extends Controller
                         'is_active' => true,
                     ]
                 );
-
-                if ($student->wasRecentlyCreated) {
-                    $student->update(['nis' => \App\Models\Student::generateNIS()]);
-                }
 
                 \App\Models\StudentParent::updateOrCreate(
                     ['student_id' => $student->id],
