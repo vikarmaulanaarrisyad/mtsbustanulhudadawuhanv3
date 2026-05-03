@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class PpdbRegistrant extends Model
 {
     use HasFactory;
+    use \App\Traits\AutoNumberTrait {
+        generateLetterNumber as traitGenerateLetterNumber;
+    }
 
     protected $fillable = [
         'user_id',
@@ -238,24 +241,9 @@ class PpdbRegistrant extends Model
         return 'PPDB-' . $admissionYear . '-' . str_pad($newSeq, 5, '0', STR_PAD_LEFT);
     }
 
-    public static function generateLetterNumber()
+    public static function generateLetterNumber($type = 'SK-PPDB', $column = 'letter_number')
     {
-        $mailSetting = \App\Models\MailSetting::first();
-        $schoolCode = $mailSetting->school_code ?? 'MTs-BH';
-        $year = date('Y');
-
-        $lastLetter = self::where('letter_number', 'like', "%/PPDB/{$schoolCode}/{$year}")
-            ->orderBy('letter_number', 'desc')
-            ->value('letter_number');
-
-        if ($lastLetter) {
-            $lastSeq = (int) explode('/', $lastLetter)[0];
-            $newSeq = $lastSeq + 1;
-        } else {
-            $newSeq = 1;
-        }
-
-        return str_pad($newSeq, 3, '0', STR_PAD_LEFT) . '/PPDB/' . $schoolCode . '/' . $year;
+        return self::traitGenerateLetterNumber($type, $column);
     }
     public function getJkLabelAttribute()
     {

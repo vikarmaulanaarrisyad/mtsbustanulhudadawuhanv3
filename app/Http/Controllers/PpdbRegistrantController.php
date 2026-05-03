@@ -39,9 +39,9 @@ class PpdbRegistrantController extends Controller
 
         $stats = [
             'total' => (clone $baseQuery)->count(),
-            'pending' => (clone $baseQuery)->byStatus('pending')->count(),
+            'pending' => (clone $baseQuery)->whereIn('status', ['pending', 'daftar_ulang'])->count(),
             'berkas_lengkap' => (clone $baseQuery)->byStatus('berkas_lengkap')->count(),
-            'diterima' => (clone $baseQuery)->byStatus('diterima')->count(),
+            'diterima' => (clone $baseQuery)->whereIn('status', ['diterima', 'daftar_ulang_terverifikasi', 'sudah_masuk_siswa'])->count(),
             'ditolak' => (clone $baseQuery)->byStatus('ditolak')->count(),
         ];
 
@@ -345,8 +345,8 @@ class PpdbRegistrantController extends Controller
                 'verified_at' => now(),
             ];
 
-            // Generate nomor surat jika diterima dan belum ada nomornya
-            if ($request->status === 'diterima' && !$registrant->letter_number) {
+            // Generate nomor surat jika status final (diterima/ditolak) dan belum ada nomornya
+            if (in_array($request->status, ['diterima', 'ditolak']) && !$registrant->letter_number) {
                 $updateData['letter_number'] = PpdbRegistrant::generateLetterNumber();
             }
 
@@ -466,8 +466,8 @@ class PpdbRegistrantController extends Controller
         $admission = StudentAdmission::find($registrant->student_admission_id);
         $phase = $registrant->admissionPhase;
 
-        // Auto-generate nomor surat jika diterima tapi belum ada nomornya
-        if (in_array($registrant->status, ['diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi', 'sudah_masuk_siswa']) && !$registrant->letter_number) {
+        // Auto-generate nomor surat jika final dan belum ada nomornya
+        if (in_array($registrant->status, ['diterima', 'ditolak', 'daftar_ulang', 'daftar_ulang_terverifikasi', 'sudah_masuk_siswa']) && !$registrant->letter_number) {
             $registrant->update([
                 'letter_number' => PpdbRegistrant::generateLetterNumber()
             ]);
@@ -504,7 +504,7 @@ class PpdbRegistrantController extends Controller
         $query = PpdbRegistrant::where('student_admission_id', $admission->id);
         
         $total_applicants = (clone $query)->count();
-        $total_accepted = (clone $query)->where('status', 'diterima')->count();
+        $total_accepted = (clone $query)->whereIn('status', ['diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi', 'sudah_masuk_siswa'])->count();
         $total_rejected = (clone $query)->where('status', 'ditolak')->count();
         $total_pending = $total_applicants - $total_accepted - $total_rejected;
 
@@ -528,7 +528,7 @@ class PpdbRegistrantController extends Controller
         $admission = StudentAdmission::where('academic_year_id', $academicYear->id)->first();
 
         $registrants = PpdbRegistrant::where('student_admission_id', $admission->id)
-            ->where('status', 'diterima')
+            ->whereIn('status', ['diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi', 'sudah_masuk_siswa'])
             ->orderBy('registration_number', 'asc')
             ->get();
 
@@ -550,9 +550,9 @@ class PpdbRegistrantController extends Controller
         // Summary Stats
         $stats = [
             'total' => PpdbRegistrant::count(),
-            'pending' => PpdbRegistrant::where('status', 'pending')->count(),
+            'pending' => PpdbRegistrant::whereIn('status', ['pending', 'daftar_ulang'])->count(),
             'verified' => PpdbRegistrant::where('status', 'berkas_lengkap')->count(),
-            'accepted' => PpdbRegistrant::where('status', 'diterima')->count(),
+            'accepted' => PpdbRegistrant::whereIn('status', ['diterima', 'daftar_ulang_terverifikasi', 'sudah_masuk_siswa'])->count(),
             'rejected' => PpdbRegistrant::where('status', 'ditolak')->count(),
             'moved' => \App\Models\Student::whereNotNull('registration_number')->count(),
         ];
@@ -569,9 +569,9 @@ class PpdbRegistrantController extends Controller
         // Chart Data: Status Distribution
         $statusLabels = ['Pending', 'Lengkap', 'Diterima', 'Ditolak', 'Cadangan'];
         $statusData = [
-            PpdbRegistrant::where('status', 'pending')->count(),
+            PpdbRegistrant::whereIn('status', ['pending', 'daftar_ulang'])->count(),
             PpdbRegistrant::where('status', 'berkas_lengkap')->count(),
-            PpdbRegistrant::where('status', 'diterima')->count(),
+            PpdbRegistrant::whereIn('status', ['diterima', 'daftar_ulang_terverifikasi', 'sudah_masuk_siswa'])->count(),
             PpdbRegistrant::where('status', 'ditolak')->count(),
             PpdbRegistrant::where('status', 'cadangan')->count(),
         ];

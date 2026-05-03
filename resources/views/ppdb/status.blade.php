@@ -413,22 +413,74 @@
             </div>
         </div>
     @elseif($registrant->status === 'daftar_ulang')
-        <div class="alert alert-info border-0 shadow-sm mb-4 p-4 rounded-xl" style="background: #fff; border-left: 5px solid #007bff !important;">
-            <div class="d-flex align-items-center">
-                <div class="bg-primary-light p-3 rounded-circle mr-3">
-                    <i class="fas fa-clock fa-2x text-primary"></i>
+        @if($registrant->payment_method === 'midtrans' && in_array($registrant->payment_status, ['unpaid', 'pending']))
+            <div class="alert alert-warning border-0 shadow-sm p-4 rounded-xl mb-4" style="background: #fff; border-left: 5px solid #ffc107 !important;">
+                <h6 class="font-weight-bold text-warning mb-2"><i class="fas fa-exclamation-circle mr-2"></i> Menunggu Pembayaran Midtrans</h6>
+                <p class="mb-3 text-muted">Silakan klik tombol di bawah ini untuk menyelesaikan atau melihat instruksi pembayaran Anda melalui gateway aman Midtrans.</p>
+                <div class="d-flex flex-wrap" style="gap:10px;">
+                    <button id="pay-button" class="btn btn-warning shadow-sm font-weight-bold px-4">
+                        <i class="fas fa-credit-card mr-2"></i> Lanjutkan Pembayaran
+                    </button>
+                    <a href="{{ route('ppdb.print_payment') }}" class="btn btn-outline-warning shadow-sm px-3">
+                        <i class="fas fa-file-invoice mr-1"></i> Unduh Invoice
+                    </a>
                 </div>
-                <div>
-                    <h6 class="font-weight-bold text-primary mb-1">Daftar Ulang Sedang Diverifikasi</h6>
-                    <p class="mb-0 text-muted">Bukti pembayaran Anda telah kami terima dan sedang dalam proses verifikasi oleh panitia. Mohon tunggu informasi selanjutnya.</p>
-                    <div class="mt-2">
-                        <a href="{{ route('ppdb.print_payment') }}" class="btn btn-primary btn-sm shadow-sm px-3">
-                            <i class="fas fa-file-invoice mr-1"></i> Unduh Bukti Pembayaran Sementara
-                        </a>
+            </div>
+            
+            @php
+                $setting = \App\Models\Setting::first();
+                $clientKey = $setting->midtrans_client_key ?? '';
+                $isProduction = $setting->midtrans_is_production ?? false;
+                $snapUrl = $isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js';
+            @endphp
+            <script src="{{ $snapUrl }}" data-client-key="{{ $clientKey }}"></script>
+            <script type="text/javascript">
+                document.getElementById('pay-button').onclick = function(){
+                    snap.pay('{{ $registrant->midtrans_snap_token }}', {
+                        onSuccess: function(result){
+                            Swal.fire({ title: 'Memverifikasi...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                            fetch('{{ route('ppdb.verify_midtrans') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                }
+                            }).then(res => res.json()).then(data => {
+                                Swal.fire('Berhasil!', 'Pembayaran Anda telah berhasil diproses.', 'success').then(() => { window.location.reload(); });
+                            }).catch(() => {
+                                Swal.fire('Info', 'Pembayaran diterima, memproses sinkronisasi data...', 'info').then(() => { window.location.reload(); });
+                            });
+                        },
+                        onPending: function(result){
+                            Swal.fire('Menunggu', 'Menunggu pembayaran Anda.', 'info').then(() => { window.location.reload(); });
+                        },
+                        onError: function(result){
+                            Swal.fire('Gagal!', 'Pembayaran gagal.', 'error');
+                        },
+                        onClose: function(){
+                            Swal.fire('Perhatian', 'Anda menutup popup tanpa menyelesaikan pembayaran', 'warning');
+                        }
+                    });
+                };
+            </script>
+        @else
+            <div class="alert alert-info border-0 shadow-sm mb-4 p-4 rounded-xl" style="background: #fff; border-left: 5px solid #007bff !important;">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary-light p-3 rounded-circle mr-3">
+                        <i class="fas fa-clock fa-2x text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="font-weight-bold text-primary mb-1">Daftar Ulang Sedang Diverifikasi</h6>
+                        <p class="mb-0 text-muted">Instruksi pembayaran Anda telah kami terima dan sedang dalam proses verifikasi oleh panitia. Mohon tunggu informasi selanjutnya.</p>
+                        <div class="mt-2">
+                            <a href="{{ route('ppdb.print_payment') }}" class="btn btn-primary btn-sm shadow-sm px-3">
+                                <i class="fas fa-file-invoice mr-1"></i> Unduh Bukti Pembayaran Sementara
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
     @elseif($registrant->status === 'daftar_ulang_terverifikasi')
         <div class="alert alert-success border-0 shadow-sm mb-4 p-4 rounded-xl" style="background: #fff; border-left: 5px solid #28a745 !important;">
             <div class="d-flex align-items-center">

@@ -488,8 +488,8 @@ class PpdbDashboardController extends Controller
                     return redirect()->back()->with('error', 'Gateway pembayaran Midtrans belum dikonfigurasi oleh admin.');
                 }
 
-                \Midtrans\Config::$serverKey = $setting->midtrans_server_key;
-                \Midtrans\Config::$isProduction = $setting->midtrans_is_production;
+                \Midtrans\Config::$serverKey = trim($setting->midtrans_server_key);
+                \Midtrans\Config::$isProduction = (bool) $setting->midtrans_is_production;
                 \Midtrans\Config::$isSanitized = true;
                 \Midtrans\Config::$is3ds = true;
 
@@ -515,7 +515,8 @@ class PpdbDashboardController extends Controller
                     'midtrans_order_id' => $orderId,
                     'midtrans_snap_token' => $snapToken,
                     'payment_status' => 'unpaid',
-                    // status doesn't change to daftar_ulang until paid or pending through midtrans
+                    'status' => 'daftar_ulang',
+                    'confirmed_at' => now(),
                 ]);
 
                 return redirect()->route('ppdb.dashboard')->with('success', 'Silakan selesaikan pembayaran melalui popup Midtrans.');
@@ -555,9 +556,9 @@ class PpdbDashboardController extends Controller
         $user = Auth::user();
         $registrant = $user->ppdbRegistrant()->with(['admissionPhase', 'admissionType'])->firstOrFail();
 
-        // Cek apakah sudah upload bukti bayar
-        if (!$registrant->payment_proof) {
-            abort(403, 'Anda belum mengunggah bukti pembayaran.');
+        // Cek apakah sudah memilih metode pembayaran
+        if (!$registrant->payment_method) {
+            abort(403, 'Anda belum melakukan konfirmasi pembayaran.');
         }
 
         $source = \App\Models\MailSetting::first();
@@ -567,5 +568,35 @@ class PpdbDashboardController extends Controller
         $pdf->setPaper('A4', 'portrait');
 
         return $pdf->download('Kwitansi_PPDB_' . $registrant->registration_number . '.pdf');
+    }
+
+    public function verifyMidtrans(Request $request)
+    {
+        $user = Auth::user();
+        $registrant = $user->ppdbRegistrant;
+
+        if (!$registrant || !$registrant->midtrans_order_id) {
+            return response()->json(['success' => false, 'message' => 'Order ID not found']);
+        }
+
+        $setting = \App\Models\Setting::first();
+        \Midtrans\Config::$serverKey = trim($setting->midtrans_server_key);
+        \Midtrans\Config::$isProduction = (bool) $setting->midtrans_is_production;
+
+        try {
+            $status = \Midtrans\Transaction::status($registrant->midtrans_order_id);
+            if ($status->transaction_status == 'settlement' || $status->transaction_status == 'capture') {
+                $registrant->update([
+                    'payment_status' => 'paid',
+                    'status' => 'daftar_ulang_terverifikasi',
+                    'confirmed_at' => now()
+                ]);
+                return response()->json(['success' => true]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+
+        return response()->json(['success' => false]);
     }
 }

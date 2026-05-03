@@ -478,6 +478,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/print-re-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printReRegistration'])->name('ppdb.print_re_registration');
         Route::get('/print-payment', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printPayment'])->name('ppdb.print_payment');
         Route::post('/confirm-re-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'confirmReRegistration'])->name('ppdb.confirm_re_registration');
+        Route::post('/verify-midtrans', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'verifyMidtrans'])->name('ppdb.verify_midtrans');
         Route::post('/store-attendance', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeAttendance'])->name('ppdb.store_attendance');
     });
 
