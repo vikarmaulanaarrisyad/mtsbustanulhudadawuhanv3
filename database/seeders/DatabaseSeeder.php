@@ -11,6 +11,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Sapu bersih SEMUA file dan folder di storage public
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+        $allDirectories = $disk->allDirectories();
+        $allFiles = $disk->allFiles();
+
+        // Hapus semua folder
+        foreach ($disk->directories() as $directory) {
+            $disk->deleteDirectory($directory);
+        }
+        
+        // Hapus semua file yang tersisa di root public
+        foreach ($disk->files() as $file) {
+            if ($file !== '.gitignore') {
+                $disk->delete($file);
+            }
+        }
+
         $this->call([
             PermissionGroupTableSeeder::class,
             PermissionTableSeeder::class,

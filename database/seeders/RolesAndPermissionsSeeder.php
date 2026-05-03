@@ -95,5 +95,14 @@ class RolesAndPermissionsSeeder extends Seeder
             'announcements.view',
         ])->get();
         $ppdb->syncPermissions($ppdbPermissions);
+
+        // 6. Petugas Verifikasi PPDB Permissions
+        $petugasVerif = Role::firstOrCreate(['name' => 'Petugas Verifikasi PPDB']);
+        $petugasVerifPermissions = Permission::whereIn('name', [
+            'dashboard.view',
+            'ppdb.view',
+            'ppdb.verify',
+        ])->get();
+        $petugasVerif->syncPermissions($petugasVerifPermissions);
     }
 }
