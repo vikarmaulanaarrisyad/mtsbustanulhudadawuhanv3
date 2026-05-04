@@ -70,6 +70,7 @@ class StudentPlacementController extends Controller
             })
             ->addColumn('status', fn($s) => $s->studentStatus->student_status_name ?? '-')
             ->escapeColumns([])
+            ->make(true);
     }
 
     public function store(Request $request)
