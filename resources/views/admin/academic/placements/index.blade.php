@@ -137,6 +137,54 @@
                 </form>
             </div>
         </div>
+
+        <!-- STEP 3: AUTO PLOTTING -->
+        <div class="card shadow-sm border-0 mb-4 overflow-hidden border-left-primary">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+                <h3 class="card-title font-weight-bold text-primary">
+                    <i class="fas fa-magic mr-2"></i> 3. Plotting Otomatis
+                </h3>
+            </div>
+            <div class="card-body">
+                <form id="autoPlacementForm">
+                    @csrf
+                    <div class="form-group">
+                        <label class="text-sm font-weight-bold mb-1 text-muted">Tahun Pelajaran Tujuan</label>
+                        <select name="academic_year_id" id="auto_target_academic_year" class="form-control select2" required>
+                            @foreach($academicYears as $ay)
+                                <option value="{{ $ay->id }}" {{ $loop->first ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="text-sm font-weight-bold mb-1 text-muted">Multi Rombel Tujuan</label>
+                        <select name="class_group_ids[]" id="auto_target_classes" class="form-control select2" multiple required data-placeholder="Pilih beberapa kelas...">
+                            @foreach($classGroups as $cg)
+                                <option value="{{ $cg->id }}" data-year="{{ $cg->academic_year_id }}" data-level="{{ $cg->class_level }}">
+                                    {{ $cg->class_group }} - {{ $cg->sub_class_group }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted"><i class="fas fa-info-circle mr-1"></i> Pilih kelas-kelas yang akan diisi siswa.</small>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group mb-2">
+                                <label class="text-sm font-weight-bold mb-1 text-muted">Maks. Kapasitas / Kelas</label>
+                                <input type="number" name="max_capacity" class="form-control" value="32" min="1" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="custom-control custom-switch mb-3">
+                        <input type="checkbox" class="custom-control-input" id="gender_balanced" name="gender_balanced" value="1" checked>
+                        <label class="custom-control-label text-sm" for="gender_balanced">Seimbangkan Laki-laki & Perempuan</label>
+                    </div>
+                    <button type="button" onclick="submitAutoPlacement()" class="btn btn-primary btn-block shadow font-weight-bold py-2" id="btnAutoSubmit">
+                        <i class="fas fa-bolt mr-2"></i> JALANKAN PLOTTING
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- MAIN TABLE -->
@@ -386,5 +434,62 @@
             }
         });
     }
+
+    function submitAutoPlacement() {
+        let formData = $('#autoPlacementForm').serialize();
+        let $filterYear = $('#filter_academic_year').val();
+        let $filterLevel = $('#filter_class_level').val();
+        
+        if (!$('#auto_target_classes').val() || $('#auto_target_classes').val().length === 0) {
+            Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Silakan pilih minimal satu rombel tujuan.' });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Mulai Plotting Otomatis?',
+            text: 'Sistem akan membagi siswa yang terfilter ke dalam rombel terpilih secara merata.',
+            icon: 'info', 
+            showCancelButton: true, 
+            confirmButtonColor: '#007bff',
+            confirmButtonText: 'Jalankan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#btnAutoSubmit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...');
+                
+                // Add current filters to auto placement to ensure we only plot visible students
+                let fullData = formData + '&' + $.param({
+                    filter_academic_year_id: $filterYear,
+                    filter_class_level: $filterLevel
+                });
+
+                $.post('{{ route("student-placements.auto") }}', fullData)
+                    .done(response => {
+                        Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message });
+                        table.ajax.reload();
+                    })
+                    .fail(xhr => {
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan' });
+                    })
+                    .always(() => {
+                        $('#btnAutoSubmit').prop('disabled', false).html('<i class="fas fa-bolt mr-2"></i> Jalankan Plotting');
+                    });
+            }
+        });
+    }
+
+    // Auto Target Sync
+    const allAutoOptions = $('#auto_target_classes').html();
+    function updateAutoTargetClasses() {
+        let targetYearId = $('#auto_target_academic_year').val();
+        let $targetSelect = $('#auto_target_classes');
+        $targetSelect.html(allAutoOptions);
+        $targetSelect.find('option').each(function() {
+            if ($(this).val() && $(this).data('year') != targetYearId) $(this).remove();
+        });
+        $targetSelect.trigger('change.select2');
+    }
+    $('#auto_target_academic_year').on('change', updateAutoTargetClasses);
+    $(() => updateAutoTargetClasses());
 </script>
 @endpush
