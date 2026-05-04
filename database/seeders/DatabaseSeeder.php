@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         foreach ($disk->directories() as $directory) {
             $disk->deleteDirectory($directory);
         }
-        
+
         // Hapus semua file yang tersisa di root public
         foreach ($disk->files() as $file) {
             if ($file !== '.gitignore') {
@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
             SemesterSeeder::class,
             StudentStatusSeeder::class,
             FeatureTestingSeeder::class,
+            GradeManagementSeeder::class,
         ]);
     }
 }
