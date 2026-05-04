@@ -46,7 +46,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0" id="teacherTable" style="width:100%">
                         <thead class="bg-light-info text-uppercase">
@@ -113,7 +113,7 @@
                 { 
                     data: 'name',
                     render: function(data) {
-                        return '<div class="d-flex align-items-center"><div class="avatar-sm mr-3 bg-soft-info rounded-circle d-flex align-items-center justify-content-center text-info font-weight-bold" style="width:40px;height:40px;">' + data.charAt(0) + '</div><span class="font-weight-bold text-dark h6 mb-0">' + data + '</span></div>';
+                        return '<div class="d-flex align-items-center"><div class="avatar-sm mr-3 bg-soft-info rounded-circle d-flex align-items-center justify-content-center text-info font-weight-bold shadow-xs" style="width:45px;height:45px;background:#e0f7fa;">' + data.charAt(0) + '</div><span class="font-weight-bold text-dark h6 mb-0">' + data + '</span></div>';
                     }
                 },
                 { data: 'nip', defaultContent: '-' },

@@ -57,7 +57,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0" id="alumniTable" style="width:100%">
                         <thead class="bg-light-dark text-uppercase text-white">
@@ -120,7 +120,7 @@
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
                 { 
                     data: 'nama_lengkap',
-                    render: function(data) { return '<span class="font-weight-bold text-dark h6 mb-0">' + data + '</span>'; }
+                    render: function(data) { return '<div class="d-flex align-items-center"><div class="avatar-sm mr-3 bg-soft-dark rounded-circle d-flex align-items-center justify-content-center text-dark font-weight-bold" style="width:35px;height:35px;background:#eee;">' + data.charAt(0) + '</div><span class="font-weight-bold text-dark h6 mb-0">' + data + '</span></div>'; }
                 },
                 { data: 'nis' },
                 { 

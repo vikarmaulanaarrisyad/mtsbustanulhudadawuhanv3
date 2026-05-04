@@ -155,7 +155,7 @@
                 </div>
             </div>
 
-            <div class="card-body p-0">
+            <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0" id="studentTable" style="width:100%">
                         <thead class="bg-light-primary text-uppercase">
@@ -166,7 +166,7 @@
                                         <label class="custom-control-label" for="select-all"></label>
                                     </div>
                                 </th>
-                                <th width="140px">Siswa</th>
+                                <th width="200px">Siswa</th>
                                 <th>Detail Identitas</th>
                                 <th>Rombel & TA</th>
                                 <th width="100px" class="text-center">Status</th>
@@ -253,7 +253,7 @@
                     data: 'nisn',
                     render: function(data, type, row) {
                         let jk = row.jk_badge;
-                        return '<div class="d-flex flex-column"><span class="text-sm mb-1">NISN: ' + (data || '-') + '</span>' + jk + '</div>';
+                        return '<div class="d-flex flex-column align-items-start"><span class="text-sm mb-1 text-muted">NISN: ' + (data || '-') + '</span>' + jk + '</div>';
                     }
                 },
                 { data: 'kelas' },

@@ -186,7 +186,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0" id="studentTable" style="width:100%">
                         <thead class="bg-light-primary text-uppercase">
@@ -287,7 +287,7 @@
                 { data: 'nis' },
                 { 
                     data: 'nama_lengkap',
-                    render: function(data) { return '<span class="font-weight-bold text-dark">' + data + '</span>'; }
+                    render: function(data) { return '<div class="d-flex align-items-center"><div class="avatar-sm mr-3 bg-soft-primary rounded-circle d-flex align-items-center justify-content-center text-primary font-weight-bold" style="width:35px;height:35px;">' + data.charAt(0) + '</div><span class="font-weight-bold text-dark">' + data + '</span></div>'; }
                 },
                 { data: 'kelas' },
                 { data: 'action', searchable: false, sortable: false, className: 'text-center' },

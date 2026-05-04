@@ -62,7 +62,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0" id="classTable" style="width:100%">
                         <thead class="bg-light-info text-uppercase">
