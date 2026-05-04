@@ -61,7 +61,12 @@ class StudentController extends Controller
     {
         $query = Student::with(['classGroup', 'academicYear', 'studentStatus'])
             ->when($request->academic_year_id, fn($q) => $q->where('academic_year_id', $request->academic_year_id))
-            ->when($request->class_group_id, fn($q) => $q->where('student_class_group_id', $request->class_group_id))
+            ->when($request->class_group_id, function($q) use ($request) {
+                if ($request->class_group_id == 'none') {
+                    return $q->whereNull('student_class_group_id');
+                }
+                return $q->where('student_class_group_id', $request->class_group_id);
+            })
             ->when($request->status_id, fn($q) => $q->where('student_status_id', $request->status_id))
             ->when($request->jenis_kelamin, fn($q) => $q->where('jenis_kelamin', $request->jenis_kelamin))
             ->latest();

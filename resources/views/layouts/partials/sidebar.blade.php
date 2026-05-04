@@ -73,6 +73,12 @@
                                 <p>Status Siswa</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('alumni.index') }}" class="nav-link {{ request()->is('alumni*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Daftar Alumni</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
@@ -113,6 +119,12 @@
                             <a href="{{ route('promotions.index') }}" class="nav-link {{ request()->is('promotions*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Kenaikan Kelas</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('class-transfers.index') }}" class="nav-link {{ request()->is('class-transfers*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Mutasi Rombel</p>
                             </a>
                         </li>
                         <li class="nav-item">

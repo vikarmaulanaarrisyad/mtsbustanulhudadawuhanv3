@@ -14,7 +14,7 @@ class StudentGraduationController extends Controller
 {
     public function index()
     {
-        $academicYears = AcademicYear::orderBy('academic_year', 'desc')->get();
+        $academicYears = AcademicYear::with('semester')->orderBy('academic_year', 'desc')->get();
         $classGroups = \App\Models\ClassGroup::whereIn('class_level', [6, 9, 12])
             ->orderBy('class_group')
             ->orderBy('sub_class_group')
@@ -38,7 +38,16 @@ class StudentGraduationController extends Controller
                     })->where('is_active', true);
                 }
             })
-            ->when($request->academic_year_id, fn($q) => $q->where('academic_year_id', $request->academic_year_id))
+            ->when($request->academic_year_id, function($q) use ($request) {
+                $q->where('academic_year_id', $request->academic_year_id);
+                
+                // Exclude students who were just PROMOTED to this year 
+                // because they just started their final year and aren't ready to graduate yet.
+                $q->whereDoesntHave('histories', function($sq) use ($request) {
+                    $sq->where('academic_year_id', $request->academic_year_id)
+                       ->where('status', 'promoted');
+                });
+            })
             ->when($request->class_group_id, fn($q) => $q->where('student_class_group_id', $request->class_group_id))
             ->orderBy('nama_lengkap');
 

@@ -5,6 +5,15 @@
 
 @section('content')
 <div class="row">
+    <div class="col-12">
+        <div class="alert alert-default-success border-success shadow-sm mb-4">
+            <h5><i class="icon fas fa-check-circle text-success"></i> Langkah 1: Proses Kelulusan</h5>
+            <p class="mb-0">Sesuai alur akhir tahun, silakan lakukan <strong>Kelulusan</strong> untuk siswa kelas akhir (6, 9, 12) terlebih dahulu sebelum memproses kenaikan kelas tingkat di bawahnya. Ini memastikan ruang kelas tersedia untuk siswa yang akan naik tingkat.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
     <div class="col-md-4">
         <div class="card card-outline card-info">
             <div class="card-header">
@@ -13,11 +22,20 @@
             <div class="card-body">
                 <div class="form-group">
                     <label>Tahun Pelajaran</label>
-                    <select id="filter_academic_year" class="form-control select2">
+                    <select id="filter_academic_year" class="form-control select2" onchange="checkSemester(this)">
                         @foreach($academicYears as $ay)
-                            <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
+                            <option value="{{ $ay->id }}" 
+                                    data-semester="{{ $ay->semester->semester_name }}" 
+                                    data-semester-id="{{ $ay->semester_id }}"
+                                    {{ $ay->current_semester ? 'selected' : '' }}>
+                                {{ $ay->academic_year }} - {{ $ay->semester->semester_name }}
+                            </option>
                         @endforeach
                     </select>
+                </div>
+                <div id="semesterWarning" class="alert alert-warning d-none">
+                    <i class="fas fa-exclamation-triangle mr-1"></i> 
+                    <strong>Perhatian:</strong> Tahun Pelajaran saat ini adalah <b>Semester Ganjil</b>. Kelulusan biasanya diproses pada Semester Genap.
                 </div>
                 <div class="form-group">
                     <label>Kelas</label>
@@ -119,7 +137,20 @@
 <script>
     let table;
 
+    function checkSemester(el) {
+        let semesterId = $(el).find(':selected').data('semester-id');
+        if (semesterId == 1) { // Ganjil
+            $('#semesterWarning').removeClass('d-none');
+            $('#btnGraduate').addClass('btn-outline-warning').removeClass('btn-success');
+        } else {
+            $('#semesterWarning').addClass('d-none');
+            $('#btnGraduate').addClass('btn-success').removeClass('btn-outline-warning');
+        }
+    }
+
     $(function() {
+        checkSemester($('#filter_academic_year'));
+
         table = $('#studentTable').DataTable({
             processing: true, serverSide: true, autoWidth: false, paging: false, info: false,
             ajax: {

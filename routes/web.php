@@ -174,6 +174,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/academic/class-groups/data', 'data')->name('class-groups.data');
             Route::get('/academic/class-groups', 'index')->name('class-groups.index');
             Route::get('/academic/class-groups/{id}', 'show')->name('class-groups.show');
+            Route::post('/academic/class-groups/sync', 'syncFromGanjil')->name('class-groups.sync');
             Route::put('/academic/class-groups/{id}', 'update')->name('class-groups.update');
             Route::post('/academic/class-groups', 'store')->name('class-groups.store');
             Route::delete('/academic/class-groups/{id}/destroy', 'destroy')->name('class-groups.destroy');
@@ -577,9 +578,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/promotions/undo', [StudentPromotionController::class, 'undo'])->name('promotions.undo');
     Route::resource('/promotions', StudentPromotionController::class);
 
-    // Student Placements (Penempatan Rombel)
-    Route::get('academic/student-placements/data', [StudentPlacementController::class, 'data'])->name('student-placements.data');
-    Route::resource('academic/student-placements', StudentPlacementController::class);
+    // Student Class Transfers (Mutasi Rombel Internal)
+    Route::get('/class-transfers/data', [\App\Http\Controllers\ClassTransferController::class, 'data'])->name('class-transfers.data');
+    Route::post('/class-transfers/transfer', [\App\Http\Controllers\ClassTransferController::class, 'transfer'])->name('class-transfers.transfer');
+    Route::resource('/class-transfers', \App\Http\Controllers\ClassTransferController::class);
 
     // Student Graduations (Kelulusan)
     Route::get('/graduations/data', [StudentGraduationController::class, 'data'])->name('graduations.data');
@@ -587,6 +589,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/graduations/undo', [StudentGraduationController::class, 'undo'])->name('graduations.undo');
     Route::get('/graduations/{id}/print-skl', [StudentGraduationController::class, 'printSKL'])->name('graduations.print-skl');
     Route::resource('/graduations', StudentGraduationController::class);
+
+    // Alumni Management
+    Route::get('/alumni/data', [\App\Http\Controllers\AlumniController::class, 'data'])->name('alumni.data');
+    Route::get('/alumni', [\App\Http\Controllers\AlumniController::class, 'index'])->name('alumni.index');
 
     // Letter Number Generator
     Route::get('/mail/generate-letter-number', [\App\Http\Controllers\LetterNumberController::class, 'generate'])->name('letter-number.generate');
@@ -625,6 +631,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/class-schedules/download-template', [ClassScheduleController::class, 'downloadTemplate'])->name('class-schedules.download_template');
     Route::post('/class-schedules/import-excel', [ClassScheduleController::class, 'importExcel'])->name('class-schedules.import_excel');
+    Route::get('/class-schedules/matrix', [ClassScheduleController::class, 'matrix'])->name('class-schedules.matrix');
     Route::get('/class-schedules/data', [ClassScheduleController::class, 'data'])->name('class-schedules.data');
     Route::resource('/class-schedules', ClassScheduleController::class);
 

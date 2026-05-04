@@ -8,6 +8,21 @@
     <div class="row">
         <div class="col-lg-12 col-md-12 col-12">
             <div class="form-group">
+                <label for="academic_year_id">Tahun Pelajaran <span class="text-danger">*</span></label>
+                <select name="academic_year_id" id="academic_year_id" class="form-control select2">
+                    @foreach($academicYears as $ay)
+                        <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>
+                            {{ $ay->academic_year }} - {{ $ay->semester->semester_name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12">
+            <div class="form-group">
                 <label for="class_group">Nama Kelas <span class="text-danger">*</span></label>
                 <input id="class_group" class="form-control" type="text" name="class_group" placeholder="Kelas 7"
                     autocomplete="off">

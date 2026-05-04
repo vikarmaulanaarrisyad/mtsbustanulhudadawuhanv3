@@ -38,6 +38,22 @@ class ClassScheduleController extends Controller
         return view('admin.academic.schedules.index', compact('subjects', 'teachers', 'classGroups', 'academicYears', 'studyPeriods'));
     }
 
+    public function matrix(Request $request)
+    {
+        $request->validate([
+            'class_group_id' => 'required|exists:class_groups,id',
+            'academic_year_id' => 'required|exists:academic_years,id',
+        ]);
+
+        $schedules = ClassSchedule::with(['subject', 'teacher', 'studyPeriod'])
+            ->where('class_group_id', $request->class_group_id)
+            ->where('academic_year_id', $request->academic_year_id)
+            ->get()
+            ->groupBy(['day', 'study_period_id']);
+
+        return response()->json($schedules);
+    }
+
     public function data(Request $request)
     {
         $query = ClassSchedule::with(['subject', 'teacher', 'classGroup', 'academicYear', 'studyPeriod'])
@@ -127,11 +143,40 @@ class ClassScheduleController extends Controller
             'class_group_id' => 'required|exists:class_groups,id',
             'academic_year_id' => 'required|exists:academic_years,id',
             'day' => 'required|integer|between:1,7',
-            'start_time' => 'required',
-            'end_time' => 'required|after:start_time',
+            'study_period_id' => 'required|exists:study_periods,id'
         ]);
 
-        $schedule->update($request->all());
+        $period = StudyPeriod::findOrFail($request->study_period_id);
+
+        // Conflict check: Teacher
+        $teacherConflict = ClassSchedule::where('teacher_id', $request->teacher_id)
+            ->where('day', $request->day)
+            ->where('study_period_id', $request->study_period_id)
+            ->where('academic_year_id', $request->academic_year_id)
+            ->where('id', '!=', $id)
+            ->first();
+
+        if ($teacherConflict) {
+            return response()->json(['message' => 'Guru tersebut sudah mengajar di kelas lain pada jam yang sama.'], 422);
+        }
+
+        // Conflict check: Class
+        $classConflict = ClassSchedule::where('class_group_id', $request->class_group_id)
+            ->where('day', $request->day)
+            ->where('study_period_id', $request->study_period_id)
+            ->where('academic_year_id', $request->academic_year_id)
+            ->where('id', '!=', $id)
+            ->first();
+            
+        if ($classConflict) {
+            return response()->json(['message' => 'Kelas tersebut sudah memiliki jadwal pelajaran lain pada jam yang sama.'], 422);
+        }
+
+        $data = $request->all();
+        $data['start_time'] = $period->start_time;
+        $data['end_time'] = $period->end_time;
+
+        $schedule->update($data);
         return response()->json(['message' => 'Jadwal pelajaran berhasil diperbaharui']);
     }
 

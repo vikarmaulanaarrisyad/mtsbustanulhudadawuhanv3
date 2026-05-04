@@ -26,19 +26,42 @@ class StudentPromotionController extends Controller
 
     public function data(Request $request)
     {
+        $academicYearId = $request->academic_year_id;
+        $classGroupId = $request->class_group_id;
+
+        // Find students who have a history record matching the filter
+        // OR whose current state matches the filter (for new students)
         $query = Student::with(['classGroup', 'academicYear'])
             ->where('is_active', true)
             ->whereHas('classGroup', function($q) {
                 $q->whereNotIn('class_level', [6, 9, 12]);
             })
-            ->when($request->academic_year_id, fn($q) => $q->where('academic_year_id', $request->academic_year_id))
-            ->when($request->class_group_id, fn($q) => $q->where('student_class_group_id', $request->class_group_id))
+            ->where(function($q) use ($academicYearId, $classGroupId) {
+                // Option 1: Current state matches
+                $q->where(function($q2) use ($academicYearId, $classGroupId) {
+                    $q2->when($academicYearId, fn($q3) => $q3->where('academic_year_id', $academicYearId))
+                       ->when($classGroupId, fn($q3) => $q3->where('student_class_group_id', $classGroupId));
+                });
+                
+                // Option 2: Had a history in this year/class
+                $q->orWhereHas('histories', function($q2) use ($academicYearId, $classGroupId) {
+                    $q2->when($academicYearId, fn($q3) => $q3->where('academic_year_id', $academicYearId))
+                       ->when($classGroupId, fn($q3) => $q3->where('class_group_id', $classGroupId));
+                });
+            })
             ->orderBy('nama_lengkap');
 
         return datatables($query)
             ->addIndexColumn()
             ->addColumn('checkbox', function ($s) {
                 return '<input type="checkbox" name="student_ids[]" value="' . $s->id . '" class="student-checkbox">';
+            })
+            ->addColumn('history_info', function($s) use ($academicYearId, $classGroupId) {
+                // If the student's current year is DIFFERENT from the filter, they are "Promoted"
+                if ($academicYearId && $s->academic_year_id != $academicYearId) {
+                    return '<span class="badge badge-success">Sudah Diproses ke ' . $s->academicYear->academic_year . '</span>';
+                }
+                return '<span class="badge badge-warning">Belum Diproses</span>';
             })
             ->addColumn('kelas', fn($s) => $s->kelas_lengkap)
             ->escapeColumns([])
@@ -51,17 +74,45 @@ class StudentPromotionController extends Controller
             'student_ids' => 'required|array|min:1',
             'target_academic_year_id' => 'required|exists:academic_years,id',
             'target_class_group_id' => 'required|exists:class_groups,id',
-            'status' => 'required|in:promoted,retained,enrolled',
+            'status' => 'required|in:promoted,retained',
             'notes' => 'nullable|string',
+            'force' => 'nullable|boolean', // To bypass warning
         ]);
 
         try {
             DB::beginTransaction();
 
+            $targetClass = ClassGroup::findOrFail($request->target_class_group_id);
+            
+            // Note: Occupancy check disabled temporarily to allow user to resolve data state issues.
+            
+            $successCount = 0;
             foreach ($request->student_ids as $id) {
                 $student = Student::findOrFail($id);
                 
-                // Create History
+                // Skip if already in the target year and class (avoid duplicates)
+                if ($student->academic_year_id == $request->target_academic_year_id && $student->student_class_group_id == $request->target_class_group_id) {
+                    continue;
+                }
+                
+                // 1. Record current state to history if it doesn't exist yet (Historical continuity)
+                $hasCurrentHistory = StudentHistory::where('student_id', $student->id)
+                    ->where('academic_year_id', $student->academic_year_id)
+                    ->where('class_group_id', $student->student_class_group_id)
+                    ->exists();
+                
+                if (!$hasCurrentHistory) {
+                    StudentHistory::create([
+                        'student_id' => $student->id,
+                        'academic_year_id' => $student->academic_year_id,
+                        'class_group_id' => $student->student_class_group_id,
+                        'status' => 'enrolled',
+                        'notes' => 'Catatan otomatis awal proses',
+                        'entry_date' => $student->tanggal_masuk ?? now(),
+                    ]);
+                }
+
+                // 2. Create New History Record for Target
                 StudentHistory::create([
                     'student_id' => $student->id,
                     'academic_year_id' => $request->target_academic_year_id,
@@ -71,7 +122,7 @@ class StudentPromotionController extends Controller
                     'entry_date' => now(),
                 ]);
 
-                // Update Student Current State
+                // 3. Update Student Current State
                 $student->update([
                     'academic_year_id' => $request->target_academic_year_id,
                     'student_class_group_id' => $request->target_class_group_id,

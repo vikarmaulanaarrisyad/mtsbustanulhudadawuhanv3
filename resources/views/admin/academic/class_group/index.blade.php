@@ -14,14 +14,27 @@
             <x-card>
                 @can('class-group.create')
                     <x-slot name="header">
-                        <button onclick="addForm(`{{ route('class-groups.store') }}`)" class="btn btn-sm btn-info"><i
-                                class="fas fa-plus-circle"></i>
-                            Tambah Data</button>
+                        <div class="d-flex justify-content-between align-items-center flex-wrap">
+                            <div>
+                                <button onclick="addForm(`{{ route('class-groups.store') }}`)" class="btn btn-sm btn-info mb-2"><i class="fas fa-plus-circle"></i> Tambah Data</button>
+                                <button onclick="syncClasses()" class="btn btn-sm btn-success mb-2 ml-1" id="btnSync"><i class="fas fa-sync-alt"></i> Sinkron dari Ganjil</button>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <label class="mr-2 mb-0">Filter TA:</label>
+                                <select id="filter_academic_year_id" class="form-control form-control-sm select2" style="width: 200px;" onchange="refreshTable()">
+                                    <option value="">-- Semua TA --</option>
+                                    @foreach($academicYears as $ay)
+                                        <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }} - {{ $ay->semester->semester_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </x-slot>
                 @endcan
                 <x-table>
                     <x-slot name="thead">
                         <th width="5%">NO</th>
+                        <th>TA / SEMESTER</th>
                         <th>NAMA KELAS</th>
                         <th>ROMBEL KELAS</th>
                         <th>TINGKAT KELAS</th>
@@ -51,10 +64,18 @@
             responsive: true,
             ajax: {
                 url: '{{ route('class-groups.data') }}',
+                data: function(d) {
+                    d.academic_year_id = $('#filter_academic_year_id').val();
+                }
             },
             columns: [{
                     data: 'DT_RowIndex',
                     name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'ta_semester',
                     orderable: false,
                     searchable: false
                 },
@@ -85,6 +106,40 @@
                 },
             ]
         })
+
+        function refreshTable() {
+            table.ajax.reload();
+        }
+
+        function syncClasses() {
+            let targetAyId = $('#filter_academic_year_id').val();
+            if (!targetAyId) {
+                Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Silakan pilih Tahun Pelajaran (Genap) tujuan sinkronisasi di filter.' });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Sinkronisasi Kelas?',
+                text: 'Sistem akan menyalin data kelas dari Semester Ganjil ke Semester Genap pada tahun pelajaran yang dipilih. Lanjutkan?',
+                icon: 'question', showCancelButton: true, confirmButtonColor: '#28a745'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#btnSync').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Sinkronisasi...');
+                    
+                    $.post('{{ route("class-groups.sync") }}', {
+                        _token: '{{ csrf_token() }}',
+                        target_academic_year_id: targetAyId
+                    }).done(response => {
+                        Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message });
+                        table.ajax.reload();
+                    }).fail(xhr => {
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan' });
+                    }).always(() => {
+                        $('#btnSync').prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Sinkron dari Ganjil');
+                    });
+                }
+            });
+        }
 
         function addForm(url, title = 'Form Kelas') {
             $(modal).modal('show');

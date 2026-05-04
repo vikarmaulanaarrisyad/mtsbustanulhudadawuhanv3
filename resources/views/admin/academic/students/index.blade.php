@@ -63,7 +63,8 @@
                                 @endforeach
                             </select>
                             <select id="filter_class_group" class="form-control form-control-sm" style="width:150px;">
-                                <option value="">-- Kelas --</option>
+                                <option value="">-- Semua Kelas --</option>
+                                <option value="none" style="color: #d81b60; font-weight: bold;">[!] Tanpa Rombel</option>
                                 @foreach ($classGroups as $cg)
                                     <option value="{{ $cg->id }}">{{ $cg->class_group }} {{ $cg->sub_class_group }}</option>
                                 @endforeach

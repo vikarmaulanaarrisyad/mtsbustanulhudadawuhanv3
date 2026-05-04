@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             SemesterSeeder::class,
             StudentStatusSeeder::class,
-            // FeatureTestingSeeder::class,
+            FeatureTestingSeeder::class,
             GradeManagementSeeder::class,
         ]);
     }

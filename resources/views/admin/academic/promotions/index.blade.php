@@ -5,6 +5,20 @@
 
 @section('content')
 <div class="row">
+    <div class="col-12">
+        <div class="alert alert-default-info border-info shadow-sm mb-4">
+            <h5><i class="icon fas fa-info-circle text-info"></i> Alur Akhir Tahun Pelajaran</h5>
+            <p class="mb-1">Untuk menjaga integritas data, disarankan mengikuti urutan berikut:</p>
+            <ol class="mb-0">
+                <li><strong>Proses Kelulusan</strong>: Luluskan siswa kelas akhir (6, 9, 12) terlebih dahulu agar status mereka menjadi "Alumni".</li>
+                <li><strong class="text-primary">Proses Kenaikan Kelas</strong>: Setelah kelas akhir kosong, barulah naikkan siswa ke tingkat berikutnya (misal: 5 ke 6).</li>
+                <li><strong>Penempatan Siswa Baru</strong>: Terakhir, masukkan siswa baru dari PPDB ke kelas awal (1, 7, 10).</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<div class="row">
     <div class="col-md-4">
         <div class="card card-outline card-info">
             <div class="card-header">
@@ -24,7 +38,7 @@
                     <select id="filter_class" class="form-control select2">
                         <option value="">-- Semua Kelas --</option>
                         @foreach($sourceClassGroups as $cg)
-                            <option value="{{ $cg->id }}">{{ $cg->class_group }} - {{ $cg->sub_class_group }}</option>
+                            <option value="{{ $cg->id }}" data-level="{{ $cg->class_level }}">{{ $cg->class_group }} - {{ $cg->sub_class_group }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -49,9 +63,10 @@
                     </div>
                     <div class="form-group">
                         <label>Pindah ke Kelas</label>
-                        <select name="target_class_group_id" class="form-control select2" required>
+                        <select name="target_class_group_id" id="target_class" class="form-control select2" required>
+                            <option value="">-- Pilih Kelas Tujuan --</option>
                             @foreach($targetClassGroups as $cg)
-                                <option value="{{ $cg->id }}">{{ $cg->class_group }} - {{ $cg->sub_class_group }}</option>
+                                <option value="{{ $cg->id }}" data-level="{{ $cg->class_level }}">{{ $cg->class_group }} - {{ $cg->sub_class_group }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -59,8 +74,7 @@
                         <label>Status</label>
                         <select name="status" class="form-control">
                             <option value="promoted">Naik Kelas</option>
-                            <option value="retained">Tinggal Kelas</option>
-                            <option value="enrolled">Pindah Rombel (Tetap di Kelas yg Sama)</option>
+                            <option value="retained">Tinggal Kelas (Di Tahun Ajaran Baru)</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -69,7 +83,7 @@
                     </div>
                     <hr>
                     <button type="button" onclick="submitPromotion()" class="btn btn-success btn-block" id="btnPromote">
-                        <i class="fas fa-check-circle mr-1"></i> Proses Kenaikan / Pindah
+                        <i class="fas fa-check-circle mr-1"></i> Proses Akhir Tahun
                     </button>
                     <button type="button" onclick="undoPromotion()" class="btn btn-outline-danger btn-block btn-sm mt-2">
                         <i class="fas fa-undo mr-1"></i> Batalkan Proses Terakhir
@@ -95,7 +109,8 @@
                                 <th width="5%"><input type="checkbox" id="checkAll"></th>
                                 <th>NIS/NISN</th>
                                 <th>Nama Lengkap</th>
-                                <th>Kelas Saat Ini</th>
+                                <th>Kelas (Filter)</th>
+                                <th>Status Proses</th>
                             </tr>
                         </thead>
                     </table>
@@ -128,6 +143,7 @@
                 { data: 'nis' },
                 { data: 'nama_lengkap' },
                 { data: 'kelas' },
+                { data: 'history_info', searchable: false },
             ]
         });
 
@@ -139,13 +155,56 @@
             let checked = $('#checkAll').prop('checked');
             $('#checkAll').prop('checked', !checked).trigger('click');
         });
+
+        // Filter Target Class based on Source Class & Status (Select2 Compatible)
+        const allTargetOptions = $('#target_class').html();
+        
+        function updateTargetClasses() {
+            let sourceLevel = $('#filter_class').find(':selected').data('level');
+            let status = $('select[name=status]').val();
+            let $targetSelect = $('#target_class');
+            
+            // Revert to all options first
+            $targetSelect.html(allTargetOptions);
+
+            if (sourceLevel !== undefined && sourceLevel !== "") {
+                sourceLevel = parseInt(sourceLevel);
+                
+                $targetSelect.find('option').each(function() {
+                    let targetLevel = $(this).data('level');
+                    if (targetLevel !== undefined && targetLevel !== "") {
+                        targetLevel = parseInt(targetLevel);
+                        
+                        let isMatch = false;
+                        if (status === 'promoted') {
+                            // Only show level + 1
+                            isMatch = (targetLevel === (sourceLevel + 1));
+                        } else {
+                            // Only show same level (retained)
+                            isMatch = (targetLevel === sourceLevel);
+                        }
+
+                        if (!isMatch && $(this).val() !== "") {
+                            $(this).remove();
+                        }
+                    }
+                });
+            }
+            
+            // Refresh Select2
+            $targetSelect.trigger('change.select2');
+        }
+
+        $('#filter_class, select[name=status]').on('change', function() {
+            updateTargetClasses();
+        });
     });
 
     function refreshTable() {
         table.ajax.reload();
     }
 
-    function submitPromotion() {
+    function submitPromotion(force = false) {
         let formData = $('#promotionForm').serialize();
         let studentIds = [];
         $('.student-checkbox:checked').each(function() {
@@ -157,27 +216,55 @@
             return;
         }
 
-        Swal.fire({
-            title: 'Konfirmasi',
-            text: 'Apakah Anda yakin ingin memproses kenaikan/pindah rombel untuk ' + studentIds.length + ' siswa terpilih?',
-            icon: 'question', showCancelButton: true, confirmButtonColor: '#28a745'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $('#btnPromote').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...');
-                
-                $.post('{{ route("promotions.promote") }}', formData + '&' + $.param({student_ids: studentIds}))
-                    .done(response => {
+        const proceed = () => {
+            $('#btnPromote').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...');
+            
+            let data = formData + '&' + $.param({student_ids: studentIds});
+            if (force) data += '&force=1';
+
+            $.post('{{ route("promotions.promote") }}', data)
+                .done(response => {
+                    if (response.status === 'warning') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Perhatian!',
+                            text: response.message,
+                            showCancelButton: true,
+                            confirmButtonText: 'Tetap Lanjutkan',
+                            cancelButtonText: 'Batalkan',
+                            confirmButtonColor: '#ffc107',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                submitPromotion(true); // Retry with force=1
+                            } else {
+                                $('#btnPromote').prop('disabled', false).html('<i class="fas fa-check-circle mr-1"></i> Proses Kenaikan / Pindah');
+                            }
+                        });
+                    } else {
                         Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message });
                         table.ajax.reload();
-                    })
-                    .fail(xhr => {
-                        Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan' });
-                    })
-                    .always(() => {
                         $('#btnPromote').prop('disabled', false).html('<i class="fas fa-check-circle mr-1"></i> Proses Kenaikan / Pindah');
-                    });
-            }
-        });
+                    }
+                })
+                .fail(xhr => {
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan' });
+                    $('#btnPromote').prop('disabled', false).html('<i class="fas fa-check-circle mr-1"></i> Proses Kenaikan / Pindah');
+                });
+        };
+
+        if (force) {
+            proceed();
+        } else {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Apakah Anda yakin ingin memproses kenaikan/pindah rombel untuk ' + studentIds.length + ' siswa terpilih?',
+                icon: 'question', showCancelButton: true, confirmButtonColor: '#28a745'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    proceed();
+                }
+            });
+        }
     }
 
     function undoPromotion() {
