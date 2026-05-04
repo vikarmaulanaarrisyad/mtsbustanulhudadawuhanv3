@@ -186,13 +186,17 @@
             ]
         });
 
-        $('#checkAll').on('change', function() {
-            $('.student-checkbox').prop('checked', $(this).prop('checked'));
+        table.on('draw', function() {
+            $('#checkAll').prop('checked', false);
+        });
+
+        $('#checkAll').on('click', function() {
+            $('.student-checkbox').prop('checked', this.checked);
         });
 
         $('#btnCheckAll').on('click', function() {
             let target = !$('#checkAll').prop('checked');
-            $('#checkAll').prop('checked', target).trigger('change');
+            $('#checkAll').prop('checked', target).trigger('click');
         });
 
         // Filter Target Classes (Manual)
