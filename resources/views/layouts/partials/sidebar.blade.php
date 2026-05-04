@@ -1,9 +1,11 @@
-<aside class="main-sidebar elevation-4 sidebar-light-success">
+<aside class="main-sidebar elevation-4 sidebar-midnight-premium animate__animated animate__fadeInLeft">
     <!-- Brand Logo -->
-    <a href="{{ url('/') }}" class="brand-link bg-success">
-        <img src="{{ Storage::url($setting->path_image ?? '') }}" alt="Logo"
-            class="brand-image img-circle elevation-3 bg-light" style="opacity: .8">
-        <span class="brand-text font-weight-light text-sm">
+    <a href="{{ url('/') }}" class="brand-link border-bottom-0 py-3">
+        <div class="brand-logo-wrapper d-inline-block mr-2">
+            <img src="{{ Storage::url($setting->path_image ?? '') }}" alt="Logo"
+                class="brand-image img-circle elevation-3 bg-white" style="opacity: 1; padding: 2px;">
+        </div>
+        <span class="brand-text font-weight-bold text-white text-uppercase" style="letter-spacing: 1px;">
             {{ $setting->company_name }}
         </span>
     </a>
@@ -531,3 +533,98 @@
         </nav>
     </div>
 </aside>
+
+<style>
+    /* MIDNIGHT PREMIUM SIDEBAR */
+    .sidebar-midnight-premium {
+        background: #1a202c !important; /* Deep Midnight Blue-Grey */
+        border-right: none;
+    }
+
+    .sidebar-midnight-premium .brand-link {
+        background: transparent !important;
+        padding-left: 20px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    }
+
+    .brand-logo-wrapper {
+        width: 33px; height: 33px;
+        background: #fff;
+        border-radius: 8px;
+        padding: 2px;
+        box-shadow: 0 4px 10px rgba(0,255,127,0.3);
+    }
+
+    .sidebar-midnight-premium .user-panel {
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        margin-top: 20px !important;
+        padding-bottom: 20px !important;
+    }
+
+    .sidebar-midnight-premium .user-panel .info a {
+        color: #e2e8f0 !important;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    /* Menu Item Styling */
+    .nav-sidebar .nav-item { margin-bottom: 5px; padding: 0 10px; }
+    
+    .nav-sidebar .nav-link {
+        border-radius: 12px !important;
+        color: #a0aec0 !important;
+        padding: 10px 15px !important;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-sidebar .nav-link i { font-size: 1.1rem; margin-right: 12px !important; }
+
+    .nav-sidebar .nav-link:hover {
+        background: rgba(255,255,255,0.05) !important;
+        color: #fff !important;
+        transform: translateX(5px);
+    }
+
+    .nav-sidebar .nav-link.active {
+        background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+    }
+
+    .nav-header {
+        color: #4a5568 !important;
+        font-size: 0.7rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 1.5px;
+        padding: 20px 0 10px 25px !important;
+    }
+
+    /* Treeview (Submenu) Styling */
+    .nav-treeview {
+        background: rgba(0,0,0,0.15) !important;
+        border-radius: 12px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        padding: 5px 0;
+    }
+
+    .nav-treeview .nav-link {
+        padding-left: 20px !important;
+        font-size: 0.85rem;
+    }
+
+    .nav-treeview .nav-link i { font-size: 0.8rem; }
+    
+    .nav-treeview .nav-link.active {
+        background: rgba(255,255,255,0.08) !important;
+        box-shadow: none !important;
+        color: #2ecc71 !important;
+        font-weight: bold;
+    }
+
+    /* Scrollbar Styling */
+    .sidebar::-webkit-scrollbar { width: 5px; }
+    .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+</style>
