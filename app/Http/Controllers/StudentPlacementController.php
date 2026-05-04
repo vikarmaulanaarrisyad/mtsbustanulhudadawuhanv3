@@ -28,7 +28,7 @@ class StudentPlacementController extends Controller
 
     public function data(Request $request)
     {
-        $query = Student::with(['classGroup', 'academicYear', 'studentStatus'])
+        $query = Student::with(['classGroup', 'academicYear', 'studentStatus', 'histories.classGroup'])
             ->where('is_active', true)
             ->whereNull('student_class_group_id')
             ->when($request->academic_year_id, function($q) use ($request) {
@@ -48,7 +48,12 @@ class StudentPlacementController extends Controller
             })
             ->addColumn('kelas_info', function($s) {
                 $level = $s->current_class_level ? "Tingkat $s->current_class_level" : "Belum ditentukan";
-                return '<span class="badge badge-secondary">' . $level . '</span>';
+                
+                // Get last known class from history
+                $lastHistory = $s->histories->whereNotNull('class_group_id')->sortByDesc('id')->first();
+                $lastClass = $lastHistory ? $lastHistory->classGroup->kelas_lengkap : 'Siswa Baru';
+                
+                return '<div><strong>' . $level . '</strong></div><small class="text-muted">Asal: ' . $lastClass . '</small>';
             })
             ->addColumn('status', fn($s) => $s->studentStatus->student_status_name ?? '-')
             ->escapeColumns([])
