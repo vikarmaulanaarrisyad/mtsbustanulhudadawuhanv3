@@ -286,29 +286,46 @@
         // Filter Target Classes (Manual)
         function updateTargetClasses() {
             let targetYearId = $('#target_academic_year').val();
-            let filterLevel = $('#filter_class_level').val();
             let $targetSelect = $('#target_class');
+            let currentVal = $targetSelect.val();
             
+            // Revert to original full list before filtering
             $targetSelect.html(allTargetOptions);
 
+            let count = 0;
             $targetSelect.find('option').each(function() {
                 let optYear = $(this).data('year');
-                let optLevel = $(this).data('level');
                 let val = $(this).val();
 
-                if (val === "") return;
+                if (val === "") return; // Skip placeholder
 
-                let isVisible = true;
-                if (targetYearId && optYear != targetYearId) isVisible = false;
-                if (isVisible && filterLevel && optLevel != filterLevel) isVisible = false;
-
-                if (!isVisible) $(this).remove();
+                if (targetYearId && optYear != targetYearId) {
+                    $(this).remove();
+                } else {
+                    count++;
+                }
             });
+            
+            // If the previously selected class is no longer in the list, reset it
+            if (currentVal && !$targetSelect.find('option[value="' + currentVal + '"]').length) {
+                $targetSelect.val('').trigger('change.select2');
+            }
+
+            // If no classes found for this year
+            if (count === 0) {
+                $targetSelect.append('<option value="" disabled>-- Tidak ada kelas di tahun ini --</option>');
+            }
             
             $targetSelect.trigger('change.select2');
         }
 
-        $('#filter_class_level, #target_academic_year').on('change', updateTargetClasses);
+        // Trigger filter when target year changes
+        $('#target_academic_year').on('change', function() {
+            updateTargetClasses();
+        });
+
+        // Trigger on load
+        updateTargetClasses();
         $('#filter_placement').on('change', refreshTable);
 
         // Sync Target Years with Filter Year to avoid confusion
