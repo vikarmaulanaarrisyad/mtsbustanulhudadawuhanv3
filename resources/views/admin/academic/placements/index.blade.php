@@ -34,7 +34,15 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Status Siswa</label>
+                    <label>Status Penempatan</label>
+                    <select id="filter_placement" class="form-control select2">
+                        <option value="unassigned" selected>Belum Memiliki Rombel</option>
+                        <option value="assigned">Sudah Memiliki Rombel</option>
+                        <option value="all">Semua Siswa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status Siswa (Keaktifan)</label>
                     <select id="filter_status" class="form-control select2">
                         <option value="">-- Semua Status --</option>
                         @foreach($studentStatuses as $ss)
@@ -174,6 +182,7 @@
                 data: function(d) {
                     d.academic_year_id = $('#filter_academic_year').val();
                     d.class_level = $('#filter_class_level').val();
+                    d.placement_status = $('#filter_placement').val();
                     d.status_id = $('#filter_status').val();
                 }
             },
@@ -182,6 +191,7 @@
                 { data: 'nis' },
                 { data: 'nama_lengkap' },
                 { data: 'kelas_info', searchable: false },
+                { data: 'placement_status', searchable: false },
                 { data: 'status' },
             ]
         });
@@ -248,6 +258,7 @@
 
         $('#filter_class_level, #target_academic_year').on('change', updateTargetClasses);
         $('#filter_class_level, #auto_target_academic_year').on('change', updateAutoTargetClasses);
+        $('#filter_placement').on('change', refreshTable);
 
         // Sync Target Years with Filter Year to avoid confusion
         $('#filter_academic_year').on('change', function() {

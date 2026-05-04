@@ -30,7 +30,14 @@ class StudentPlacementController extends Controller
     {
         $query = Student::with(['classGroup', 'academicYear', 'studentStatus', 'histories.classGroup'])
             ->where('is_active', true)
-            ->whereNull('student_class_group_id')
+            ->when($request->placement_status, function($q) use ($request) {
+                if ($request->placement_status === 'unassigned') {
+                    return $q->whereNull('student_class_group_id');
+                } elseif ($request->placement_status === 'assigned') {
+                    return $q->whereNotNull('student_class_group_id');
+                }
+                return $q;
+            })
             ->when($request->academic_year_id, function($q) use ($request) {
                 if ($request->academic_year_id === 'none') {
                     return $q->whereNull('academic_year_id');
@@ -49,15 +56,20 @@ class StudentPlacementController extends Controller
             ->addColumn('kelas_info', function($s) {
                 $level = $s->current_class_level ? "Tingkat $s->current_class_level" : "Belum ditentukan";
                 
-                // Get last known class from history
+                // Get last known class from history (excluding current if unassigned)
                 $lastHistory = $s->histories->whereNotNull('class_group_id')->sortByDesc('id')->first();
                 $lastClass = $lastHistory ? $lastHistory->classGroup->kelas_lengkap : 'Siswa Baru';
                 
                 return '<div><strong>' . $level . '</strong></div><small class="text-muted">Asal: ' . $lastClass . '</small>';
             })
+            ->addColumn('placement_status', function($s) {
+                if ($s->student_class_group_id) {
+                    return '<span class="badge badge-success"><i class="fas fa-check mr-1"></i> ' . $s->kelas_lengkap . '</span>';
+                }
+                return '<span class="badge badge-danger"><i class="fas fa-times mr-1"></i> Belum Ditempatkan</span>';
+            })
             ->addColumn('status', fn($s) => $s->studentStatus->student_status_name ?? '-')
             ->escapeColumns([])
-            ->make(true);
     }
 
     public function store(Request $request)
