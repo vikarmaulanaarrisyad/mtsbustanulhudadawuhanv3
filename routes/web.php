@@ -52,7 +52,9 @@ use App\Http\Controllers\{
     StudentPlacementController,
     StudentAcceptanceController,
     AnnouncementController,
-    StudentCardController
+    StudentCardController,
+    GradeSettingController,
+    StudentGradeController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -635,6 +637,38 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/pdf', [StudentAttendanceController::class, 'pdf'])->name('student-attendances.pdf');
     });
     Route::resource('/student-attendances', StudentAttendanceController::class);
+
+    // Grade Management
+    Route::prefix('grades')->group(function () {
+        // Settings
+        Route::controller(GradeSettingController::class)->group(function () {
+            Route::get('/settings', 'index')->name('grade-settings.index');
+            Route::get('/settings/data', 'data')->name('grade-settings.data');
+            Route::post('/settings', 'store')->name('grade-settings.store');
+            Route::post('/settings/weights', 'updateWeights')->name('grade-settings.update_weights');
+            Route::delete('/settings/{id}', 'destroy')->name('grade-settings.destroy');
+        });
+
+        // Input Grades
+        Route::controller(StudentGradeController::class)->group(function () {
+            Route::get('/raport', 'raportIndex')->name('student-grades.raport');
+            Route::get('/raport/data', 'raportData')->name('student-grades.raport_data');
+            Route::post('/raport/save', 'saveRaport')->name('student-grades.save_raport');
+            Route::get('/raport/export', 'exportRaport')->name('student-grades.export_raport');
+            Route::post('/raport/import', 'importRaport')->name('student-grades.import_raport');
+
+            Route::get('/exam', 'examIndex')->name('student-grades.exam');
+            Route::get('/exam/data', 'examData')->name('student-grades.exam_data');
+            Route::post('/exam/save', 'saveExam')->name('student-grades.save_exam');
+            Route::get('/exam/export', 'exportExam')->name('student-grades.export_exam');
+            Route::post('/exam/import', 'importExam')->name('student-grades.import_exam');
+
+            // Certificates
+            Route::get('/{student_id}/certificate/raport', 'printRaport')->name('student-grades.print_raport');
+            Route::get('/{student_id}/certificate/skl', 'printSKL')->name('student-grades.print_skl');
+            Route::get('/{student_id}/certificate/pdum', 'printPDUM')->name('student-grades.print_pdum');
+        });
+    });
 });
 
 /*

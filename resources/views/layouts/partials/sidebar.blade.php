@@ -139,6 +139,36 @@
                         </li>
                         @endif
                     </ul>
+                {{-- ================= PENGOLAHAN NILAI ================= --}}
+                <li class="nav-header">PENGOLAHAN NILAI</li>
+                <li class="nav-item {{ request()->is('grades*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->is('grades*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-file-invoice"></i>
+                        <p>
+                            Nilai Siswa
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('grade-settings.index') }}" class="nav-link {{ request()->routeIs('grade-settings.index') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Konfigurasi Mapel</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('student-grades.raport') }}" class="nav-link {{ request()->routeIs('student-grades.raport') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Input Nilai Raport</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('student-grades.exam') }}" class="nav-link {{ request()->routeIs('student-grades.exam') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Input Nilai Ujian</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
                 {{-- ================= ABSENSI ================= --}}
