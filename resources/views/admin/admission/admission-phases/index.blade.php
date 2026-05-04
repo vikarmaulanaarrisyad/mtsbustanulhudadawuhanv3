@@ -1,344 +1,233 @@
 @extends($layout)
 
 @section('title', 'Gelombang Pendaftaran')
-@section('subtitle', 'Gelombang Pendaftaran')
-
-@section('breadcrumb')
-    @parent
-    <li class="breadcrumb-item active">PPDB</li>
-    <li class="breadcrumb-item active">@yield('subtitle')</li>
-@endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-lg-12">
-            <x-card>
-                <x-slot name="header">
-                    Informasi Gelombang Pendaftaran
-                </x-slot>
-
-                <table class="table table-bordered table-striped">
-                    <tbody>
-                        <tr>
-                            <td style="width: 25%;">
-                                <i class="bi bi-calendar-event text-primary me-2"></i>
-                                <strong>Tanggal Mulai Pendaftaran</strong>
-                            </td>
-                            <td style="width: 25%;">
-                                @if ($studentAdmission)
-                                    {{ tanggal_indonesia($studentAdmission->admission_start_date) }}
-                                @else
-                                    <a href="{{ route('student-admissions.index') }}">
-                                        <i class="text-muted">Belum diatur</i>
-                                    </a>
-                                @endif
-                            </td>
-
-                            <td style="width: 25%;">
-                                <i class="bi bi-megaphone text-primary me-2"></i>
-                                <strong>Tanggal Mulai Pengumuman</strong>
-                            </td>
-                            <td style="width: 25%;">
-                                @if ($studentAdmission && $studentAdmission->announcement_start_date)
-                                    {{ tanggal_indonesia($studentAdmission->announcement_start_date) }}
-                                @else
-                                    <a href="{{ route('student-admissions.index') }}">
-                                        <i class="text-muted">Belum diatur</i>
-                                    </a>
-                                @endif
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <i class="bi bi-calendar-x text-primary me-2"></i>
-                                <strong>Tanggal Selesai Pendaftaran</strong>
-                            </td>
-                            <td>
-                                @if ($studentAdmission)
-                                    {{ tanggal_indonesia($studentAdmission->admission_end_date) }}
-                                @else
-                                    <a href="{{ route('student-admissions.index') }}">
-                                        <i class="text-muted">Belum diatur</i>
-                                    </a>
-                                @endif
-                            </td>
-
-                            <td>
-                                <i class="bi bi-megaphone text-primary me-2"></i>
-                                <strong>Tanggal Selesai Pengumuman</strong>
-                            </td>
-                            <td>
-                                @if ($studentAdmission && $studentAdmission->announcement_end_date)
-                                    {{ tanggal_indonesia($studentAdmission->announcement_end_date) }}
-                                @else
-                                    <a href="{{ route('student-admissions.index') }}">
-                                        <i class="text-muted">Belum diatur</i>
-                                    </a>
-                                @endif
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </x-card>
+<!-- PREMIUM HEADER -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-lg border-0 mb-4 bg-gradient-indigo-dark overflow-hidden position-relative" style="border-radius: 15px;">
+            <div class="card-body p-4 position-relative" style="z-index: 1;">
+                <div class="row align-items-center">
+                    <div class="col-md-8 text-white">
+                        <h2 class="font-weight-bold mb-1">
+                            <i class="fas fa-layer-group mr-2 animate__animated animate__fadeInLeft"></i> 
+                            Manajemen Gelombang PPDB
+                        </h2>
+                        <p class="mb-0 opacity-8 text-lg font-weight-light">
+                            Definisikan tahapan pendaftaran (Gelombang 1, 2, dst) untuk mengatur pembagian waktu seleksi calon siswa.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-right d-none d-md-block">
+                        <i class="fas fa-stream fa-8x opacity-1 shadow-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-shape-1"></div>
+            <div class="bg-shape-2"></div>
         </div>
     </div>
+</div>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <x-card>
-                <x-slot name="header">
-                    <button onclick="addForm(`{{ route('admission-phases.store') }}`)" class="btn btn-sm btn-info"><i
-                            class="fas fa-plus-circle"></i>
-                        Tambah Data
+<!-- PERIOD SUMMARY CARDS -->
+<div class="row mb-2 animate__animated animate__fadeInUp">
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm rounded-20 p-4 bg-white h-100 position-relative overflow-hidden">
+            <div class="d-flex align-items-center mb-3">
+                <div class="avatar-sm bg-soft-indigo rounded-circle d-flex align-items-center justify-content-center mr-3 text-indigo">
+                    <i class="fas fa-calendar-alt fa-lg"></i>
+                </div>
+                <h6 class="font-weight-bold text-dark mb-0">Jadwal Pendaftaran Utama</h6>
+            </div>
+            <div class="row">
+                <div class="col-6 border-right">
+                    <span class="text-xs font-weight-bold text-muted uppercase d-block mb-1">Mulai</span>
+                    <span class="font-weight-bold text-indigo">
+                        @if ($studentAdmission) {{ tanggal_indonesia($studentAdmission->admission_start_date) }} @else <em class="text-muted">Belum diatur</em> @endif
+                    </span>
+                </div>
+                <div class="col-6 pl-4">
+                    <span class="text-xs font-weight-bold text-muted uppercase d-block mb-1">Selesai</span>
+                    <span class="font-weight-bold text-danger">
+                        @if ($studentAdmission) {{ tanggal_indonesia($studentAdmission->admission_end_date) }} @else <em class="text-muted">Belum diatur</em> @endif
+                    </span>
+                </div>
+            </div>
+            <div class="bg-card-decoration" style="background: rgba(79, 70, 229, 0.03);"></div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm rounded-20 p-4 bg-white h-100 position-relative overflow-hidden">
+            <div class="d-flex align-items-center mb-3">
+                <div class="avatar-sm bg-soft-success rounded-circle d-flex align-items-center justify-content-center mr-3 text-success">
+                    <i class="fas fa-bullhorn fa-lg"></i>
+                </div>
+                <h6 class="font-weight-bold text-dark mb-0">Jadwal Pengumuman Utama</h6>
+            </div>
+            <div class="row">
+                <div class="col-6 border-right">
+                    <span class="text-xs font-weight-bold text-muted uppercase d-block mb-1">Awal</span>
+                    <span class="font-weight-bold text-success">
+                        @if ($studentAdmission && $studentAdmission->announcement_start_date) {{ tanggal_indonesia($studentAdmission->announcement_start_date) }} @else <em class="text-muted">Belum diatur</em> @endif
+                    </span>
+                </div>
+                <div class="col-6 pl-4">
+                    <span class="text-xs font-weight-bold text-muted uppercase d-block mb-1">Akhir</span>
+                    <span class="font-weight-bold text-warning">
+                        @if ($studentAdmission && $studentAdmission->announcement_end_date) {{ tanggal_indonesia($studentAdmission->announcement_end_date) }} @else <em class="text-muted">Belum diatur</em> @endif
+                    </span>
+                </div>
+            </div>
+            <div class="bg-card-decoration" style="background: rgba(16, 185, 129, 0.03);"></div>
+        </div>
+    </div>
+</div>
+
+<!-- DATA TABLE AREA -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow-sm border-0 premium-card">
+            <div class="card-header bg-white py-4 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title font-weight-bold mb-0 text-dark">
+                        <i class="fas fa-list-ul mr-2 text-indigo"></i> Daftar Gelombang
+                    </h5>
+                    <button onclick="addForm(`{{ route('admission-phases.store') }}`)" class="btn btn-indigo rounded-pill px-4 font-weight-bold shadow-indigo-light">
+                        <i class="fas fa-plus-circle mr-1"></i> TAMBAH GELOMBANG
                     </button>
-                </x-slot>
-                <x-table id="table">
-                    <x-slot name="thead">
-                        <th width="5%">NO</th>
-                        <th width="25%">TAHUN PELAJARAN</th>
-                        <th>GELOMBANG PENDAFTARAN</th>
-                        <th>TANGGAL MULAI</th>
-                        <th>TANGGAL SELESAI</th>
-                        <th>TANGGAL PENGUMUMAN</th>
-                        <th>AKSI</th>
-                    </x-slot>
-                </x-table>
-            </x-card>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="phaseTable" style="width:100%">
+                        <thead class="bg-light-indigo text-uppercase">
+                            <tr>
+                                <th width="5%" class="text-center py-3">NO</th>
+                                <th>TAHUN PELAJARAN</th>
+                                <th>NAMA GELOMBANG</th>
+                                <th><i class="far fa-calendar-alt mr-1"></i> TANGGAL MULAI</th>
+                                <th><i class="far fa-calendar-check mr-1"></i> TANGGAL SELESAI</th>
+                                <th><i class="fas fa-bullhorn mr-1"></i> PENGUMUMAN</th>
+                                <th width="100px" class="text-center">AKSI</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    @include('admin.admission.admission-phases.form')
+@include('admin.admission.admission-phases.form')
+
+<style>
+    /* PREMIUM UI STYLES */
+    .bg-gradient-indigo-dark { background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%) !important; }
+    .bg-shape-1 { position: absolute; width: 400px; height: 400px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; top: -150px; right: -100px; }
+    .bg-shape-2 { position: absolute; width: 200px; height: 200px; background: rgba(99, 102, 241, 0.05); border-radius: 50%; bottom: -50px; left: 10%; }
+    
+    .premium-card { border-radius: 20px; overflow: hidden; }
+    .rounded-20 { border-radius: 20px; }
+    .bg-light-indigo { background: #f8fafc; color: #64748b; font-size: 0.7rem; font-weight: 800; letter-spacing: 1.5px; }
+    .bg-soft-indigo { background: #eef2ff; }
+    .bg-soft-success { background: #f0fdf4; }
+    
+    .btn-indigo { background: #4f46e5; color: #fff; }
+    .btn-indigo:hover { background: #4338ca; color: #fff; }
+    .shadow-indigo-light { box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); }
+
+    .bg-card-decoration { position: absolute; width: 150px; height: 150px; border-radius: 50%; top: -50px; right: -50px; z-index: 0; }
+
+    /* Table Styling */
+    #phaseTable { border-collapse: separate; border-spacing: 0 10px; }
+    #phaseTable tbody tr { background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.2s ease; border-radius: 12px; }
+    #phaseTable tbody tr:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.05); background: #fcfaff; }
+    #phaseTable td { border: none; padding: 1.2rem 0.75rem; vertical-align: middle; }
+    #phaseTable td:first-child { border-radius: 12px 0 0 12px; }
+    #phaseTable td:last-child { border-radius: 0 12px 12px 0; }
+
+    .shadow-icon { filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); }
+</style>
 @endsection
-
 
 @include('includes.datatable')
 @include('includes.datepicker')
 
 @push('scripts')
-    <script>
-        let table;
-        let modal = '#modal-form';
-        let button = '#submitBtn';
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script>
+    let table;
+    let modal = '#modal-form';
+    let button = '#submitBtn';
 
-        table = $('#table').DataTable({
-            processing: false,
-            serverSide: true,
-            autoWidth: false,
-            responsive: true,
-            ajax: {
-                url: '{{ route('admission-phases.data') }}',
-            },
-            columns: [{
-                    data: 'DT_RowIndex',
-                    name: 'DT_RowIndex',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'academic_year',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'phase_name',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'phase_start_date',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'phase_end_date',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'announcement_date',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'action',
-                    orderable: false,
-                    searchable: false
-                },
+    $(function() {
+        table = $('#phaseTable').DataTable({
+            processing: true, serverSide: true, autoWidth: false,
+            language: { searchPlaceholder: "Cari gelombang...", search: "" },
+            ajax: { url: '{{ route('admission-phases.data') }}' },
+            columns: [
+                { data: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center font-weight-bold' },
+                { data: 'academic_year', render: (data) => '<span class="badge badge-light border px-3 py-2 text-indigo font-weight-bold">' + data + '</span>' },
+                { data: 'phase_name', render: (data) => '<span class="font-weight-bold text-dark h6 mb-0">' + data + '</span>' },
+                { data: 'phase_start_date', render: (data) => '<span class="small font-weight-bold text-muted"><i class="far fa-calendar-alt mr-1"></i> ' + data + '</span>' },
+                { data: 'phase_end_date', render: (data) => '<span class="small font-weight-bold text-muted"><i class="far fa-calendar-check mr-1 text-danger"></i> ' + data + '</span>' },
+                { data: 'announcement_date', render: (data) => '<span class="badge badge-soft-success px-3 py-2 rounded-pill font-weight-bold text-xs"><i class="fas fa-bullhorn mr-1"></i> ' + (data || '---') + '</span>' },
+                { data: 'action', className: 'text-center' },
             ]
-        })
+        });
+    });
 
-        function addForm(url, title = 'Gelombang Pendaftaran') {
-            $(modal).modal('show');
+    function addForm(url, title = 'Tambah Gelombang Pendaftaran') {
+        $(modal).modal('show');
+        $(`${modal} .modal-title`).text(title);
+        $(`${modal} form`).attr('action', url);
+        $(`${modal} [name=_method]`).val('post');
+        resetForm(`${modal} form`);
+    }
+
+    function editForm(url, title = 'Edit Gelombang Pendaftaran') {
+        Swal.fire({ title: "Memuat...", didOpen: () => Swal.showLoading() });
+        $.get(url).done(res => {
+            Swal.close(); $(modal).modal('show');
             $(`${modal} .modal-title`).text(title);
             $(`${modal} form`).attr('action', url);
-            $(`${modal} [name=_method]`).val('post');
-
+            $(`${modal} [name=_method]`).val('put');
             resetForm(`${modal} form`);
-        }
+            loopForm(res.data);
+        }).fail(() => { Swal.close(); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Data tidak ditemukan.' }); });
+    }
 
-        function editForm(url, title = 'Gelombang Pendaftaran') {
-            Swal.fire({
-                title: "Memuat...",
-                text: "Mohon tunggu sebentar...",
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    Swal.showLoading(); // Menampilkan spinner loading
-                }
-            });
+    function submitForm(originalForm) {
+        $(button).prop('disabled', true);
+        Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+        $.ajax({
+            url: $(originalForm).attr('action'),
+            type: 'POST',
+            data: new FormData(originalForm),
+            processData: false, contentType: false,
+            success: function(res) {
+                Swal.close();
+                $(modal).modal('hide');
+                Swal.fire({ icon: 'success', title: 'Berhasil!', text: res.message, timer: 2000, showConfirmButton: false });
+                table.ajax.reload();
+            },
+            error: function(xhr) {
+                Swal.close(); $(button).prop('disabled', false);
+                Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan.' });
+                if (xhr.status === 422) loopErrors(xhr.responseJSON.errors);
+            }
+        });
+    }
 
-            $.get(url)
-                .done(response => {
-                    Swal.close(); // Tutup loading setelah sukses
-                    $(modal).modal('show');
-                    $(`${modal} .modal-title`).text(title);
-                    $(`${modal} form`).attr('action', url);
-                    $(`${modal} [name=_method]`).val('put');
-
-                    resetForm(`${modal} form`);
-                    loopForm(response.data);
-                })
-                .fail(errors => {
-                    Swal.close(); // Tutup loading jika terjadi error
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops! Gagal',
-                        text: errors.responseJSON?.message || 'Terjadi kesalahan saat memuat data.',
-                        showConfirmButton: true,
-                    });
-
-                    if (errors.status == 422) {
-                        loopErrors(errors.responseJSON.errors);
-                    }
-                });
-        }
-
-        function submitForm(originalForm) {
-            $(button).prop('disabled', true);
-
-            // Menampilkan Swal loading
-            Swal.fire({
-                title: 'Mohon Tunggu...',
-                text: 'Sedang memproses data',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading(); // Menampilkan animasi loading
-                }
-            });
-
-            $.ajax({
-                url: $(originalForm).attr('action'),
-                type: $(originalForm).attr('method') || 'POST', // Gunakan method dari form
-                data: new FormData(originalForm),
-                dataType: 'JSON',
-                contentType: false,
-                cache: false,
-                processData: false,
-                success: function(response, textStatus, xhr) {
-                    Swal.close(); // Tutup Swal Loading
-
-                    if (xhr.status === 201 || xhr.status === 200) {
-                        $(modal).modal('hide');
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: response.message,
-                            showConfirmButton: false,
-                            timer: 3000
-                        }).then(() => {
-                            $(button).prop('disabled', false);
-                            table.ajax.reload(); // Reload DataTables
-                        });
-                    }
-                },
-                error: function(xhr) {
-                    Swal.close(); // Tutup Swal Loading
-                    $(button).prop('disabled', false);
-
-                    let errorMessage = "Terjadi kesalahan!";
-                    if (xhr.responseJSON?.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops! Gagal',
-                        text: errorMessage,
-                        showConfirmButton: false,
-                        timer: 3000,
-                    });
-
-                    if (xhr.status === 422) {
-                        loopErrors(xhr.responseJSON.errors);
-                    }
-                }
-            });
-        }
-
-        function deleteData(url, name) {
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    cancelButton: 'btn btn-danger'
-                },
-                buttonsStyling: true,
-            });
-
-            swalWithBootstrapButtons.fire({
-                title: 'Delete Data!',
-                text: 'Apakah Anda yakin ingin menghapus ' + name +
-                    ' ? Data yang dihapus tidak dapat dikembalikan!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#aaa',
-                confirmButtonText: 'Iya!',
-                cancelButtonText: 'Batalkan',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Tampilkan Swal loading sebelum menghapus
-                    Swal.fire({
-                        title: 'Menghapus...',
-                        text: 'Mohon tunggu sebentar',
-                        allowOutsideClick: false,
-                        showConfirmButton: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-
-                    $.ajax({
-                        type: "DELETE",
-                        url: url,
-                        dataType: "json",
-                        success: function(response) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: response.message,
-                                showConfirmButton: false,
-                                timer: 3000
-                            }).then(() => {
-                                table.ajax.reload(); // Reload DataTables setelah penghapusan
-                            });
-                        },
-                        error: function(xhr, status, error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops! Gagal',
-                                text: xhr.responseJSON ? xhr.responseJSON.message :
-                                    'Terjadi kesalahan!',
-                                showConfirmButton: true,
-                            }).then(() => {
-                                table.ajax.reload(); // Reload tabel jika terjadi error
-                            });
-                        }
-                    });
-                }
-            });
-        }
-    </script>
+    function deleteData(url, name) {
+        Swal.fire({ title: 'Hapus Gelombang?', text: 'Hapus ' + name + '? Data yang dihapus tidak dapat dikembalikan!', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' })
+        .then((res) => {
+            if (res.isConfirmed) {
+                Swal.fire({ title: 'Menghapus...', didOpen: () => Swal.showLoading() });
+                $.ajax({ type: "DELETE", url: url, data: { _token: '{{ csrf_token() }}' }, success: (r) => { Swal.fire({ icon: 'success', title: 'Dihapus', text: r.message }); table.ajax.reload(); } });
+            }
+        });
+    }
+</script>
 @endpush

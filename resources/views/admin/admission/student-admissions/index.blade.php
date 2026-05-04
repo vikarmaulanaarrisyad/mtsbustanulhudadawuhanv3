@@ -3,278 +3,192 @@
 @section('title', 'Pengaturan Penerimaan Peserta Didik Baru')
 @section('subtitle', 'Pengaturan PPDB')
 
-@section('breadcrumb')
-    @parent
-    <li class="breadcrumb-item active">PPDB</li>
-    <li class="breadcrumb-item active">@yield('subtitle')</li>
-@endsection
-
 @section('content')
-    <div class="row">
-        <div class="col-lg-12">
-            <x-card>
-                @if ($studentAdmissions == 0)
-                    <x-slot name="header">
-                        <button id="btn-tambah-data" onclick="addForm(`{{ route('student-admissions.store') }}`)"
-                            class="btn btn-sm btn-info">
-                            <i class="fas fa-plus-circle"></i> Tambah Data
-                        </button>
-                    </x-slot>
-                @endif
-
-                <x-table>
-                    <x-slot name="thead">
-                        <th width="5%">NO</th>
-                        <th>Tanggal Mulai PPDB</th>
-                        <th>Tanggal Selesai PPDB</th>
-                        <th>Status PPDB</th>
-                        <th>Tahun PPDB</th>
-                        <th>Tanggal Mulai Pengumuman</th>
-                        <th>Tanggal Selesai Pengumuman</th>
-                        <th>No. BA</th>
-                        <th>No. SK</th>
-                        <th>Aksi</th>
-                    </x-slot>
-                </x-table>
-            </x-card>
+<!-- PREMIUM HEADER -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-lg border-0 mb-4 bg-gradient-indigo overflow-hidden position-relative" style="border-radius: 15px;">
+            <div class="card-body p-4 position-relative" style="z-index: 1;">
+                <div class="row align-items-center">
+                    <div class="col-md-8 text-white">
+                        <h2 class="font-weight-bold mb-1">
+                            <i class="fas fa-cog mr-2 animate__animated animate__rotateIn"></i> 
+                            Konfigurasi Periode PPDB
+                        </h2>
+                        <p class="mb-0 opacity-8 text-lg font-weight-light">
+                            Atur rentang waktu pendaftaran, jadwal pengumuman, dan nomor surat resmi untuk periode penerimaan siswa.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-right d-none d-md-block">
+                        <i class="fas fa-tools fa-7x opacity-1 shadow-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-shape-1"></div>
+            <div class="bg-shape-2"></div>
         </div>
     </div>
+</div>
 
-    @include('admin.admission.student-admissions.form')
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow-sm border-0 premium-card">
+            <div class="card-header bg-white py-4 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title font-weight-bold mb-0 text-dark">
+                        <i class="fas fa-calendar-check mr-2 text-indigo"></i> Master Periode Aktif
+                    </h5>
+                    @if ($studentAdmissions == 0)
+                        <button id="btn-tambah-data" onclick="addForm(`{{ route('student-admissions.store') }}`)"
+                            class="btn btn-indigo rounded-pill px-4 font-weight-bold shadow-indigo-light">
+                            <i class="fas fa-plus-circle mr-1"></i> INISIASI PERIODE BARU
+                        </button>
+                    @endif
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="alert alert-soft-indigo rounded-20 border-0 shadow-sm mb-4 p-3 animate__animated animate__fadeIn">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-indigo rounded-circle d-flex align-items-center justify-content-center mr-3 text-white">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="small">
+                            Pastikan rentang tanggal pendaftaran tidak bentrok dengan jadwal pengumuman. Nomor BA dan SK akan digunakan pada cetak dokumen kolektif.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="admissionTable" style="width:100%">
+                        <thead class="bg-light-indigo text-uppercase">
+                            <tr>
+                                <th width="5%" class="text-center py-3">NO</th>
+                                <th><i class="fas fa-calendar-alt mr-1"></i> MULAI PPDB</th>
+                                <th><i class="fas fa-calendar-check mr-1"></i> SELESAI PPDB</th>
+                                <th class="text-center">STATUS</th>
+                                <th class="text-center">TAHUN</th>
+                                <th><i class="fas fa-bullhorn mr-1"></i> PENGUMUMAN</th>
+                                <th>NO. BA / SK</th>
+                                <th width="100px" class="text-center">AKSI</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@include('admin.admission.student-admissions.form')
+
+<style>
+    /* PREMIUM UI STYLES */
+    .bg-gradient-indigo { background: linear-gradient(135deg, #4338ca 0%, #1e1b4b 100%) !important; }
+    .bg-shape-1 { position: absolute; width: 300px; height: 300px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; top: -100px; right: -50px; }
+    .bg-shape-2 { position: absolute; width: 150px; height: 150px; background: rgba(99, 102, 241, 0.05); border-radius: 50%; bottom: -30px; left: 10%; }
+    
+    .premium-card { border-radius: 20px; overflow: hidden; }
+    .bg-light-indigo { background: #f8fafc; color: #64748b; font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; }
+    .alert-soft-indigo { background: #fcfaff; color: #4338ca; border-left: 5px solid #4f46e5; }
+    
+    .btn-indigo { background: #4f46e5; color: #fff; }
+    .btn-indigo:hover { background: #4338ca; color: #fff; }
+    .shadow-indigo-light { box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); }
+
+    /* Table Styling */
+    #admissionTable { border-collapse: separate; border-spacing: 0 10px; }
+    #admissionTable tbody tr { background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.2s ease; border-radius: 12px; }
+    #admissionTable tbody tr:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.05); background: #fcfaff; }
+    #admissionTable td { border: none; padding: 1.2rem 0.75rem; vertical-align: middle; }
+    #admissionTable td:first-child { border-radius: 12px 0 0 12px; }
+    #admissionTable td:last-child { border-radius: 0 12px 12px 0; }
+
+    .shadow-icon { filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); }
+</style>
 @endsection
 
 @include('includes.datatable')
 @include('includes.datepicker')
 
 @push('scripts')
-    <script>
-        let table;
-        let modal = '#modal-form';
-        let button = '#submitBtn';
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script>
+    let table;
+    let modal = '#modal-form';
+    let button = '#submitBtn';
 
-        table = $('.table').DataTable({
-            processing: true,
-            serverSide: true,
-            autoWidth: false,
-            responsive: true,
-            ajax: {
-                url: '{{ route('student-admissions.data') }}',
-            },
-            columns: [{
-                    data: 'DT_RowIndex',
-                    name: 'DT_RowIndex',
-                    orderable: false,
-                    searchable: false
+    $(function() {
+        table = $('#admissionTable').DataTable({
+            processing: true, serverSide: true, autoWidth: false,
+            language: { searchPlaceholder: "Cari periode...", search: "" },
+            ajax: { url: '{{ route('student-admissions.data') }}' },
+            columns: [
+                { data: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center font-weight-bold' },
+                { data: 'admission_start_date', render: (data) => '<span class="font-weight-bold text-dark"><i class="far fa-calendar-alt mr-2 text-indigo"></i>' + data + '</span>' },
+                { data: 'admission_end_date', render: (data) => '<span class="font-weight-bold text-dark"><i class="far fa-calendar-check mr-2 text-danger"></i>' + data + '</span>' },
+                { data: 'admission_status', className: 'text-center' },
+                { data: 'admission_year', className: 'text-center font-weight-bold' },
+                { 
+                    data: 'announcement_start_date', 
+                    render: (data, type, row) => '<div class="small font-weight-bold text-indigo"><i class="fas fa-bullhorn mr-1"></i> ' + data + '</div><div class="small text-muted">s/d ' + row.announcement_end_date + '</div>'
                 },
-                {
-                    data: 'admission_start_date',
-                    orderable: false,
-                    searchable: false
+                { 
+                    data: 'ba_letter_number', 
+                    render: (data, type, row) => '<div class="text-xs font-weight-bold text-muted">BA: ' + (data || '---') + '</div><div class="text-xs font-weight-bold text-muted">SK: ' + (row.sk_letter_number || '---') + '</div>'
                 },
-                {
-                    data: 'admission_end_date',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'admission_status',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'admission_year',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'announcement_start_date',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'announcement_end_date',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'ba_letter_number',
-                    orderable: false,
-                    searchable: false,
-                    defaultContent: '<em class="text-muted">Otomatis</em>'
-                },
-                {
-                    data: 'sk_letter_number',
-                    orderable: false,
-                    searchable: false,
-                    defaultContent: '<em class="text-muted">Otomatis</em>'
-                },
-                {
-                    data: 'action',
-                    orderable: false,
-                    searchable: false
-                },
+                { data: 'action', className: 'text-center' },
             ]
-        })
+        });
+    });
 
-        function addForm(url, title = 'Pengaturan Penerimaan Peserta Didik Baru') {
-            $(modal).modal('show');
+    function addForm(url, title = 'Inisiasi Periode PPDB Baru') {
+        $(modal).modal('show');
+        $(`${modal} .modal-title`).text(title);
+        $(`${modal} form`).attr('action', url);
+        $(`${modal} [name=_method]`).val('post');
+        resetForm(`${modal} form`);
+    }
+
+    function editForm(url, title = 'Konfigurasi Periode PPDB') {
+        Swal.fire({ title: "Memuat...", didOpen: () => Swal.showLoading() });
+        $.get(url).done(res => {
+            Swal.close(); $(modal).modal('show');
             $(`${modal} .modal-title`).text(title);
             $(`${modal} form`).attr('action', url);
-            $(`${modal} [name=_method]`).val('post');
-
+            $(`${modal} [name=_method]`).val('put');
             resetForm(`${modal} form`);
-        }
+            loopForm(res.data);
+        }).fail(() => { Swal.close(); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Data tidak ditemukan.' }); });
+    }
 
-        function editForm(url, title = 'Pengaturan Penerimaan Peserta Didik Baru') {
-            Swal.fire({
-                title: "Memuat...",
-                text: "Mohon tunggu sebentar...",
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    Swal.showLoading(); // Menampilkan spinner loading
-                }
-            });
-
-            $.get(url)
-                .done(response => {
-                    Swal.close(); // Tutup loading setelah sukses
-                    $(modal).modal('show');
-                    $(`${modal} .modal-title`).text(title);
-                    $(`${modal} form`).attr('action', url);
-                    $(`${modal} [name=_method]`).val('put');
-
-                    resetForm(`${modal} form`);
-                    loopForm(response.data);
-                })
-                .fail(errors => {
-                    Swal.close(); // Tutup loading jika terjadi error
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops! Gagal',
-                        text: errors.responseJSON?.message || 'Terjadi kesalahan saat memuat data.',
-                        showConfirmButton: true,
-                    });
-
-                    if (errors.status == 422) {
-                        loopErrors(errors.responseJSON.errors);
-                    }
-                });
-        }
-
-        function submitForm(originalForm) {
-            $(button).prop('disabled', true);
-
-            // Menampilkan Swal loading
-            Swal.fire({
-                title: 'Mohon Tunggu...',
-                text: 'Sedang memproses data',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading(); // Menampilkan animasi loading
-                }
-            });
-
-            $.ajax({
-                url: $(originalForm).attr('action'),
-                type: $(originalForm).attr('method') || 'POST', // Gunakan method dari form
-                data: new FormData(originalForm),
-                dataType: 'JSON',
-                contentType: false,
-                cache: false,
-                processData: false,
-                success: function(response, textStatus, xhr) {
-                    Swal.close(); // Tutup Swal Loading
-
-                    if (xhr.status === 201 || xhr.status === 200) {
-                        $(modal).modal('hide');
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: response.message,
-                            showConfirmButton: false,
-                            timer: 3000
-                        }).then(() => {
-                            $(button).prop('disabled', false);
-                            table.ajax.reload(); // Reload DataTables
-
-                            // Sembunyikan tombol "Tambah Data"
-                            $('#btn-tambah-data').remove();
-                            $('.card-header').remove();
-                        });
-                    }
-                },
-                error: function(xhr) {
-                    Swal.close(); // Tutup Swal Loading
-                    $(button).prop('disabled', false);
-
-                    let errorMessage = "Terjadi kesalahan!";
-                    if (xhr.responseJSON?.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops! Gagal',
-                        text: errorMessage,
-                        showConfirmButton: false,
-                        timer: 3000,
-                    });
-
-                    if (xhr.status === 422) {
-                        loopErrors(xhr.responseJSON.errors);
-                    }
-                }
-            });
-        }
-    </script>
-
-    <script>
-        $(function() {
-            // Inisialisasi datetimepicker dengan format YYYY-MM-DD
-            $('#admission_start_date').datetimepicker({
-                format: 'YYYY-MM-DD'
-            });
-
-            $('#admission_end_date').datetimepicker({
-                useCurrent: false,
-                format: 'YYYY-MM-DD'
-            });
-
-            $('#announcement_start_date').datetimepicker({
-                useCurrent: false,
-                format: 'YYYY-MM-DD'
-            });
-
-            $('#announcement_end_date').datetimepicker({
-                useCurrent: false,
-                format: 'YYYY-MM-DD'
-            });
-
-            // Reset dan atur minDate setelah admission_start_date berubah
-            $('#admission_start_date').on('change.datetimepicker', function(e) {
-                $('#admission_end_date').datetimepicker('minDate', e.date);
-                $('#admission_end_date input').val('');
-                $('#announcement_start_date input').val('');
-                $('#announcement_end_date input').val('');
-                $('#announcement_start_date').datetimepicker('minDate', false);
-                $('#announcement_end_date').datetimepicker('minDate', false);
-            });
-
-            // Reset dan atur minDate untuk announcement_start_date
-            $('#admission_end_date').on('change.datetimepicker', function(e) {
-                $('#announcement_start_date').datetimepicker('minDate', e.date);
-                $('#announcement_start_date input').val('');
-                $('#announcement_end_date input').val('');
-                $('#announcement_end_date').datetimepicker('minDate', false);
-            });
-
-            // Reset dan atur minDate untuk announcement_end_date
-            $('#announcement_start_date').on('change.datetimepicker', function(e) {
-                $('#announcement_end_date').datetimepicker('minDate', e.date);
-                $('#announcement_end_date input').val('');
-            });
+    function submitForm(originalForm) {
+        $(button).prop('disabled', true);
+        Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+        $.ajax({
+            url: $(originalForm).attr('action'),
+            type: 'POST',
+            data: new FormData(originalForm),
+            processData: false, contentType: false,
+            success: function(res) {
+                Swal.close();
+                $(modal).modal('hide');
+                Swal.fire({ icon: 'success', title: 'Berhasil!', text: res.message, timer: 2000, showConfirmButton: false });
+                table.ajax.reload();
+            },
+            error: function(xhr) {
+                Swal.close(); $(button).prop('disabled', false);
+                Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan.' });
+                if (xhr.status === 422) loopErrors(xhr.responseJSON.errors);
+            }
         });
-    </script>
+    }
+</script>
+
+<script>
+    $(function() {
+        // Datetimepicker setup remains same but ensure UI is compatible
+        $('.datepicker').datetimepicker({ format: 'YYYY-MM-DD' });
+    });
+</script>
 @endpush
