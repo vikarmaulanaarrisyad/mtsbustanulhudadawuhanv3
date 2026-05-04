@@ -8,20 +8,21 @@
     <div class="col-md-4">
         <div class="card card-outline card-info">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-filter mr-1"></i> Filter Siswa</h3>
+                <h3 class="card-title"><i class="fas fa-filter mr-1"></i> 1. Cari Siswa</h3>
             </div>
             <div class="card-body">
                 <div class="form-group">
-                    <label>Tahun Pelajaran</label>
+                    <label>Tahun Pelajaran (Target Penempatan)</label>
                     <select id="filter_academic_year" class="form-control select2">
                         <option value="">-- Semua Tahun Pelajaran --</option>
                         <option value="none">-- Belum Memiliki Tahun --</option>
                         @foreach($academicYears as $ay)
-                            <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>
+                            <option value="{{ $ay->id }}" {{ $loop->first ? 'selected' : '' }}>
                                 {{ $ay->academic_year }} ({{ $ay->semester->semester_name }})
                             </option>
                         @endforeach
                     </select>
+                    <small class="text-muted italic">Pilih tahun ajaran baru tempat siswa akan bersekolah.</small>
                 </div>
                 <div class="form-group">
                     <label>Tingkat Kelas</label>
@@ -41,16 +42,13 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="alert alert-warning text-sm">
-                    <i class="fas fa-info-circle mr-1"></i> Menampilkan siswa yang <strong>belum memiliki kelas</strong>.
-                </div>
                 <button type="button" onclick="refreshTable()" class="btn btn-info btn-block"><i class="fas fa-search mr-1"></i> Tampilkan Siswa</button>
             </div>
         </div>
 
         <div class="card card-outline card-success shadow-sm border-0">
             <div class="card-header">
-                <h3 class="card-title font-weight-bold text-success"><i class="fas fa-arrow-right mr-1"></i> Penempatan Manual</h3>
+                <h3 class="card-title font-weight-bold text-success"><i class="fas fa-arrow-right mr-1"></i> 2. Penempatan Manual</h3>
             </div>
             <div class="card-body">
                 <form id="placementForm">
@@ -59,7 +57,7 @@
                         <label>Tahun Pelajaran Tujuan</label>
                         <select name="target_academic_year_id" id="target_academic_year" class="form-control select2" required>
                             @foreach($academicYears as $ay)
-                                <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
+                                <option value="{{ $ay->id }}" {{ $loop->first ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -89,16 +87,16 @@
         {{-- PLOTTING OTOMATIS --}}
         <div class="card card-outline card-primary shadow-sm border-0">
             <div class="card-header bg-primary text-white">
-                <h3 class="card-title font-weight-bold"><i class="fas fa-magic mr-1"></i> Plotting Otomatis</h3>
+                <h3 class="card-title font-weight-bold"><i class="fas fa-magic mr-1"></i> 2. Plotting Otomatis</h3>
             </div>
             <div class="card-body">
                 <form id="autoPlacementForm">
                     @csrf
                     <div class="form-group">
-                        <label>Tahun Pelajaran</label>
+                        <label>Tahun Pelajaran Tujuan</label>
                         <select name="academic_year_id" id="auto_target_academic_year" class="form-control select2" required>
                             @foreach($academicYears as $ay)
-                                <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
+                                <option value="{{ $ay->id }}" {{ $loop->first ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -246,6 +244,15 @@
 
         $('#filter_class_level, #target_academic_year').on('change', updateTargetClasses);
         $('#filter_class_level, #auto_target_academic_year').on('change', updateAutoTargetClasses);
+
+        // Sync Target Years with Filter Year to avoid confusion
+        $('#filter_academic_year').on('change', function() {
+            let val = $(this).val();
+            if (val && val !== 'none') {
+                $('#target_academic_year').val(val).trigger('change.select2');
+                $('#auto_target_academic_year').val(val).trigger('change.select2');
+            }
+        });
     });
 
     function refreshTable() {
