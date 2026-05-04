@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class StudentGradeController extends Controller
 {
+    // ==================== RAPORT ====================
     public function raportIndex(Request $request)
     {
         $selectedLevel = $request->level;
@@ -51,7 +52,7 @@ class StudentGradeController extends Controller
         $level = $request->level;
         $subjectId = $request->subject_id;
 
-        if (!$classId || !$level || !$subjectId) {
+        if (!$classId || !$level) {
             return datatables(collect([]))->make(true);
         }
 
@@ -66,17 +67,26 @@ class StudentGradeController extends Controller
         return datatables($students)
             ->addIndexColumn()
             ->addColumn('grades', function($student) use ($subjectId, $classLevels) {
-                $grades = StudentGrade::where('student_id', $student->id)
-                    ->where('subject_id', $subjectId)
-                    ->where('type', 'raport')
-                    ->whereIn('class_level', $classLevels)
-                    ->get();
-                
                 $result = [];
-                foreach ($classLevels as $cl) {
-                    foreach ([1, 2] as $sem) {
-                        $score = $grades->where('class_level', $cl)->where('semester', $sem)->first()->score ?? 0;
-                        $result["c{$cl}s{$sem}"] = $score;
+                
+                if ($subjectId) {
+                    $grades = StudentGrade::where('student_id', $student->id)
+                        ->where('subject_id', $subjectId)
+                        ->where('type', 'raport')
+                        ->whereIn('class_level', $classLevels)
+                        ->get();
+                    
+                    foreach ($classLevels as $cl) {
+                        foreach ([1, 2] as $sem) {
+                            $score = $grades->where('class_level', $cl)->where('semester', $sem)->first()->score ?? 0;
+                            $result["c{$cl}s{$sem}"] = $score;
+                        }
+                    }
+                } else {
+                    foreach ($classLevels as $cl) {
+                        foreach ([1, 2] as $sem) {
+                            $result["c{$cl}s{$sem}"] = 0;
+                        }
                     }
                 }
                 return $result;
@@ -117,6 +127,7 @@ class StudentGradeController extends Controller
         return response()->json(['message' => 'Nilai berhasil disimpan']);
     }
 
+    // ==================== EXAM ====================
     public function examIndex(Request $request)
     {
         $selectedLevel = $request->level;
@@ -208,6 +219,7 @@ class StudentGradeController extends Controller
         return response()->json(['message' => 'Nilai Ujian Madrasah berhasil disimpan']);
     }
 
+    // ==================== EXPORT / IMPORT ====================
     public function exportRaport(Request $request)
     {
         $classId = $request->class_id;
@@ -247,6 +259,8 @@ class StudentGradeController extends Controller
         \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\ExamGradesImport($request->level), $request->file('file'));
         return response()->json(['message' => 'Data nilai ujian berhasil diimport']);
     }
+
+    // ==================== CERTIFICATE GENERATION ====================
 
     // Certificate generation methods
     public function printRaport($student_id)
@@ -369,9 +383,175 @@ class StudentGradeController extends Controller
         return $pdf->stream('Daftar_Nilai_SKL_' . $student->nama_lengkap . '.pdf');
     }
 
+    /**
+     * Generate Surat Keterangan Nilai Raport (SKNR) PDF.
+     *
+     * @param int    $student_id
+     * @param string $target  "smp" = merge agama into one, "mts" = keep separate
+     */
+    public function certificate($student_id, $target)
+    {
+        $student = Student::with(['profile', 'parents', 'classGroup'])->findOrFail($student_id);
+        $setting = \App\Models\MailSetting::first();
+
+        // Determine current level and class levels
+        $level = '';
+        $semesterMap = []; // Map display semester (7, 8, 9, 10, 11) to database (class_level, semester)
+        
+        if ($student->classGroup) {
+            $cl = $student->classGroup->class_level;
+            if ($cl <= 6) { 
+                $level = 'MI';
+                $semesterMap = [
+                    7  => ['class_level' => 4, 'semester' => 1],
+                    8  => ['class_level' => 4, 'semester' => 2],
+                    9  => ['class_level' => 5, 'semester' => 1],
+                    10 => ['class_level' => 5, 'semester' => 2],
+                    11 => ['class_level' => 6, 'semester' => 1],
+                ];
+            } elseif ($cl <= 9) { 
+                $level = 'MTs';
+                $semesterMap = [
+                    7  => ['class_level' => 7, 'semester' => 1],
+                    8  => ['class_level' => 7, 'semester' => 2],
+                    9  => ['class_level' => 8, 'semester' => 1],
+                    10 => ['class_level' => 8, 'semester' => 2],
+                    11 => ['class_level' => 9, 'semester' => 1],
+                ];
+            } else { 
+                $level = 'MA';
+                $semesterMap = [
+                    7  => ['class_level' => 10, 'semester' => 1],
+                    8  => ['class_level' => 10, 'semester' => 2],
+                    9  => ['class_level' => 11, 'semester' => 1],
+                    10 => ['class_level' => 11, 'semester' => 2],
+                    11 => ['class_level' => 12, 'semester' => 1],
+                ];
+            }
+        }
+
+        // Get all grade settings for raport
+        $gradeSettings = GradeSetting::where('level', $level)
+            ->where('type', 'raport')
+            ->with('subject')
+            ->orderBy('order')
+            ->get();
+
+        // Load all grades for the student
+        $grades = StudentGrade::where('student_id', $student_id)
+            ->where('type', 'raport')
+            ->get();
+
+        $dataGrades = [];
+        $agamaKeywords = ['quran', 'hadis', 'akidah', 'aqidah', 'fikih', 'fiqih', 'ski', 'bahasa arab', 'agama', 'pai'];
+        $mergeAgama = in_array(strtolower($target), ['smp', 'sma', 'negeri', 'umum']);
+
+        foreach ($gradeSettings as $gs) {
+            $subjectGrades = $grades->where('subject_id', $gs->subject_id);
+            $scores = [];
+            $totalRow = 0;
+            $countRow = 0;
+
+            foreach ($semesterMap as $displaySem => $dbInfo) {
+                $score = $subjectGrades->where('class_level', $dbInfo['class_level'])
+                    ->where('semester', $dbInfo['semester'])
+                    ->first()->score ?? 0;
+                
+                $scores[$displaySem] = $score;
+                $totalRow += $score;
+                if ($score > 0) $countRow++;
+            }
+
+            $nr = $countRow > 0 ? $totalRow / $countRow : 0;
+            $subjectNameLower = strtolower($gs->subject->name);
+            $isAgama = false;
+            foreach ($agamaKeywords as $keyword) {
+                if (str_contains($subjectNameLower, $keyword)) {
+                    $isAgama = true;
+                    break;
+                }
+            }
+
+            $dataGrades[] = [
+                'subject'  => $gs->subject->name,
+                'category' => $gs->subject->category ?? 'Lainnya',
+                'scores'   => $scores,
+                'total'    => $totalRow,
+                'nr'       => $nr,
+                'is_agama' => $isAgama,
+            ];
+        }
+
+        // Grouping logic
+        $groupedGrades = [
+            'Kelompok A' => [],
+            'Kelompok B' => [],
+            'Lainnya'    => []
+        ];
+
+        if ($mergeAgama) {
+            $agamaGroup = array_filter($dataGrades, fn($d) => $d['is_agama']);
+            if (count($agamaGroup) > 0) {
+                $merged = [
+                    'subject' => 'Pendidikan Agama Islam',
+                    'category'=> 'Kelompok A',
+                    'scores'  => [],
+                    'total'   => 0,
+                    'nr'      => 0,
+                ];
+                $cnt = count($agamaGroup);
+                foreach ($semesterMap as $sem => $info) {
+                    $sumSem = 0;
+                    foreach ($agamaGroup as $ag) { $sumSem += $ag['scores'][$sem]; }
+                    $merged['scores'][$sem] = $cnt ? round($sumSem / $cnt, 2) : 0;
+                    $merged['total'] += $merged['scores'][$sem];
+                }
+                $merged['nr'] = count($semesterMap) ? round($merged['total'] / count($semesterMap), 2) : 0;
+                
+                // Add merged PAI to Kelompok A
+                $groupedGrades['Kelompok A'][] = $merged;
+                
+                // Add non-agama subjects to groups
+                foreach ($dataGrades as $grade) {
+                    if (!$grade['is_agama']) {
+                        $cat = $grade['category'] ?: 'Lainnya';
+                        $groupedGrades[$cat][] = $grade;
+                    }
+                }
+            } else {
+                 foreach ($dataGrades as $grade) {
+                    $cat = $grade['category'] ?: 'Lainnya';
+                    $groupedGrades[$cat][] = $grade;
+                }
+            }
+        } else {
+            // Keep separate
+            foreach ($dataGrades as $grade) {
+                $cat = $grade['category'] ?: 'Lainnya';
+                $groupedGrades[$cat][] = $grade;
+            }
+        }
+
+        // Clean empty groups
+        $groupedGrades = array_filter($groupedGrades, fn($g) => count($g) > 0);
+
+        // Ranking placeholder
+        $rankData = [
+            'rank' => 7, // Placeholder
+            'total_students' => Student::where('student_class_group_id', $student->student_class_group_id)->count()
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.grades.pdf.sknr_certificate', compact(
+            'student', 'setting', 'groupedGrades', 'semesterMap', 'level', 'target', 'rankData'
+        ));
+        
+        $pdf->setPaper('a4', 'portrait');
+        return $pdf->stream('Surat_Keterangan_Raport_' . $student->nama_lengkap . '.pdf');
+    }
+
     public function printPDUM($student_id)
     {
         // PDUM format is often identical to SKL but maybe with different headers/styles
-        return $this->printSKL($student_id); 
+        return $this->printSKL($student_id);
     }
 }

@@ -13,15 +13,21 @@ class StudentPromotionController extends Controller
 {
     public function index()
     {
-        $academicYears = AcademicYear::orderBy('academic_year', 'desc')->get();
-        $sourceClassGroups = ClassGroup::whereNotIn('class_level', [6, 9, 12])
+        $academicYears = AcademicYear::with('semester')->orderBy('academic_year', 'desc')->get();
+        $currentAY = AcademicYear::where('current_semester', true)->first();
+        
+        $sourceClassGroups = ClassGroup::where('academic_year_id', $currentAY->id ?? 0)
+            ->whereNotIn('class_level', [6, 9, 12])
             ->orderBy('class_group')
             ->orderBy('sub_class_group')
             ->get();
+
+        // Target classes will be filtered by year in frontend, but we pass all for initial load
         $targetClassGroups = ClassGroup::orderBy('class_group')
             ->orderBy('sub_class_group')
             ->get();
-        return view('admin.academic.promotions.index', compact('academicYears', 'sourceClassGroups', 'targetClassGroups'));
+
+        return view('admin.academic.promotions.index', compact('academicYears', 'currentAY', 'sourceClassGroups', 'targetClassGroups'));
     }
 
     public function data(Request $request)
@@ -29,21 +35,16 @@ class StudentPromotionController extends Controller
         $academicYearId = $request->academic_year_id;
         $classGroupId = $request->class_group_id;
 
-        // Find students who have a history record matching the filter
-        // OR whose current state matches the filter (for new students)
         $query = Student::with(['classGroup', 'academicYear'])
             ->where('is_active', true)
-            ->whereHas('classGroup', function($q) {
-                $q->whereNotIn('class_level', [6, 9, 12]);
-            })
             ->where(function($q) use ($academicYearId, $classGroupId) {
-                // Option 1: Current state matches
+                // Current state matches
                 $q->where(function($q2) use ($academicYearId, $classGroupId) {
                     $q2->when($academicYearId, fn($q3) => $q3->where('academic_year_id', $academicYearId))
                        ->when($classGroupId, fn($q3) => $q3->where('student_class_group_id', $classGroupId));
                 });
                 
-                // Option 2: Had a history in this year/class
+                // Had a history in this year/class
                 $q->orWhereHas('histories', function($q2) use ($academicYearId, $classGroupId) {
                     $q2->when($academicYearId, fn($q3) => $q3->where('academic_year_id', $academicYearId))
                        ->when($classGroupId, fn($q3) => $q3->where('class_group_id', $classGroupId));
@@ -56,14 +57,13 @@ class StudentPromotionController extends Controller
             ->addColumn('checkbox', function ($s) {
                 return '<input type="checkbox" name="student_ids[]" value="' . $s->id . '" class="student-checkbox">';
             })
-            ->addColumn('history_info', function($s) use ($academicYearId, $classGroupId) {
-                // If the student's current year is DIFFERENT from the filter, they are "Promoted"
+            ->addColumn('history_info', function($s) use ($academicYearId) {
                 if ($academicYearId && $s->academic_year_id != $academicYearId) {
-                    return '<span class="badge badge-success">Sudah Diproses ke ' . $s->academicYear->academic_year . '</span>';
+                    return '<span class="badge badge-success">Sudah Diproses ke ' . ($s->academicYear->academic_year ?? '-') . '</span>';
                 }
                 return '<span class="badge badge-warning">Belum Diproses</span>';
             })
-            ->addColumn('kelas', fn($s) => $s->kelas_lengkap)
+            ->addColumn('kelas', fn($s) => $s->kelas_lengkap . ($s->current_class_level ? " (Tingkat $s->current_class_level)" : ""))
             ->escapeColumns([])
             ->make(true);
     }
@@ -73,29 +73,21 @@ class StudentPromotionController extends Controller
         $request->validate([
             'student_ids' => 'required|array|min:1',
             'target_academic_year_id' => 'required|exists:academic_years,id',
-            'target_class_group_id' => 'required|exists:class_groups,id',
+            'target_class_group_id' => 'nullable|exists:class_groups,id',
             'status' => 'required|in:promoted,retained',
             'notes' => 'nullable|string',
-            'force' => 'nullable|boolean', // To bypass warning
         ]);
 
         try {
             DB::beginTransaction();
 
-            $targetClass = ClassGroup::findOrFail($request->target_class_group_id);
-            
-            // Note: Occupancy check disabled temporarily to allow user to resolve data state issues.
+            $targetClass = $request->target_class_group_id ? ClassGroup::find($request->target_class_group_id) : null;
             
             $successCount = 0;
             foreach ($request->student_ids as $id) {
                 $student = Student::findOrFail($id);
                 
-                // Skip if already in the target year and class (avoid duplicates)
-                if ($student->academic_year_id == $request->target_academic_year_id && $student->student_class_group_id == $request->target_class_group_id) {
-                    continue;
-                }
-                
-                // 1. Record current state to history if it doesn't exist yet (Historical continuity)
+                // 1. Historical continuity (record old state)
                 $hasCurrentHistory = StudentHistory::where('student_id', $student->id)
                     ->where('academic_year_id', $student->academic_year_id)
                     ->where('class_group_id', $student->student_class_group_id)
@@ -112,13 +104,19 @@ class StudentPromotionController extends Controller
                     ]);
                 }
 
+                // Calculate new level
+                $newLevel = $student->current_class_level;
+                if ($request->status == 'promoted' && $newLevel < 12) {
+                    $newLevel++;
+                }
+
                 // 2. Create New History Record for Target
                 StudentHistory::create([
                     'student_id' => $student->id,
                     'academic_year_id' => $request->target_academic_year_id,
-                    'class_group_id' => $request->target_class_group_id,
+                    'class_group_id' => $request->target_class_group_id, // can be null
                     'status' => $request->status,
-                    'notes' => $request->notes,
+                    'notes' => $request->notes ?? ($request->status == 'promoted' ? 'Naik ke tingkat ' . $newLevel : 'Tinggal kelas'),
                     'entry_date' => now(),
                 ]);
 
@@ -126,16 +124,19 @@ class StudentPromotionController extends Controller
                 $student->update([
                     'academic_year_id' => $request->target_academic_year_id,
                     'student_class_group_id' => $request->target_class_group_id,
+                    'current_class_level' => $newLevel
                 ]);
             }
 
             DB::commit();
-            return response()->json(['message' => 'Proses kenaikan/pindah rombel berhasil dilakukan.']);
+            return response()->json(['message' => 'Proses kenaikan/penempatan berhasil dilakukan.']);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
     }
+
+
 
     public function undo(Request $request)
     {

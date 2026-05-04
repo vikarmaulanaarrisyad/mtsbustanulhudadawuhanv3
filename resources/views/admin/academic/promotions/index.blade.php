@@ -29,7 +29,9 @@
                     <label>Tahun Pelajaran Saat Ini</label>
                     <select id="filter_academic_year" class="form-control select2">
                         @foreach($academicYears as $ay)
-                            <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
+                            <option value="{{ $ay->id }}" {{ $ay->id == ($currentAY->id ?? '') ? 'selected' : '' }}>
+                                {{ $ay->academic_year }} ({{ $ay->semester->semester_name }})
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -55,24 +57,37 @@
                     @csrf
                     <div class="form-group">
                         <label>Pindah ke Tahun Pelajaran</label>
-                        <select name="target_academic_year_id" class="form-control select2" required>
+                        <select name="target_academic_year_id" id="target_academic_year" class="form-control select2" required>
+                            <option value="">-- Pilih Tahun Ajaran Tujuan --</option>
                             @foreach($academicYears as $ay)
-                                <option value="{{ $ay->id }}">{{ $ay->academic_year }}</option>
+                                <option value="{{ $ay->id }}">{{ $ay->academic_year }} ({{ $ay->semester->semester_name }})</option>
                             @endforeach
                         </select>
                     </div>
+
                     <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="rolling_mode" name="rolling_mode">
+                            <label class="custom-control-label" for="rolling_mode">Ploting Kelas Nanti (Rolling)</label>
+                        </div>
+                        <small class="text-muted">Aktifkan jika ingin menaikkan tingkat siswa tanpa menentukan kelas sekarang.</small>
+                    </div>
+
+                    <div class="form-group" id="target_class_container">
                         <label>Pindah ke Kelas</label>
-                        <select name="target_class_group_id" id="target_class" class="form-control select2" required>
+                        <select name="target_class_group_id" id="target_class" class="form-control select2">
                             <option value="">-- Pilih Kelas Tujuan --</option>
                             @foreach($targetClassGroups as $cg)
-                                <option value="{{ $cg->id }}" data-level="{{ $cg->class_level }}">{{ $cg->class_group }} - {{ $cg->sub_class_group }}</option>
+                                <option value="{{ $cg->id }}" data-year="{{ $cg->academic_year_id }}" data-level="{{ $cg->class_level }}">
+                                    {{ $cg->class_group }} - {{ $cg->sub_class_group }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label>Status</label>
-                        <select name="status" class="form-control">
+                        <select name="status" id="promotion_status" class="form-control">
                             <option value="promoted">Naik Kelas</option>
                             <option value="retained">Tinggal Kelas (Di Tahun Ajaran Baru)</option>
                         </select>
@@ -127,6 +142,7 @@
 @push('scripts')
 <script>
     let table;
+    const allTargetOptions = $('#target_class').html();
 
     $(function() {
         table = $('#studentTable').DataTable({
@@ -156,46 +172,61 @@
             $('#checkAll').prop('checked', !checked).trigger('click');
         });
 
-        // Filter Target Class based on Source Class & Status (Select2 Compatible)
-        const allTargetOptions = $('#target_class').html();
-        
+        // Handle Rolling Mode Switch
+        $('#rolling_mode').on('change', function() {
+            if (this.checked) {
+                $('#target_class_container').slideUp();
+                $('#target_class').val('').trigger('change.select2');
+            } else {
+                $('#target_class_container').slideDown();
+            }
+        });
+
+        // Filter Target Class based on Year, Source Class & Status
         function updateTargetClasses() {
+            let targetYearId = $('#target_academic_year').val();
             let sourceLevel = $('#filter_class').find(':selected').data('level');
-            let status = $('select[name=status]').val();
+            let status = $('#promotion_status').val();
             let $targetSelect = $('#target_class');
             
             // Revert to all options first
             $targetSelect.html(allTargetOptions);
 
-            if (sourceLevel !== undefined && sourceLevel !== "") {
-                sourceLevel = parseInt(sourceLevel);
-                
-                $targetSelect.find('option').each(function() {
-                    let targetLevel = $(this).data('level');
-                    if (targetLevel !== undefined && targetLevel !== "") {
-                        targetLevel = parseInt(targetLevel);
-                        
-                        let isMatch = false;
-                        if (status === 'promoted') {
-                            // Only show level + 1
-                            isMatch = (targetLevel === (sourceLevel + 1));
-                        } else {
-                            // Only show same level (retained)
-                            isMatch = (targetLevel === sourceLevel);
-                        }
+            $targetSelect.find('option').each(function() {
+                let optYear = $(this).data('year');
+                let optLevel = $(this).data('level');
+                let val = $(this).val();
 
-                        if (!isMatch && $(this).val() !== "") {
-                            $(this).remove();
-                        }
+                if (val === "") return; // Skip placeholder
+
+                let isVisible = true;
+
+                // 1. Filter by Academic Year
+                if (targetYearId && optYear != targetYearId) {
+                    isVisible = false;
+                }
+
+                // 2. Filter by Level (if source class is selected)
+                if (isVisible && sourceLevel !== undefined && sourceLevel !== "") {
+                    sourceLevel = parseInt(sourceLevel);
+                    optLevel = parseInt(optLevel);
+                    
+                    if (status === 'promoted') {
+                        if (optLevel !== (sourceLevel + 1)) isVisible = false;
+                    } else {
+                        if (optLevel !== sourceLevel) isVisible = false;
                     }
-                });
-            }
+                }
+
+                if (!isVisible) {
+                    $(this).remove();
+                }
+            });
             
-            // Refresh Select2
             $targetSelect.trigger('change.select2');
         }
 
-        $('#filter_class, select[name=status]').on('change', function() {
+        $('#filter_class, #promotion_status, #target_academic_year').on('change', function() {
             updateTargetClasses();
         });
     });
@@ -204,7 +235,7 @@
         table.ajax.reload();
     }
 
-    function submitPromotion(force = false) {
+    function submitPromotion() {
         let formData = $('#promotionForm').serialize();
         let studentIds = [];
         $('.student-checkbox:checked').each(function() {
@@ -216,55 +247,40 @@
             return;
         }
 
-        const proceed = () => {
-            $('#btnPromote').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...');
-            
-            let data = formData + '&' + $.param({student_ids: studentIds});
-            if (force) data += '&force=1';
+        // Validate target year
+        if (!$('#target_academic_year').val()) {
+            Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Silakan pilih Tahun Pelajaran tujuan.' });
+            return;
+        }
 
-            $.post('{{ route("promotions.promote") }}', data)
-                .done(response => {
-                    if (response.status === 'warning') {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Perhatian!',
-                            text: response.message,
-                            showCancelButton: true,
-                            confirmButtonText: 'Tetap Lanjutkan',
-                            cancelButtonText: 'Batalkan',
-                            confirmButtonColor: '#ffc107',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                submitPromotion(true); // Retry with force=1
-                            } else {
-                                $('#btnPromote').prop('disabled', false).html('<i class="fas fa-check-circle mr-1"></i> Proses Kenaikan / Pindah');
-                            }
-                        });
-                    } else {
+        // Validate target class if not in rolling mode
+        if (!$('#rolling_mode').is(':checked') && !$('#target_class').val()) {
+            Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Silakan pilih Kelas Tujuan atau aktifkan mode Rolling.' });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Konfirmasi',
+            text: 'Apakah Anda yakin ingin memproses kenaikan/pindah rombel untuk ' + studentIds.length + ' siswa terpilih?',
+            icon: 'question', showCancelButton: true, confirmButtonColor: '#28a745'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#btnPromote').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...');
+                
+                let data = formData + '&' + $.param({student_ids: studentIds});
+
+                $.post('{{ route("promotions.promote") }}', data)
+                    .done(response => {
                         Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message });
                         table.ajax.reload();
-                        $('#btnPromote').prop('disabled', false).html('<i class="fas fa-check-circle mr-1"></i> Proses Kenaikan / Pindah');
-                    }
-                })
-                .fail(xhr => {
-                    Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan' });
-                    $('#btnPromote').prop('disabled', false).html('<i class="fas fa-check-circle mr-1"></i> Proses Kenaikan / Pindah');
-                });
-        };
-
-        if (force) {
-            proceed();
-        } else {
-            Swal.fire({
-                title: 'Konfirmasi',
-                text: 'Apakah Anda yakin ingin memproses kenaikan/pindah rombel untuk ' + studentIds.length + ' siswa terpilih?',
-                icon: 'question', showCancelButton: true, confirmButtonColor: '#28a745'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    proceed();
-                }
-            });
-        }
+                        $('#btnPromote').prop('disabled', false).html('<i class="fas fa-check-circle mr-1"></i> Proses Akhir Tahun');
+                    })
+                    .fail(xhr => {
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan' });
+                        $('#btnPromote').prop('disabled', false).html('<i class="fas fa-check-circle mr-1"></i> Proses Akhir Tahun');
+                    });
+            }
+        });
     }
 
     function undoPromotion() {

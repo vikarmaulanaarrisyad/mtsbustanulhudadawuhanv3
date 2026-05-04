@@ -674,6 +674,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/{student_id}/certificate/raport', 'printRaport')->name('student-grades.print_raport');
             Route::get('/{student_id}/certificate/skl', 'printSKL')->name('student-grades.print_skl');
             Route::get('/{student_id}/certificate/pdum', 'printPDUM')->name('student-grades.print_pdum');
+            Route::get('/{student_id}/certificate/sknr/{target}', 'certificate')->name('student-grades.certificate');
         });
     });
 });

@@ -68,25 +68,28 @@
                         <tr>
                             <th rowspan="2" class="align-middle text-center" width="5%">NO</th>
                             <th rowspan="2" class="align-middle text-center">NAMA SISWA</th>
+                            @php
+                                $gradeColClass = request('subject_id') ? '' : 'd-none';
+                            @endphp
                             @if($selectedLevel == 'MI')
-                                <th colspan="2" class="text-center">KELAS 4</th>
-                                <th colspan="2" class="text-center">KELAS 5</th>
-                                <th colspan="2" class="text-center">KELAS 6</th>
+                                <th colspan="2" class="text-center grade-col {{ $gradeColClass }}">KELAS 4</th>
+                                <th colspan="2" class="text-center grade-col {{ $gradeColClass }}">KELAS 5</th>
+                                <th colspan="2" class="text-center grade-col {{ $gradeColClass }}">KELAS 6</th>
                             @elseif($selectedLevel == 'MTs')
-                                <th colspan="2" class="text-center">KELAS 7</th>
-                                <th colspan="2" class="text-center">KELAS 8</th>
-                                <th colspan="2" class="text-center">KELAS 9</th>
+                                <th colspan="2" class="text-center grade-col {{ $gradeColClass }}">KELAS 7</th>
+                                <th colspan="2" class="text-center grade-col {{ $gradeColClass }}">KELAS 8</th>
+                                <th colspan="2" class="text-center grade-col {{ $gradeColClass }}">KELAS 9</th>
                             @else
-                                <th colspan="2" class="text-center">KELAS 10</th>
-                                <th colspan="2" class="text-center">KELAS 11</th>
-                                <th colspan="2" class="text-center">KELAS 12</th>
+                                <th colspan="2" class="text-center grade-col {{ $gradeColClass }}">KELAS 10</th>
+                                <th colspan="2" class="text-center grade-col {{ $gradeColClass }}">KELAS 11</th>
+                                <th colspan="2" class="text-center grade-col {{ $gradeColClass }}">KELAS 12</th>
                             @endif
                             <th rowspan="2" class="align-middle text-center" width="10%">AKSI</th>
                         </tr>
                         <tr>
-                            <th class="text-center">S1</th><th class="text-center">S2</th>
-                            <th class="text-center">S1</th><th class="text-center">S2</th>
-                            <th class="text-center">S1</th><th class="text-center">S2</th>
+                            <th class="text-center grade-col {{ $gradeColClass }}">S1</th><th class="text-center grade-col {{ $gradeColClass }}">S2</th>
+                            <th class="text-center grade-col {{ $gradeColClass }}">S1</th><th class="text-center grade-col {{ $gradeColClass }}">S2</th>
+                            <th class="text-center grade-col {{ $gradeColClass }}">S1</th><th class="text-center grade-col {{ $gradeColClass }}">S2</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -96,7 +99,7 @@
             </div>
             @else
             <div class="alert alert-info">
-                Silahkan pilih Jenjang, Kelas, dan Mata Pelajaran terlebih dahulu.
+                Silahkan pilih Jenjang dan Kelas terlebih dahulu. Pilih Mata Pelajaran jika ingin menginput nilai secara manual.
             </div>
             @endif
         </x-card>
@@ -192,7 +195,7 @@
         const level = $('select[name=level]').val();
         const subjectId = $('#subject_id').val();
 
-        if (!classId || !level || !subjectId) return;
+        if (!classId || !level) return;
 
         Swal.fire({ title: 'Memuat Data...', didOpen: () => Swal.showLoading() });
 
@@ -202,6 +205,14 @@
             subject_id: subjectId
         }).done(response => {
             Swal.close();
+            
+            // Show/Hide grade columns
+            if (subjectId) {
+                $('.grade-col').removeClass('d-none');
+            } else {
+                $('.grade-col').addClass('d-none');
+            }
+
             let html = '';
             response.data.forEach((row, index) => {
                 html += `<tr>
@@ -210,23 +221,47 @@
                 
                 // Dynamic columns based on level
                 const classLevels = level === 'MI' ? [4, 5, 6] : (level === 'MTs' ? [7, 8, 9] : [10, 11, 12]);
-                
+                const gradeColClass = subjectId ? '' : 'd-none';
+
                 classLevels.forEach(cl => {
                     [1, 2].forEach(sem => {
                         const key = `c${cl}s${sem}`;
                         const val = row.grades[key] || 0;
-                        html += `<td><input type="number" step="0.01" class="form-control form-control-sm text-center input-score" data-student="${row.id}" data-key="${key}" value="${val}" onchange="saveGrade(this, ${row.id})"></td>`;
+                        html += `<td class="grade-col ${gradeColClass}"><input type="number" step="0.01" class="form-control form-control-sm text-center input-score" data-student="${row.id}" data-key="${key}" value="${val}" onchange="saveGrade(this, ${row.id})"></td>`;
                     });
                 });
 
                 html += `<td class="text-center">
                     <div class="btn-group">
+                        ${subjectId ? `
                         <button type="button" class="btn btn-xs btn-primary" onclick="saveGrade(this, ${row.id})" title="Simpan Nilai">
                             <i class="fas fa-save"></i>
                         </button>
+                        ` : ''}
                         <a href="${'{{ route("student-grades.print_raport", ":id") }}'.replace(':id', row.id)}" target="_blank" class="btn btn-xs btn-info" title="Cetak SK Nilai Raport">
                             <i class="fas fa-print"></i>
                         </a>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown" title="Cetak SKNR">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <h6 class="dropdown-header">Cetak Surat Keterangan Nilai</h6>
+                                @php
+                                    $targetPublic = ($selectedLevel == 'MI') ? 'smp' : 'sma';
+                                    $labelPublic = ($selectedLevel == 'MI') ? 'SMP/SMA Negeri' : 'SMA/SMK Negeri';
+                                    
+                                    $targetReligious = ($selectedLevel == 'MI') ? 'mts' : 'ma';
+                                    $labelReligious = ($selectedLevel == 'MI') ? 'MTs Negeri' : 'MA Negeri';
+                                @endphp
+                                <a class="dropdown-item" href="${'{{ route("student-grades.certificate", [":id", $targetPublic]) }}'.replace(':id', row.id)}" target="_blank">
+                                    <i class="fas fa-school mr-2"></i> Tujuan {{ $labelPublic }}
+                                </a>
+                                <a class="dropdown-item" href="${'{{ route("student-grades.certificate", [":id", $targetReligious]) }}'.replace(':id', row.id)}" target="_blank">
+                                    <i class="fas fa-mosque mr-2"></i> Tujuan {{ $labelReligious }}
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </td>
                 </tr>`;
@@ -304,7 +339,9 @@
     }
 
     $(function() {
-        if($('#subject_id').val()) {
+        const classId = $('select[name=class_id]').val();
+        const level = $('select[name=level]').val();
+        if(classId && level) {
             loadGrades();
         }
     });
