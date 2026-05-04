@@ -188,14 +188,28 @@
     .text-xs { font-size: 0.75rem; }
     .info-box { min-height: 80px; }
     .info-box .info-box-icon { width: 60px; font-size: 1.5rem; }
-    .bg-gradient-primary { background: linear-gradient(45deg, #007bff, #0069d9) !important; }
-    .table thead th { border-top: 0; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; color: #6c757d; }
-    .table td { vertical-align: middle; padding: 1rem 0.75rem; }
+    
+    /* Premium Table Styling */
+    #studentTable { border-collapse: separate; border-spacing: 0 8px; background: transparent; }
+    #studentTable thead th { border: none; background: #f8f9fa; color: #6c757d; font-weight: 700; letter-spacing: 0.5px; }
+    #studentTable tbody tr { 
+        background: #fff; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
+        transition: all 0.2s ease; 
+        border-radius: 8px;
+    }
+    #studentTable tbody tr:hover { 
+        transform: translateY(-2px); 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+        background: #fdfdfd;
+    }
+    #studentTable td { border: none; padding: 1.25rem 0.75rem; vertical-align: middle; }
+    #studentTable td:first-child { border-radius: 8px 0 0 8px; }
+    #studentTable td:last-child { border-radius: 0 8px 8px 0; }
+    
     .badge-soft-success { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
     .badge-soft-danger { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
-    .select2-container--default .select2-selection--single { height: 38px !important; border-color: #ced4da !important; }
-    .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 38px !important; }
-    .select2-container--default .select2-selection--single .select2-selection__arrow { height: 36px !important; }
+    .shadow-xs { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 </style>
 @endsection
 
@@ -231,23 +245,9 @@
                     className: 'text-center'
                 },
                 { data: 'nis' },
-                { 
-                    data: 'nama_lengkap',
-                    render: function(data) {
-                        return '<span class="font-weight-bold text-dark">' + data + '</span>';
-                    }
-                },
+                { data: 'nama_lengkap' },
                 { data: 'kelas_info', searchable: false },
-                { 
-                    data: 'placement_status', 
-                    searchable: false,
-                    render: function(data) {
-                        if (data.includes('check')) {
-                            return data.replace('badge-success', 'badge-soft-success py-2 px-3 rounded-pill');
-                        }
-                        return data.replace('badge-danger', 'badge-soft-danger py-2 px-3 rounded-pill');
-                    }
-                },
+                { data: 'placement_status', searchable: false },
             ],
             drawCallback: function(settings) {
                 // Update Statistics

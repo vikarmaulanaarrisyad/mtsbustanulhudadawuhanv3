@@ -53,14 +53,28 @@ class StudentPlacementController extends Controller
             ->addColumn('checkbox', function ($s) {
                 return '<input type="checkbox" name="student_ids[]" value="' . $s->id . '" class="student-checkbox">';
             })
+            ->addColumn('nama_lengkap', function($s) {
+                $genderIcon = $s->jenis_kelamin == 'L' 
+                    ? '<i class="fas fa-mars text-primary mr-1" title="Laki-laki"></i>' 
+                    : '<i class="fas fa-venus text-danger mr-1" title="Perempuan"></i>';
+                
+                return '<div class="d-flex align-items-center py-1">
+                            <div class="avatar-sm mr-3 bg-light rounded-circle d-flex align-items-center justify-content-center text-muted shadow-sm" style="width: 40px; height: 40px; border: 2px solid #fff;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <div class="font-weight-bold text-dark" style="font-size: 1.05rem;">' . $s->nama_lengkap . '</div>
+                                <div class="text-xs text-muted">' . $genderIcon . ' ' . ($s->nis ?? '-') . ' / ' . ($s->nisn ?? '-') . '</div>
+                            </div>
+                        </div>';
+            })
             ->addColumn('kelas_info', function($s) {
-                $level = $s->current_class_level ? "Tingkat $s->current_class_level" : "Belum ditentukan";
+                $level = $s->current_class_level ? '<span class="badge badge-info shadow-xs px-2 py-1">Tingkat ' . $s->current_class_level . '</span>' : '<span class="badge badge-secondary px-2 py-1 text-xs">Belum ditentukan</span>';
                 
-                // Get last known class from history (excluding current if unassigned)
                 $lastHistory = $s->histories->whereNotNull('class_group_id')->sortByDesc('id')->first();
-                $lastClass = $lastHistory ? $lastHistory->classGroup->kelas_lengkap : 'Siswa Baru';
+                $lastClass = $lastHistory ? $lastHistory->classGroup->kelas_lengkap : '<span class="badge badge-light border text-xs">Siswa Baru</span>';
                 
-                return '<div><strong>' . $level . '</strong></div><small class="text-muted">Asal: ' . $lastClass . '</small>';
+                return '<div class="mb-1">' . $level . '</div><div class="text-xs text-muted font-italic"><i class="fas fa-history mr-1"></i> ' . $lastClass . '</div>';
             })
             ->addColumn('placement_status', function($s) {
                 if ($s->student_class_group_id) {
