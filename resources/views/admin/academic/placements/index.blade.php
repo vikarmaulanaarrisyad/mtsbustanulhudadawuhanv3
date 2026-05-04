@@ -17,8 +17,19 @@
                         <option value="">-- Semua Tahun Pelajaran --</option>
                         <option value="none">-- Belum Memiliki Tahun --</option>
                         @foreach($academicYears as $ay)
-                            <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
+                            <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>
+                                {{ $ay->academic_year }} ({{ $ay->semester->semester_name }})
+                            </option>
                         @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tingkat Kelas</label>
+                    <select id="filter_class_level" class="form-control select2">
+                        <option value="">-- Semua Tingkat --</option>
+                        @for($i=1; $i<=12; $i++)
+                            <option value="{{ $i }}">Tingkat {{ $i }}</option>
+                        @endfor
                     </select>
                 </div>
                 <div class="form-group">
@@ -30,7 +41,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="alert alert-warning">
+                <div class="alert alert-warning text-sm">
                     <i class="fas fa-info-circle mr-1"></i> Menampilkan siswa yang <strong>belum memiliki kelas</strong>.
                 </div>
                 <button type="button" onclick="refreshTable()" class="btn btn-info btn-block"><i class="fas fa-search mr-1"></i> Tampilkan Siswa</button>
@@ -45,19 +56,21 @@
                 <form id="placementForm">
                     @csrf
                     <div class="form-group">
-                        <label>Pilih Kelas Tujuan</label>
-                        <select name="target_class_group_id" class="form-control select2" required>
-                            <option value="">-- Pilih Kelas --</option>
-                            @foreach($classGroups as $cg)
-                                <option value="{{ $cg->id }}">{{ $cg->class_group }} - {{ $cg->sub_class_group }}</option>
+                        <label>Tahun Pelajaran Tujuan</label>
+                        <select name="target_academic_year_id" id="target_academic_year" class="form-control select2" required>
+                            @foreach($academicYears as $ay)
+                                <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Tahun Pelajaran</label>
-                        <select name="target_academic_year_id" class="form-control select2" required>
-                            @foreach($academicYears as $ay)
-                                <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
+                        <label>Pilih Kelas Tujuan</label>
+                        <select name="target_class_group_id" id="target_class" class="form-control select2" required>
+                            <option value="">-- Pilih Kelas --</option>
+                            @foreach($classGroups as $cg)
+                                <option value="{{ $cg->id }}" data-year="{{ $cg->academic_year_id }}" data-level="{{ $cg->class_level }}">
+                                    {{ $cg->class_group }} - {{ $cg->sub_class_group }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -83,7 +96,7 @@
                     @csrf
                     <div class="form-group">
                         <label>Tahun Pelajaran</label>
-                        <select name="academic_year_id" class="form-control select2" required>
+                        <select name="academic_year_id" id="auto_target_academic_year" class="form-control select2" required>
                             @foreach($academicYears as $ay)
                                 <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
                             @endforeach
@@ -91,9 +104,11 @@
                     </div>
                     <div class="form-group">
                         <label>Pilih Kelas Tujuan (Multi)</label>
-                        <select name="class_group_ids[]" class="form-control select2" multiple required data-placeholder="Pilih beberapa kelas...">
+                        <select name="class_group_ids[]" id="auto_target_classes" class="form-control select2" multiple required data-placeholder="Pilih beberapa kelas...">
                             @foreach($classGroups as $cg)
-                                <option value="{{ $cg->id }}">{{ $cg->class_group }} - {{ $cg->sub_class_group }}</option>
+                                <option value="{{ $cg->id }}" data-year="{{ $cg->academic_year_id }}" data-level="{{ $cg->class_level }}">
+                                    {{ $cg->class_group }} - {{ $cg->sub_class_group }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -150,6 +165,8 @@
 @push('scripts')
 <script>
     let table;
+    const allTargetOptions = $('#target_class').html();
+    const allAutoOptions = $('#auto_target_classes').html();
 
     $(function() {
         table = $('#studentTable').DataTable({
@@ -158,6 +175,7 @@
                 url: '{{ route("student-placements.data") }}',
                 data: function(d) {
                     d.academic_year_id = $('#filter_academic_year').val();
+                    d.class_level = $('#filter_class_level').val();
                     d.status_id = $('#filter_status').val();
                 }
             },
@@ -165,6 +183,7 @@
                 { data: 'checkbox', searchable: false, sortable: false },
                 { data: 'nis' },
                 { data: 'nama_lengkap' },
+                { data: 'kelas_info', searchable: false },
                 { data: 'status' },
             ]
         });
@@ -177,6 +196,56 @@
             let target = !$('#checkAll').prop('checked');
             $('#checkAll').prop('checked', target).trigger('change');
         });
+
+        // Filter Target Classes (Manual)
+        function updateTargetClasses() {
+            let targetYearId = $('#target_academic_year').val();
+            let filterLevel = $('#filter_class_level').val();
+            let $targetSelect = $('#target_class');
+            
+            $targetSelect.html(allTargetOptions);
+
+            $targetSelect.find('option').each(function() {
+                let optYear = $(this).data('year');
+                let optLevel = $(this).data('level');
+                let val = $(this).val();
+
+                if (val === "") return;
+
+                let isVisible = true;
+                if (targetYearId && optYear != targetYearId) isVisible = false;
+                if (isVisible && filterLevel && optLevel != filterLevel) isVisible = false;
+
+                if (!isVisible) $(this).remove();
+            });
+            
+            $targetSelect.trigger('change.select2');
+        }
+
+        // Filter Target Classes (Auto)
+        function updateAutoTargetClasses() {
+            let targetYearId = $('#auto_target_academic_year').val();
+            let filterLevel = $('#filter_class_level').val();
+            let $targetSelect = $('#auto_target_classes');
+            
+            $targetSelect.html(allAutoOptions);
+
+            $targetSelect.find('option').each(function() {
+                let optYear = $(this).data('year');
+                let optLevel = $(this).data('level');
+                let isVisible = true;
+
+                if (targetYearId && optYear != targetYearId) isVisible = false;
+                if (isVisible && filterLevel && optLevel != filterLevel) isVisible = false;
+
+                if (!isVisible) $(this).remove();
+            });
+            
+            $targetSelect.trigger('change.select2');
+        }
+
+        $('#filter_class_level, #target_academic_year').on('change', updateTargetClasses);
+        $('#filter_class_level, #auto_target_academic_year').on('change', updateAutoTargetClasses);
     });
 
     function refreshTable() {
@@ -192,6 +261,11 @@
 
         if (studentIds.length === 0) {
             Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Silakan pilih minimal satu siswa.' });
+            return;
+        }
+
+        if (!$('#target_class').val()) {
+            Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Silakan pilih Kelas Tujuan.' });
             return;
         }
 
@@ -217,12 +291,18 @@
             }
         });
     }
+
     function submitAutoPlacement() {
         let formData = $('#autoPlacementForm').serialize();
         
+        if (!$('#auto_target_classes').val() || $('#auto_target_classes').val().length === 0) {
+            Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Silakan pilih minimal satu kelas tujuan.' });
+            return;
+        }
+
         Swal.fire({
             title: 'Konfirmasi Plotting Otomatis',
-            text: 'Sistem akan membagi siswa baru (tanpa rombel) ke dalam kelas terpilih dengan pembagian gender yang merata. Lanjutkan?',
+            text: 'Sistem akan membagi siswa (tanpa rombel) ke dalam kelas terpilih. Lanjutkan?',
             icon: 'info', showCancelButton: true, confirmButtonColor: '#007bff'
         }).then((result) => {
             if (result.isConfirmed) {

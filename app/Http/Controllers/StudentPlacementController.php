@@ -14,12 +14,15 @@ class StudentPlacementController extends Controller
 {
     public function index()
     {
-        $academicYears = AcademicYear::orderBy('academic_year', 'desc')->get();
-        $classGroups = ClassGroup::whereIn('class_group', ['I', 'VII', 'X'])
-            ->orderBy('class_group')
+        $academicYears = AcademicYear::with('semester')->orderBy('academic_year', 'desc')->get();
+        
+        // We get all class groups, but frontend will filter them
+        $classGroups = ClassGroup::orderBy('class_group')
             ->orderBy('sub_class_group')
             ->get();
+
         $studentStatuses = StudentStatus::all();
+        
         return view('admin.academic.placements.index', compact('academicYears', 'classGroups', 'studentStatuses'));
     }
 
@@ -27,13 +30,14 @@ class StudentPlacementController extends Controller
     {
         $query = Student::with(['classGroup', 'academicYear', 'studentStatus'])
             ->where('is_active', true)
+            ->whereNull('student_class_group_id')
             ->when($request->academic_year_id, function($q) use ($request) {
                 if ($request->academic_year_id === 'none') {
                     return $q->whereNull('academic_year_id');
                 }
                 return $q->where('academic_year_id', $request->academic_year_id);
             })
-            ->whereNull('student_class_group_id')
+            ->when($request->class_level, fn($q) => $q->where('current_class_level', $request->class_level))
             ->when($request->status_id, fn($q) => $q->where('student_status_id', $request->status_id))
             ->orderBy('nama_lengkap');
 
@@ -42,7 +46,10 @@ class StudentPlacementController extends Controller
             ->addColumn('checkbox', function ($s) {
                 return '<input type="checkbox" name="student_ids[]" value="' . $s->id . '" class="student-checkbox">';
             })
-            ->addColumn('kelas', fn($s) => $s->kelas_lengkap)
+            ->addColumn('kelas_info', function($s) {
+                $level = $s->current_class_level ? "Tingkat $s->current_class_level" : "Belum ditentukan";
+                return '<span class="badge badge-secondary">' . $level . '</span>';
+            })
             ->addColumn('status', fn($s) => $s->studentStatus->student_status_name ?? '-')
             ->escapeColumns([])
             ->make(true);
@@ -177,18 +184,21 @@ class StudentPlacementController extends Controller
 
     private function assignToClass($student, $classId, $academicYearId)
     {
+        $class = ClassGroup::find($classId);
+
         StudentHistory::create([
             'student_id' => $student->id,
             'academic_year_id' => $academicYearId,
             'class_group_id' => $classId,
             'status' => 'enrolled',
-            'notes' => 'Penempatan Rombel Otomatis',
+            'notes' => 'Penempatan Rombel',
             'entry_date' => now(),
         ]);
 
         $student->update([
             'academic_year_id' => $academicYearId,
             'student_class_group_id' => $classId,
+            'current_class_level' => $class->class_level ?? $student->current_class_level
         ]);
     }
 }
