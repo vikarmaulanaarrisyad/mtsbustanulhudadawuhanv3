@@ -334,41 +334,53 @@
         // Filter Target Classes (Manual)
         function updateTargetClasses() {
             let targetYearId = $('#target_academic_year').val();
+            let filterLevel = $('#filter_class_level').val();
             let $targetSelect = $('#target_class');
             let currentVal = $targetSelect.val();
             
-            // Revert to original full list before filtering
+            // Determine the "Next Level" for promotion
+            let targetLevel = filterLevel ? parseInt(filterLevel) + 1 : null;
+            
             $targetSelect.html(allTargetOptions);
 
             let count = 0;
             $targetSelect.find('option').each(function() {
                 let optYear = $(this).data('year');
+                let optLevel = $(this).data('level');
                 let val = $(this).val();
 
-                if (val === "") return; // Skip placeholder
+                if (val === "") return;
 
-                if (targetYearId && optYear != targetYearId) {
+                let isVisible = true;
+                
+                // Filter by Year
+                if (targetYearId && optYear != targetYearId) isVisible = false;
+                
+                // Filter by Next Level (Promotion Logic)
+                // If a level is filtered in search, only show next level in target
+                if (isVisible && targetLevel && optLevel != targetLevel) isVisible = false;
+
+                if (!isVisible) {
                     $(this).remove();
                 } else {
                     count++;
                 }
             });
             
-            // If the previously selected class is no longer in the list, reset it
             if (currentVal && !$targetSelect.find('option[value="' + currentVal + '"]').length) {
                 $targetSelect.val('').trigger('change.select2');
             }
 
-            // If no classes found for this year
             if (count === 0) {
-                $targetSelect.append('<option value="" disabled>-- Tidak ada kelas di tahun ini --</option>');
+                let msg = targetLevel ? 'Tidak ada kelas Tingkat ' + targetLevel : 'Tidak ada kelas di tahun ini';
+                $targetSelect.append('<option value="" disabled>-- ' + msg + ' --</option>');
             }
             
             $targetSelect.trigger('change.select2');
         }
 
-        // Trigger filter when target year changes
-        $('#target_academic_year').on('change', function() {
+        // Trigger filter when target year OR search level changes
+        $('#target_academic_year, #filter_class_level').on('change', function() {
             updateTargetClasses();
         });
 
@@ -482,14 +494,29 @@
     const allAutoOptions = $('#auto_target_classes').html();
     function updateAutoTargetClasses() {
         let targetYearId = $('#auto_target_academic_year').val();
+        let filterLevel = $('#filter_class_level').val();
         let $targetSelect = $('#auto_target_classes');
+        
+        // Next Level Logic
+        let targetLevel = filterLevel ? parseInt(filterLevel) + 1 : null;
+        
         $targetSelect.html(allAutoOptions);
         $targetSelect.find('option').each(function() {
-            if ($(this).val() && $(this).data('year') != targetYearId) $(this).remove();
+            let optYear = $(this).data('year');
+            let optLevel = $(this).data('level');
+            let val = $(this).val();
+
+            if (!val) return;
+
+            let isVisible = true;
+            if (targetYearId && optYear != targetYearId) isVisible = false;
+            if (isVisible && targetLevel && optLevel != targetLevel) isVisible = false;
+
+            if (!isVisible) $(this).remove();
         });
         $targetSelect.trigger('change.select2');
     }
-    $('#auto_target_academic_year').on('change', updateAutoTargetClasses);
+    $('#auto_target_academic_year, #filter_class_level').on('change', updateAutoTargetClasses);
     $(() => updateAutoTargetClasses());
 </script>
 @endpush
