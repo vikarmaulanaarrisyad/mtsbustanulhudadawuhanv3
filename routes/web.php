@@ -54,7 +54,8 @@ use App\Http\Controllers\{
     AnnouncementController,
     StudentCardController,
     GradeSettingController,
-    StudentGradeController
+    StudentGradeController,
+    TeacherPermitController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -606,6 +607,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/teacher/attendance', [TeacherAttendanceController::class, 'dashboard'])->name('teacher.attendance.dashboard');
     Route::post('/teacher/attendance/check-in', [TeacherAttendanceController::class, 'checkIn'])->name('teacher.attendance.check-in');
     Route::post('/teacher/attendance/check-out', [TeacherAttendanceController::class, 'checkOut'])->name('teacher.attendance.check-out');
+
+    // Teacher Permits (Pengajuan Izin)
+    Route::get('/teacher/permits', [TeacherPermitController::class, 'index'])->name('teacher.permits.index');
+    Route::post('/teacher/permits', [TeacherPermitController::class, 'store'])->name('teacher.permits.store');
+    Route::get('/admin/teacher/permits', [TeacherPermitController::class, 'adminIndex'])->name('teacher.permits.admin');
+    Route::get('/admin/teacher/permits/data', [TeacherPermitController::class, 'adminData'])->name('teacher.permits.data');
+    Route::post('/admin/teacher/permits/{id}/approve', [TeacherPermitController::class, 'approve'])->name('teacher.permits.approve');
 
     // Admin Attendance Management
     Route::prefix('attendance')->group(function () {

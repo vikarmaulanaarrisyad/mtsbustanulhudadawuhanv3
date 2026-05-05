@@ -3,7 +3,7 @@
 @section('title', 'Dashboard Guru')
 
 @section('content')
-<!-- Premium Dashboard Guru - Nature Edition v4.8 -->
+<!-- Premium Dashboard Guru - Nature Edition v5.1 -->
 <div class="bg-emerald-700 pt-12 pb-24 px-6 rounded-b-[3.5rem] shadow-2xl relative overflow-hidden">
     <!-- Aurora Background Effects -->
     <div class="absolute top-[-50px] right-[-50px] w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl"></div>
@@ -16,21 +16,33 @@
                     <img src="https://ui-avatars.com/api/?name={{ urlencode($teacher->name) }}&background=10b981&color=fff&bold=true" class="w-14 h-14 rounded-xl shadow-inner">
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black text-white leading-tight">Halo, {{ explode(' ', $teacher->name)[0] }}!</h1>
-                    <div class="flex items-center mt-1 space-x-2">
-                        <span class="text-emerald-100 text-[10px] font-bold uppercase tracking-widest opacity-80">NIP. {{ $teacher->nip ?? '-' }}</span>
-                        <span class="w-1 h-1 bg-white/30 rounded-full"></span>
-                        <span class="text-emerald-100 text-[10px] font-bold uppercase tracking-widest opacity-80">{{ $teacher->specialty ?? 'Tenaga Pengajar' }}</span>
+                    <span class="text-emerald-200 text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1 block">Selamat Datang Kembali</span>
+                    <h1 class="text-2xl font-black text-white leading-tight drop-shadow-sm">{{ $teacher->name }}</h1>
+                    <div class="flex items-center mt-2 space-x-2">
+                        <div class="px-2 py-0.5 bg-white/10 rounded-md border border-white/10">
+                            <span class="text-emerald-100 text-[9px] font-bold uppercase tracking-wider opacity-90">NIP. {{ $teacher->nip ?? '-' }}</span>
+                        </div>
+                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                        <span class="text-emerald-100 text-[9px] font-bold uppercase tracking-wider opacity-80">{{ $teacher->specialty ?? 'Tenaga Pengajar' }}</span>
                     </div>
                 </div>
             </div>
-            <a href="{{ route('teacher.announcements') }}" class="relative p-3 bg-white/10 rounded-2xl border border-white/20 text-white">
-                <i class="fas fa-bell text-lg"></i>
-                @if($unreadAnnouncementsCount > 0)
-                    <span class="absolute top-0 right-0 w-4 h-4 bg-rose-500 rounded-full border-2 border-emerald-700 text-[8px] flex items-center justify-center font-bold">{{ $unreadAnnouncementsCount }}</span>
-                @endif
-            </a>
+            <div class="flex items-center space-x-3">
+                <a href="{{ route('teacher.announcements') }}" class="relative w-12 h-12 bg-white/10 rounded-2xl border border-white/20 text-white flex items-center justify-center transition-all active:scale-90 hover:bg-white/20">
+                    <i class="fas fa-bell text-lg"></i>
+                    @if($unreadAnnouncementsCount > 0)
+                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full border-2 border-emerald-700 text-[9px] flex items-center justify-center font-black animate-bounce">{{ $unreadAnnouncementsCount }}</span>
+                    @endif
+                </a>
+                <button onclick="document.querySelector('#form-logout-teacher').submit()" class="w-12 h-12 bg-rose-500/20 rounded-2xl border border-rose-500/30 text-rose-100 transition-all active:scale-90 hover:bg-rose-500/40 flex items-center justify-center shadow-lg shadow-rose-900/20">
+                    <i class="fas fa-power-off text-lg"></i>
+                </button>
+            </div>
         </div>
+
+        <form action="{{ route('logout') }}" method="post" id="form-logout-teacher" class="hidden">
+            @csrf
+        </form>
 
         <!-- KPI Stats (Informative Pills) -->
         <div class="flex space-x-3 overflow-x-auto pb-4 no-scrollbar">
@@ -112,7 +124,7 @@
         @endif
     </div>
 
-    <!-- Quick Services Grid (New Informative Section) -->
+    <!-- Quick Services Grid -->
     <div class="mb-10">
         <h3 class="text-slate-800 font-black text-sm uppercase tracking-widest mb-6 px-2">Layanan Akademik</h3>
         <div class="grid grid-cols-2 gap-4">
@@ -124,14 +136,14 @@
                     <span class="block text-slate-800 font-black text-xs leading-tight">Scanner QR<br>Siswa</span>
                 </div>
             </a>
-            <a href="{{ route('student-grades.raport') }}" class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-center space-y-3 transition-all active:scale-95">
+            <button onclick="openPermitModal()" class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-center space-y-3 transition-all active:scale-95">
                 <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-amber-100">
-                    <i class="fas fa-edit"></i>
+                    <i class="fas fa-paper-plane"></i>
                 </div>
                 <div>
-                    <span class="block text-slate-800 font-black text-xs leading-tight">Input Nilai<br>Raport</span>
+                    <span class="block text-slate-800 font-black text-xs leading-tight">Pengajuan Izin<br>Ke Kepala</span>
                 </div>
-            </a>
+            </button>
             <a href="{{ route('teacher.schedule') }}" class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-center text-center space-y-3 transition-all active:scale-95">
                 <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-emerald-100">
                     <i class="fas fa-calendar-alt"></i>
@@ -150,6 +162,52 @@
             </a>
         </div>
     </div>
+
+    <!-- Status Pengajuan Izin (Riwayat dengan Filter) -->
+    @if($myPermits->count() > 0)
+    <div class="mb-10">
+        <div class="flex items-center justify-between mb-4 px-2">
+            <h3 class="text-slate-800 font-black text-sm uppercase tracking-widest">Status Izin</h3>
+            <a href="{{ route('teacher.permits.index') }}" class="text-emerald-600 font-bold text-[10px] uppercase tracking-widest hover:underline">Lihat Semua</a>
+        </div>
+        
+        <!-- Filter Pills -->
+        <div class="flex space-x-2 overflow-x-auto pb-4 no-scrollbar mb-2 px-2">
+            <button onclick="filterPermits('all', this)" class="permit-filter-btn flex-shrink-0 px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all bg-emerald-600 text-white shadow-lg active-filter">Semua</button>
+            <button onclick="filterPermits('pending', this)" class="permit-filter-btn flex-shrink-0 px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all bg-white text-slate-400 border border-slate-100 shadow-sm">Menunggu</button>
+            <button onclick="filterPermits('approved', this)" class="permit-filter-btn flex-shrink-0 px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all bg-white text-slate-400 border border-slate-100 shadow-sm">Disetujui</button>
+            <button onclick="filterPermits('rejected', this)" class="permit-filter-btn flex-shrink-0 px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all bg-white text-slate-400 border border-slate-100 shadow-sm">Ditolak</button>
+        </div>
+
+        <div class="space-y-3" id="permitList">
+            @foreach($myPermits as $permit)
+            <div class="permit-item bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between transition-all animate__animated animate__fadeIn" data-status="{{ $permit->status }}">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-sm
+                        @if($permit->status == 'approved') bg-emerald-50 text-emerald-600 @elseif($permit->status == 'rejected') bg-rose-50 text-rose-600 @else bg-amber-50 text-amber-600 @endif">
+                        <i class="fas @if($permit->status == 'approved') fa-check @elseif($permit->status == 'rejected') fa-times @else fa-clock @endif"></i>
+                    </div>
+                    <div>
+                        <span class="block text-slate-800 font-black text-xs">{{ $permit->type }}</span>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{{ \Carbon\Carbon::parse($permit->start_date)->translatedFormat('d M Y') }}</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="inline-block px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest
+                        @if($permit->status == 'approved') bg-emerald-100 text-emerald-700 @elseif($permit->status == 'rejected') bg-rose-100 text-rose-700 @else bg-amber-100 text-amber-700 @endif">
+                        @if($permit->status == 'approved') Disetujui @elseif($permit->status == 'rejected') Ditolak @else Menunggu @endif
+                    </span>
+                </div>
+            </div>
+            @endforeach
+            
+            <div id="noPermitsFound" class="hidden text-center py-8">
+                <div class="text-slate-200 mb-2"><i class="fas fa-search fa-2x"></i></div>
+                <p class="text-slate-400 font-bold text-[9px] uppercase tracking-widest">Tidak ada data untuk status ini</p>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Agenda Timeline -->
     <div class="flex items-center justify-between mb-6 px-2">
@@ -210,8 +268,141 @@
     @endif
 </div>
 
+<!-- MODAL PENGAJUAN IZIN (PREMIUM) -->
+<div class="modal fade" id="permitModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered px-4">
+        <div class="modal-content rounded-[2.5rem] border-0 shadow-2xl overflow-hidden">
+            <div class="bg-emerald-600 p-8 text-white relative text-center">
+                <div class="relative z-10">
+                    <h4 class="text-xl font-black mb-1">Pengajuan Izin</h4>
+                    <p class="text-emerald-100 text-[10px] font-bold uppercase tracking-widest opacity-80">Kirim ke Kepala Madrasah</p>
+                </div>
+                <div class="absolute top-[-20px] right-[-20px] w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+            </div>
+            <div class="p-8 bg-white">
+                <form id="formPermit" enctype="multipart/form-data">
+                    @csrf
+                    <div class="space-y-6">
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Jenis Izin</label>
+                            <select name="type" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none">
+                                <option value="Izin">Izin (Kepentingan Keluarga/Lainnya)</option>
+                                <option value="Sakit">Sakit (Butuh Istirahat/Berobat)</option>
+                                <option value="Cuti">Cuti Tahunan/Besar</option>
+                                <option value="Perjalanan Dinas">Perjalanan Dinas / Tugas Luar</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Alasan / Keperluan</label>
+                            <textarea name="reason" rows="3" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Tuliskan alasan pengajuan Anda..."></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Mulai Tanggal</label>
+                                <input type="date" name="start_date" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Sampai (Opsional)</label>
+                                <input type="date" name="end_date" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Lampiran (Opsional)</label>
+                            <div class="relative w-full bg-slate-50 rounded-2xl p-4 border-2 border-dashed border-slate-200 text-center transition-all hover:border-emerald-500 group">
+                                <input type="file" name="attachment" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                                <div class="relative z-10 text-slate-400 group-hover:text-emerald-600">
+                                    <i class="fas fa-cloud-upload-alt text-2xl mb-2"></i>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest">Klik atau Tarik File Disini</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <button type="button" onclick="submitPermit()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 rounded-2xl shadow-xl shadow-emerald-100 transition-all active:scale-95 uppercase tracking-widest text-xs">
+                                Kirim Pengajuan
+                            </button>
+                            <button type="button" data-dismiss="modal" class="w-full mt-3 text-slate-400 font-bold text-[10px] uppercase tracking-widest py-2">
+                                Batal
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <script>
+    function filterPermits(status, btn) {
+        // Toggle Active Button
+        $('.permit-filter-btn').removeClass('bg-emerald-600 text-white shadow-lg active-filter')
+                              .addClass('bg-white text-slate-400 border border-slate-100 shadow-sm');
+        $(btn).removeClass('bg-white text-slate-400 border border-slate-100 shadow-sm')
+              .addClass('bg-emerald-600 text-white shadow-lg active-filter');
+
+        // Filter Items
+        let visibleCount = 0;
+        $('.permit-item').each(function() {
+            if (status === 'all' || $(this).data('status') === status) {
+                $(this).removeClass('hidden').addClass('animate__fadeIn');
+                visibleCount++;
+            } else {
+                $(this).addClass('hidden').removeClass('animate__fadeIn');
+            }
+        });
+
+        // Show/Hide Empty State
+        if (visibleCount === 0) {
+            $('#noPermitsFound').removeClass('hidden');
+        } else {
+            $('#noPermitsFound').addClass('hidden');
+        }
+    }
+
+    function openPermitModal() {
+        $('#permitModal').modal('show');
+    }
+
+    function submitPermit() {
+        const form = document.getElementById('formPermit');
+        const formData = new FormData(form);
+
+        Swal.fire({
+            title: 'KIRIM PENGAJUAN',
+            text: "Kirim pengajuan izin ini ke Kepala Madrasah?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'YA, KIRIM SEKARANG',
+            cancelButtonText: 'BATAL',
+            customClass: { popup: 'rounded-[2rem]' }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({ title: 'Mengirim...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+                
+                $.ajax({
+                    url: '{{ route("teacher.permits.store") }}',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        Swal.fire({ icon: 'success', title: 'BERHASIL', text: response.message, showConfirmButton: false, timer: 2000 }).then(() => { 
+                            $('#permitModal').modal('hide');
+                            window.location.reload(); 
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire({ icon: 'error', title: 'GAGAL', text: xhr.responseJSON?.message || 'Terjadi kesalahan saat mengirim pengajuan.' });
+                    }
+                });
+            }
+        });
+    }
+
     function submitAttendance(formId) {
         const form = $(formId);
         Swal.fire({
@@ -238,5 +429,10 @@
         });
     }
 </script>
+<style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .hidden { display: none !important; }
+</style>
 @endpush
 @endsection

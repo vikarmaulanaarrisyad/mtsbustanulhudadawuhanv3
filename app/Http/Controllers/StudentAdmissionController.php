@@ -24,9 +24,16 @@ class StudentAdmissionController extends Controller
             ? StudentAdmission::where('academic_year_id', $academicYear->id)->count()
             : 0;
 
+        // Ambil data admission aktif untuk dashboard stats
+        $activeAdmission = $academicYear 
+            ? StudentAdmission::where('academic_year_id', $academicYear->id)->first()
+            : null;
+
         return view('admin.admission.student-admissions.index', [
             'studentAdmissions' => $studentAdmissions,
-            'academicYear' => $academicYear
+            'academicYear' => $academicYear,
+            'activeYear' => $activeAdmission ? $activeAdmission->admission_year : null,
+            'isActive' => $activeAdmission ? ($activeAdmission->admission_status == 'open') : false
         ]);
     }
 

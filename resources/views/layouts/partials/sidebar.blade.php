@@ -194,6 +194,12 @@
                         <p>Presensi Harian</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('teacher.permits.admin') }}" class="nav-link {{ request()->is('admin/teacher/permits*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-check-double"></i>
+                        <p>Verifikasi Izin Guru</p>
+                    </a>
+                </li>
                 <li class="nav-item {{ request()->is('attendance*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('attendance*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-clipboard-list"></i>
@@ -236,6 +242,12 @@
                         <a href="{{ route('teacher.attendance.dashboard') }}" class="nav-link {{ request()->is('teacher/attendance*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-user-clock"></i>
                             <p>Presensi Harian</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('teacher.permits.index') }}" class="nav-link {{ request()->is('teacher/permits*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-history"></i>
+                            <p>Riwayat Izin Saya</p>
                         </a>
                     </li>
                     <li class="nav-item {{ request()->is('attendance*') ? 'menu-open' : '' }}">
@@ -528,6 +540,14 @@
                     </a>
                 </li>
                 @endcan
+                
+                <li class="nav-header">AKSI</li>
+                <li class="nav-item mt-auto">
+                    <a href="#" class="nav-link text-danger" onclick="document.querySelector('#form-logout').submit()">
+                        <i class="nav-icon fas fa-power-off"></i>
+                        <p>Keluar Aplikasi</p>
+                    </a>
+                </li>
 
             </ul>
         </nav>

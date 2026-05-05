@@ -81,7 +81,13 @@ class DashboardController extends Controller
                     $q->where('user_id', $user->id);
                 })->count();
 
-            return view('admin.dashboard.teacher', compact('teacher', 'schedules', 'myAttendances', 'todayAttendance', 'totalSchedules', 'homeroomClass', 'myStudents', 'unreadAnnouncementsCount'));
+            // Ringkasan Izin Terakhir (Dibatasi agar UI Dashboard tetap rapi)
+            $myPermits = \App\Models\TeacherPermit::where('teacher_id', $teacher->id)
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+
+            return view('admin.dashboard.teacher', compact('teacher', 'schedules', 'myAttendances', 'todayAttendance', 'totalSchedules', 'homeroomClass', 'myStudents', 'unreadAnnouncementsCount', 'myPermits'));
         }
 
         // --- Logika Dashboard Admin (Default) ---

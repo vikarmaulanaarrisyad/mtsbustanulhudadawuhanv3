@@ -152,7 +152,6 @@
 @endsection
 
 @include('includes.datatable')
-@include('includes.datepicker')
 
 @push('scripts')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -194,6 +193,15 @@
             $(`${modal} form`).attr('action', url);
             $(`${modal} [name=_method]`).val('put');
             resetForm(`${modal} form`);
+
+            // Format dates for native HTML5 date inputs (must be YYYY-MM-DD)
+            const dates = ['phase_start_date', 'phase_end_date', 'announcement_date'];
+            dates.forEach(field => {
+                if(res.data[field]) {
+                    res.data[field] = moment(res.data[field]).format('YYYY-MM-DD');
+                }
+            });
+
             loopForm(res.data);
         }).fail(() => { Swal.close(); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Data tidak ditemukan.' }); });
     }
