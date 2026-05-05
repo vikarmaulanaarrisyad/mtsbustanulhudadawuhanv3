@@ -6,91 +6,72 @@
 @endphp
 
 @if($isRestricted)
-<div id="pwa-force-install-overlay" style="display:none;">
-    <div class="pwa-lock-content">
-        <div class="pwa-lock-card">
-            <div class="pwa-lock-header">
-                <div class="pwa-lock-logo">
-                    <img src="/icons/icon-192x192.png?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
-                </div>
-                <h4>Aktivasi Aplikasi Digital</h4>
-                <p>Silakan pasang aplikasi ke HP Anda untuk melanjutkan. Ini akan memberikan akses lebih cepat, stabil, dan aman.</p>
-            </div>
-
-            <div id="pwa-platform-info" class="my-4">
-                {{-- Android Info --}}
-                <div class="android-only pwa-status-box">
-                    <div id="pwa-android-status" class="pwa-status-text">
-                        <i class="fas fa-info-circle mr-2"></i> Siap dipasang ke layar utama.
-                    </div>
-                </div>
-
-                {{-- iOS Info (Technical Necessity) --}}
-                <div class="ios-only pwa-status-box">
-                    <div class="pwa-status-text">
-                        <i class="fas fa-share-square mr-2"></i> Klik ikon <b>Share</b> Safari, lalu <b>"Add to Home Screen"</b>.
-                    </div>
-                </div>
-            </div>
-
-            <div class="pwa-lock-footer">
-                <button id="pwa-force-install-btn" class="pwa-btn-primary">
-                    <span id="pwa-btn-text"><i class="fas fa-download mr-2"></i> PASANG APLIKASI SEKARANG</span>
-                </button>
-                <div class="mt-3">
-                    <a href="javascript:void(0)" onclick="window.location.reload()" class="text-sm text-muted" style="text-decoration:underline;">
-                        Sudah Pasang? Klik Segarkan
-                    </a>
-                </div>
-            </div>
+<div id="pwa-force-overlay" class="pwa-force-overlay" style="display:none;">
+    <div class="pwa-force-card">
+        <img src="{{ $setting->pwa_icon ?? '/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo" class="pwa-force-logo">
+        <h1 class="pwa-force-title">Aktivasi Aplikasi Digital</h1>
+        <p class="pwa-force-desc">Silakan pasang aplikasi Smart Madrasah di HP Anda untuk akses yang lebih cepat, aman, dan fitur lengkap.</p>
+        
+        <div class="pwa-device-guide android-only">
+            <div class="guide-item"><i class="fas fa-check-circle"></i> Siap dipasang ke layar utama.</div>
         </div>
+        <div class="pwa-device-guide ios-only">
+            <div class="guide-item"><i class="fas fa-share-square"></i> Klik <b>Share</b> di Safari, lalu <b>"Add to Home Screen"</b>.</div>
+        </div>
+
+        <button id="pwa-force-install-btn" class="pwa-btn-main pwa-btn-install pwa-btn-force">
+            <span id="pwa-btn-text"><i class="fas fa-cloud-download-alt mr-2"></i> PASANG SEKARANG</span>
+        </button>
+        <a href="javascript:void(0)" onclick="window.location.reload()" class="pwa-refresh-link">Sudah pasang? Klik Segarkan</a>
     </div>
 </div>
 @endif
 
-{{-- Banner Normal (Hanya untuk Admin/Lainnya) --}}
+<!-- Normal Install Banner -->
 @if(!$isRestricted)
-<div id="pwa-install-prompt" style="display:none;">
-    <div class="pwa-banner pwa-install-banner">
-        <div class="pwa-banner-icon">
-            <img src="/icons/icon-192x192.png?v={{ $setting->pwa_version ?? time() }}" alt="App Icon">
-        </div>
-        <div class="pwa-banner-text">
-            <h6>Pasang Aplikasi {{ $setting->pwa_short_name ?? 'Madrasah' }}</h6>
-            <p>Akses lebih cepat & mudah dari layar utama HP.</p>
-        </div>
-        <div class="pwa-banner-actions">
-            <button id="pwa-install-btn" class="pwa-btn-install">INSTAL</button>
-            <button id="pwa-close-install" class="pwa-btn-close">&times;</button>
-        </div>
+<div id="pwa-install-prompt" class="pwa-banner" style="display:none;">
+    <div class="pwa-banner-icon">
+        <img src="{{ $setting->pwa_icon ?? '/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
+    </div>
+    <div class="pwa-banner-text">
+        <h6>Pasang Aplikasi</h6>
+        <p>Akses cepat dari layar utama HP</p>
+    </div>
+    <div class="pwa-actions">
+        <button id="pwa-install-btn" class="pwa-btn-main pwa-btn-install">
+            <i class="fas fa-download"></i> PASANG
+        </button>
+        <button id="pwa-close-install" class="pwa-btn-close">&times;</button>
     </div>
 </div>
 @endif
 
-{{-- Update Banner --}}
-<div id="pwa-update-prompt" style="display:none;">
-    <div class="pwa-banner pwa-update-banner">
-        <div class="pwa-banner-icon pwa-update-icon"><i class="fas fa-sync-alt"></i></div>
-        <div class="pwa-banner-text">
-            <h6>🎉 Versi Baru Tersedia!</h6>
-            <p>Ada pembaruan. Klik update untuk fitur terbaru.</p>
-        </div>
-        <div class="pwa-banner-actions">
-            <button id="pwa-update-btn" class="pwa-btn-update">UPDATE</button>
-            <button id="pwa-close-update" class="pwa-btn-close">&times;</button>
-        </div>
+<!-- Update Banner -->
+<div id="pwa-update-prompt" class="pwa-banner" style="display:none;">
+    <div class="pwa-banner-icon">
+        <img src="{{ $setting->pwa_icon ?? '/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
+    </div>
+    <div class="pwa-banner-text">
+        <h6>Versi Baru Tersedia</h6>
+        <p>Pembaruan fitur & keamanan</p>
+    </div>
+    <div class="pwa-actions">
+        <button id="pwa-update-btn" class="pwa-btn-main pwa-btn-update">
+            <i class="fas fa-sync-alt"></i> UPDATE
+        </button>
+        <button id="pwa-close-update" class="pwa-btn-close">&times;</button>
     </div>
 </div>
 
-{{-- Overlay Proses Update --}}
-<div id="pwa-updating-overlay" style="display:none;">
-    <div class="pwa-update-modal">
-        <div class="pwa-update-spinner">
-            <div class="spinner-inner"></div>
-            <i class="fas fa-sync-alt fa-spin"></i>
+<!-- Updating Overlay -->
+<div id="id-updating-overlay" class="pwa-updating-overlay" style="display:none;">
+    <div class="pwa-updating-card">
+        <div class="pwa-updating-logo">
+            <img src="{{ $setting->pwa_icon ?? '/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
+            <div class="pwa-spinner-ring"></div>
         </div>
-        <h4>Memasang Pembaruan...</h4>
-        <p>Sedang mengunduh aset dan fitur terbaru. Mohon tunggu sebentar.</p>
+        <h4>Memperbarui Aplikasi...</h4>
+        <p>Sedang mengunduh aset terbaru, mohon tunggu sebentar.</p>
         <div class="pwa-progress-container">
             <div id="pwa-progress-bar" class="pwa-progress-bar"></div>
         </div>
@@ -98,84 +79,117 @@
 </div>
 
 <style>
-#pwa-force-install-overlay, #pwa-updating-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(10px);
-    z-index: 100000; display: flex; align-items: center; justify-content: center; padding: 20px;
+/* Premium PWA Design System */
+:root {
+    --pwa-emerald: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --pwa-indigo: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    --pwa-slate: #1e293b;
+    --pwa-glass: rgba(255, 255, 255, 0.88);
+    --pwa-blur: blur(25px);
+    --pwa-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.3);
 }
-#pwa-updating-overlay { z-index: 200000; backdrop-filter: blur(15px); }
 
-.pwa-lock-card, .pwa-update-modal {
-    background: #fff; border-radius: 24px; width: 100%; max-width: 380px;
-    padding: 40px 25px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-}
-.pwa-lock-logo {
-    width: 90px; height: 90px; margin: 0 auto 20px; border-radius: 20px;
-    overflow: hidden; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
-}
-.pwa-lock-logo img { width: 100%; height: 100%; object-fit: cover; }
-.pwa-lock-header h4, .pwa-update-modal h4 { font-weight: 800; color: #1e293b; margin-bottom: 8px; font-size: 1.25rem; }
-.pwa-lock-header p, .pwa-update-modal p { color: #64748b; font-size: 0.85rem; line-height: 1.6; }
-
-.pwa-status-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; }
-.pwa-status-text { font-size: 0.8rem; color: #475569; font-weight: 600; }
-
-.pwa-btn-primary {
-    width: 100%; background: linear-gradient(135deg, #10b981, #059669);
-    color: #fff; border: none; padding: 16px; border-radius: 14px;
-    font-weight: 800; font-size: 1rem; cursor: pointer; transition: all 0.2s;
-}
-.pwa-btn-primary:active { transform: scale(0.98); }
-
+/* Base Utility */
 .android-only, .ios-only { display: none; }
 body.pwa-android .android-only { display: block; }
 body.pwa-ios .ios-only { display: block; }
 
-/* Banner Styles */
+/* Banner Styling */
 .pwa-banner {
-    position: fixed; bottom: 100px; left: 16px; right: 16px; max-width: 480px;
-    margin: 0 auto; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-    border-radius: 24px; z-index: 99999;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15); padding: 16px 20px;
-    display: flex; align-items: center; gap: 16px; border: 1px solid rgba(255,255,255,0.3);
-    animation: pwaSlideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    position: fixed; bottom: 32px; left: 16px; right: 16px; max-width: 500px;
+    margin: 0 auto; background: var(--pwa-glass); backdrop-filter: var(--pwa-blur);
+    -webkit-backdrop-filter: var(--pwa-blur); border-radius: 30px; z-index: 999999;
+    box-shadow: var(--pwa-shadow); padding: 18px 24px;
+    display: flex; align-items: center; gap: 16px; border: 1px solid rgba(255, 255, 255, 0.5);
+    animation: pwaBounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
 }
-.pwa-install-banner { border-left: 5px solid #10b981; }
-.pwa-update-banner { border-left: 5px solid #6366f1; bottom: 180px; }
 
-@keyframes pwaSlideUp { 
-    from { transform: translateY(100px) scale(0.9); opacity: 0; } 
-    to { transform: translateY(0) scale(1); opacity: 1; } 
+@keyframes pwaBounceIn { 
+    0% { transform: translateY(150%) scale(0.8); opacity: 0; } 
+    100% { transform: translateY(0) scale(1); opacity: 1; } 
 }
 
 .pwa-banner-icon { 
-    width: 56px; height: 56px; border-radius: 14px; overflow: hidden; flex-shrink: 0; 
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1); border: 2px solid #fff;
-    animation: pwaIconPop 0.6s 0.2s both;
+    width: 64px; height: 64px; border-radius: 20px; overflow: hidden; flex-shrink: 0; 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12); border: 2.5px solid #fff;
+    background: #fff; display: flex; align-items: center; justify-content: center;
 }
-@keyframes pwaIconPop { from { transform: scale(0); } to { transform: scale(1); } }
-
 .pwa-banner-icon img { width: 100%; height: 100%; object-fit: cover; }
-.pwa-btn-install, .pwa-btn-update { background: #10b981; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.7rem; cursor: pointer; }
-.pwa-btn-update { background: #6366f1; }
-.pwa-btn-close { background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; }
 
-/* Progress & Spinner */
-.pwa-update-spinner { position: relative; width: 60px; height: 60px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #6366f1; }
-.spinner-inner { position: absolute; width: 100%; height: 100%; border: 3px solid #f1f5f9; border-top-color: #6366f1; border-radius: 50%; animation: pwaSpin 1s linear infinite; }
+.pwa-banner-text { flex: 1; min-width: 0; }
+.pwa-banner-text h6 { 
+    margin: 0; font-weight: 800; font-size: 1.1rem; color: var(--pwa-slate);
+    letter-spacing: -0.02em; line-height: 1.2;
+}
+.pwa-banner-text p { 
+    margin: 4px 0 0; font-size: 0.85rem; color: #64748b; font-weight: 500;
+}
+
+.pwa-actions { display: flex; align-items: center; gap: 10px; }
+
+.pwa-btn-main {
+    padding: 12px 22px; border-radius: 16px; border: none;
+    color: #fff; font-weight: 750; font-size: 0.9rem; cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    white-space: nowrap; display: flex; align-items: center; gap: 8px;
+}
+.pwa-btn-install { background: var(--pwa-emerald); }
+.pwa-btn-update { background: var(--pwa-indigo); }
+.pwa-btn-main:active { transform: scale(0.92); filter: brightness(0.9); }
+
+.pwa-btn-close {
+    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.06); border-radius: 50%; color: #64748b;
+    border: none; cursor: pointer; font-size: 1.4rem; transition: 0.2s;
+}
+
+/* Premium Overlays */
+.pwa-force-overlay, .pwa-updating-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at top right, #1e293b, #0f172a);
+    z-index: 9999999; display: flex; align-items: center; justify-content: center; padding: 25px;
+}
+.pwa-force-card, .pwa-updating-card {
+    background: #fff; border-radius: 35px; width: 100%; max-width: 400px;
+    padding: 45px 30px; text-align: center; box-shadow: 0 30px 70px rgba(0,0,0,0.4);
+    animation: pwaFadeScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes pwaFadeScale { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+
+.pwa-force-logo, .pwa-updating-logo { 
+    width: 80px; height: 80px; border-radius: 20px; 
+    margin: 0 auto 35px; border: 3px solid #f1f5f9;
+    position: relative; background: #fff;
+}
+.pwa-force-logo img, .pwa-updating-logo img { width: 100%; height: 100%; object-fit: contain; padding: 5px; }
+
+.pwa-force-title { font-size: 1.5rem; font-weight: 850; color: var(--pwa-slate); margin-bottom: 12px; }
+.pwa-force-desc { font-size: 0.95rem; color: #64748b; margin-bottom: 35px; line-height: 1.6; }
+.pwa-device-guide { background: #f8fafc; border-radius: 20px; padding: 15px; margin-bottom: 30px; }
+.guide-item { font-size: 0.85rem; color: #475569; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+.pwa-btn-force { width: 100%; font-size: 1.1rem; padding: 18px; border-radius: 20px; justify-content: center; }
+.pwa-refresh-link { display: block; margin-top: 20px; font-size: 0.85rem; color: #94a3b8; text-decoration: underline; font-weight: 600; }
+
+/* Progress Styling */
+.pwa-spinner-ring {
+    position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px;
+    border: 4px solid #f1f5f9; border-top-color: #6366f1; border-radius: 50%;
+    animation: pwaSpin 1.2s linear infinite;
+}
 @keyframes pwaSpin { to { transform: rotate(360deg); } }
-.pwa-progress-container { width: 100%; height: 6px; background: #f1f5f9; border-radius: 10px; margin-top: 20px; overflow: hidden; }
-.pwa-progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #6366f1, #8b5cf6); transition: width 3s ease-in-out; }
+.pwa-progress-container { width: 100%; height: 8px; background: #f1f5f9; border-radius: 20px; margin-top: 25px; overflow: hidden; }
+.pwa-progress-bar { width: 0%; height: 100%; background: var(--pwa-indigo); transition: width 3s ease; box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
 </style>
 
 <script>
 (function () {
     let deferredPrompt = null;
     const restricted = {{ $isRestricted ? 'true' : 'false' }};
-    const forceOverlay = document.getElementById('pwa-force-install-overlay');
+    const forceOverlay = document.getElementById('pwa-force-overlay');
     const installBanner = document.getElementById('pwa-install-prompt');
     const updateBanner = document.getElementById('pwa-update-prompt');
-    const updatingOverlay = document.getElementById('pwa-updating-overlay');
+    const updatingOverlay = document.getElementById('id-updating-overlay');
     const progressBar = document.getElementById('pwa-progress-bar');
     const btnText = document.getElementById('pwa-btn-text');
 
