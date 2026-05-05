@@ -280,17 +280,38 @@ body.pwa-ios .ios-only { display: block; }
         if (!sessionStorage.getItem('pwa_update_dismissed') && updateBanner) updateBanner.style.display = 'flex';
     }
 
-    document.getElementById('pwa-update-btn')?.addEventListener('click', () => {
+    document.getElementById('pwa-update-btn')?.addEventListener('click', async () => {
         if (updateBanner) updateBanner.style.display = 'none';
         if (updatingOverlay) updatingOverlay.style.display = 'flex';
-        setTimeout(() => { if (progressBar) progressBar.style.width = '100%'; }, 50);
-        sessionStorage.setItem('pwa_update_clicked', 'true');
-        navigator.serviceWorker.getRegistration().then(reg => {
-            if (reg) reg.update();
-            if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            else setTimeout(() => { window.location.reload(); }, 3000);
-        });
-        setTimeout(() => { if (sessionStorage.getItem('pwa_update_clicked')) window.location.reload(); }, 5000);
+        
+        // Progress Bar Animation
+        if (progressBar) progressBar.style.width = '100%';
+        
+        try {
+            // 1. Bersihkan Cache Storage
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                await Promise.all(cacheNames.map(name => caches.delete(name)));
+            }
+
+            // 2. Unregister Service Worker
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                }
+            }
+
+            // 3. Beri jeda sedikit untuk visual progress
+            setTimeout(() => {
+                sessionStorage.setItem('pwa_update_done', 'true');
+                window.location.href = window.location.pathname + '?v=' + Date.now();
+            }, 1500);
+
+        } catch (error) {
+            console.error('Update failed:', error);
+            window.location.reload();
+        }
     });
 
     document.getElementById('pwa-close-update')?.addEventListener('click', () => {

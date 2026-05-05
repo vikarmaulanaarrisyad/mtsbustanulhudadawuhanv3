@@ -8,7 +8,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $setting->company_name }} - @yield('title')</title>
 
-    <link rel="icon" href="{{ asset('/img/favicon.png') }}" type="image/*">
+    <link rel="icon" href="{{ $setting->pwa_icon ?? asset('/img/favicon.png') }}?v={{ $setting->pwa_version ?? time() }}" type="image/*">
     <link rel="manifest" href="/manifest.json?v={{ $setting->pwa_version ?? time() }}">
     <meta name="theme-color" content="{{ $setting->pwa_theme_color ?? '#10b981' }}">
     <meta name="apple-mobile-web-app-capable" content="yes">

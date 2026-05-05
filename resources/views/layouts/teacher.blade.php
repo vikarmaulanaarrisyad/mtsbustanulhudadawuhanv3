@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title') - Smart Madrasah</title>
+    <link rel="icon" href="{{ $setting->pwa_icon ?? asset('/img/favicon.png') }}?v={{ $setting->pwa_version ?? time() }}" type="image/*">
     <link rel="manifest" href="/manifest.json?v={{ $setting->pwa_version ?? time() }}">
     <meta name="theme-color" content="{{ $setting->pwa_theme_color ?? '#10b981' }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
