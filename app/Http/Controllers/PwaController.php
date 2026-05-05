@@ -21,7 +21,7 @@ class PwaController extends Controller
         $swContent = <<<JS
 // Service Worker - Madrasah Digital v{$version}
 const CACHE_NAME = 'madrasah-v{$version}';
-const urlsToCache = ['/', '/login', '/manifest.json'];
+const urlsToCache = ['/', '/login'];
 
 self.addEventListener('install', event => {
     self.skipWaiting();
@@ -56,21 +56,37 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
     const url = new URL(event.request.url);
+    
+    // Jangan ganggu halaman admin/setting
     if (url.pathname.startsWith('/setting') || url.pathname.startsWith('/admin')) return;
 
+    // 1. Strategi Network-First untuk Navigasi (HTML), Manifest, dan Gambar
+    // Ini memastikan halaman & branding selalu yang paling baru
+    if (event.request.mode === 'navigate' || url.pathname.endsWith('manifest.json') || event.request.destination === 'image') {
+        event.respondWith(
+            fetch(event.request).then(response => {
+                if (response && response.ok) {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                }
+                return response;
+            }).catch(() => caches.match(event.request) || caches.match('/'))
+        );
+        return;
+    }
+
+    // 2. Strategi Stale-While-Revalidate untuk aset statis (CSS, JS, Fonts)
     event.respondWith(
-        caches.match(event.request).then(cached => {
-            if (cached) {
-                fetch(event.request).then(response => {
-                    if (response && response.ok && response.type === 'basic') {
-                        const clone = response.clone();
-                        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-                    }
-                }).catch(() => {});
-                return cached;
-            }
-            return fetch(event.request);
-        }).catch(() => caches.match('/'))
+        caches.match(event.request).then(cachedResponse => {
+            const fetchPromise = fetch(event.request).then(networkResponse => {
+                if (networkResponse && networkResponse.ok) {
+                    const cacheClone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, cacheClone));
+                }
+                return networkResponse;
+            }).catch(() => {});
+            return cachedResponse || fetchPromise;
+        })
     );
 });
 
