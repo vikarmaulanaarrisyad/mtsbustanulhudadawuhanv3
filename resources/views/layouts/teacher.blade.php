@@ -6,8 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title') - Smart Madrasah</title>
     
-    <!-- Google Fonts: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,8 +24,22 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Poppins', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
                     },
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        }
+                    }
                 }
             }
         }
@@ -39,61 +53,59 @@
         
         /* Custom Bottom Nav Blur */
         .bottom-nav-blur {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
         }
         
         /* Hide scrollbar but allow scroll */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes pulse-emerald {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+        }
+        .animate-pulse-emerald { animation: pulse-emerald 2s infinite; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans antialiased text-slate-900">
 
     <!-- Mobile Container -->
-    <div class="max-w-md mx-auto min-h-screen relative shadow-2xl bg-white">
+    <div class="max-w-md mx-auto min-h-screen relative shadow-2xl bg-white pb-32">
         
         <!-- Main Content Section -->
         <main>
             @yield('content')
         </main>
 
-        <!-- Bottom Navigation (Fixed) -->
-        <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[400px] h-20 bg-white/80 bottom-nav-blur border border-white/40 rounded-[2.5rem] shadow-2xl flex items-center justify-around px-6 z-[9999]">
-            <a href="{{ route('dashboard') }}" class="flex flex-col items-center space-y-1 {{ request()->is('admin/dashboard') ? 'text-indigo-600' : 'text-slate-400' }}">
-                <div class="p-2 {{ request()->is('admin/dashboard') ? 'bg-indigo-50 rounded-2xl' : '' }}">
-                    <i class="fas fa-home text-xl"></i>
-                </div>
-                <span class="text-[10px] font-black uppercase tracking-widest">Home</span>
+        <!-- Bottom Navigation (Fixed & Modernized Emerald) -->
+        <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md h-24 bg-slate-900/95 bottom-nav-blur border-t border-white/10 rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex items-center justify-around px-6 z-[9999]">
+            <a href="{{ route('dashboard') }}" class="flex flex-col items-center space-y-1 {{ request()->is('admin/dashboard') ? 'text-emerald-400' : 'text-slate-500' }}">
+                <i class="fas fa-th-large text-xl"></i>
+                <span class="text-[9px] font-bold uppercase tracking-widest">Home</span>
             </a>
             
-            <a href="{{ route('teacher.schedule') }}" class="flex flex-col items-center space-y-1 {{ request()->is('admin/teacher/schedule*') ? 'text-indigo-600' : 'text-slate-400' }}">
-                <div class="p-2 {{ request()->is('admin/teacher/schedule*') ? 'bg-indigo-50 rounded-2xl' : '' }}">
-                    <i class="fas fa-calendar-alt text-xl"></i>
-                </div>
-                <span class="text-[10px] font-black uppercase tracking-widest">Jadwal</span>
+            <a href="{{ route('teacher.schedule') }}" class="flex flex-col items-center space-y-1 {{ request()->is('admin/teacher/schedule*') ? 'text-emerald-400' : 'text-slate-500' }}">
+                <i class="fas fa-calendar-alt text-xl"></i>
+                <span class="text-[9px] font-bold uppercase tracking-widest">Jadwal</span>
             </a>
-
-            <!-- Scanner Button (Floating Style) -->
-            <div class="relative -top-10">
-                <a href="{{ route('student-attendances.index') }}" class="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-2xl shadow-indigo-200 border-4 border-white active:scale-90 transition-all">
-                    <i class="fas fa-user-check text-2xl"></i>
+ 
+            <!-- Central Action (Floating Emerald) -->
+            <div class="relative -top-8">
+                <a href="{{ route('student-attendances.index') }}" class="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-white shadow-2xl shadow-emerald-500/40 border-4 border-slate-900 active:scale-90 transition-all animate-pulse-emerald">
+                    <i class="fas fa-fingerprint text-2xl"></i>
                 </a>
-                <span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-indigo-600 font-black uppercase tracking-widest">Absensi</span>
+                <span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] {{ request()->is('admin/student-attendances*') ? 'text-emerald-400' : 'text-slate-400' }} font-bold uppercase tracking-widest">Absensi</span>
             </div>
 
-            <a href="{{ route('teacher.attendance.dashboard') }}" class="flex flex-col items-center space-y-1 {{ request()->is('admin/teacher/attendance*') ? 'text-indigo-600' : 'text-slate-400' }}">
-                <div class="p-2 {{ request()->is('admin/teacher/attendance*') ? 'bg-indigo-50 rounded-2xl' : '' }}">
-                    <i class="fas fa-file-invoice text-xl"></i>
-                </div>
-                <span class="text-[10px] font-black uppercase tracking-widest">Laporan</span>
+            <a href="{{ route('teacher.attendance.dashboard') }}" class="flex flex-col items-center space-y-1 {{ request()->is('admin/teacher/attendance*') ? 'text-emerald-400' : 'text-slate-500' }}">
+                <i class="fas fa-history text-xl"></i>
+                <span class="text-[9px] font-bold uppercase tracking-widest">Log</span>
             </a>
 
-            <a href="{{ route('profile.show') }}" class="flex flex-col items-center space-y-1 {{ request()->is('user/profile*') ? 'text-indigo-600' : 'text-slate-400' }}">
-                <div class="p-2 {{ request()->is('user/profile*') ? 'bg-indigo-50 rounded-2xl' : '' }}">
-                    <i class="fas fa-user-circle text-xl"></i>
-                </div>
-                <span class="text-[10px] font-black uppercase tracking-widest">Profil</span>
+            <a href="{{ route('profile.show') }}" class="flex flex-col items-center space-y-1 {{ request()->is('user/profile*') ? 'text-emerald-400' : 'text-slate-500' }}">
+                <i class="fas fa-user-circle text-xl"></i>
+                <span class="text-[9px] font-bold uppercase tracking-widest">Profil</span>
             </a>
         </nav>
     </div>
