@@ -222,7 +222,7 @@ class FrontController extends Controller
             "name" => $setting->pwa_name ?? "Madrasah Digital MTs Bustanul Huda",
             "short_name" => $setting->pwa_short_name ?? "Madrasah",
             "description" => $setting->short_description ?? "Sistem Informasi Akademik dan PPDB",
-            "start_url" => "/",
+            "start_url" => "/login",
             "display" => "standalone",
             "background_color" => $setting->pwa_background_color ?? "#ffffff",
             "theme_color" => $setting->pwa_theme_color ?? "#10b981",

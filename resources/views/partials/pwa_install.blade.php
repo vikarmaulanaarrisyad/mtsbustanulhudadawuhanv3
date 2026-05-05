@@ -133,20 +133,29 @@ body.pwa-ios .ios-only { display: block; }
 
 /* Banner Styles */
 .pwa-banner {
-    position: fixed; bottom: 100px; left: 16px; right: 16px; max-width: 450px;
-    margin: 0 auto; background: #fff; border-radius: 16px; z-index: 99999;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15); padding: 12px 15px;
-    display: flex; align-items: center; gap: 12px; border: 1px solid #f1f5f9;
-    animation: pwaSlideUp 0.4s ease-out;
+    position: fixed; bottom: 100px; left: 16px; right: 16px; max-width: 480px;
+    margin: 0 auto; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+    border-radius: 24px; z-index: 99999;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15); padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px; border: 1px solid rgba(255,255,255,0.3);
+    animation: pwaSlideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
 }
-.pwa-install-banner { border-top: 3px solid #10b981; }
-.pwa-update-banner { border-top: 3px solid #6366f1; bottom: 170px; }
-@keyframes pwaSlideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.pwa-install-banner { border-left: 5px solid #10b981; }
+.pwa-update-banner { border-left: 5px solid #6366f1; bottom: 180px; }
 
-.pwa-banner-icon { width: 44px; height: 44px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
-.pwa-update-icon { background: #6366f1; color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 10px; width: 44px; height: 44px; }
-.pwa-banner-text h6 { margin: 0; font-weight: 700; font-size: 0.85rem; }
-.pwa-banner-text p { margin: 2px 0 0; font-size: 0.72rem; color: #64748b; }
+@keyframes pwaSlideUp { 
+    from { transform: translateY(100px) scale(0.9); opacity: 0; } 
+    to { transform: translateY(0) scale(1); opacity: 1; } 
+}
+
+.pwa-banner-icon { 
+    width: 56px; height: 56px; border-radius: 14px; overflow: hidden; flex-shrink: 0; 
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1); border: 2px solid #fff;
+    animation: pwaIconPop 0.6s 0.2s both;
+}
+@keyframes pwaIconPop { from { transform: scale(0); } to { transform: scale(1); } }
+
+.pwa-banner-icon img { width: 100%; height: 100%; object-fit: cover; }
 .pwa-btn-install, .pwa-btn-update { background: #10b981; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.7rem; cursor: pointer; }
 .pwa-btn-update { background: #6366f1; }
 .pwa-btn-close { background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; }
@@ -181,7 +190,8 @@ body.pwa-ios .ios-only { display: block; }
     if (restricted && !isStandalone && forceOverlay) forceOverlay.style.display = 'flex';
 
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(reg => {
+        const swUrl = '/sw.js?v={{ $setting->pwa_version ?? time() }}';
+        navigator.serviceWorker.register(swUrl).then(reg => {
             // Cek update segera saat aplikasi dibuka
             reg.update();
 
