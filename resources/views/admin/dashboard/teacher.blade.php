@@ -90,7 +90,17 @@
             @endif
         </div>
 
-        @if(!$todayAttendance)
+        @if($onLeave)
+            <div class="bg-amber-50 text-amber-700 py-6 px-8 rounded-3xl border-2 border-dashed border-amber-200 flex flex-col items-center text-center space-y-3">
+                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm text-amber-500 mb-2">
+                    <i class="fas fa-umbrella-beach text-2xl"></i>
+                </div>
+                <div>
+                    <h4 class="font-black text-lg uppercase tracking-tight">Status: Sedang Izin</h4>
+                    <p class="text-xs font-bold text-amber-600/80 max-w-[250px]">Anda tercatat sedang mengambil izin/cuti hari ini. Selamat beristirahat!</p>
+                </div>
+            </div>
+        @elseif(!$todayAttendance)
             <form id="formCheckIn" action="{{ route('teacher.attendance.check-in') }}" method="POST">
                 @csrf
                 <button type="button" onclick="submitAttendance('#formCheckIn')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 rounded-[1.5rem] shadow-xl shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center space-x-3">

@@ -200,6 +200,12 @@
                         <p>Verifikasi Izin Guru</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('student.permits.admin') }}" class="nav-link {{ request()->is('admin/student-permits*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-envelope-open-text"></i>
+                        <p>Verifikasi Izin Siswa</p>
+                    </a>
+                </li>
                 <li class="nav-item {{ request()->is('attendance*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('attendance*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-clipboard-list"></i>

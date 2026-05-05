@@ -32,7 +32,7 @@
 
         .ppdb-navbar {
             background: #ffffff;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-bottom: 1px solid #edf2f7;
             padding: 0.75rem 0;
         }
 
@@ -339,7 +339,7 @@
     <nav class="navbar navbar-expand-lg ppdb-navbar">
         <div class="container">
             <a class="navbar-brand" href="{{ route('ppdb.dashboard') }}">
-                <i class="fas fa-graduation-cap mr-2"></i> PPDB {{ $setting->company_name ?? '' }}
+                {{-- Logo/Title hidden by user request --}}
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ppdbNav">
                 <i class="fas fa-bars text-white"></i>
@@ -387,11 +387,7 @@
         @yield('content')
     </div>
 
-    {{-- FOOTER --}}
-    <footer class="text-center py-4 text-muted">
-        <small>&copy; {{ date('Y') }} {{ $setting->company_name ?? '..............' }} — Sistem PPDB
-            Online</small>
-    </footer>
+
 
     <script src="{{ asset('AdminLTE') }}/plugins/jquery/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>

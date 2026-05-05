@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Teacher;
 use App\Models\TeacherPermit;
+use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -161,9 +162,31 @@ class TeacherPermitController extends Controller
             'approved_at' => Carbon::now(),
         ]);
 
+        // Jika disetujui, buat/update record di tabel Attendance secara otomatis
+        if ($request->status == 'approved') {
+            $startDate = Carbon::parse($permit->start_date);
+            $endDate = $permit->end_date ? Carbon::parse($permit->end_date) : $startDate;
+            
+            // Loop setiap tanggal dalam rentang izin
+            $currentDate = $startDate->copy();
+            while ($currentDate <= $endDate) {
+                Attendance::updateOrCreate(
+                    [
+                        'teacher_id' => $permit->teacher_id,
+                        'date' => $currentDate->toDateString(),
+                    ],
+                    [
+                        'status' => (strtolower($permit->type) == 'sakit') ? 'sick' : 'permit',
+                        'notes' => 'Izin: ' . $permit->reason,
+                    ]
+                );
+                $currentDate->addDay();
+            }
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Status izin berhasil diperbarui.'
+            'message' => 'Status izin berhasil diperbarui.' . ($request->status == 'approved' ? ' Data absensi telah disinkronkan.' : '')
         ]);
     }
 }

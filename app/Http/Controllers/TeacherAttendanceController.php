@@ -33,10 +33,15 @@ class TeacherAttendanceController extends Controller
         
         $canCheckIn = false;
         $canCheckOut = false;
+        $onLeave = false;
+        
+        if ($attendance && in_array($attendance->status, ['permit', 'sick'])) {
+            $onLeave = true;
+        }
         
         $now = Carbon::now()->toTimeString();
         
-        if (!$holiday && !$isWeekend) {
+        if (!$holiday && !$isWeekend && !$onLeave) {
             if (!$attendance || !$attendance->check_in) {
                 if ($now >= $setting->check_in_start && $now <= $setting->check_in_end) {
                     $canCheckIn = true;
@@ -50,7 +55,7 @@ class TeacherAttendanceController extends Controller
             }
         }
 
-        return view('teacher.attendance.dashboard', compact('teacher', 'attendance', 'setting', 'holiday', 'isWeekend', 'canCheckIn', 'canCheckOut'));
+        return view('teacher.attendance.dashboard', compact('teacher', 'attendance', 'setting', 'holiday', 'isWeekend', 'canCheckIn', 'canCheckOut', 'onLeave'));
     }
 
     public function checkIn(Request $request)
@@ -64,6 +69,12 @@ class TeacherAttendanceController extends Controller
 
             $now = Carbon::now();
             $time = $now->toTimeString();
+
+            // Cek apakah hari ini sedang izin/sakit
+            $existingAttendance = Attendance::where('teacher_id', $teacher->id)->where('date', $now->toDateString())->first();
+            if ($existingAttendance && in_array($existingAttendance->status, ['permit', 'sick'])) {
+                return response()->json(['message' => 'Hari ini Anda tercatat sedang izin/sakit. Tidak perlu melakukan absen.'], 422);
+            }
 
             // Validasi Waktu Masuk
             if ($time < $setting->check_in_start) {

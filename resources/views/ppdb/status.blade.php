@@ -7,27 +7,32 @@
     $isAllUploaded = $uploadedRequired >= $requiredCount;
 @endphp
 
-{{-- STEPPER PENDAFTARAN --}}
-<div class="ppdb-card mb-4">
-    <div class="card-body">
+{{-- PREMIUM STEPPER PENDAFTARAN --}}
+<div class="stu-card mb-4">
+    <div class="stu-card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h6 class="font-weight-bold text-dark mb-0" style="font-size: 14px; letter-spacing: 0.5px;">ALUR PENDAFTARAN</h6>
+            <span class="badge badge-soft-success px-3 py-1" style="border-radius: 6px; font-size: 10px;">{{ round(($uploadedRequired/$requiredCount)*100) }}% LENGKAP</span>
+        </div>
+        
         <div class="registration-stepper">
             {{-- STEP 1: IDENTITAS --}}
             <div class="step active">
                 <div class="step-num"><i class="fas fa-check"></i></div>
-                <div class="step-text">Identitas Diri</div>
+                <div class="step-text">Identitas</div>
             </div>
             <div class="step-line active"></div>
 
             {{-- STEP 2: UNGGAH BERKAS --}}
             <div class="step active">
-                <div class="step-num {{ $isAllUploaded ? 'bg-success' : '' }}">
+                <div class="step-num {{ $isAllUploaded ? 'bg-success border-success text-white' : 'bg-white border-primary text-primary' }}" style="border-width: 2px !important;">
                     @if($isAllUploaded)
                         <i class="fas fa-check"></i>
                     @else
                         2
                     @endif
                 </div>
-                <div class="step-text {{ $isAllUploaded ? 'text-success' : '' }}">Unggah Berkas</div>
+                <div class="step-text {{ $isAllUploaded ? 'text-success' : 'text-primary font-weight-bold' }}">Berkas</div>
             </div>
             <div class="step-line {{ $isAllUploaded ? 'active' : '' }}"></div>
 
@@ -36,85 +41,93 @@
                 <div class="step-num">
                     @if($isAllUploaded && $registrant->status === 'pending')
                         <i class="fas fa-clock fa-spin-slow"></i>
+                    @elseif($registrant->status === 'berkas_lengkap' || $registrant->status === 'diterima')
+                         <i class="fas fa-check"></i>
                     @else
                         3
                     @endif
                 </div>
-                <div class="step-text">Menunggu Verifikasi</div>
+                <div class="step-text">Verifikasi</div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
+    .badge-soft-success { background: #dcfce7; color: #15803d; }
     .fa-spin-slow {
-        animation: fa-spin 3s infinite linear;
+        animation: fa-spin 4s infinite linear;
     }
     .registration-stepper .step.wait-verif .step-num {
-        background: #f59e0b; /* Warna emas/warning */
-        color: white;
-        box-shadow: 0 0 0 1px #f59e0b;
-        animation: pulse-yellow 2s infinite;
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        color: white !important;
+        border: none !important;
+        animation: pulse-yellow-glow 2s infinite;
     }
     .registration-stepper .step.wait-verif .step-text {
-        color: #f59e0b;
-        font-weight: 700;
+        color: #d97706 !important;
+        font-weight: 800 !important;
     }
-    @keyframes pulse-yellow {
+    @keyframes pulse-yellow-glow {
         0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-        70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        70% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); }
         100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
     }
     .registration-stepper {
         display: flex;
         align-items: center;
-        justify-content: center;
-        padding: 10px 0;
+        justify-content: space-between;
+        padding: 5px 0;
+        position: relative;
     }
     .registration-stepper .step {
         display: flex;
         flex-direction: column;
         align-items: center;
         z-index: 2;
+        width: 80px;
     }
     .registration-stepper .step-num {
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        background: #e2e8f0;
-        color: #64748b;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: #f1f5f9;
+        color: #94a3b8;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: bold;
-        margin-bottom: 8px;
+        font-weight: 800;
+        margin-bottom: 10px;
         transition: all 0.3s;
-        border: 4px solid #fff;
-        box-shadow: 0 0 0 1px #e2e8f0;
-        font-size: 0.9rem;
+        border: 2px solid #e2e8f0;
+        font-size: 0.95rem;
     }
     .registration-stepper .step-text {
-        font-size: 0.75rem;
-        font-weight: 600;
+        font-size: 11px;
+        font-weight: 700;
         color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-align: center;
     }
     .registration-stepper .step-line {
-        flex: 0.5;
-        height: 2px;
-        background: #e2e8f0;
-        margin-top: -22px;
-        max-width: 100px;
+        flex: 1;
+        height: 3px;
+        background: #f1f5f9;
+        margin-top: -24px;
+        border-radius: 10px;
     }
     .registration-stepper .step.active .step-num {
-        background: #10b981;
+        background: linear-gradient(135deg, #10b981, #059669);
         color: white;
-        box-shadow: 0 0 0 1px #10b981;
+        border: none;
+        box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
     }
     .registration-stepper .step.active .step-text {
-        color: #10b981;
+        color: #059669;
     }
     .registration-stepper .step-line.active {
-        background: #10b981;
+        background: linear-gradient(to right, #10b981, #059669);
     }
 </style>
 

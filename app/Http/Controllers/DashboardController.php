@@ -87,7 +87,13 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
 
-            return view('admin.dashboard.teacher', compact('teacher', 'schedules', 'myAttendances', 'todayAttendance', 'totalSchedules', 'homeroomClass', 'myStudents', 'unreadAnnouncementsCount', 'myPermits'));
+            // Cek apakah hari ini sedang izin/sakit
+            $onLeave = false;
+            if ($todayAttendance && in_array($todayAttendance->status, ['permit', 'sick'])) {
+                $onLeave = true;
+            }
+
+            return view('admin.dashboard.teacher', compact('teacher', 'schedules', 'myAttendances', 'todayAttendance', 'totalSchedules', 'homeroomClass', 'myStudents', 'unreadAnnouncementsCount', 'myPermits', 'onLeave'));
         }
 
         // --- Logika Dashboard Admin (Default) ---

@@ -33,43 +33,50 @@
     <div class="col-md-12">
         <!-- SELECTION CONTROL CENTER -->
         <div class="card shadow-sm border-0 premium-card mb-4">
-            <div class="card-header bg-white py-3 border-bottom">
-                <h5 class="card-title font-weight-bold mb-0 text-dark">
-                    <i class="fas fa-filter mr-2 text-indigo"></i> Parameter Seleksi
-                </h5>
-            </div>
             <div class="card-body p-4">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group mb-0">
-                            <label class="text-xs font-weight-bold text-muted uppercase">Gelombang Pendaftaran</label>
-                            <div class="input-group-premium shadow-sm">
-                                <i class="fas fa-layer-group text-indigo"></i>
-                                <select id="filter_phase" class="form-control select2">
-                                    <option value="" disabled selected>-- Pilih Gelombang --</option>
-                                    @foreach ($phases as $p)
-                                        <option value="{{ $p->id }}">{{ $p->phase_name }}</option>
-                                    @endforeach
-                                </select>
+                <div class="d-flex align-items-center mb-4">
+                    <div class="filter-title-icon mr-3">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-weight-black mb-0 text-dark" style="font-size: 1rem;">Parameter Seleksi</h5>
+                        <p class="text-muted mb-0" style="font-size: 11px;">Tentukan gelombang & jalur untuk menampilkan peringkat pendaftar</p>
+                    </div>
+                </div>
+                <div class="row align-items-end">
+                    <!-- FILTER GELOMBANG -->
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <label class="filter-label">Gelombang Pendaftaran</label>
+                        <div class="filter-select-box">
+                            <div class="filter-select-icon">
+                                <i class="fas fa-layer-group"></i>
                             </div>
+                            <select id="filter_phase" class="filter-select">
+                                <option value="">Semua Gelombang</option>
+                                @foreach ($phases as $p)
+                                    <option value="{{ $p->id }}">{{ $p->phase_name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="form-group mb-0">
-                            <label class="text-xs font-weight-bold text-muted uppercase">Jalur Penerimaan</label>
-                            <div class="input-group-premium shadow-sm">
-                                <i class="fas fa-route text-indigo"></i>
-                                <select id="filter_type" class="form-control select2">
-                                    <option value="" disabled selected>-- Pilih Jalur --</option>
-                                    @foreach ($types as $t)
-                                        <option value="{{ $t->id }}">{{ $t->admission_type_name }}</option>
-                                    @endforeach
-                                </select>
+                    <!-- FILTER JALUR -->
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <label class="filter-label">Jalur Penerimaan</label>
+                        <div class="filter-select-box">
+                            <div class="filter-select-icon">
+                                <i class="fas fa-route"></i>
                             </div>
+                            <select id="filter_type" class="filter-select">
+                                <option value="">Semua Jalur</option>
+                                @foreach ($types as $t)
+                                    <option value="{{ $t->id }}">{{ $t->admission_type_name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button onclick="applyFilter()" class="btn btn-indigo btn-block font-weight-bold btn-premium shadow-indigo py-2">
+                    <!-- TOMBOL FILTER -->
+                    <div class="col-md-4">
+                        <button onclick="applyFilter()" class="btn btn-indigo btn-block font-weight-bold shadow-indigo" style="padding: 13px 20px; border-radius: 12px; font-size: 13px; letter-spacing: 0.4px;">
                             <i class="fas fa-search mr-2"></i> TAMPILKAN PERINGKAT
                         </button>
                     </div>
@@ -123,6 +130,11 @@
                         </thead>
                     </table>
                 </div>
+                <!-- LOADING OVERLAY -->
+                <div id="table-loading-overlay">
+                    <div class="spinner-ring"></div>
+                    <p>Memuat data peringkat...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -137,36 +149,106 @@
     .premium-card { border-radius: 20px; overflow: hidden; }
     .bg-light-indigo { background: #f8fafc; color: #64748b; font-size: 0.7rem; font-weight: 800; letter-spacing: 1.5px; }
     .alert-soft-indigo { background: #eef2ff; color: #4338ca; border-left: 5px solid #4f46e5; }
+    .text-indigo { color: #4f46e5 !important; }
     
-    .btn-indigo { background: #4f46e5; color: #fff; }
-    .btn-indigo:hover { background: #4338ca; color: #fff; }
-    .shadow-indigo { box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); }
+    .btn-indigo { background: #4f46e5; color: #fff; border: none; }
+    .btn-indigo:hover { background: #4338ca; color: #fff; transform: translateY(-1px); }
+    .shadow-indigo { box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35); }
 
-    /* Ranking Table Styling */
-    #table-selection { border-collapse: separate; border-spacing: 0 10px; }
-    #table-selection tbody tr { background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.2s ease; border-radius: 12px; }
-    #table-selection tbody tr:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.05); background: #fcfaff; }
-    #table-selection td { border: none; padding: 1.2rem 0.75rem; vertical-align: middle; }
-    #table-selection td:first-child { border-radius: 12px 0 0 12px; }
-    #table-selection td:last-child { border-radius: 0 12px 12px 0; }
+    /* Filter Title Icon */
+    .filter-title-icon {
+        width: 44px; height: 44px;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border-radius: 12px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 17px;
+        box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+    }
 
-    .rank-number { 
-        width: 35px; height: 35px; border-radius: 50%; background: #eef2ff; color: #4f46e5; 
-        display: flex; align-items: center; justify-content: center; font-weight: 900; margin: 0 auto;
+    /* Filter Label */
+    .filter-label {
+        display: block;
+        font-size: 11px; font-weight: 700;
+        color: #64748b; text-transform: uppercase;
+        letter-spacing: 0.7px; margin-bottom: 8px;
     }
-    .rank-1 .rank-number { background: #fef3c7; color: #d97706; box-shadow: 0 0 10px rgba(217, 119, 6, 0.2); }
 
-    /* Input Group Premium */
-    .input-group-premium { 
-        display: flex; align-items: center; background: #fff; border: 2px solid #e2e8f0; 
-        border-radius: 12px; padding: 0 15px; transition: all 0.3s ease;
+    /* Filter Select Box - Flex icon + select */
+    .filter-select-box {
+        display: flex;
+        align-items: center;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        overflow: hidden;
+        transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
     }
-    .input-group-premium i { color: #94a3b8; font-size: 16px; margin-right: 12px; }
-    .input-group-premium .form-control { 
-        border: none !important; padding: 12px 0 !important; background: transparent !important; 
-        box-shadow: none !important; font-weight: 600; color: #334155; width: 100%;
+    .filter-select-box:focus-within {
+        border-color: #4f46e5;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
     }
-    .input-group-premium:focus-within { border-color: #4f46e5; box-shadow: 0 0 15px rgba(79, 70, 229, 0.1); }
+    .filter-select-icon {
+        display: flex; align-items: center; justify-content: center;
+        width: 46px; height: 100%; min-height: 48px;
+        background: #eef2ff;
+        color: #4f46e5;
+        font-size: 14px;
+        flex-shrink: 0;
+        border-right: 2px solid #e2e8f0;
+        transition: background 0.2s;
+    }
+    .filter-select-box:focus-within .filter-select-icon {
+        background: #e0e7ff;
+        border-right-color: #c7d2fe;
+    }
+    .filter-select {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 12px 14px;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #1e293b;
+        cursor: pointer;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 38px;
+    }
+    .filter-select:focus { outline: none; }
+    .filter-select option { font-weight: 500; color: #334155; }
+
+    /* Loading Overlay */
+    #table-loading-overlay {
+        display: none;
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(3px);
+        border-radius: 0 0 20px 20px;
+        z-index: 10;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+    }
+    #table-loading-overlay .spinner-ring {
+        width: 52px; height: 52px;
+        border: 4px solid #e0e7ff;
+        border-top-color: #4f46e5;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #table-loading-overlay p {
+        font-size: 13px; font-weight: 700;
+        color: #4f46e5; margin: 0; letter-spacing: 0.5px;
+    }
+    .table-wrapper { position: relative; }
 </style>
 @endsection
 
@@ -177,42 +259,70 @@
 <script>
     let table;
     $(function() {
+        // Auto-select gelombang pertama jika ada
+        if ($('#filter_phase option').length > 1) {
+            $('#filter_phase').val($('#filter_phase option:nth-child(2)').val());
+        }
+
         table = $('#table-selection').DataTable({
-            processing: true, serverSide: true, autoWidth: false,
-            language: { searchPlaceholder: "Cari pendaftar...", search: "" },
+            processing: true,
+            serverSide: true,
+            autoWidth: false,
+            deferLoading: 0, // Jangan load data sampai filter diterapkan
+            language: {
+                searchPlaceholder: "Cari pendaftar...",
+                search: "",
+                emptyTable: '<div class="text-center py-5"><i class="fas fa-filter fa-3x text-muted mb-3 d-block opacity-50"></i><p class="text-muted font-weight-bold">Pilih filter dan klik TAMPILKAN PERINGKAT</p></div>',
+                zeroRecords: '<div class="text-center py-5"><i class="fas fa-search fa-3x text-muted mb-3 d-block opacity-50"></i><p class="text-muted font-weight-bold">Tidak ada data pendaftar untuk filter ini</p></div>',
+            },
             ajax: {
                 url: '{{ route("ppdb.selection_data") }}',
-                data: (d) => { d.phase_id = $('#filter_phase').val(); d.type_id = $('#filter_type').val(); }
+                data: (d) => {
+                    d.phase_id = $('#filter_phase').val();
+                    d.type_id  = $('#filter_type').val();
+                }
             },
             columns: [
-                { 
-                    data: 'DT_RowIndex', 
+                {
+                    data: 'DT_RowIndex',
                     render: (data) => '<div class="rank-number ' + (data == 1 ? 'rank-1' : '') + '">' + data + '</div>'
                 },
-                { data: 'registration_number', render: (data) => '<span class="badge badge-light border px-3 py-2 text-indigo font-weight-bold">' + data + '</span>' },
-                { 
-                    data: 'nama_lengkap',
-                    render: (data) => '<span class="font-weight-bold text-dark h6 mb-0">' + data + '</span>'
+                {
+                    data: 'registration_number',
+                    render: (data) => '<span class="badge badge-light border px-3 py-2 text-indigo font-weight-bold">' + (data || '-') + '</span>'
                 },
-                { 
-                    data: 'selection_score', 
+                {
+                    data: 'nama_lengkap',
+                    render: (data) => '<span class="font-weight-bold text-dark h6 mb-0">' + (data || '-') + '</span>'
+                },
+                {
+                    data: 'selection_score',
                     className: 'text-center',
                     render: (data) => '<span class="badge badge-soft-indigo px-3 py-2 rounded-pill font-weight-bold">' + (data || '0.00') + '</span>'
                 },
-                { data: 'admission_phase.phase_name', render: (data) => '<span class="small font-weight-bold text-muted">' + data + '</span>' },
-                { data: 'admission_type.admission_type_name', render: (data) => '<span class="small font-weight-bold text-muted">' + data + '</span>' },
+                {
+                    data: 'admission_phase',
+                    render: (data) => '<span class="small font-weight-bold text-muted">' + (data ? data.phase_name : '-') + '</span>'
+                },
+                {
+                    data: 'admission_type',
+                    render: (data) => '<span class="small font-weight-bold text-muted">' + (data ? data.admission_type_name : '-') + '</span>'
+                },
                 { data: 'status_badge', className: 'text-center' },
             ],
             order: [[3, 'desc']]
         });
     });
 
-    function applyFilter() { 
-        if (!$('#filter_phase').val() || !$('#filter_type').val()) {
-            Swal.fire({ icon: 'info', title: 'Parameter Belum Lengkap', text: 'Pilih Gelombang dan Jalur untuk memproses perankingan.' });
-            return;
-        }
-        table.ajax.reload(); 
+    function applyFilter() {
+        // Tampilkan loading overlay
+        const overlay = document.getElementById('table-loading-overlay');
+        overlay.style.display = 'flex';
+
+        // Reload table, sembunyikan overlay saat selesai
+        table.ajax.reload(function() {
+            overlay.style.display = 'none';
+        });
     }
 
     function confirmProcess() {

@@ -55,7 +55,8 @@ use App\Http\Controllers\{
     StudentCardController,
     GradeSettingController,
     StudentGradeController,
-    TeacherPermitController
+    TeacherPermitController,
+    StudentPermitController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -485,6 +486,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/confirm-re-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'confirmReRegistration'])->name('ppdb.confirm_re_registration');
         Route::post('/verify-midtrans', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'verifyMidtrans'])->name('ppdb.verify_midtrans');
         Route::post('/store-attendance', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeAttendance'])->name('ppdb.store_attendance');
+        Route::post('/store-permit', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storePermit'])->name('ppdb.store_permit');
+        Route::post('/store-mutabaah', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeMutabaah'])->name('ppdb.store_mutabaah');
     });
 
     // Root redirect based on role
@@ -614,6 +617,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/admin/teacher/permits', [TeacherPermitController::class, 'adminIndex'])->name('teacher.permits.admin');
     Route::get('/admin/teacher/permits/data', [TeacherPermitController::class, 'adminData'])->name('teacher.permits.data');
     Route::post('/admin/teacher/permits/{id}/approve', [TeacherPermitController::class, 'approve'])->name('teacher.permits.approve');
+
+    // Student Permits (Verifikasi Izin Siswa)
+    Route::get('/admin/student-permits', [StudentPermitController::class, 'index'])->name('student.permits.admin');
+    Route::get('/admin/student-permits/data', [StudentPermitController::class, 'data'])->name('student.permits.data');
+    Route::post('/admin/student-permits/{id}/approve', [StudentPermitController::class, 'approve'])->name('student.permits.approve');
 
     // Admin Attendance Management
     Route::prefix('attendance')->group(function () {

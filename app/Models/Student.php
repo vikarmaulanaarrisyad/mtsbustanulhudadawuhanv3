@@ -55,6 +55,11 @@ class Student extends Model
         return $this->belongsTo(Residence::class, 'student_residence_id');
     }
 
+    public function behaviorLogs()
+    {
+        return $this->hasMany(BehaviorLog::class);
+    }
+
     // ==================== ACCESSORS ====================
 
     public function getKelasLengkapAttribute()
