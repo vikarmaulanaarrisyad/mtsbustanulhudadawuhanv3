@@ -19,9 +19,19 @@ class DutyLetterController extends Controller
         return view('admin.mail.duty_letters.index', compact('teachers', 'mailSetting'));
     }
 
-    public function data()
+    public function data(Request $request)
     {
         $query = DutyLetter::with('teachers')->latest();
+
+        if ($request->teacher_id) {
+            $query->whereHas('teachers', function($q) use ($request) {
+                $q->where('teachers.id', $request->teacher_id);
+            });
+        }
+
+        if ($request->start_date && $request->end_date) {
+            $query->whereBetween('letter_date', [$request->start_date, $request->end_date]);
+        }
 
         return datatables($query)
             ->addIndexColumn()
@@ -31,17 +41,17 @@ class DutyLetterController extends Controller
             ->addColumn('action', function ($r) {
                 return '
                 <div class="btn-group">
-                    <button type="button" class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown">
+                    <button type="button" class="btn btn-xs btn-soft-info dropdown-toggle rounded-pill px-2" data-toggle="dropdown">
                         <i class="fas fa-print"></i> Cetak
                     </button>
                     <div class="dropdown-menu">
                         <a href="' . route('duty-letters.print-st', $r->id) . '" target="_blank" class="dropdown-item">Surat Tugas</a>
                         <a href="' . route('duty-letters.print-sppd', $r->id) . '" target="_blank" class="dropdown-item">SPPD</a>
                     </div>
-                    <button onclick="editForm(`' . route('duty-letters.show', $r->id) . '`)" class="btn btn-xs" style="background-color:#6755a5;color:#fff;" title="Edit">
+                    <button onclick="editForm(`' . route('duty-letters.show', $r->id) . '`)" class="btn btn-xs btn-soft-primary mx-1 rounded-pill px-2" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </button>
-                    <button onclick="deleteData(`' . route('duty-letters.destroy', $r->id) . '`, `' . $r->letter_number . '`)" class="btn btn-xs" style="background-color:#d81b60;color:#fff;" title="Hapus">
+                    <button onclick="deleteData(`' . route('duty-letters.destroy', $r->id) . '`, `' . $r->letter_number . '`)" class="btn btn-xs btn-soft-danger rounded-pill px-2" title="Hapus">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>';

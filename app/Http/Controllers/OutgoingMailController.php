@@ -16,22 +16,31 @@ class OutgoingMailController extends Controller
         return view('admin.mail.outgoing.index', compact('mailSetting'));
     }
 
-    public function data()
+    public function data(Request $request)
     {
         $query = OutgoingMail::latest();
+
+        if ($request->mail_subject) {
+            $query->where('mail_subject', 'like', "%{$request->mail_subject}%")
+                  ->orWhere('mail_recipient', 'like', "%{$request->mail_subject}%");
+        }
+
+        if ($request->start_date && $request->end_date) {
+            $query->whereBetween('mail_date', [$request->start_date, $request->end_date]);
+        }
 
         return datatables($query)
             ->addIndexColumn()
             ->addColumn('action', function ($r) {
                 return '
                 <div class="btn-group">
-                    <a href="' . route('outgoing-mails.print', $r->id) . '" target="_blank" class="btn btn-xs btn-info" title="Cetak PDF">
+                    <a href="' . route('outgoing-mails.print', $r->id) . '" target="_blank" class="btn btn-xs btn-soft-info rounded-pill px-2" title="Cetak PDF">
                         <i class="fas fa-print"></i>
                     </a>
-                    <button onclick="editForm(`' . route('outgoing-mails.show', $r->id) . '`)" class="btn btn-xs" style="background-color:#6755a5;color:#fff;" title="Edit">
+                    <button onclick="editForm(`' . route('outgoing-mails.show', $r->id) . '`)" class="btn btn-xs btn-soft-primary mx-1 rounded-pill px-2" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </button>
-                    <button onclick="deleteData(`' . route('outgoing-mails.destroy', $r->id) . '`, `' . $r->mail_number . '`)" class="btn btn-xs" style="background-color:#d81b60;color:#fff;" title="Hapus">
+                    <button onclick="deleteData(`' . route('outgoing-mails.destroy', $r->id) . '`, `' . $r->mail_number . '`)" class="btn btn-xs btn-soft-danger rounded-pill px-2" title="Hapus">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>';

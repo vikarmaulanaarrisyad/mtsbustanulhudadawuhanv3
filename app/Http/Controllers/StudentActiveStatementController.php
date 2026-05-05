@@ -19,9 +19,19 @@ class StudentActiveStatementController extends Controller
         return view('admin.mail.active_statements.index', compact('students', 'mailSetting'));
     }
 
-    public function data()
+    public function data(Request $request)
     {
         $query = StudentActiveStatement::with('students')->latest();
+
+        if ($request->student_id) {
+            $query->whereHas('students', function($q) use ($request) {
+                $q->where('students.id', $request->student_id);
+            });
+        }
+
+        if ($request->start_date && $request->end_date) {
+            $query->whereBetween('letter_date', [$request->start_date, $request->end_date]);
+        }
 
         return datatables($query)
             ->addIndexColumn()
@@ -34,13 +44,13 @@ class StudentActiveStatementController extends Controller
             ->addColumn('action', function ($r) {
                 return '
                 <div class="btn-group">
-                    <a href="' . route('active-statements.print', $r->id) . '" target="_blank" class="btn btn-xs btn-info" title="Cetak PDF">
+                    <a href="' . route('active-statements.print', $r->id) . '" target="_blank" class="btn btn-xs btn-soft-info rounded-pill px-2" title="Cetak PDF">
                         <i class="fas fa-print"></i>
                     </a>
-                    <button onclick="editForm(`' . route('active-statements.show', $r->id) . '`)" class="btn btn-xs" style="background-color:#6755a5;color:#fff;" title="Edit">
+                    <button onclick="editForm(`' . route('active-statements.show', $r->id) . '`)" class="btn btn-xs btn-soft-primary mx-1 rounded-pill px-2" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </button>
-                    <button onclick="deleteData(`' . route('active-statements.destroy', $r->id) . '`, `' . $r->letter_number . '`)" class="btn btn-xs" style="background-color:#d81b60;color:#fff;" title="Hapus">
+                    <button onclick="deleteData(`' . route('active-statements.destroy', $r->id) . '`, `' . $r->letter_number . '`)" class="btn btn-xs btn-soft-danger rounded-pill px-2" title="Hapus">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>';

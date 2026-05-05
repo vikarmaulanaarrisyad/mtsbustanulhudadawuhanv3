@@ -16,22 +16,31 @@ class SchoolMeetingController extends Controller
         return view('admin.mail.meetings.index', compact('mailSetting'));
     }
 
-    public function data()
+    public function data(Request $request)
     {
         $query = SchoolMeeting::latest();
+
+        if ($request->meeting_subject) {
+            $query->where('meeting_subject', 'like', "%{$request->meeting_subject}%")
+                  ->orWhere('meeting_place', 'like', "%{$request->meeting_subject}%");
+        }
+
+        if ($request->start_date && $request->end_date) {
+            $query->whereBetween('meeting_date', [$request->start_date, $request->end_date]);
+        }
 
         return datatables($query)
             ->addIndexColumn()
             ->addColumn('action', function ($r) {
                 return '
                 <div class="btn-group">
-                    <a href="' . route('school-meetings.print', $r->id) . '" target="_blank" class="btn btn-xs btn-info" title="Cetak PDF">
+                    <a href="' . route('school-meetings.print', $r->id) . '" target="_blank" class="btn btn-xs btn-soft-info rounded-pill px-2" title="Cetak PDF">
                         <i class="fas fa-print"></i>
                     </a>
-                    <button onclick="editForm(`' . route('school-meetings.show', $r->id) . '`)" class="btn btn-xs" style="background-color:#6755a5;color:#fff;" title="Edit">
+                    <button onclick="editForm(`' . route('school-meetings.show', $r->id) . '`)" class="btn btn-xs btn-soft-primary mx-1 rounded-pill px-2" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </button>
-                    <button onclick="deleteData(`' . route('school-meetings.destroy', $r->id) . '`, `' . $r->meeting_number . '`)" class="btn btn-xs" style="background-color:#d81b60;color:#fff;" title="Hapus">
+                    <button onclick="deleteData(`' . route('school-meetings.destroy', $r->id) . '`, `' . $r->meeting_number . '`)" class="btn btn-xs btn-soft-danger rounded-pill px-2" title="Hapus">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>';

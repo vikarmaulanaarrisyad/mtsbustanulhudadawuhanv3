@@ -3,231 +3,176 @@
 @section('title', 'Kelola Menu')
 @section('subtitle', 'Manajemen Struktur Menu')
 
-@push('css')
-    <style>
-        .content-wrapper {
-            background: #f4f6f9;
-        }
-
-        .card {
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, .05);
-        }
-
-        .card-header {
-            background: #ffffff;
-            border-bottom: 1px solid #f1f1f1;
-            border-radius: 16px 16px 0 0 !important;
-            padding: 18px 20px;
-        }
-
-        .card-title {
-            font-weight: 600;
-            font-size: 15px;
-            margin: 0;
-        }
-
-        .nav-pills {
-            gap: 6px;
-        }
-
-        .nav-pills .nav-link {
-            border-radius: 10px;
-            font-weight: 500;
-            font-size: 13px;
-            padding: 6px 14px;
-            background: #f4f6f9;
-            color: #6c757d;
-            transition: all .25s ease;
-        }
-
-        label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-        }
-
-        .form-control {
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            font-size: 14px;
-            padding: 10px 14px;
-            transition: all .2s ease;
-        }
-
-        .form-control:focus {
-            border-color: #3c8dbc;
-            box-shadow: 0 0 0 3px rgba(60, 141, 188, .15);
-        }
-
-        .btn {
-            border-radius: 10px;
-            font-weight: 500;
-            padding: 7px 16px;
-            font-size: 13px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #3c8dbc, #00c0ef);
-            border: none;
-        }
-
-        .btn-primary:hover {
-            opacity: .9;
-        }
-
-        .btn-light {
-            background: #f4f6f9;
-            border: 1px solid #e5e7eb;
-        }
-
-        .sortable-menu {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .sortable-menu li {
-            background: #ffffff;
-            border-radius: 14px;
-            padding: 12px 16px;
-            margin-bottom: 10px;
-            border: 1px solid #f1f1f1;
-            transition: all .25s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, .03);
-        }
-
-        .sortable-menu li:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, .08);
-        }
-
-        .sortable-placeholder {
-            height: 50px !important;
-            background: rgba(60, 141, 188, .08);
-            border: 2px dashed #3c8dbc;
-            border-radius: 14px;
-        }
-
-        .handle {
-            cursor: grab;
-            margin-right: 10px;
-            color: #adb5bd;
-        }
-
-        .handle:hover {
-            color: #3c8dbc;
-        }
-
-        .tools i {
-            cursor: pointer;
-            margin-left: 12px;
-            transition: .2s;
-            color: #6c757d;
-        }
-
-        .tools .fa-trash:hover {
-            color: #dc3545;
-        }
-
-        .tools .fa-edit:hover {
-            color: #17a2b8;
-        }
-
-        .menu-info {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 10px 14px;
-            font-size: 13px;
-            border: 1px solid #f1f1f1;
-            margin-bottom: 12px;
-            color: #6c757d;
-        }
-    </style>
-@endpush
-
 @section('content')
-    <div class="row">
-        <div class="col-lg-12">
-            <x-card>
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="card">
-                            <div class="card-header d-flex p-0">
-                                <h4 class="card-title p-3">Tambah Menu</h4>
-                                <ul class="nav nav-pills ml-auto p-2">
-                                    <li class="nav-item"><a class="nav-link active" href="#tautan"
-                                            data-toggle="tab">Tautan</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="#halaman" data-toggle="tab">Halaman</a>
-                                    </li>
-                                    <li class="nav-item"><a class="nav-link" href="#kategori" data-toggle="tab">Kategori
-                                            Tulisan</a>
-                                    </li>
-                                    <li class="nav-item"><a class="nav-link" href="#modul" data-toggle="tab">Modul</a></li>
-                                </ul>
-                            </div>
-
-                            <div class="card-body">
-                                <div class="tab-content">
-                                    <!-- TAB TAUTAN -->
-                                    <div class="tab-pane active" id="tautan">
-                                        @include('admin.menus.form-tautan')
-                                    </div>
-
-                                    <div class="tab-pane" id="kategori">
-                                        @include('admin.menus.form-kategori')
-                                    </div>
-
-                                    <!-- TAB HALAMAN -->
-                                    <div class="tab-pane" id="halaman">
-                                        @include('admin.menus.form-halaman')
-                                    </div>
-
-                                    <!-- TAB MODUL (dipersingkat tampilan premium) -->
-                                    <div class="tab-pane" id="modul">
-                                        @include('admin.menus.form-modul')
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+<!-- PREMIUM HEADER BANNER -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-lg border-0 mb-4 bg-gradient-indigo overflow-hidden position-relative" style="border-radius: 15px;">
+            <div class="card-body p-4 position-relative" style="z-index: 1;">
+                <div class="row align-items-center">
+                    <div class="col-md-8 text-white">
+                        <h2 class="font-weight-bold mb-1">
+                            <i class="fas fa-sitemap mr-2 animate__animated animate__fadeInLeft"></i> 
+                            Struktur Navigasi
+                        </h2>
+                        <p class="mb-0 opacity-8 text-lg font-weight-light">
+                            Atur struktur menu website utama, sub-menu, dan tautan eksternal.
+                        </p>
                     </div>
-
-                    <div class="col-lg-8">
-                        <x-card>
-                            <x-slot name="header">
-                                <div class="d-flex justify-content-between align-items-center w-100">
-                                    <div>
-                                        <h5 class="card-title">
-                                            <i class="fas fa-sitemap text-info mr-2"></i>
-                                            Struktur Menu Website
-                                        </h5>
-                                    </div>
-                                    <button onclick="resetMenu()" class="btn btn-danger btn-sm">
-                                        <i class="fas fa-undo"></i> Reset Menu
-                                    </button>
-                                    <button onclick="refreshMenuList()" class="btn btn-light btn-sm">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
-                                </div>
-                            </x-slot>
-
-                            <div class="menu-info">
-                                <i class="fas fa-info-circle text-info mr-1"></i>
-                                Tarik menu untuk membuat sub-menu hingga 2 level.
-                            </div>
-
-                            <ul class="sortable-menu" id="menuList">
-                                @include('admin.menus.menu-list', ['menus' => $menus])
-                            </ul>
-                        </x-card>
+                    <div class="col-md-4 text-right d-none d-md-block">
+                        <i class="fas fa-network-wired fa-8x opacity-2 shadow-icon"></i>
                     </div>
                 </div>
-            </x-card>
+            </div>
+            <div class="bg-circle-1"></div>
+            <div class="bg-circle-2"></div>
         </div>
     </div>
+</div>
+
+<div class="row animate__animated animate__fadeInUp">
+    <!-- LEFT SIDEBAR: MENU BUILDER -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow-sm border-0 premium-card mb-4">
+            <div class="card-header bg-white py-3 border-bottom-0">
+                <h5 class="card-title font-weight-bold text-dark mb-0">
+                    <i class="fas fa-plus-circle mr-2 text-indigo"></i> Tambah Menu
+                </h5>
+            </div>
+            <div class="card-body pt-0">
+                <ul class="nav nav-pills premium-pills mb-4 bg-light rounded-pill p-1" id="menuTabs" role="tablist">
+                    <li class="nav-item flex-fill">
+                        <a class="nav-link active text-center rounded-pill" data-toggle="tab" href="#tautan">Tautan</a>
+                    </li>
+                    <li class="nav-item flex-fill">
+                        <a class="nav-link text-center rounded-pill" data-toggle="tab" href="#halaman">Halaman</a>
+                    </li>
+                    <li class="nav-item flex-fill">
+                        <a class="nav-link text-center rounded-pill" data-toggle="tab" href="#kategori">Kategori</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="tautan">
+                        @include('admin.menus.form-tautan')
+                    </div>
+                    <div class="tab-pane fade" id="halaman">
+                        @include('admin.menus.form-halaman')
+                    </div>
+                    <div class="tab-pane fade" id="kategori">
+                        @include('admin.menus.form-kategori')
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 premium-card bg-indigo text-white">
+            <div class="card-body p-4">
+                <div class="d-flex">
+                    <div class="mr-3"><i class="fas fa-lightbulb fa-2x opacity-5"></i></div>
+                    <div>
+                        <h6 class="font-weight-bold mb-1">Tips Navigasi</h6>
+                        <p class="text-xs mb-0 opacity-8 text-justify">Gunakan fitur drag & drop di sebelah kanan untuk menyusun urutan menu dan membuat sub-menu (geser ke kanan).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT: MENU STRUCTURE -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow-sm border-0 premium-card h-100">
+            <div class="card-header bg-white py-4 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-1 font-weight-bold text-dark">Struktur Menu Aktif</h4>
+                        <p class="text-muted text-sm mb-0">Klik ikon pensil untuk mengedit atau sampah untuk menghapus</p>
+                    </div>
+                    <div class="btn-group shadow-sm rounded-pill overflow-hidden">
+                        <button onclick="resetMenu()" class="btn btn-danger btn-sm px-3">
+                            <i class="fas fa-undo mr-1"></i> RESET
+                        </button>
+                        <button onclick="refreshMenuList()" class="btn btn-indigo btn-sm px-3 text-white">
+                            <i class="fas fa-sync-alt mr-1"></i> REFRESH
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body bg-slate-50 p-4">
+                <ul class="sortable-menu" id="menuList">
+                    @include('admin.menus.menu-list', ['menus' => $menus])
+                </ul>
+                
+                @if($menus->isEmpty())
+                <div class="text-center py-5">
+                    <i class="fas fa-sitemap fa-4x text-light mb-3"></i>
+                    <h5 class="text-muted">Belum ada menu yang dibuat</h5>
+                    <p class="text-xs text-muted">Gunakan panel kiri untuk mulai membangun navigasi</p>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('css')
+<style>
+    /* PREMIUM COLORS - INDIGO PURPLE */
+    .bg-gradient-indigo { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%) !important; }
+    .bg-indigo { background: #6366f1 !important; }
+    .text-indigo { color: #6366f1 !important; }
+    .btn-indigo { background: #6366f1; color: #fff; border: none; }
+    .btn-indigo:hover { background: #4f46e5; color: #fff; transform: translateY(-2px); }
+    .bg-light-indigo { background: #eef2ff; color: #4338ca; }
+
+    .premium-card { border-radius: 20px; overflow: hidden; }
+    .bg-slate-50 { background: #f8fafc; }
+    .shadow-icon { filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2)); }
+    .bg-circle-1, .bg-circle-2 { position: absolute; background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 0; }
+    .bg-circle-1 { width: 300px; height: 300px; top: -100px; right: -50px; }
+    .bg-circle-2 { width: 150px; height: 150px; bottom: -50px; left: 10%; }
+
+    /* Premium Pills */
+    .premium-pills .nav-link { 
+        color: #64748b; font-weight: 700; font-size: 0.8rem; padding: 10px; border: none !important;
+    }
+    .premium-pills .nav-link.active { 
+        background: #fff !important; color: #6366f1 !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+    }
+
+    /* Sortable Menu Styling */
+    .sortable-menu { list-style: none; padding-left: 0; }
+    .sortable-menu ul { list-style: none; padding-left: 30px; margin-top: 10px; border-left: 2px dashed #e2e8f0; }
+    
+    .sortable-menu li { margin-bottom: 12px; }
+    .sortable-menu li > span { 
+        display: flex; align-items: center; background: #fff; padding: 12px 18px; 
+        border-radius: 15px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    .sortable-menu li > span:hover { border-color: #6366f1; transform: translateX(5px); }
+    
+    .handle { cursor: grab; color: #94a3b8; margin-right: 15px; font-size: 1.2rem; }
+    .handle:active { cursor: grabbing; }
+    
+    .menu-title-text { font-weight: 700; color: #1e293b; font-size: 0.95rem; }
+    .menu-url-text { font-size: 0.75rem; color: #94a3b8; font-family: monospace; background: #f8fafc; padding: 2px 8px; border-radius: 4px; margin-left: 10px; }
+    
+    .tools { margin-left: auto; display: flex; gap: 8px; }
+    .btn-tool { 
+        width: 32px; height: 32px; border-radius: 8px; display: flex; 
+        align-items: center; justify-content: center; border: none; transition: all 0.2s;
+    }
+    .btn-tool-edit { background: #e0f2fe; color: #0ea5e9; }
+    .btn-tool-delete { background: #fee2e2; color: #ef4444; }
+    .btn-tool:hover { transform: scale(1.1); }
+
+    .sortable-placeholder { 
+        background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 15px; margin-bottom: 12px; height: 60px; 
+    }
+</style>
+@endpush
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>

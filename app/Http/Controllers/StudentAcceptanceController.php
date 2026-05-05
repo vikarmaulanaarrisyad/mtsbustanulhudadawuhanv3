@@ -18,9 +18,17 @@ class StudentAcceptanceController extends Controller
         return view('admin.mail.acceptances.index', compact('students', 'mailSetting'));
     }
 
-    public function data()
+    public function data(Request $request)
     {
         $query = StudentAcceptance::with('student')->latest();
+
+        if ($request->student_id) {
+            $query->where('student_id', $request->student_id);
+        }
+
+        if ($request->start_date && $request->end_date) {
+            $query->whereBetween('acceptance_date', [$request->start_date, $request->end_date]);
+        }
 
         return datatables($query)
             ->addIndexColumn()
@@ -28,13 +36,13 @@ class StudentAcceptanceController extends Controller
             ->addColumn('action', function ($r) {
                 return '
                 <div class="btn-group">
-                    <a href="' . route('student-acceptances.print', $r->id) . '" target="_blank" class="btn btn-xs btn-info" title="Cetak PDF">
+                    <a href="' . route('student-acceptances.print', $r->id) . '" target="_blank" class="btn btn-xs btn-soft-info rounded-pill px-2" title="Cetak PDF">
                         <i class="fas fa-print"></i>
                     </a>
-                    <button onclick="editForm(`' . route('student-acceptances.show', $r->id) . '`)" class="btn btn-xs" style="background-color:#6755a5;color:#fff;" title="Edit">
+                    <button onclick="editForm(`' . route('student-acceptances.show', $r->id) . '`)" class="btn btn-xs btn-soft-primary mx-1 rounded-pill px-2" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </button>
-                    <button onclick="deleteData(`' . route('student-acceptances.destroy', $r->id) . '`, `' . $r->acceptance_number . '`)" class="btn btn-xs" style="background-color:#d81b60;color:#fff;" title="Hapus">
+                    <button onclick="deleteData(`' . route('student-acceptances.destroy', $r->id) . '`, `' . $r->acceptance_number . '`)" class="btn btn-xs btn-soft-danger rounded-pill px-2" title="Hapus">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>';
@@ -57,9 +65,9 @@ class StudentAcceptanceController extends Controller
 
         // Fallback to default mail settings for signer if not provided
         $mailSetting = MailSetting::first();
-        if (empty($data['signer_name'])) $data['signer_name'] = $mailSetting->default_signer_name;
-        if (empty($data['signer_position'])) $data['signer_position'] = $mailSetting->default_signer_position;
-        if (empty($data['signer_nip'])) $data['signer_nip'] = $mailSetting->default_signer_nip;
+        if (empty($data['signer_name'])) $data['signer_name'] = $mailSetting->default_signer_name ?? '';
+        if (empty($data['signer_position'])) $data['signer_position'] = $mailSetting->default_signer_position ?? '';
+        if (empty($data['signer_nip'])) $data['signer_nip'] = $mailSetting->default_signer_nip ?? '';
 
         StudentAcceptance::create($data);
 

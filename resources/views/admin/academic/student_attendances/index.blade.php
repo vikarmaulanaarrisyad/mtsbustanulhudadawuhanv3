@@ -90,80 +90,121 @@
         </div>
     </div>
 @else
-    <!-- Standar Admin Table View -->
+    <!-- PREMIUM HEADER BANNER -->
     <div class="row">
         <div class="col-12">
-            <x-card>
-                <x-slot name="header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="card-title"><i class="fas fa-filter mr-1"></i> Filter Presensi</h3>
-                        <div>
-                            <a href="{{ route('student-attendances.scanner') }}" class="btn btn-sm btn-success">
-                                <i class="fas fa-camera mr-1"></i> Buka Scanner
-                            </a>
-                            <button onclick="printCards()" class="btn btn-sm btn-info">
-                                <i class="fas fa-address-card mr-1"></i> Cetak Kartu QR
-                            </button>
-                            <button onclick="pdfDownload()" class="btn btn-sm btn-danger">
-                                <i class="fas fa-file-pdf mr-1"></i> Cetak PDF
-                            </button>
+            <div class="card shadow-lg border-0 mb-4 bg-gradient-emerald overflow-hidden position-relative" style="border-radius: 15px;">
+                <div class="card-body p-4 position-relative" style="z-index: 1;">
+                    <div class="row align-items-center">
+                        <div class="col-md-8 text-white">
+                            <h2 class="font-weight-bold mb-1">
+                                <i class="fas fa-id-badge mr-2 animate__animated animate__fadeInLeft"></i> 
+                                Log Presensi Siswa
+                            </h2>
+                            <p class="mb-0 opacity-8 text-lg font-weight-light">
+                                Monitoring kehadiran siswa secara real-time, cetak kartu QR, dan kelola laporan kedisiplinan.
+                            </p>
                         </div>
-                    </div>
-                </x-slot>
-
-                <div class="row p-3">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Tanggal</label>
-                            <input type="date" id="admin_filter_date" class="form-control" value="{{ date('Y-m-d') }}">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Kelas</label>
-                            <select id="admin_filter_class" class="form-control select2">
-                                <option value="">-- Semua Kelas --</option>
-                                @foreach($classGroups as $cg)
-                                    <option value="{{ $cg->id }}">{{ $cg->kelas_lengkap }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Tahun Pelajaran</label>
-                            <select id="admin_filter_academic_year" class="form-control select2">
-                                @foreach($academicYears as $ay)
-                                    <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>&nbsp;</label>
-                            <button onclick="refreshTable()" class="btn btn-primary btn-block"><i class="fas fa-search"></i> Tampilkan</button>
+                        <div class="col-md-4 text-right d-none d-md-block">
+                            <i class="fas fa-user-check fa-8x opacity-2 shadow-icon"></i>
                         </div>
                     </div>
                 </div>
-            </x-card>
+                <div class="bg-circle-1"></div>
+                <div class="bg-circle-2"></div>
+            </div>
+        </div>
+    </div>
 
-            <x-card>
-                <x-slot name="header">
-                    <h3 class="card-title"><i class="fas fa-list mr-1"></i> Log Presensi Siswa</h3>
-                </x-slot>
+    <div class="row animate__animated animate__fadeInUp">
+        <div class="col-12">
+            <!-- PREMIUM FILTER PANEL -->
+            <div class="card shadow-sm border-0 premium-card mb-4 bg-white">
+                <div class="card-header bg-transparent py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-soft-emerald rounded-circle d-flex align-items-center justify-content-center text-emerald mr-3" style="width:40px;height:40px;">
+                            <i class="fas fa-filter"></i>
+                        </div>
+                        <h5 class="card-title font-weight-bold mb-0 text-dark">Filter Parameter Presensi</h5>
+                    </div>
+                    <div class="d-flex" style="gap: 8px;">
+                        <a href="{{ route('student-attendances.scanner') }}" class="btn btn-soft-emerald btn-sm font-weight-bold rounded-pill px-3">
+                            <i class="fas fa-camera mr-1"></i> SCANNER
+                        </a>
+                        <button onclick="printCards()" class="btn btn-soft-info btn-sm font-weight-bold rounded-pill px-3">
+                            <i class="fas fa-address-card mr-1"></i> KARTU QR
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-4 bg-light-soft">
+                    <div class="row align-items-end">
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <label class="text-xs font-weight-bold text-muted uppercase">Tanggal</label>
+                            <div class="input-group-premium bg-white">
+                                <i class="fas fa-calendar-day"></i>
+                                <input type="date" id="admin_filter_date" class="form-control font-weight-bold" value="{{ date('Y-m-d') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <label class="text-xs font-weight-bold text-muted uppercase">Pilih Kelas</label>
+                            <div class="input-group-premium bg-white">
+                                <i class="fas fa-users text-emerald"></i>
+                                <select id="admin_filter_class" class="form-control select2-no-search border-0">
+                                    <option value="">-- Semua Kelas --</option>
+                                    @foreach($classGroups as $cg)
+                                        <option value="{{ $cg->id }}">{{ $cg->kelas_lengkap }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <label class="text-xs font-weight-bold text-muted uppercase">Tahun Pelajaran</label>
+                            <div class="input-group-premium bg-white">
+                                <i class="fas fa-graduation-cap"></i>
+                                <select id="admin_filter_academic_year" class="form-control select2-no-search border-0">
+                                    @foreach($academicYears as $ay)
+                                        <option value="{{ $ay->id }}" {{ $ay->current_semester ? 'selected' : '' }}>{{ $ay->academic_year }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex" style="gap: 10px;">
+                                <button onclick="refreshTable()" class="btn btn-emerald flex-fill rounded-pill font-weight-bold shadow-emerald-light">
+                                    <i class="fas fa-search mr-1"></i> TAMPILKAN
+                                </button>
+                                <button onclick="pdfDownload()" class="btn btn-danger rounded-pill px-4 font-weight-bold shadow-sm" title="Cetak PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <x-table>
-                    <x-slot name="thead">
-                        <th width="5%">NO</th>
-                        <th>NIS</th>
-                        <th>NAMA SISWA</th>
-                        <th>KELAS</th>
-                        <th>JAM</th>
-                        <th>STATUS</th>
-                    </x-slot>
-                </x-table>
-            </x-card>
+            <!-- MAIN DATA TABLE -->
+            <div class="card shadow-sm border-0 premium-card">
+                <div class="card-header bg-white py-4 border-bottom">
+                    <h4 class="mb-1 font-weight-bold text-dark">Daftar Kehadiran Siswa</h4>
+                    <p class="text-muted text-sm mb-0">Detail rekaman waktu presensi harian siswa per kelas</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="adminAttendanceTable" style="width:100%">
+                            <thead class="bg-light-emerald text-uppercase">
+                                <tr>
+                                    <th width="50px" class="text-center py-3">NO</th>
+                                    <th width="120px">NIS</th>
+                                    <th>NAMA SISWA</th>
+                                    <th>KELAS</th>
+                                    <th class="text-center">WAKTU</th>
+                                    <th class="text-center">STATUS</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endif
@@ -237,8 +278,11 @@
         // Admin JS Logic
         let table;
         $(function() {
-            table = $('.table').DataTable({
+            $('.select2-no-search').select2({ minimumResultsForSearch: -1, width: '100%' });
+
+            table = $('#adminAttendanceTable').DataTable({
                 processing: true, serverSide: true, autoWidth: false,
+                language: { searchPlaceholder: "Cari siswa...", search: "" },
                 ajax: { 
                     url: '{{ route("student-attendances.data") }}',
                     data: function(d) {
@@ -248,16 +292,40 @@
                     }
                 },
                 columns: [
-                    { data: 'DT_RowIndex', searchable: false, sortable: false },
-                    { data: 'nis' },
-                    { data: 'student_name' },
+                    { data: 'DT_RowIndex', searchable: false, sortable: false, className: 'text-center' },
+                    { 
+                        data: 'nis',
+                        render: function(data) {
+                            return '<code class="text-xs font-weight-bold">' + data + '</code>';
+                        }
+                    },
+                    { 
+                        data: 'student_name',
+                        render: function(data) {
+                            return '<span class="font-weight-bold text-dark">' + data + '</span>';
+                        }
+                    },
                     { data: 'class_name' },
-                    { data: 'time' },
-                    { data: 'status_badge' },
+                    { 
+                        data: 'time',
+                        className: 'text-center',
+                        render: function(data) {
+                            return '<span class="badge badge-light border px-2 py-1 shadow-sm"><i class="far fa-clock mr-1 text-emerald"></i> ' + data + '</span>';
+                        }
+                    },
+                    { data: 'status_badge', className: 'text-center' },
                 ]
             });
         });
-        function refreshTable() { table.ajax.reload(); }
+
+        function refreshTable() { 
+            let btn = $('.btn-emerald');
+            let originalHtml = btn.html();
+            btn.html('<i class="fas fa-spinner fa-spin mr-1"></i> LOADING...');
+            table.ajax.reload(function() {
+                btn.html(originalHtml);
+            }); 
+        }
         
         function pdfDownload() {
             let date = $('#admin_filter_date').val();
@@ -281,5 +349,55 @@
     .text-amber-600 { color: #d97706; }
     .bg-rose-100 { background-color: #fee2e2; }
     .text-rose-600 { color: #dc2626; }
+
+    /* Premium Design System */
+    .bg-gradient-emerald { background: linear-gradient(135deg, #059669 0%, #047857 100%) !important; }
+    .bg-light-emerald { background: #ecfdf5; color: #059669; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; }
+    .btn-emerald { background: #059669; color: #fff; border: none; }
+    .btn-emerald:hover { background: #047857; color: #fff; }
+    .text-emerald { color: #059669; }
+    .bg-soft-emerald { background: #d1fae5; color: #059669; }
+    .btn-soft-emerald { background: #d1fae5; color: #059669; border: none; }
+    .btn-soft-emerald:hover { background: #a7f3d0; color: #047857; }
+    .btn-soft-info { background: #e0f2fe; color: #0369a1; border: none; }
+    .btn-soft-info:hover { background: #bae6fd; color: #075985; }
+    .shadow-emerald-light { box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3); }
+
+    .opacity-8 { opacity: 0.8; }
+    .opacity-2 { opacity: 0.2; }
+    .shadow-icon { filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2)); }
+    .bg-circle-1, .bg-circle-2 { position: absolute; background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 0; }
+    .bg-circle-1 { width: 300px; height: 300px; top: -100px; right: -50px; }
+    .bg-circle-2 { width: 150px; height: 150px; bottom: -50px; left: 10%; }
+
+    .premium-card { border-radius: 15px; overflow: hidden; }
+    .bg-light-soft { background: #f8fafc; }
+    .uppercase { text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Input Group Premium */
+    .input-group-premium { 
+        display: flex; align-items: center; border: 2px solid #e2e8f0; 
+        border-radius: 12px; padding: 0 15px; transition: all 0.3s ease; height: 45px;
+    }
+    .input-group-premium i { color: #94a3b8; font-size: 16px; margin-right: 12px; }
+    .input-group-premium input, .input-group-premium select { 
+        border: none !important; padding: 0 !important; background: transparent !important; 
+        box-shadow: none !important; color: #334155; width: 100%; height: 100%;
+    }
+    .input-group-premium:focus-within { border-color: #059669; box-shadow: 0 0 10px rgba(5, 150, 105, 0.1); }
+    .input-group-premium:focus-within i { color: #059669; }
+
+    /* Select2 Tweaks inside input group */
+    .select2-container--default .select2-selection--single { border: none !important; background: transparent !important; height: auto !important; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { padding-left: 0; font-weight: 600; color: #334155; line-height: normal; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow { display: none; }
+
+    /* Table Enhancements */
+    #adminAttendanceTable { border-collapse: separate; border-spacing: 0 8px; }
+    #adminAttendanceTable tbody tr { background: #fff; transition: all 0.2s ease; border-radius: 10px; }
+    #adminAttendanceTable tbody tr:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); background: #f8fffa; }
+    #adminAttendanceTable td { border: none; padding: 1.2rem 0.75rem; vertical-align: middle; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+    #adminAttendanceTable td:first-child { border-radius: 10px 0 0 10px; border-left: 1px solid #f1f5f9; font-weight: bold; color: #059669; }
+    #adminAttendanceTable td:last-child { border-radius: 0 10px 10px 0; border-right: 1px solid #f1f5f9; }
 </style>
 @endpush
