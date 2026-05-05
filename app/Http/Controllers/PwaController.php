@@ -115,7 +115,7 @@ JS;
         $setting = Setting::first();
 
         // Ensure directory exists
-        $iconDir = public_path('icons');
+        $iconDir = storage_path('app/public/pwa/icons');
         if (!file_exists($iconDir)) {
             mkdir($iconDir, 0755, true);
         }
@@ -156,7 +156,7 @@ JS;
         $newVersion = implode('.', $parts);
 
         $setting->update([
-            'pwa_icon' => '/icons/icon-192x192.png',
+            'pwa_icon' => '/storage/pwa/icons/icon-192x192.png',
             'pwa_version' => $newVersion
         ]);
 

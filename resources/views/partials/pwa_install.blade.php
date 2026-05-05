@@ -8,7 +8,7 @@
 @if($isRestricted)
 <div id="pwa-force-overlay" class="pwa-force-overlay" style="display:none;">
     <div class="pwa-force-card">
-        <img src="{{ $setting->pwa_icon ?? '/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo" class="pwa-force-logo">
+        <img src="{{ $setting->pwa_icon ?? '/storage/pwa/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo" class="pwa-force-logo">
         <h1 class="pwa-force-title">Aktivasi Aplikasi Digital</h1>
         <p class="pwa-force-desc">Silakan pasang aplikasi Smart Madrasah di HP Anda untuk akses yang lebih cepat, aman, dan fitur lengkap.</p>
         
@@ -31,7 +31,7 @@
 @if(!$isRestricted)
 <div id="pwa-install-prompt" class="pwa-banner" style="display:none;">
     <div class="pwa-banner-icon">
-        <img src="{{ $setting->pwa_icon ?? '/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
+        <img src="{{ $setting->pwa_icon ?? '/storage/pwa/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
     </div>
     <div class="pwa-banner-text">
         <h6>Pasang Aplikasi</h6>
@@ -49,7 +49,7 @@
 <!-- Update Banner -->
 <div id="pwa-update-prompt" class="pwa-banner" style="display:none;">
     <div class="pwa-banner-icon">
-        <img src="{{ $setting->pwa_icon ?? '/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
+        <img src="{{ $setting->pwa_icon ?? '/storage/pwa/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
     </div>
     <div class="pwa-banner-text">
         <h6>Versi Baru Tersedia</h6>
@@ -67,7 +67,7 @@
 <div id="id-updating-overlay" class="pwa-updating-overlay" style="display:none;">
     <div class="pwa-updating-card">
         <div class="pwa-updating-logo">
-            <img src="{{ $setting->pwa_icon ?? '/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
+            <img src="{{ $setting->pwa_icon ?? '/storage/pwa/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
             <div class="pwa-spinner-ring"></div>
         </div>
         <h4>Memperbarui Aplikasi...</h4>

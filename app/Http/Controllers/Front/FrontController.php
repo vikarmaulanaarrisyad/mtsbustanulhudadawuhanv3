@@ -228,17 +228,17 @@ class FrontController extends Controller
             "theme_color" => $setting->pwa_theme_color ?? "#10b981",
             "icons" => [
                 [
-                    "src" => "/icons/icon-192x192.png?v=" . $v . "&t=" . time(),
+                    "src" => "/storage/pwa/icons/icon-192x192.png?v=" . $v . "&t=" . time(),
                     "sizes" => "192x192",
                     "type" => "image/png"
                 ],
                 [
-                    "src" => "/icons/icon-512x512.png?v=" . $v . "&t=" . time(),
+                    "src" => "/storage/pwa/icons/icon-512x512.png?v=" . $v . "&t=" . time(),
                     "sizes" => "512x512",
                     "type" => "image/png"
                 ],
                 [
-                    "src" => "/icons/icon-192x192-maskable.png?v=" . $v . "&t=" . time(),
+                    "src" => "/storage/pwa/icons/icon-192x192-maskable.png?v=" . $v . "&t=" . time(),
                     "sizes" => "192x192",
                     "type" => "image/png",
                     "purpose" => "maskable"

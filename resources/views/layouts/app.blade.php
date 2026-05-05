@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="{{ $setting->pwa_short_name ?? 'Madrasah' }}">
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png?v={{ $setting->pwa_version ?? time() }}">
+    <link rel="apple-touch-icon" href="/storage/pwa/icons/icon-192x192.png?v={{ $setting->pwa_version ?? time() }}">
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
