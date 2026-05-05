@@ -16,8 +16,10 @@
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.0",
         "maatwebsite/excel": "^3.1",
+        "masbug/flysystem-google-drive-ext": "^2.5",
         "midtrans/midtrans-php": "^2.6",
         "simplesoftwareio/simple-qrcode": "^4.2",
+        "spatie/laravel-backup": "^9.3",
         "spatie/laravel-permission": "^6.7",
         "yajra/laravel-datatables-oracle": "^11.1"
     },

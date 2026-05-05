@@ -56,6 +56,12 @@ return [
             'throw' => false,
         ],
 
+        'google' => [
+            'driver' => 'google',
+            'serviceAccountJson' => base_path(env('GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON', 'storage/app/google-drive-key.json')),
+            'folderId' => env('GOOGLE_DRIVE_FOLDER_ID'),
+        ],
+
     ],
 
     /*

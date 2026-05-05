@@ -56,7 +56,8 @@ use App\Http\Controllers\{
     GradeSettingController,
     StudentGradeController,
     TeacherPermitController,
-    StudentPermitController
+    StudentPermitController,
+    BackupController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -167,6 +168,16 @@ Route::group(['middleware' => ['auth']], function () {
             Route::put('/setting/{setting}', 'update')->name('setting.update');
         });
         Route::post('/pwa/upload-icon', [PwaController::class, 'uploadIcon'])->name('pwa.upload-icon');
+
+        // Backup & Restore
+        Route::controller(BackupController::class)->group(function () {
+            Route::get('/backup', 'index')->name('backup.index');
+            Route::post('/backup/create', 'create')->name('backup.create');
+            Route::post('/backup/create-full', 'createFull')->name('backup.create-full');
+            Route::get('/backup/download/{fileName}', 'download')->name('backup.download')->where('fileName', '.*');
+            Route::post('/backup/restore/{fileName}', 'restore')->name('backup.restore')->where('fileName', '.*');
+            Route::delete('/backup/{fileName}', 'destroy')->name('backup.destroy')->where('fileName', '.*');
+        });
     });
 
     Route::group(['middleware' => ['permission:academic-year.view']], function () {

@@ -545,6 +545,12 @@
                         <p>Pengaturan Aplikasi</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('backup.index') }}" class="nav-link {{ request()->routeIs('backup.index') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-database"></i>
+                        <p>Backup & Restore</p>
+                    </a>
+                </li>
                 @endcan
                 
                 <li class="nav-header">AKSI</li>

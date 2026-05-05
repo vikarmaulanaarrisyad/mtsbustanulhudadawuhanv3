@@ -142,6 +142,16 @@ class SettingController extends Controller
                 'pwa_short_name' => 'required|string|max:50',
                 'pwa_theme_color' => 'required|string|regex:/^#[a-fA-F0-9]{6}$/',
                 'pwa_background_color' => 'required|string|regex:/^#[a-fA-F0-9]{6}$/',
+                'google_drive_folder_id' => 'nullable|string',
+                'google_drive_json' => 'nullable|file|mimes:json',
+            ];
+        }
+
+        if ($request->has('pills') && $request->pills == 'backup_config') {
+            $rules = [
+                'google_drive_folder_id' => 'required|string',
+                'google_drive_json' => 'nullable|file|mimes:json',
+                'backup_notification_email' => 'nullable|email',
             ];
         }
 
@@ -185,6 +195,13 @@ class SettingController extends Controller
             }
 
             $data['path_image_footer'] = upload('setting', $request->file('path_image_footer'), 'setting');
+        }
+
+        if ($request->hasFile('google_drive_json')) {
+            $file = $request->file('google_drive_json');
+            $filename = 'google-drive-key.json';
+            $file->move(storage_path('app'), $filename);
+            $data['google_drive_json'] = $filename;
         }
 
         $setting->update($data);
