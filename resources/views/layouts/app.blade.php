@@ -9,6 +9,12 @@
     <title>{{ $setting->company_name }} - @yield('title')</title>
 
     <link rel="icon" href="{{ Storage::url($setting->path_image ?? '') }}" type="image/*">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Madrasah Digital">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
@@ -309,6 +315,16 @@
                 });
         }
     </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed'));
+            });
+        }
+    </script>
+    @include('partials.pwa_install')
 </body>
 
 </html>

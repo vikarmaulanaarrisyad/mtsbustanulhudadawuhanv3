@@ -68,7 +68,8 @@ class DashboardController extends Controller
             $homeroomClass = ClassGroup::where('teacher_id', $teacher->id)->first();
             $myStudents = [];
             if ($homeroomClass) {
-                $myStudents = Student::where('student_class_group_id', $homeroomClass->id)
+                $myStudents = Student::with(['behaviorLogs', 'profile'])
+                    ->where('student_class_group_id', $homeroomClass->id)
                     ->where('is_active', true)
                     ->orderBy('nama_lengkap')
                     ->get();
@@ -93,7 +94,14 @@ class DashboardController extends Controller
                 $onLeave = true;
             }
 
-            return view('admin.dashboard.teacher', compact('teacher', 'schedules', 'myAttendances', 'todayAttendance', 'totalSchedules', 'homeroomClass', 'myStudents', 'unreadAnnouncementsCount', 'myPermits', 'onLeave'));
+            // Ambil Pengumuman Terbaru
+            $announcements = \App\Models\Announcement::where('is_active', true)
+                ->whereIn('type', ['Umum', 'Guru'])
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+
+            return view('admin.dashboard.teacher', compact('teacher', 'schedules', 'myAttendances', 'todayAttendance', 'totalSchedules', 'homeroomClass', 'myStudents', 'unreadAnnouncementsCount', 'myPermits', 'onLeave', 'announcements'));
         }
 
         // --- Logika Dashboard Admin (Default) ---

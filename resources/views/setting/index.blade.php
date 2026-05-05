@@ -62,6 +62,11 @@
                         <div class="nav-icon-box"><i class="fas fa-credit-card"></i></div>
                         <span>Gateway Pembayaran</span>
                     </a>
+                    <a class="nav-link @if (request('pills') == 'pwa') active @endif mb-2 d-flex align-items-center"
+                        href="{{ route('setting.index') }}?pills=pwa">
+                        <div class="nav-icon-box"><i class="fas fa-mobile-alt"></i></div>
+                        <span>Pengaturan PWA</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -93,6 +98,9 @@
                     </div>
                     <div class="tab-pane fade @if (request('pills') == 'payment') show active @endif">
                         @includeIf('setting.payment')
+                    </div>
+                    <div class="tab-pane fade @if (request('pills') == 'pwa') show active @endif">
+                        @includeIf('setting.pwa')
                     </div>
                 </div>
             </div>

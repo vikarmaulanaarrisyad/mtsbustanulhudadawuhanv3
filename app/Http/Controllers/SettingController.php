@@ -136,6 +136,15 @@ class SettingController extends Controller
             ]);
         }
 
+        if ($request->has('pills') && $request->pills == 'pwa') {
+            $rules = [
+                'pwa_name' => 'required|string|max:255',
+                'pwa_short_name' => 'required|string|max:50',
+                'pwa_theme_color' => 'required|string|regex:/^#[a-fA-F0-9]{6}$/',
+                'pwa_background_color' => 'required|string|regex:/^#[a-fA-F0-9]{6}$/',
+            ];
+        }
+
         $data = $request->except('path_image', 'path_image_header', 'path_breadcrumb', 'path_image_footer');
 
         if ($request->hasFile('path_image') && $setting->path_image) {

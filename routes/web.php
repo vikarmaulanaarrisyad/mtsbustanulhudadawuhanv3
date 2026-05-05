@@ -60,7 +60,11 @@ use App\Http\Controllers\{
 };
 
 use App\Http\Controllers\Front\FrontController;
+use App\Http\Controllers\Auth\LogoutController;
 use Illuminate\Support\Facades\Route;
+
+Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
+Route::get('/manifest.json', [FrontController::class, 'manifest']);
 
 Route::get('/', [FrontController::class, 'index'])->name('front.index');
 
@@ -83,6 +87,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/teacher/schedule', [DashboardController::class, 'teacherSchedule'])->name('teacher.schedule');
         Route::get('/class-students/{id}', [DashboardController::class, 'getClassStudents'])->name('teacher.class-students');
+
+        // Behavior Logs (Character Points)
+        Route::post('/behavior-logs', [\App\Http\Controllers\BehaviorLogController::class, 'store'])->name('behavior-logs.store');
+        Route::delete('/behavior-logs/{id}', [\App\Http\Controllers\BehaviorLogController::class, 'destroy'])->name('behavior-logs.destroy');
 
         // Announcements
         Route::get('/announcements', [AnnouncementController::class, 'teacherIndex'])->name('teacher.announcements');

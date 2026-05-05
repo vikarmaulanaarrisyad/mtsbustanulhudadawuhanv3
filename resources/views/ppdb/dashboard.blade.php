@@ -92,7 +92,7 @@
                         <i class="fas fa-bell"></i>
                         <span class="badge badge-danger badge-pill position-absolute" style="top: -5px; right: -5px; font-size: 9px;">2</span>
                     </div>
-                    <form action="{{ route('logout') }}" method="POST" id="form-logout-siswa-header" class="d-inline">
+                    <form action="{{ route('logout') }}" method="POST" id="form-logout-siswa" class="d-inline">
                         @csrf
                         <div class="stu-header-icon bg-danger-soft" onclick="confirmLogout()">
                             <i class="fas fa-power-off"></i>
@@ -160,7 +160,7 @@
         <div class="stu-content-wrapper">
             {{-- LAYANAN AKADEMIK GRID --}}
             <div class="stu-card mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                <div class="d-flex justify-content-between align-items-center mb-3 mt-3 px-4">
                     <h6 class="font-weight-bold text-dark mb-0" style="font-size: 15px; letter-spacing: 0.5px;">LAYANAN AKADEMIK</h6>
                     <span class="badge badge-light text-muted px-3 py-2" style="border-radius: 8px;">Lihat Semua</span>
                 </div>
@@ -349,57 +349,79 @@
                     </div>
                 </div>
 
-                {{-- POIN KARAKTER STATUS CARD --}}
-                <div class="stu-card mb-4">
+                {{-- POIN KARAKTER STATUS CARD - PREMIUM V2 --}}
+                <div class="stu-card mb-4 overflow-hidden" style="background: linear-gradient(to bottom, #ffffff, #f0fdf4);">
                     <div class="stu-card-header border-0 pb-0">
-                        <div class="stu-card-icon bg-grad-orange"><i class="fas fa-heart"></i></div>
+                        <div class="stu-card-icon" style="background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 10px 20px rgba(16,185,129,0.2);">
+                            <i class="fas fa-award"></i>
+                        </div>
                         <div>
                             <h6 class="stu-card-title">Poin Karakter & Akhlak</h6>
-                            <p class="stu-card-sub">Monitoring perilaku dan kebaikan siswa</p>
+                            <p class="stu-card-sub">Pencapaian adab dan perilaku terpuji</p>
                         </div>
                     </div>
-                    <div class="stu-card-body pt-3">
-                        <div class="row align-items-center">
-                            <div class="col-6">
-                                <div class="p-3 text-center" style="background: #f8fafc; border-radius: 20px; border: 1px solid #f1f5f9;">
-                                    <h2 class="font-weight-bold mb-0 {{ $netPoints >= 0 ? 'text-success' : 'text-danger' }}" style="font-size: 2.5rem;">{{ $netPoints }}</h2>
-                                    <p class="text-xs text-muted font-weight-bold text-uppercase mb-0">Total Poin</p>
-                                </div>
+                    <div class="stu-card-body pt-4">
+                        {{-- Score Dashboard --}}
+                        <div class="text-center mb-4 p-4" style="background: white; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; position: relative;">
+                            <div class="position-absolute" style="top: 10px; right: 15px;">
+                                <span class="badge {{ $netPoints >= 100 ? 'badge-success' : ($netPoints >= 0 ? 'badge-info' : 'badge-danger') }} px-3 py-1" style="border-radius: 20px; font-size: 9px; letter-spacing: 0.5px;">
+                                    {{ $netPoints >= 100 ? 'SANGAT BAIK' : ($netPoints >= 0 ? 'BAIK' : 'PERLU BIMBINGAN') }}
+                                </span>
                             </div>
-                            <div class="col-6">
-                                <div class="mb-2 d-flex justify-content-between align-items-center p-2 px-3" style="background: #ecfdf5; border-radius: 12px;">
-                                    <span class="text-xs text-success font-weight-bold">KEBAIKAN</span>
-                                    <span class="badge badge-success">+{{ $totalPositivePoints }}</span>
+                            
+                            <h2 class="font-weight-bold mb-0 {{ $netPoints >= 0 ? 'text-success' : 'text-danger' }}" style="font-size: 3.5rem; letter-spacing: -2px;">{{ $netPoints }}</h2>
+                            <p class="text-xs text-muted font-weight-bold text-uppercase mb-3" style="letter-spacing: 2px;">SKOR AKHLAK SAAT INI</p>
+                            
+                            <div class="d-flex justify-content-center gap-2 mt-2">
+                                <div class="px-3 py-2" style="background: #ecfdf5; border-radius: 15px; border: 1px solid #d1fae5; min-width: 100px;">
+                                    <span class="d-block text-[9px] text-success font-black opacity-70 uppercase">KEBAIKAN</span>
+                                    <span class="font-weight-bold text-success">+{{ $totalPositivePoints }}</span>
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center p-2 px-3" style="background: #fef2f2; border-radius: 12px;">
-                                    <span class="text-xs text-danger font-weight-bold">PELANGGARAN</span>
-                                    <span class="badge badge-danger">-{{ $totalNegativePoints }}</span>
+                                <div class="px-3 py-2 mx-2" style="background: #fef2f2; border-radius: 15px; border: 1px solid #fee2e2; min-width: 100px;">
+                                    <span class="d-block text-[9px] text-danger font-black opacity-70 uppercase">PELANGGARAN</span>
+                                    <span class="font-weight-bold text-danger">-{{ $totalNegativePoints }}</span>
                                 </div>
                             </div>
                         </div>
                         
                         @if($behaviorLogs->isNotEmpty())
-                            <div class="mt-4">
-                                <p class="text-xs font-weight-bold text-muted text-uppercase mb-3">Catatan Terakhir</p>
-                                @foreach($behaviorLogs as $log)
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="mr-3 {{ $log->type == 'positive' ? 'text-success' : 'text-danger' }}" style="width: 30px; text-align: center;">
-                                            <i class="fas {{ $log->type == 'positive' ? 'fa-plus-circle' : 'fa-minus-circle' }} fa-lg"></i>
+                            <div class="mt-4 px-1">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-0">AKTIVITAS TERAKHIR</h6>
+                                </div>
+                                
+                                <div class="stu-activity-timeline max-h-[350px] overflow-y-auto pr-2 no-scrollbar">
+                                    @foreach($behaviorLogs as $log)
+                                        <div class="d-flex align-items-start mb-4 position-relative">
+                                            <div class="mr-3 mt-1" style="z-index: 2;">
+                                                <div class="d-flex align-items-center justify-content-center rounded-circle {{ $log->type == 'positive' ? 'bg-success text-white' : 'bg-danger text-white' }}" style="width: 28px; height: 28px; font-size: 10px; box-shadow: 0 4px 10px {{ $log->type == 'positive' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)' }};">
+                                                    <i class="fas {{ $log->type == 'positive' ? 'fa-plus' : 'fa-minus' }}"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 p-3 bg-white" style="border-radius: 18px; border: 1px solid #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                                    <h6 class="mb-0 text-sm font-black text-slate-700 leading-tight">{{ $log->description }}</h6>
+                                                    <span class="font-black {{ $log->type == 'positive' ? 'text-success' : 'text-danger' }}" style="font-size: 12px;">
+                                                        {{ $log->type == 'positive' ? '+' : '-' }}{{ $log->points }}
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex align-items-center text-muted" style="font-size: 10px; font-weight: 700;">
+                                                    <span class="mr-2"><i class="far fa-calendar-alt mr-1"></i> {{ $log->date->translatedFormat('d M') }}</span>
+                                                    <span><i class="fas fa-user-edit mr-1"></i> {{ $log->teacher->name ?? 'Guru' }}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-0 text-sm font-weight-bold">{{ $log->description }}</h6>
-                                            <p class="text-xs text-muted mb-0">{{ $log->date->translatedFormat('d M Y') }} &bull; Oleh {{ $log->teacher->name ?? 'Guru' }}</p>
-                                        </div>
-                                        <div class="font-weight-bold {{ $log->type == 'positive' ? 'text-success' : 'text-danger' }}">
-                                            {{ $log->type == 'positive' ? '+' : '-' }}{{ $log->points }}
-                                        </div>
-                                    </div>
-                                @endforeach
-                                <button class="btn btn-block btn-light text-primary font-weight-bold text-xs mt-2" style="border-radius: 12px;" onclick="$('#modalPoin').modal('show')">LIHAT SEMUA RIWAYAT</button>
+                                    @endforeach
+                                </div>
+                                
+                                <button class="btn btn-block py-3 mt-3 shadow-sm hover-up" style="background: white; border: 1.5px solid #e2e8f0; border-radius: 18px; color: #64748b; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; transition: all 0.3s;" onclick="$('#modalPoin').modal('show')">
+                                    LIHAT SEMUA RIWAYAT POIN <i class="fas fa-chevron-right ml-1" style="font-size: 9px;"></i>
+                                </button>
                             </div>
                         @else
-                            <div class="mt-4 p-3 text-center bg-light" style="border-radius: 15px; border: 1px dashed #cbd5e1;">
-                                <p class="text-xs text-muted mb-0">Belum ada catatan poin karakter.</p>
+                            <div class="text-center py-5 bg-white border-dashed border-2 border-slate-100 rounded-[2rem]">
+                                <div class="mb-3 opacity-20"><i class="fas fa-seedling fa-3x text-success"></i></div>
+                                <p class="text-xs text-slate-400 font-black uppercase tracking-widest px-4">Belum ada catatan perilaku. Mari tanamkan akhlak mulia!</p>
                             </div>
                         @endif
                     </div>
@@ -455,6 +477,9 @@
                         <a href="{{ route('students.card', $student->id) }}" target="_blank" class="btn btn-block stu-btn-action mb-2">
                             <i class="fas fa-id-card mr-2 text-info"></i> Cetak Kartu Siswa
                         </a>
+                        <button type="button" onclick="confirmLogout()" class="btn btn-block stu-btn-action mb-2 text-danger">
+                            <i class="fas fa-power-off mr-2"></i> Keluar Aplikasi
+                        </button>
                     </div>
                 </div>
 
@@ -723,47 +748,63 @@
             </a>
         </div>
 
-        {{-- MODAL POIN KARAKTER --}}
+        {{-- MODAL POIN KARAKTER - ENHANCED --}}
         <div class="modal fade" id="modalPoin" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content stu-modal">
-                    <div class="modal-header border-0 pb-0">
-                        <h5 class="modal-title font-weight-bold"><i class="fas fa-star text-warning mr-2"></i> Riwayat Poin Karakter</h5>
-                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content overflow-hidden border-0" style="border-radius: 35px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+                    <div class="modal-header border-0 px-4 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="stu-card-icon mr-3" style="background: linear-gradient(135deg, #059669, #10b981); width: 40px; height: 40px; border-radius: 14px;">
+                                <i class="fas fa-history text-white" style="font-size: 16px;"></i>
+                            </div>
+                            <h5 class="modal-title font-black text-slate-800" style="font-size: 1.1rem;">Riwayat Poin Akhlak</h5>
+                        </div>
+                        <button type="button" class="close bg-slate-100 rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; opacity: 1;" data-dismiss="modal">
+                            <span style="font-size: 18px; color: #64748b;">&times;</span>
+                        </button>
                     </div>
-                    <div class="modal-body">
-                        <div class="stu-info-item-small mb-4 text-center py-4 bg-grad-green">
-                            <label class="text-white-50">Total Poin Akhlak</label>
-                            <h2 class="text-white font-weight-bold mb-0" style="font-size: 3rem;">{{ $netPoints }}</h2>
+                    <div class="modal-body p-4">
+                        {{-- Quick Stats Row --}}
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="bg-grad-green p-4 text-center text-white position-relative overflow-hidden" style="border-radius: 25px;">
+                                    <div class="position-absolute" style="top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+                                    <span class="text-[10px] font-black opacity-70 tracking-widest uppercase">Skor Akhlak Terakumulasi</span>
+                                    <h2 class="font-black mb-0" style="font-size: 3.5rem; letter-spacing: -2px;">{{ $netPoints }}</h2>
+                                </div>
+                            </div>
                         </div>
 
-                        @if($behaviorLogs->isNotEmpty())
-                            @foreach($behaviorLogs as $log)
-                                <div class="p-3 mb-3 border" style="border-radius: 16px; transition: all 0.2s;">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <span class="badge {{ $log->type == 'positive' ? 'badge-success' : 'badge-danger' }} px-3 py-2" style="border-radius: 8px;">
-                                            {{ $log->type == 'positive' ? 'KEBAIKAN' : 'PELANGGARAN' }}
-                                        </span>
-                                        <span class="font-weight-bold {{ $log->type == 'positive' ? 'text-success' : 'text-danger' }}" style="font-size: 1.2rem;">
-                                            {{ $log->type == 'positive' ? '+' : '-' }}{{ $log->points }}
-                                        </span>
+                        <div class="stu-history-list" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                            @if($behaviorLogs->isNotEmpty())
+                                @foreach($behaviorLogs->sortByDesc('date') as $log)
+                                    <div class="p-3 mb-3 border-0 bg-slate-50 d-flex align-items-center justify-content-between" style="border-radius: 20px; transition: all 0.2s;">
+                                        <div class="d-flex align-items-center">
+                                            <div class="mr-3 d-flex align-items-center justify-content-center rounded-xl {{ $log->type == 'positive' ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger' }}" style="width: 45px; height: 45px; border-radius: 15px;">
+                                                <i class="fas {{ $log->type == 'positive' ? 'fa-thumbs-up' : 'fa-exclamation-triangle' }} fa-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="font-black text-slate-800 mb-1 text-sm">{{ $log->description }}</h6>
+                                                <div class="d-flex align-items-center text-slate-400" style="font-size: 10px; font-weight: 700;">
+                                                    <span class="mr-2"><i class="far fa-calendar-alt mr-1"></i> {{ $log->date->translatedFormat('d F Y') }}</span>
+                                                    <span class="badge {{ $log->type == 'positive' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }} px-2 py-1" style="border-radius: 6px; font-size: 8px;">{{ $log->category }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-right ml-2">
+                                            <span class="font-black {{ $log->type == 'positive' ? 'text-success' : 'text-danger' }}" style="font-size: 1.1rem;">
+                                                {{ $log->type == 'positive' ? '+' : '-' }}{{ $log->points }}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <h6 class="font-weight-bold mb-1">{{ $log->description }}</h6>
-                                    <div class="d-flex justify-content-between text-muted" style="font-size: 11px;">
-                                        <span><i class="far fa-calendar-alt mr-1"></i> {{ $log->date->translatedFormat('d F Y') }}</span>
-                                        <span><i class="fas fa-user-tie mr-1"></i> {{ $log->teacher->name ?? 'Sistem' }}</span>
-                                    </div>
+                                @endforeach
+                            @else
+                                <div class="text-center py-5">
+                                    <i class="fas fa-leaf fa-3x text-slate-200 mb-3"></i>
+                                    <p class="text-slate-400 font-black uppercase text-[10px] tracking-widest">Belum ada riwayat tercatat</p>
                                 </div>
-                            @endforeach
-                        @else
-                            <div class="text-center py-5">
-                                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">Belum ada riwayat poin.</p>
-                            </div>
-                        @endif
-                    </div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-secondary btn-block" style="border-radius: 12px;" data-dismiss="modal">TUTUP</button>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -787,7 +828,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center">
-                    <form action="{{ route('logout') }}" method="POST" id="form-logout-applicant" class="d-inline">
+                    <form action="{{ route('logout') }}" method="POST" id="form-logout-siswa" class="d-inline">
                         @csrf
                         <div class="stu-header-icon bg-danger-soft" onclick="confirmLogout()">
                             <i class="fas fa-power-off"></i>
@@ -1614,6 +1655,8 @@
         margin: 0 auto;
     }
     .bg-grad-green { background: linear-gradient(135deg, #065f46, #10b981); }
+    .bg-success-soft { background-color: rgba(16, 185, 129, 0.1); }
+    .bg-danger-soft { background-color: rgba(239, 68, 68, 0.1); }
 </style>
 @endpush
 
