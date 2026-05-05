@@ -156,7 +156,7 @@ JS;
         $newVersion = implode('.', $parts);
 
         $setting->update([
-            'pwa_icon' => '/icons/icon-192x192.png?v=' . time(),
+            'pwa_icon' => '/icons/icon-192x192.png',
             'pwa_version' => $newVersion
         ]);
 

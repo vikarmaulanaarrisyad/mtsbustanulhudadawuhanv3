@@ -222,23 +222,23 @@ class FrontController extends Controller
             "name" => $setting->pwa_name ?? "Madrasah Digital MTs Bustanul Huda",
             "short_name" => $setting->pwa_short_name ?? "Madrasah",
             "description" => $setting->short_description ?? "Sistem Informasi Akademik dan PPDB",
-            "start_url" => "/dashboard",
+            "start_url" => "/",
             "display" => "standalone",
             "background_color" => $setting->pwa_background_color ?? "#ffffff",
             "theme_color" => $setting->pwa_theme_color ?? "#10b981",
             "icons" => [
                 [
-                    "src" => "/icons/icon-192x192.png?v=" . $v,
+                    "src" => "/icons/icon-192x192.png?v=" . $v . "&t=" . time(),
                     "sizes" => "192x192",
                     "type" => "image/png"
                 ],
                 [
-                    "src" => "/icons/icon-512x512.png?v=" . $v,
+                    "src" => "/icons/icon-512x512.png?v=" . $v . "&t=" . time(),
                     "sizes" => "512x512",
                     "type" => "image/png"
                 ],
                 [
-                    "src" => "/icons/icon-192x192-maskable.png?v=" . $v,
+                    "src" => "/icons/icon-192x192-maskable.png?v=" . $v . "&t=" . time(),
                     "sizes" => "192x192",
                     "type" => "image/png",
                     "purpose" => "maskable"
