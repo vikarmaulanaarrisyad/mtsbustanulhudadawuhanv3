@@ -147,6 +147,14 @@ class SettingController extends Controller
 
         $data = $request->except('path_image', 'path_image_header', 'path_breadcrumb', 'path_image_footer');
 
+        // Auto-increment PWA version when PWA settings change → triggers SW update on all devices
+        if ($request->has('pills') && $request->pills == 'pwa') {
+            $currentVersion = $setting->pwa_version ?? '1.0.0';
+            $parts = explode('.', $currentVersion);
+            $parts[2] = isset($parts[2]) ? (int)$parts[2] + 1 : 1;
+            $data['pwa_version'] = implode('.', $parts);
+        }
+
         if ($request->hasFile('path_image') && $setting->path_image) {
             if (Storage::disk('public')->exists($setting->path_image)) {
                 Storage::disk('public')->delete($setting->path_image);

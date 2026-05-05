@@ -61,10 +61,13 @@ use App\Http\Controllers\{
 
 use App\Http\Controllers\Front\FrontController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\PwaController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 Route::get('/manifest.json', [FrontController::class, 'manifest']);
+// Dynamic Service Worker with version from DB (must be public, no auth)
+Route::get('/sw.js', [PwaController::class, 'serviceWorker']);
 
 Route::get('/', [FrontController::class, 'index'])->name('front.index');
 
@@ -163,6 +166,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/setting/test-midtrans', 'testMidtrans')->name('setting.test_midtrans');
             Route::put('/setting/{setting}', 'update')->name('setting.update');
         });
+        Route::post('/pwa/upload-icon', [PwaController::class, 'uploadIcon'])->name('pwa.upload-icon');
     });
 
     Route::group(['middleware' => ['permission:academic-year.view']], function () {
