@@ -4,146 +4,96 @@
 
 @push('css')
     <style>
-        /* Konten */
+        /* Content styling similar to news */
         .post-content {
-            line-height: 1.8;
             font-size: 1.2rem;
-            color: #343a40;
+            line-height: 2;
+            color: #2c3e50;
             text-align: justify;
         }
+        
+        .post-content p { margin-bottom: 25px; }
+        
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
 
-        .breadcrumb-wrapper {
-            width: 100%;
-            height: 220px;
-            /* tinggi breadcrumb */
+        .post-hero {
             position: relative;
-            overflow: hidden;
+            height: 350px;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            margin-bottom: 40px;
-
-            /* Background image */
-            background: url('{{ Storage::url($setting->path_breadcrumb) }}') no-repeat center center;
             background-size: cover;
-
-            /* Parallax effect */
+            background-position: center;
             background-attachment: fixed;
+            color: #fff;
+            overflow: hidden;
+            margin-bottom: 0;
         }
 
-        /* Gradient overlay untuk kontras teks */
-        .breadcrumb-wrapper::before {
-            content: '';
+        .post-hero::before {
+            content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-
-            z-index: 0;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.2));
+            z-index: 1;
         }
 
-        /* Container breadcrumb */
-        .breadcrumb-wrapper .breadcrumb-container {
+        .post-hero-content {
             position: relative;
-            z-index: 1;
-            color: #04d11f;
-            width: 100%;
-            max-width: 1200px;
+            z-index: 2;
+            text-align: center;
+            max-width: 900px;
             padding: 0 20px;
         }
 
-        /* Breadcrumb list */
-        .breadcrumb-wrapper .breadcrumb {
-            background: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
+        .post-hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        .post-card-container {
+            margin-top: -60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .post-main-card {
+            border-radius: 25px;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .breadcrumb {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            display: inline-flex;
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb-item a, .breadcrumb-item.active {
+            color: #fff !important;
             font-weight: 500;
         }
 
-        .breadcrumb-wrapper .breadcrumb a {
-            color: #000000;
-            text-decoration: none;
-        }
-
-        .breadcrumb-wrapper .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-
-        .breadcrumb-wrapper .breadcrumb .breadcrumb-item.active {
-            color: #ffd700;
-            /* item aktif emas */
-            font-weight: 600;
-        }
-
-        /* Judul halaman */
-        .breadcrumb-title {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-top: 10px;
-            color: #000000;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideFadeIn 1s forwards;
-            animation-delay: 0.3s;
-        }
-
-        /* Animasi teks */
-        @keyframes slideFadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .breadcrumb-title {
-                font-size: 1.6rem;
-            }
-
-            .breadcrumb-wrapper {
-                height: 180px;
-            }
-        }
-
-        /* Judul */
-        .post-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: #212529;
-        }
-
-        /* Gambar utama */
-        .post-image {
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            margin-bottom: 30px;
-        }
-
-        /* Tombol kembali */
-        .btn-back {
-            background-color: #fff;
-            color: #28a745;
-            border: 1px solid #28a745;
-            transition: all 0.3s;
-        }
-
-        .btn-back:hover {
-            background-color: #28a745;
-            color: #fff;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: sticky;
-            top: 100px;
+            .post-hero { height: 250px; }
+            .post-hero h1 { font-size: 2rem; }
         }
     </style>
 
@@ -171,55 +121,39 @@
 @endpush
 
 @section('content')
-    <section class="">
-
-        <!-- Breadcrumb -->
-        {{--  <nav aria-label="breadcrumb" class="px-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                <li class="breadcrumb-item"><a href="#">Halaman</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ $page->slug }}</li>
-            </ol>
-        </nav>  --}}
-
-        <!-- Breadcrumb Premium -->
-        <div class="breadcrumb-wrapper">
-            <div class="breadcrumb-container">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Halaman</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ $page->slug }}</li>
-                    </ol>
-                </nav>
-
-                <div class="breadcrumb-title">
-                    {{ $page->title }}
-                </div>
-            </div>
+    <div class="post-hero" style="background-image: url('{{ Storage::url($setting->path_breadcrumb) }}');">
+        <div class="post-hero-content">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}">Beranda</a></li>
+                    <li class="breadcrumb-item active">{{ $page->title }}</li>
+                </ol>
+            </nav>
+            <h1>{{ $page->title }}</h1>
         </div>
+    </div>
 
-        <div class="row no-gutters px-4">
-
+    <div class="container post-card-container mb-5">
+        <div class="row">
             <!-- Konten Page -->
-            <div class="col-lg-8 pr-lg-4">
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body p-5">
-
-                        <h1 class="post-title">{{ $page->title }}</h1>
+            <div class="col-lg-8">
+                <div class="card post-main-card mb-4">
+                    <div class="card-body p-4 p-md-5">
 
                         @if ($page->image)
                             <img src="{{ asset('storage/' . $page->image) }}" alt="{{ $page->title }}"
-                                class="post-image d-block mx-auto" style="width:80%; height:auto;">
+                                class="post-image d-block mx-auto mb-5 rounded shadow-sm" style="max-width:100%; height:auto;">
                         @endif
 
-                        <div class="post-content mb-5">
+                        <div class="post-content">
                             {!! $page->body !!}
                         </div>
 
+                        <hr class="my-5">
+
                         <!-- Tombol kembali -->
-                        <a href="{{ url('/') }}" class="btn btn-back mb-5">
-                            <i class="fa fa-arrow-left"></i> Kembali ke Beranda
+                        <a href="{{ url('/') }}" class="btn btn-outline-success rounded-pill px-4">
+                            <i class="fa fa-arrow-left mr-2"></i> Kembali ke Beranda
                         </a>
 
                     </div>
@@ -268,5 +202,5 @@
             </div>
 
         </div>
-    </section>
+    </div>
 @endsection

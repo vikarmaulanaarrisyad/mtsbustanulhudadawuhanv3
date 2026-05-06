@@ -16,6 +16,15 @@
 
     <meta name="description" content="{{ $setting->nama_aplikasi }}" />
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
     <!-- FAVICONS ICON ==== -->
     <link rel="icon" href="{{ $setting->path_image }}" type="image/x-icon" />
     <link rel="icon" href="{{ Storage::url($setting->path_image ?? '') }}" type="image/*">
@@ -25,6 +34,10 @@
     <link rel="stylesheet" href="{{ asset('/AdminLTE/plugins/sweetalert2/sweetalert2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE/plugins/toastr/toastr.min.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE/dist/css/adminlte.min.css?v=3.2.0') }}">
+
+    <!-- GLightbox CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
+
     <style>
         /* ROOT & GLOBAL */
         :root {
@@ -37,77 +50,273 @@
             --shadow-strong: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
+        html,
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f9f9f9;
+            overflow-x: hidden;
+            width: 100%;
         }
 
-        /* NAVBAR */
+        /* Expanding Container for Full Feel */
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1400px;
+            }
+        }
+
+        /* Reading Progress Bar */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            z-index: 9999;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--primary-light);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            overflow-x: hidden;
+            /* Prevent horizontal scroll */
+        }
+
+        /* Premium Floating Navbar */
+        .navbar {
+            background: #ffffff !important;
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px 0;
+            margin: 10px 20px;
+            border-radius: 50px;
+            width: calc(100% - 40px);
+            box-shadow: 0 15px 35px rgba(11, 140, 137, 0.15) !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        }
+
+        /* Adjust brand and nav on scroll */
+        .navbar.scrolled .logo-image {
+            height: 35px;
+        }
+
+        .navbar.scrolled .navbar-brand span {
+            font-size: 1.1rem;
+        }
+
+        .navbar.scrolled .nav-link {
+            font-weight: 600;
+            color: #2c3e50 !important;
+        }
+
+        /* Section Dividers */
+        .section-divider {
+            position: relative;
+            height: 100px;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+        }
+
+        .section-divider svg {
+            position: relative;
+            display: block;
+            width: calc(130% + 1.3px);
+            height: 100px;
+        }
+
+        .section-divider .shape-fill {
+            fill: #f9f9f9;
+        }
+
+        /* Global Professional Touches */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            letter-spacing: -0.5px;
+        }
+
+        .btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+            border: 2px solid #f1f1f1;
+            transition: all 0.3s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+
+        /* For Firefox */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) #f1f1f1;
+        }
+
+        /* NAVBAR PREMIUM */
         .logo-image {
-            max-height: 50px;
+            max-height: 55px;
             width: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-image:hover {
+            transform: scale(1.05);
         }
 
         .navbar {
-            padding: 10px 30px;
-            transition: all .3s ease;
-            box-shadow: var(--shadow-soft);
+            padding: 15px 30px;
+            transition: all .4s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.92) !important;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .navbar .nav-item {
+            margin: 0 5px;
         }
 
         .navbar .nav-link {
-            font-weight: 500;
-            margin-left: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #2c3e50 !important;
+            padding: 8px 20px !important;
+            border-radius: 30px;
+            transition: all 0.3s ease;
             position: relative;
         }
 
-        li.nav-item.active {
-            border-radius: 10px 5px;
-            border-bottom: 3px solid #0eaaa6;
-            /* garis bawah */
+        .navbar .nav-link:hover {
+            color: var(--primary-color) !important;
+            background: rgba(14, 170, 166, 0.08);
+            transform: translateY(-2px);
+        }
+
+        li.nav-item.active .nav-link {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: #ffffff !important;
+            box-shadow: 0 4px 15px rgba(14, 170, 166, 0.3);
+            border-radius: 30px;
         }
 
         .navbar .dropdown:hover>.dropdown-menu {
             display: block;
-            animation: fadeIn .8s ease-in-out;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* DROPDOWN SUBMENU SUPPORT */
+        .dropdown-submenu {
+            position: relative;
+        }
+
+        .dropdown-submenu>.dropdown-menu {
+            top: 0;
+            left: 100%;
+            margin-top: -8px;
+            margin-left: 0;
+            border-radius: 12px;
+        }
+
+        .dropdown-submenu:hover>.dropdown-menu {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dropdown-submenu>.dropdown-toggle::after {
+            transform: rotate(-90deg);
+            margin-top: 8px;
+            float: right;
+            border-top: .3em solid;
+            border-right: .3em solid transparent;
+            border-bottom: 0;
+            border-left: .3em solid transparent;
         }
 
         .dropdown-menu {
-            position: relative;
-            margin-top: 0px;
-            padding: 8px 0;
-            border-radius: 12px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-            background: #ffffff;
-            min-width: 220px;
-            animation: fadeIn 0.2s ease-in-out;
+            display: block;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.3s ease;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 8px;
+            padding: 10px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            min-width: 240px;
         }
 
-        /* Segitiga lancip di atas */
         .dropdown-menu::before {
             content: "";
             position: absolute;
             top: -8px;
-            left: 30px;
-            /* atur posisi lancip */
+            left: 20px;
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
-            border-bottom: 8px solid #ffffff;
+            border-bottom: 8px solid rgba(255, 255, 255, 0.98);
         }
 
-        /* Item */
         .dropdown-menu .dropdown-item {
             padding: 10px 18px;
             font-size: 14px;
-            color: #333;
-            transition: all 0.2s ease;
+            font-weight: 500;
+            color: #4a5568;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            margin-bottom: 4px;
         }
 
-        .dropdown-menu .dropdown-item:hover {
-            background: #0eaaa6;
-            color: #ffffff;
-            padding-left: 22px;
-            border-radius: 6px;
+        .dropdown-menu .dropdown-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .dropdown-menu .dropdown-item:hover,
+        .dropdown-menu .dropdown-item.active {
+            background: rgba(14, 170, 166, 0.1);
+            color: var(--primary-color);
+            padding-left: 25px;
+            font-weight: 600;
         }
 
         /* Animasi */
@@ -123,14 +332,11 @@
             }
         }
 
-        .dropdown-menu .dropdown-item:hover {
-            background-color: #0eaaa6;
-            color: #ffff;
-        }
-
         /* CAROUSEL */
+        .carousel-inner,
+        .carousel-item,
         .carousel-item img {
-            height: 70vh;
+            height: 100vh;
             object-fit: cover;
         }
 
@@ -570,12 +776,13 @@
             width: 100%;
             background: #0b8c89;
             color: #fff;
-            font-size: 0.95rem;
-            padding: 60px 0 20px 0;
-            flex-shrink: 0;
-            /* agar sticky footer tetap */
+            padding: 80px 0 0 0;
+            margin-top: 50px;
             overflow: hidden;
+            border-top: 5px solid rgba(0, 0, 0, 0.1);
         }
+
+
 
         .footer-pattern {
             position: absolute;
@@ -664,12 +871,31 @@
             justify-content: center;
         }
 
-        /* Logo statis di tengah */
+        /* Logo statis di tengah + animasi pulse */
         .logo-loading {
             width: 100px;
             height: 100px;
             border-radius: 50%;
             z-index: 2;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.9;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            }
+
+            100% {
+                transform: scale(0.95);
+                opacity: 0.9;
+            }
         }
 
         /* Ring loader animasi */
@@ -677,10 +903,11 @@
             position: absolute;
             width: 140px;
             height: 140px;
-            border: 5px solid rgba(255, 255, 255, 0.2);
-            border-top-color: #28a745;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary-light);
+            border-right-color: rgba(25, 135, 84, 0.5);
             border-radius: 50%;
-            animation: spin 1.2s linear infinite;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
             z-index: 1;
         }
 
@@ -733,6 +960,116 @@
                 font-size: 1.2rem;
             }
         }
+
+        /* Floating Buttons */
+        .floating-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 999;
+        }
+
+        .floating-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .btn-whatsapp {
+            background: #25d366;
+            font-size: 1.8rem;
+            animation: pulse-wa 2s infinite;
+        }
+
+        .btn-whatsapp:hover {
+            background: #1ebc5a;
+            transform: scale(1.1);
+            color: #fff;
+        }
+
+        @keyframes pulse-wa {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(37, 211, 102, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+            }
+        }
+
+        .wa-tooltip {
+            position: absolute;
+            right: 70px;
+            background: #fff;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+        }
+
+        .wa-tooltip::after {
+            content: "";
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 8px solid #fff;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+        .btn-whatsapp:hover .wa-tooltip {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Auto show tooltip periodically */
+        .wa-tooltip.show-hint {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .btn-back-top {
+            background: var(--primary-color);
+            font-size: 1.2rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+        }
+
+        .btn-back-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .btn-back-top:hover {
+            background: var(--primary-light);
+            transform: scale(1.1) translateY(-5px);
+            color: #fff;
+        }
     </style>
 
     @stack('css')
@@ -749,156 +1086,51 @@
         </div>
     </div>
 
+    <!-- Reading Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="myBar"></div>
+    </div>
+
     @php
         $menus = App\Models\Menu::where('menu_parent_id', 0)->orderBy('menu_position')->get();
     @endphp
 
     {{-- Navbar --}}
 
-    <nav class="navbar navbar-expand-sm sticky-top fixed-top navbar-light bg-white border-bottom">
+    <nav class="navbar navbar-expand-sm sticky-top fixed-top navbar-light bg-white border-bottom shadow-sm">
+        <div class="container">
+            <a class="navbar-brand font-weight-bold text-success d-flex align-items-center" href="{{ url('/') }}">
+                <img src="{{ Storage::url($setting->path_image_header) }}" alt="Logo" class="logo-image mr-2">
+                <div class="brand-text d-none d-lg-block">
+                    <span class="d-block mb-0 h5 font-weight-bold text-success">{{ $setting->company_name }}</span>
+                    <small class="text-muted d-block"
+                        style="font-size: 10px; margin-top: -5px; letter-spacing: 1px;">MTS BUSTANUL HUDA
+                        DAWUHAN</small>
+                </div>
+            </a>
 
-        <a class="navbar-brand font-weight-bold text-success" href="{{ url('/') }}">
-            <img src="{{ Storage::url($setting->path_image_header) }}" alt="Logo" class="logo-image">
-        </a>
+            <!-- Toggle -->
+            <button class="navbar-toggler" type="button" id="mobileMenuToggle">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <!-- Toggle -->
-        <button class="navbar-toggler" type="button" id="mobileMenuToggle">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- Overlay -->
-        <div class="offcanvas-overlay" id="offcanvasOverlay"></div>
-        <!-- MENU -->
-        <div class="collapse navbar-collapse offcanvas-menu" id="navbar1">
-            {{--  <ul class="navbar-nav ml-auto mr-5">
-                @foreach ($menus as $menu)
-                    @php
-                        $children = \App\Models\Menu::where('menu_parent_id', $menu->id)
-                            ->orderBy('menu_position')
-                            ->get();
-
-                        // Tentukan URL berdasarkan menu_type
-                        if ($menu->menu_type === 'pages' || $menu->menu_type === 'modules') {
-                            $url = route('front.handle', $menu->menu_slug);
-                        } elseif ($menu->menu_type === 'link') {
-                            $url = $menu->menu_url; // langsung ke external
-                        } else {
-                            $url = '#';
-                        }
-
-                        // cek active: cocok dengan slug sekarang
-                        $isActive = request()->is($menu->menu_slug . '*');
-                    @endphp
-
-                    @if ($children->count() > 0)
-                        <li class="nav-item dropdown {{ $isActive ? 'active' : '' }}">
-                            <a class="nav-link dropdown-toggle" href="{{ $url }}" data-toggle="dropdown">
-                                {{ $menu->menu_title }}
-                            </a>
-                            <div class="dropdown-menu">
-                                @foreach ($children as $child)
-                                    @php
-                                        if ($child->menu_type === 'pages') {
-                                            $childUrl = route('front.handle', $child->menu_slug);
-                                        } elseif ($child->menu_type === 'link') {
-                                            $childUrl = $child->menu_url;
-
-                                            $childUrl = route('front.handle', $child->menu_slug);
-                                        } elseif ($child->menu_type === 'modules') {
-                                            $childUrl = route('front.handle', $child->menu_slug);
-                                        } else {
-                                            $childUrl = '#';
-                                        }
-
-                                        $childActive = request()->is($child->menu_slug . '*');
-                                    @endphp
-
-                                    <a class="dropdown-item {{ $childActive ? 'active' : '' }}"
-                                        href="{{ $childUrl }}" target="{{ $child->menu_target }}">
-                                        {{ $child->menu_title }}
-                                    </a>
-                                @endforeach
-                            </div>
-                        </li>
-                    @else
-                        <li class="nav-item {{ $isActive ? 'active' : '' }}">
-                            <a class="nav-link" href="{{ $url }}" target="{{ $menu->menu_target }}">
-                                {{ $menu->menu_title }}
-                            </a>
-                        </li>
-                    @endif
-                @endforeach
-            </ul>  --}}
-
-            <ul class="navbar-nav ml-auto mr-5">
-                @foreach ($menus as $menu)
-                    @php
-                        $children = \App\Models\Menu::where('menu_parent_id', $menu->id)
-                            ->orderBy('menu_position')
-                            ->get();
-
-                        // Generate URL
-                        if ($menu->menu_type === 'link') {
-                            $url = $menu->menu_url;
-                        } else {
-                            $url = route('front.handle', $menu->menu_slug);
-                        }
-
-                        // Active parent
-                        $isActive = request()->is($menu->menu_slug . '*');
-                    @endphp
-
-                    {{-- Jika punya child --}}
-                    @if ($children->count() > 0)
-                        <li class="nav-item dropdown {{ $isActive ? 'active' : '' }}">
-
-                            <a class="nav-link dropdown-toggle" href="{{ $url }}" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                                {{ $menu->menu_title }}
-                            </a>
-
-                            <div class="dropdown-menu">
-
-                                @foreach ($children as $child)
-                                    @php
-                                        // FIX BUG: tidak dioverwrite lagi
-                                        if ($child->menu_type === 'link') {
-                                            $childUrl = $child->menu_url;
-                                        } else {
-                                            $childUrl = route('front.handle', $child->menu_slug);
-                                        }
-
-                                        $childActive = request()->is($child->menu_slug . '*');
-
-                                        // Jika child aktif → parent juga aktif
-                                        if ($childActive) {
-                                            $isActive = true;
-                                        }
-                                    @endphp
-
-                                    <a class="dropdown-item {{ $childActive ? 'active' : '' }}"
-                                        href="{{ $childUrl }}" target="{{ $child->menu_target }}">
-                                        {{ $child->menu_title }}
-                                    </a>
-                                @endforeach
-
-                            </div>
-                        </li>
-                    @else
-                        {{-- Jika tidak punya child --}}
-                        <li class="nav-item {{ $isActive ? 'active' : '' }}">
-                            <a class="nav-link" href="{{ $url }}" target="{{ $menu->menu_target }}">
-                                {{ $menu->menu_title }}
-                            </a>
-                        </li>
-                    @endif
-                @endforeach
-            </ul>
+            <!-- Overlay -->
+            <div class="offcanvas-overlay" id="offcanvasOverlay"></div>
+            <!-- MENU -->
+            <div class="collapse navbar-collapse offcanvas-menu" id="navbar1">
+                <ul class="navbar-nav ml-auto">
+                    @include('layouts.partials.frontend-menu', ['menus' => $menus])
+                </ul>
+            </div>
         </div>
     </nav>
 
     @yield('content')
 
+    {{-- Ensure Footer is Outside Any Containers --}}
+    </div>
+    </div>
+    </div>
 
     {{-- Footer --}}
     <footer class="footer-premium">
@@ -993,18 +1225,332 @@
     </script>
 
     <script>
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
         window.addEventListener('load', function() {
             const preloader = document.getElementById('preloader');
-            preloader.style.transition = 'opacity 0.7s ease';
-            preloader.style.opacity = 0;
+            // Tambahkan delay 1 detik agar preloader terlihat elegan sebelum menghilang
             setTimeout(() => {
-                preloader.style.display = 'none';
-            }, 700);
+                preloader.style.transition = 'opacity 0.8s ease-out, visibility 0.8s';
+                preloader.style.opacity = 0;
+                preloader.style.visibility = 'hidden';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 800);
+            }, 1000);
         });
     </script>
 
 
+    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 50,
+        });
+    </script>
     @stack('scripts')
+
+    {{-- Floating Assistant Buttons --}}
+    <div class="floating-container">
+        <!-- Tooltip Hint -->
+        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $setting->phone ?? '') }}?text=Halo%20Admin%20PPDB%20MTS%20Bustanul%20Huda,%20saya%20ingin%20bertanya%20mengenai..."
+            target="_blank" class="floating-btn btn-whatsapp">
+            <div class="wa-tooltip" id="waHint">Ada yang bisa kami bantu?</div>
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        <a href="#" class="floating-btn btn-back-top" id="backToTop">
+            <i class="fa fa-chevron-up"></i>
+        </a>
+    </div>
+
+    <script>
+        // Back to Top Logic
+        const backToTop = document.getElementById('backToTop');
+        const waHint = document.getElementById('waHint');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+
+        backToTop.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Periodic Tooltip Hint for WA
+        setTimeout(() => {
+            waHint.classList.add('show-hint');
+            setTimeout(() => {
+                waHint.classList.remove('show-hint');
+            }, 5000);
+        }, 3000);
+
+        setInterval(() => {
+                    <
+                    small class = "text-muted d-block"
+                    style = "font-size: 10px; margin-top: -5px; letter-spacing: 1px;" > MTS BUSTANUL HUDA DAWUHAN <
+                        /small> <
+                        /div> <
+                        /a>
+
+                        <
+                        !--Toggle-- >
+                        <
+                        button class = "navbar-toggler"
+                    type = "button"
+                    id = "mobileMenuToggle" >
+                        <
+                        span class = "navbar-toggler-icon" > < /span> <
+                        /button>
+
+                        <
+                        !--Overlay-- >
+                        <
+                        div class = "offcanvas-overlay"
+                    id = "offcanvasOverlay" > < /div> <
+                        !--MENU-- >
+                        <
+                        div class = "collapse navbar-collapse offcanvas-menu"
+                    id = "navbar1" >
+                        <
+                        ul class = "navbar-nav ml-auto" >
+                        @include('layouts.partials.frontend-menu', ['menus' => $menus]) <
+                        /ul> <
+                        /div> <
+                        /div> <
+                        /nav>
+
+                    @yield('content')
+
+                    {{-- Ensure Footer is Outside Any Containers --}}
+                        <
+                        /div></div > < /div>
+
+                    {{-- Footer --}}
+                        <
+                        footer class = "footer-premium" >
+                        <
+                        div class = "footer-pattern" > < /div> <
+                        div class = "container" >
+                        <
+                        div class = "row" >
+
+                        {{-- Tentang --}} <
+                        div class = "col-md-4 mb-4 mb-md-0" >
+                        <
+                        h5 class = "text-white fw-bold mb-3" > {{ $setting->company_name }} < /h5> <
+                        p class = "text-light" >
+                        {{ $setting->company_description ?? 'Selamat datang di website resmi madrasah kami. Kami berkomitmen memberikan pendidikan terbaik.' }} <
+                        /p> <
+                        /div>
+
+                    {{-- Link Penting --}}
+                        <
+                        div class = "col-md-4 mb-4 mb-md-0" >
+                        <
+                        h5 class = "text-white fw-bold mb-3" > Link Penting < /h5> <
+                        ul class = "list-unstyled text-light" >
+                        <
+                        li > < a href = "{{ url('/') }}" > Beranda < /a></li >
+                        <
+                        li > < a href = "{{ url('/about') }}" > Tentang Kami < /a></li >
+                        <
+                        li > < a href = "{{ url('/contact') }}" > Kontak < /a></li >
+                        <
+                        li > < a href = "{{ url('/blog') }}" > Berita < /a></li >
+                        <
+                        /ul> <
+                        /div>
+
+                    {{-- Kontak & Sosial Media --}}
+                        <
+                        div class = "col-md-4" >
+                        <
+                        h5 class = "text-white fw-bold mb-3" > Kontak < /h5> <
+                        p class = "text-light mb-1" > < i class = "fa fa-map-marker-alt me-2" > <
+                        /i>{{ $setting->address ?? '-' }} <
+                        /p> <
+                        p class = "text-light mb-1" > < i class = "fa fa-phone me-2" > <
+                        /i>{{ $setting->phone ?? '-' }}</p >
+                        <
+                        p class = "text-light mb-3" > < i class = "fa fa-envelope me-2" > <
+                        /i>{{ $setting->email ?? '-' }}</p >
+                        <
+                        div class = "social-icons" >
+                        @if ($setting->facebook)
+                            <
+                            a href = "{{ $setting->facebook }}"
+                            target = "_blank" > < i class = "fab fa-facebook-f" > < /i></a >
+                        @endif
+                    @if ($setting->twitter)
+                        <
+                        a href = "{{ $setting->twitter }}"
+                        target = "_blank" > < i class = "fab fa-twitter" > < /i></a >
+                    @endif
+                    @if ($setting->instagram)
+                        <
+                        a href = "{{ $setting->instagram }}"
+                        target = "_blank" > < i class = "fab fa-instagram" > < /i></a >
+                    @endif <
+                    /div> <
+                    /div>
+
+                    <
+                    /div>
+
+                    {{-- Bottom Footer --}}
+                        <
+                        hr class = "border-light mt-4" >
+                        <
+                        div class = "text-center pt-3 pb-0 text-light" >
+                        &
+                        copy;
+                    2025 - {{ date('Y') }} {{ $setting->company_name }}.All Rights Reserved. <
+                        /div> <
+                        /div> <
+                        /footer>
+
+                        <
+                        script src = "https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js" >
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- sweetalert2 -->
+    <script src="{{ asset('/AdminLTE/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('AdminLTE/plugins/toastr/toastr.min.js') }}"></script>
+    <!-- ChartJS -->
+    <script src="{{ asset('/AdminLTE/plugins/chart.js/Chart.min.js') }}"></script>
+    <!-- AdminLTE App -->
+    <script src="{{ asset('AdminLTE/dist/js/adminlte.js?v=3.2.0') }}"></script>
+    <script src="{{ asset('AdminLTE/dist/js/pages/dashboard.js') }}"></script>
+
+    <script>
+        const toggleBtn = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('navbar1');
+        const overlay = document.getElementById('offcanvasOverlay');
+
+        toggleBtn.addEventListener('click', function() {
+
+            if (window.innerWidth < 576) {
+                mobileMenu.classList.toggle('show');
+                overlay.classList.toggle('active');
+            }
+        });
+
+        overlay.addEventListener('click', function() {
+            mobileMenu.classList.remove('show');
+            overlay.classList.remove('active');
+        });
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 576) {
+                mobileMenu.classList.remove('show');
+                overlay.classList.remove('active');
+            }
+        });
+    </script>
+
+    <script>
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        window.addEventListener('load', function() {
+            const preloader = document.getElementById('preloader');
+            // Tambahkan delay 1 detik agar preloader terlihat elegan sebelum menghilang
+            setTimeout(() => {
+                preloader.style.transition = 'opacity 0.8s ease-out, visibility 0.8s';
+                preloader.style.opacity = 0;
+                preloader.style.visibility = 'hidden';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 800);
+            }, 1000);
+        });
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 50,
+        });
+    </script>
+    @stack('scripts')
+
+    {{-- Floating Assistant Buttons --}}
+    <div class="floating-container">
+        <!-- Tooltip Hint -->
+        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $setting->phone ?? '') }}?text=Halo%20Admin%20PPDB%20MTS%20Bustanul%20Huda,%20saya%20ingin%20bertanya%20mengenai..."
+            target="_blank" class="floating-btn btn-whatsapp">
+            <div class="wa-tooltip" id="waHint">Ada yang bisa kami bantu?</div>
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        <a href="#" class="floating-btn btn-back-top" id="backToTop">
+            <i class="fa fa-chevron-up"></i>
+        </a>
+    </div>
+
+    <script>
+        // Back to Top Logic
+        const backToTop = document.getElementById('backToTop');
+        const waHint = document.getElementById('waHint');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+
+        backToTop.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Periodic Tooltip Hint for WA
+        setTimeout(() => {
+            if (waHint) waHint.classList.add('show-hint');
+            setTimeout(() => {
+                if (waHint) waHint.classList.remove('show-hint');
+            }, 5000);
+        }, 3000);
+
+        setInterval(() => {
+            if (waHint) waHint.classList.add('show-hint');
+            setTimeout(() => {
+                if (waHint) waHint.classList.remove('show-hint');
+            }, 5000);
+        }, 20000);
+    </script>
 </body>
 
 </html>

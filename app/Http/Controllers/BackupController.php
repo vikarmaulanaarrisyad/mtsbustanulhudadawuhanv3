@@ -215,6 +215,95 @@ class BackupController extends Controller
         return back()->with('error', 'File tidak ditemukan.');
     }
 
+    public function uploadRestore(Request $request)
+    {
+        $request->validate([
+            'backup_file' => 'required|file|mimes:zip|max:204800', // max 200MB
+        ], [
+            'backup_file.required' => 'Pilih file backup ZIP terlebih dahulu.',
+            'backup_file.mimes'    => 'File harus berformat ZIP.',
+            'backup_file.max'      => 'Ukuran file maksimal 200MB.',
+        ]);
+
+        try {
+            $uploadedFile = $request->file('backup_file');
+            $fileName = time() . '_' . $uploadedFile->getClientOriginalName();
+            
+            // Simpan sementara file yang diupload ke storage/app/
+            $uploadedFile->move(storage_path('app'), $fileName);
+            $zipPath = storage_path('app/' . $fileName);
+
+            // Lanjutkan ke proses restore
+            return $this->restoreFromPath($zipPath);
+
+        } catch (\Exception $e) {
+            Log::error('Upload Restore failed: ' . $e->getMessage());
+            return back()->with('error', 'Gagal: ' . $e->getMessage());
+        }
+    }
+
+    private function restoreFromPath($filePath)
+    {
+        try {
+            if (!file_exists($filePath)) {
+                return back()->with('error', 'File tidak ditemukan.');
+            }
+
+            $zip = new \ZipArchive();
+            if ($zip->open($filePath) === TRUE) {
+                $tempPath = storage_path('app/temp-restore-' . time());
+                if (!is_dir($tempPath)) mkdir($tempPath, 0755, true);
+
+                $zip->extractTo($tempPath);
+                $zip->close();
+
+                $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($tempPath));
+                $sqlFile = null;
+                foreach ($files as $file) {
+                    if ($file->isFile() && $file->getExtension() == 'sql') {
+                        $sqlFile = $file->getRealPath();
+                        break;
+                    }
+                }
+
+                if ($sqlFile) {
+                    $dbConfig = config('database.connections.' . config('database.default'));
+                    
+                    // Deteksi OS untuk path mysql
+                    $mysqlPath = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'C:\\xampp\\mysql\\bin\\mysql' : 'mysql';
+
+                    $pass = !empty($dbConfig['password']) ? '-p' . escapeshellarg($dbConfig['password']) : '';
+                    $user = escapeshellarg($dbConfig['username']);
+                    $db = escapeshellarg($dbConfig['database']);
+                    $sqlFileSafe = escapeshellarg($sqlFile);
+                    
+                    $command = "\"{$mysqlPath}\" -u{$user} {$pass} {$db} < {$sqlFileSafe} 2>&1";
+
+                    exec($command, $output, $exitCode);
+                    
+                    // Cleanup
+                    \Illuminate\Support\Facades\File::deleteDirectory($tempPath);
+                    unlink($filePath); // Hapus file zip aslinya
+
+                    if ($exitCode !== 0) {
+                        return back()->with('error', 'Gagal import SQL: ' . implode(' ', $output));
+                    }
+
+                    return back()->with('success', 'Database berhasil dipulihkan dari file yang diupload!');
+                }
+
+                \Illuminate\Support\Facades\File::deleteDirectory($tempPath);
+                unlink($filePath);
+                return back()->with('error', 'File SQL tidak ditemukan di dalam ZIP.');
+            }
+
+            return back()->with('error', 'Gagal membuka file ZIP.');
+        } catch (\Exception $e) {
+            Log::error('Restore from path failed: ' . $e->getMessage());
+            return back()->with('error', 'Gagal: ' . $e->getMessage());
+        }
+    }
+
     private function formatBytes($bytes, $precision = 2)
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];

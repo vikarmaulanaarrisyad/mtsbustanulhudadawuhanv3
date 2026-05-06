@@ -225,17 +225,19 @@
             });
         }
 
-        function refreshMenuList() {
+        function refreshMenuList(silent = false) {
 
-            // Tampilkan loading
-            Swal.fire({
-                title: 'Memuat menu...',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+            if (!silent) {
+                // Tampilkan loading
+                Swal.fire({
+                    title: 'Memuat menu...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            }
 
             fetch(`{{ route('menus.index') }}`)
                 .then(res => res.text())
@@ -245,10 +247,14 @@
                     $("#menuList").html(newList.innerHTML);
                     initSortableMenu();
 
-                    Swal.close(); // Tutup loading
+                    if (!silent) {
+                        Swal.close(); // Tutup loading
+                    }
                 })
                 .catch(() => {
-                    Swal.close();
+                    if (!silent) {
+                        Swal.close();
+                    }
                     toastr.error("Gagal memuat ulang menu");
                 });
         }
@@ -411,7 +417,7 @@
                         form.trigger("reset");
 
                         if (typeof refreshMenuList === "function") {
-                            refreshMenuList();
+                            refreshMenuList(true);
                         }
                     },
                     error: function(xhr) {

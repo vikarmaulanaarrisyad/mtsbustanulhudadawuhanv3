@@ -71,6 +71,7 @@ Route::get('/manifest.json', [FrontController::class, 'manifest']);
 Route::get('/sw.js', [PwaController::class, 'serviceWorker']);
 
 Route::get('/', [FrontController::class, 'index'])->name('front.index');
+Route::get('/berita', [FrontController::class, 'berita'])->name('front.berita');
 
 // Route untuk postingan detail & komentar
 Route::get('/post/{slug}', [FrontController::class, 'show'])->name('front.post_show');
@@ -79,6 +80,7 @@ Route::post('/post/{id}/comment', [FrontController::class, 'postComment'])->name
 // PPDB Check
 Route::get('/ppdb/check', [FrontController::class, 'showPpdbCheck'])->name('front.ppdb_check');
 Route::post('/ppdb/check', [FrontController::class, 'checkPpdbStatus'])->name('front.ppdb_submit');
+Route::get('/ppdb/monitoring', [FrontController::class, 'ppdbMonitoring'])->name('front.ppdb_monitoring');
 Route::get('/post/{id}/comments', [FrontController::class, 'showComments'])->name('post.showComments');
 
 // QR Code Verification
@@ -174,6 +176,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/backup', 'index')->name('backup.index');
             Route::post('/backup/create', 'create')->name('backup.create');
             Route::post('/backup/create-full', 'createFull')->name('backup.create-full');
+            Route::post('/backup/upload-restore', 'uploadRestore')->name('backup.upload-restore');
             Route::get('/backup/download/{fileName}', 'download')->name('backup.download')->where('fileName', '.*');
             Route::post('/backup/restore/{fileName}', 'restore')->name('backup.restore')->where('fileName', '.*');
             Route::delete('/backup/{fileName}', 'destroy')->name('backup.destroy')->where('fileName', '.*');

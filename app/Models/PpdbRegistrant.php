@@ -164,6 +164,7 @@ class PpdbRegistrant extends Model
 
     /**
      * Label status untuk tampilan publik/siswa (menunggu pengumuman).
+     * OTOMATIS: Menentukan kelulusan berdasarkan ranking dan kuota tanpa klik admin.
      */
     public function getPublicStatusLabelAttribute()
     {
@@ -174,14 +175,41 @@ class PpdbRegistrant extends Model
             ? $phase->isAnnouncementActive() 
             : ($admission ? $admission->isAnnouncementActive() : false);
 
-        // Jika status final (Diterima/Ditolak) tapi pengumuman belum aktif
-        if (in_array($this->status, [self::STATUS_DITERIMA, self::STATUS_DITOLAK])) {
+        // Hanya hitung otomatis jika berkas sudah diverifikasi (lengkap)
+        $validStatuses = [
+            self::STATUS_BERKAS_LENGKAP, 
+            self::STATUS_DITERIMA, 
+            self::STATUS_DAFTAR_ULANG, 
+            self::STATUS_DAFTAR_ULANG_VERIFIED, 
+            self::STATUS_MOVED
+        ];
+
+        if (in_array($this->status, $validStatuses)) {
+            // Jika pengumuman belum aktif, tampilkan sedang proses
             if (!$isAnnouncementActive) {
                 return 'Proses Seleksi';
             }
+
+            // HITUNG RANKING OTOMATIS
+            $rank = $this->getRank();
+            
+            // AMBIL KUOTA
+            $quota = AdmissionQuotas::where('admission_phase_id', $this->admission_phase_id)
+                ->where('admission_types_id', $this->admission_type_id)
+                ->value('quota') ?? 0;
+
+            if ($rank <= $quota) {
+                return 'DITERIMA (Lolos Seleksi)';
+            } else {
+                return 'CADANGAN (Luar Kuota)';
+            }
         }
 
-        return $this->status_label;
+        // Jika ditolak admin atau berkas tidak lengkap
+        if ($this->status === self::STATUS_DITOLAK) return 'DITOLAK';
+        if ($this->status === self::STATUS_BERKAS_TIDAK_LENGKAP) return 'Berkas Tidak Lengkap';
+
+        return 'Menunggu Verifikasi';
     }
 
     /**
@@ -189,21 +217,70 @@ class PpdbRegistrant extends Model
      */
     public function getPublicStatusColorAttribute()
     {
-        $admission = $this->studentAdmission;
-        $phase = $this->admissionPhase;
-
-        $isAnnouncementActive = $phase ? $phase->isAnnouncementActive() : ($admission ? $admission->isAnnouncementActive() : false);
-
-        if (in_array($this->status, [self::STATUS_DITERIMA, self::STATUS_DITOLAK])) {
-            if (!$isAnnouncementActive) {
-                return 'info';
-            }
-        }
-
-        return $this->status_color;
+        $label = $this->public_status_label;
+        
+        if (str_contains($label, 'DITERIMA')) return 'success';
+        if (str_contains($label, 'CADANGAN')) return 'warning';
+        if (str_contains($label, 'DITOLAK')) return 'danger';
+        if (str_contains($label, 'Proses')) return 'info';
+        
+        return 'secondary';
     }
 
     // ==================== HELPERS ====================
+
+    /**
+     * Mendapatkan Peringkat Siswa saat ini secara Real-Time.
+     */
+    public function getRank()
+    {
+        return self::where('admission_phase_id', $this->admission_phase_id)
+            ->where('admission_type_id', $this->admission_type_id)
+            ->whereIn('status', [
+                self::STATUS_BERKAS_LENGKAP,
+                self::STATUS_DITERIMA,
+                self::STATUS_DAFTAR_ULANG,
+                self::STATUS_DAFTAR_ULANG_VERIFIED,
+                self::STATUS_MOVED
+            ])
+            ->where(function($query) {
+                $query->where('selection_score', '>', $this->selection_score)
+                      ->orWhere(function($q) {
+                          $q->where('selection_score', $this->selection_score)
+                            ->where('created_at', '<', $this->created_at);
+                      });
+            })
+            ->count() + 1;
+    }
+
+    /**
+     * Sinkronisasi status ke database secara otomatis berdasarkan ranking dan kuota.
+     * Dipanggil saat pengumuman sudah aktif.
+     */
+    public function syncStatus()
+    {
+        $admission = $this->studentAdmission;
+        $phase = $this->admissionPhase;
+        
+        $isAnnouncementActive = ($phase && $phase->announcement_date) 
+            ? $phase->isAnnouncementActive() 
+            : ($admission ? $admission->isAnnouncementActive() : false);
+
+        // Hanya sinkron jika pengumuman sudah aktif dan status belum final
+        if ($isAnnouncementActive && in_array($this->status, [self::STATUS_PENDING, self::STATUS_BERKAS_LENGKAP])) {
+            $rank = $this->getRank();
+            $quota = AdmissionQuotas::where('admission_phase_id', $this->admission_phase_id)
+                ->where('admission_types_id', $this->admission_type_id)
+                ->value('quota') ?? 0;
+
+            if ($rank <= $quota) {
+                $this->status = self::STATUS_DITERIMA;
+            } else {
+                $this->status = self::STATUS_CADANGAN;
+            }
+            $this->save();
+        }
+    }
 
     public function calculateSelectionScore()
     {
