@@ -1313,11 +1313,11 @@
 
     {{-- PWA Registration & Active Version Check --}}
     {{-- ════════════════════════════════════════════ --}}
-    {{--  OVERLAY LOCK (Wajib Instal untuk Guru/Siswa) --}}
-    {{-- ════════════════════════════════════════════ --}}
-    @php
-        // Kecuali Admin dan Super Admin, semua user (Guru, Siswa, PPDB) wajib install PWA
-        $isRestricted = auth()->check() && !auth()->user()->hasRole(['Admin', 'Super Admin']);
+    {{--  OVERLAY LOCK (Wajib I    @php
+        $user = auth()->user();
+        $isAdmin = $user && $user->hasRole(['Admin', 'Super Admin']);
+        // Selain Admin/Super Admin, semua user (Guru, Siswa, PPDB) wajib install PWA
+        $isRestricted = auth()->check() && !$isAdmin;
     @endphp
 
     @if($isRestricted)
@@ -1342,8 +1342,8 @@
     </div>
     @endif
 
-    <!-- Normal Install Banner -->
-    @if(!$isRestricted)
+    <!-- Normal Install Banner (Hanya untuk tamu/guest yang belum login) -->
+    @if(!auth()->check())
     <div id="pwa-install-prompt" class="pwa-banner" style="display:none;">
         <div class="pwa-banner-icon">
             <img src="{{ $setting->pwa_icon ?? '/storage/pwa/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
@@ -1361,7 +1361,8 @@
     </div>
     @endif
 
-    <!-- Update Banner -->
+    <!-- Update Banner (Tidak muncul untuk Admin) -->
+    @if(!$isAdmin)
     <div id="pwa-update-prompt" class="pwa-banner" style="display:none;">
         <div class="pwa-banner-icon">
             <img src="{{ $setting->pwa_icon ?? '/storage/pwa/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
@@ -1377,6 +1378,7 @@
             <button id="pwa-close-update" class="pwa-btn-close">&times;</button>
         </div>
     </div>
+    @endif
 
     <!-- Updating Overlay -->
     <div id="id-updating-overlay" class="pwa-updating-overlay" style="display:none;">
@@ -1463,6 +1465,12 @@
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: radial-gradient(circle at top right, #1e293b, #0f172a);
         z-index: 9999999; display: flex; align-items: center; justify-content: center; padding: 25px;
+        overflow: hidden; /* Prevent overlay itself from scrolling */
+    }
+    /* Lock body scroll when overlay is active */
+    body:has(.pwa-force-overlay[style*="display: flex"]) {
+        overflow: hidden !important;
+        height: 100vh !important;
     }
     .pwa-force-card, .pwa-updating-card {
         background: #fff; border-radius: 35px; width: 100%; max-width: 400px;
@@ -1516,7 +1524,11 @@
         if (isAndroid) document.body.classList.add('pwa-android');
         else if (isIos) document.body.classList.add('pwa-ios');
 
-        if (restricted && !isStandalone && forceOverlay) forceOverlay.style.display = 'flex';
+        if (restricted && !isStandalone && forceOverlay) {
+            forceOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            document.body.style.height = '100vh';
+        }
 
         if ('serviceWorker' in navigator) {
             const swUrl = '/sw.js?v={{ $setting->pwa_version ?? time() }}';
