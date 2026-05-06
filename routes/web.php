@@ -519,7 +519,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Root redirect based on role
     Route::get('/home', function () {
         $user = auth()->user();
-        if ($user->hasRole('ppdb')) {
+        if ($user->hasRole('ppdb') || $user->hasRole('Siswa')) {
             return redirect()->route('ppdb.dashboard');
         }
         if ($user->hasRole('Petugas Verifikasi PPDB')) {
