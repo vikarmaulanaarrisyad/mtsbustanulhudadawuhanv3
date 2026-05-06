@@ -1349,8 +1349,8 @@
             <img src="{{ $setting->pwa_icon ?? '/storage/pwa/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
         </div>
         <div class="pwa-banner-text">
-            <h6>Pasang Aplikasi</h6>
-            <p>Akses cepat dari layar utama HP</p>
+            <h6>Calon Siswa Baru?</h6>
+            <p>Pasang aplikasi untuk pendaftaran & pantau status PPDB lebih mudah</p>
         </div>
         <div class="pwa-actions">
             <button id="pwa-install-btn" class="pwa-btn-main pwa-btn-install">
