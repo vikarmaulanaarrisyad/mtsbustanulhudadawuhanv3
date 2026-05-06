@@ -1314,47 +1314,43 @@
     {{-- PWA Registration & Active Version Check --}}
     <script>
         let deferredPrompt;
+        const APP_VERSION = '{{ $setting->pwa_version ?? "1.0.0" }}';
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js?v={{ $setting->pwa_version ?? "1.0.0" }}')
+                // Tambahkan versi ke URL untuk cache busting yang tepat
+                navigator.serviceWorker.register('/sw.js?v=' + APP_VERSION)
                     .then(reg => {
-                        console.log('PWA: Service Worker terdaftar!', reg.scope);
+                        console.log('PWA: Service Worker terdaftar!');
                         
-                        // Cek update secara berkala setiap 10 menit (lebih jarang agar tidak mengganggu)
+                        // Cek update setiap 15 menit
                         setInterval(() => {
                             reg.update();
-                        }, 600000); 
-
-                        // Cek update saat user kembali ke tab ini
-                        window.addEventListener('focus', () => {
-                            reg.update();
-                        });
+                        }, 900000); 
                     })
                     .catch(err => {
                         console.log('PWA: Gagal mendaftarkan Service Worker', err);
                     });
             });
 
-            // Handle SW Update Notification with Version Check
+            // Handle SW Update Notification
             navigator.serviceWorker.addEventListener('message', event => {
                 if (event.data && event.data.type === 'SW_UPDATED') {
                     const newVersion = event.data.version;
-                    const lastVersion = localStorage.getItem('pwa_version');
-
-                    // Hanya tampilkan notif jika versi benar-benar berbeda
-                    if (newVersion !== lastVersion) {
-                        toastr.success('Versi baru tersedia (v' + newVersion + '). Aplikasi telah diperbarui otomatis.', 'Sistem Diperbarui', {
+                    
+                    // Hanya tampilkan jika versi dari SW lebih baru dari versi halaman saat ini
+                    // Dan belum pernah ditampilkan di sesi ini
+                    if (newVersion !== APP_VERSION && !sessionStorage.getItem('pwa_update_notified')) {
+                        toastr.success('Versi baru (v' + newVersion + ') telah siap. Klik untuk memuat ulang.', 'Update Aplikasi', {
                             positionClass: 'toast-bottom-left',
-                            timeOut: 5000,
+                            timeOut: 10000,
                             closeButton: true,
                             progressBar: true,
                             onclick: function() { 
-                                localStorage.setItem('pwa_version', newVersion);
                                 window.location.reload(); 
                             }
                         });
-                        localStorage.setItem('pwa_version', newVersion);
+                        sessionStorage.setItem('pwa_update_notified', 'true');
                     }
                 }
             });
@@ -1364,12 +1360,14 @@
                 e.preventDefault();
                 deferredPrompt = e;
                 
-                // Jika belum install, tawarkan install secara elegan setelah 5 detik
+                // Cek apakah sudah pernah dismiss atau sudah install
+                const isDismissed = localStorage.getItem('pwa_install_dismissed');
                 const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-                if (!isStandalone) {
+                
+                if (!isStandalone && !isDismissed) {
                     setTimeout(() => {
                         showInstallBanner();
-                    }, 5000);
+                    }, 8000); // Tunggu 8 detik agar tidak terlalu mengganggu di awal
                 }
             });
 
@@ -1377,26 +1375,30 @@
                 if (!deferredPrompt) return;
 
                 Swal.fire({
-                    title: 'Install Aplikasi?',
-                    text: 'Instal aplikasi untuk akses lebih cepat dan fitur offline yang lebih baik.',
+                    title: 'Pasang Aplikasi?',
+                    text: 'Akses lebih cepat & hemat kuota dengan memasang aplikasi di layar utama Anda.',
                     icon: 'info',
                     showCancelButton: true,
-                    confirmButtonText: '<i class="fas fa-download mr-1"></i> Install Sekarang',
+                    confirmButtonText: 'Pasang Sekarang',
                     cancelButtonText: 'Nanti Saja',
                     confirmButtonColor: '#0b8c89',
                     position: 'top-end',
                     toast: true,
-                    timer: 10000,
+                    timer: 15000,
                     timerProgressBar: true
                 }).then((result) => {
                     if (result.isConfirmed) {
                         deferredPrompt.prompt();
                         deferredPrompt.userChoice.then((choiceResult) => {
                             if (choiceResult.outcome === 'accepted') {
-                                console.log('User accepted the install prompt');
+                                localStorage.setItem('pwa_install_dismissed', 'true');
                             }
                             deferredPrompt = null;
                         });
+                    } else if (result.dismiss === Swal.DismissReason.cancel || result.dismiss === Swal.DismissReason.timer) {
+                        // Jika di-cancel atau dibiarkan hilang, jangan munculkan lagi di sesi ini (atau hari ini)
+                        // Gunakan sessionStorage agar muncul lagi di kunjungan berikutnya
+                        localStorage.setItem('pwa_install_dismissed', 'true'); 
                     }
                 });
             }
