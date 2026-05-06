@@ -1065,6 +1065,7 @@
             </a>
         </div>
     @endif
+    @endif
 
     @if($registrant && $registrant->status == 'sudah_masuk_siswa')
         {{-- MODAL PENGAJUAN IZIN --}}
