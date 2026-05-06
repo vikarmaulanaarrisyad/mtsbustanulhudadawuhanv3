@@ -729,7 +729,7 @@
         <p class="mb-0 text-muted">Masa pendaftaran dan perbaikan berkas telah ditutup. Anda tidak dapat lagi mengunggah atau mengubah dokumen.</p>
     </div>
 @elseif(!in_array($registrant->status, ['berkas_lengkap', 'diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi', 'ditolak', 'sudah_masuk_siswa']))
-    <div class="ppdb-card mb-4" style="border-top: 4px solid #007bff;">
+    <div class="ppdb-card mb-4" id="upload-section" style="border-top: 4px solid #007bff;">
     <div class="card-header bg-white py-3">
         <div class="d-flex justify-content-between align-items-center">
             <div>

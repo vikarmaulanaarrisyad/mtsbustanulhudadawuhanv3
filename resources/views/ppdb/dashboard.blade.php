@@ -810,7 +810,60 @@
             </div>
         </div>
 
-    @elseif(!$registrant)
+    @elseif($registrant || $ppdbOpen)
+        {{-- PROGRESS STEPPER GLOBAL (HANYA UNTUK PENDAFTAR BELUM JADI SISWA) --}}
+        <div class="stu-card mb-4 overflow-hidden border-0 shadow-sm" style="border-radius: 20px;">
+            <div class="card-body p-0">
+                <div class="p-4" style="background: linear-gradient(135deg, #0b8c89 0%, #15b3af 100%);">
+                    <div class="d-flex justify-content-between align-items-center text-white">
+                        <div>
+                            <h5 class="mb-1 font-weight-bold">Halo, {{ $user->name }}!</h5>
+                            <p class="mb-0 opacity-75 small"><i class="fas fa-map-marker-alt mr-1"></i> Selamat datang di portal pendaftaran madrasah digital.</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="badge badge-light px-3 py-2 rounded-pill font-weight-bold" style="color: #0b8c89; font-size: 11px;">
+                                @if($currentStep == 1) TAHAP 1: BIODATA @elseif($currentStep == 2) TAHAP 2: BERKAS @elseif($currentStep == 3) TAHAP 3: SELEKSI @else TAHAP 4: PENGUMUMAN @endif
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-white">
+                    <div class="ppdb-main-stepper d-flex align-items-center justify-content-between">
+                        <div class="step-item {{ $currentStep >= 1 ? 'active' : '' }}">
+                            <div class="step-icon"><i class="fas fa-user-edit"></i></div>
+                            <div class="step-label">Biodata</div>
+                        </div>
+                        <div class="step-line {{ $currentStep > 1 ? 'active' : '' }}"></div>
+                        <div class="step-item {{ $currentStep >= 2 ? 'active' : '' }}">
+                            <div class="step-icon"><i class="fas fa-file-upload"></i></div>
+                            <div class="step-label">Berkas</div>
+                        </div>
+                        <div class="step-line {{ $currentStep > 2 ? 'active' : '' }}"></div>
+                        <div class="step-item {{ $currentStep >= 3 ? 'active' : '' }}">
+                            <div class="step-icon"><i class="fas fa-search"></i></div>
+                            <div class="step-label">Seleksi</div>
+                        </div>
+                        <div class="step-line {{ $currentStep > 3 ? 'active' : '' }}"></div>
+                        <div class="step-item {{ $currentStep >= 4 ? 'active' : '' }}">
+                            <div class="step-icon"><i class="fas fa-award"></i></div>
+                            <div class="step-label">Pengumuman</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .ppdb-main-stepper .step-item { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2; flex: 1; }
+            .ppdb-main-stepper .step-icon { width: 45px; height: 45px; border-radius: 14px; background: #f1f5f9; color: #94a3b8; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 8px; transition: 0.4s; border: 2px solid #e2e8f0; }
+            .ppdb-main-stepper .step-label { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+            .ppdb-main-stepper .step-line { flex: 1; height: 4px; background: #f1f5f9; margin-top: -30px; border-radius: 10px; position: relative; z-index: 1; }
+            .ppdb-main-stepper .step-item.active .step-icon { background: #0b8c89; color: white; border-color: #0b8c89; box-shadow: 0 5px 15px rgba(11, 140, 137, 0.25); }
+            .ppdb-main-stepper .step-item.active .step-label { color: #0b8c89; }
+            .ppdb-main-stepper .step-line.active { background: #0b8c89; }
+        </style>
+
+        @if(!$registrant)
         {{-- PREMIUM HEADER FOR APPLICANTS --}}
         <div class="stu-new-header mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -1790,6 +1843,15 @@
                 }, 800);
             }
         });
+
+        // Auto-resume logic: scroll to upload section if biodata is done but documents are pending
+        @if(isset($currentStep) && $currentStep == 2)
+            setTimeout(() => {
+                $('html, body').animate({
+                    scrollTop: $('#upload-section').offset()?.top - 100 || 500
+                }, 1000);
+            }, 500);
+        @endif
 
         // Custom file input label update
         $('.custom-file-input').on('change', function() {

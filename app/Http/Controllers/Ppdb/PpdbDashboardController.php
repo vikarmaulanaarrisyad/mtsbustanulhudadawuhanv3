@@ -46,6 +46,11 @@ class PpdbDashboardController extends Controller
                 $types = AdmissionType::where('academic_year_id', $academicYear->id)->get();
             }
 
+            // Jika sudah terdaftar, anggap PPDB "terbuka" untuk user ini agar bisa melihat status
+            if ($registrant) {
+                $ppdbOpen = true;
+            }
+
             // Ambil rincian biaya
             $paymentItems = PpdbPaymentItem::where('academic_year_id', $academicYear->id)
                 ->where('is_active', true)
@@ -59,6 +64,27 @@ class PpdbDashboardController extends Controller
                 $isAnnouncementActive = $admission->isAnnouncementActive();
             }
         }
+
+        // Hitung Step Terakhir (untuk auto-resume)
+        $currentStep = 1; // 1: Biodata, 2: Berkas, 3: Verifikasi, 4: Pengumuman/Daftar Ulang
+        if ($registrant) {
+            $currentStep = 2;
+            
+            // Cek kelengkapan berkas
+            $docTypes = PpdbRegistrant::DOCUMENT_TYPES;
+            $optionalTypes = ['kip'];
+            $requiredCount = count(array_diff_key($docTypes, array_flip($optionalTypes)));
+            $uploadedRequired = $registrant->documents->whereNotIn('document_type', $optionalTypes)->count();
+            
+            if ($uploadedRequired >= $requiredCount) {
+                $currentStep = 3;
+            }
+
+            if ($registrant->status === 'diterima' && $isAnnouncementActive) {
+                $currentStep = 4;
+            }
+        }
+
 
         // 0. Pengumuman / Mading Digital (Tampilkan untuk semua user)
         $announcements = \App\Models\Announcement::where('is_active', true)
@@ -171,6 +197,7 @@ class PpdbDashboardController extends Controller
         }
 
         return view('ppdb.dashboard', compact(
+            'currentStep',
             'user',
             'registrant',
             'admission',

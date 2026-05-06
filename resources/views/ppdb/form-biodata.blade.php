@@ -350,9 +350,14 @@
                         toast: true,
                         position: 'top-end',
                         icon: 'info',
-                        title: 'Draf pendaftaran otomatis dipulihkan',
+                        title: 'Draf pendaftaran dipulihkan',
+                        text: 'Melanjutkan pengisian data yang tersimpan sebelumnya.',
                         showConfirmButton: false,
-                        timer: 3000
+                        timer: 4000,
+                        timerProgressBar: true,
+                        background: '#f0f9ff',
+                        color: '#0369a1',
+                        iconColor: '#0369a1'
                     });
                 }
             }
