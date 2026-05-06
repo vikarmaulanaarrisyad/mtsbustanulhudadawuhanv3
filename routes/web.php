@@ -89,7 +89,7 @@ Route::post('/ppdb/process-verify', [\App\Http\Controllers\Ppdb\PpdbVerification
 Route::get('/admin/ppdb/scanner', [\App\Http\Controllers\Ppdb\PpdbVerificationController::class, 'scanner'])->name('ppdb.scanner');
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view|Super Admin|Admin|Guru|Siswa|ppdb|Petugas Verifikasi PPDB']], function () {
+    Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view|Super Admin|Admin|Guru|Petugas Verifikasi PPDB']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/teacher/schedule', [DashboardController::class, 'teacherSchedule'])->name('teacher.schedule');
         Route::get('/class-students/{id}', [DashboardController::class, 'getClassStudents'])->name('teacher.class-students');
