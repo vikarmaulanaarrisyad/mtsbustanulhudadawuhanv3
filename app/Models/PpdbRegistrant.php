@@ -234,6 +234,9 @@ class PpdbRegistrant extends Model
      */
     public function getRank()
     {
+        $score = $this->selection_score ?? 0;
+        $createdAt = $this->created_at ?? now();
+
         return self::where('admission_phase_id', $this->admission_phase_id)
             ->where('admission_type_id', $this->admission_type_id)
             ->whereIn('status', [
@@ -243,11 +246,11 @@ class PpdbRegistrant extends Model
                 self::STATUS_DAFTAR_ULANG_VERIFIED,
                 self::STATUS_MOVED
             ])
-            ->where(function($query) {
-                $query->where('selection_score', '>', $this->selection_score)
-                      ->orWhere(function($q) {
-                          $q->where('selection_score', $this->selection_score)
-                            ->where('created_at', '<', $this->created_at);
+            ->where(function($query) use ($score, $createdAt) {
+                $query->where('selection_score', '>', $score)
+                      ->orWhere(function($q) use ($score, $createdAt) {
+                          $q->where('selection_score', $score)
+                            ->where('created_at', '<', $createdAt);
                       });
             })
             ->count() + 1;

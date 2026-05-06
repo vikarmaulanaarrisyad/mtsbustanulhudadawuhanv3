@@ -38,6 +38,14 @@
     <!-- GLightbox CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
 
+    {{-- PWA Meta Tags --}}
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0b8c89">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Madrasah">
+    <link rel="apple-touch-icon" href="/storage/pwa/icons/icon-192x192.png">
+
     <style>
         /* ROOT & GLOBAL */
         :root {
@@ -1550,6 +1558,55 @@
                 if (waHint) waHint.classList.remove('show-hint');
             }, 5000);
         }, 20000);
+    </script>
+    {{-- PWA Registration & Active Version Check --}}
+    <script>
+        let deferredPrompt;
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => {
+                        console.log('PWA: Service Worker terdaftar!', reg.scope);
+                        
+                        // Cek update secara berkala setiap 5 menit
+                        setInterval(() => {
+                            reg.update();
+                            console.log('PWA: Mengecek versi baru...');
+                        }, 300000); // 5 menit
+
+                        // Cek update saat user kembali ke tab ini
+                        window.addEventListener('focus', () => {
+                            reg.update();
+                        });
+                    })
+                    .catch(err => {
+                        console.log('PWA: Gagal mendaftarkan Service Worker', err);
+                    });
+            });
+
+            // Handle SW Update Notification
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data && event.data.type === 'SW_UPDATED') {
+                    toastr.info('Versi baru tersedia (v' + event.data.version + '). Klik untuk memperbarui.', 'Update Tersedia', {
+                        positionClass: 'toast-bottom-left',
+                        timeOut: 0, // Jangan hilang sampai di klik
+                        extendedTimeOut: 0,
+                        closeButton: true,
+                        progressBar: true,
+                        onclick: function() { 
+                            window.location.reload(); 
+                        }
+                    });
+                }
+            });
+
+            // Handle Install Prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+            });
+        }
     </script>
 </body>
 
