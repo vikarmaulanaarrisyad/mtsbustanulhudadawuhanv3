@@ -191,7 +191,7 @@
 
             {{-- Jadwal --}}
             <div class="mb-4">
-                <a href="{{ route('teacher.schedule') }}" class="stu-quick-link">
+                <a href="{{ route('guru.schedule') }}" class="stu-quick-link">
                     <div class="stu-quick-icon bg-soft-purple"><i class="fas fa-calendar-alt"></i></div>
                     <span class="block text-[10px] font-black text-slate-600 mt-3 uppercase tracking-tighter">Jadwal</span>
                 </a>

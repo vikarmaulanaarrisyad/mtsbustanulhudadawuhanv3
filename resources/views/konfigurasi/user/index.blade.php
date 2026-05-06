@@ -3,8 +3,7 @@
 @section('title', 'Data Pengguna')
 
 @section('breadcrumb')
-    @parent
-    <li class="breadcrumb-item active">Data Pengguna</li>
+    <li class="breadcrumb-item active">Manajemen User</li>
 @endsection
 
 @section('content')
@@ -78,17 +77,46 @@
     <!-- MAIN CONTENT: USER TABLE -->
     <div class="col-xl-8 col-lg-7">
         <div class="card shadow-sm border-0 premium-card">
-            <div class="card-header bg-white py-4 border-bottom">
-                <h4 class="mb-1 font-weight-bold text-dark text-slate-gold">Daftar Pengguna Sistem</h4>
-                <p class="text-muted text-sm mb-0">Gunakan kolom pencarian untuk menemukan user dengan cepat</p>
-            </div>
             <div class="card-body p-0">
+                <!-- Role Filtering Tabs -->
+                <div class="px-4 pt-3">
+                    <ul class="nav nav-pills nav-pills-premium mb-0" id="roleTabs" role="tablist">
+                        <li class="nav-item mr-2">
+                            <a class="nav-link active" data-role="all" data-toggle="pill" href="javascript:void(0)">
+                                <i class="fas fa-users mr-2"></i>Semua User
+                            </a>
+                        </li>
+                        <li class="nav-item mr-2">
+                            <a class="nav-link" data-role="Admin" data-toggle="pill" href="javascript:void(0)">
+                                <i class="fas fa-user-shield mr-2"></i>Admin
+                            </a>
+                        </li>
+                        <li class="nav-item mr-2">
+                            <a class="nav-link" data-role="Guru" data-toggle="pill" href="javascript:void(0)">
+                                <i class="fas fa-chalkboard-teacher mr-2"></i>Guru
+                            </a>
+                        </li>
+                        <li class="nav-item mr-2">
+                            <a class="nav-link" data-role="Siswa" data-toggle="pill" href="javascript:void(0)">
+                                <i class="fas fa-user-graduate mr-2"></i>Siswa
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-role="ppdb" data-toggle="pill" href="javascript:void(0)">
+                                <i class="fas fa-user-plus mr-2"></i>PPDB
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <hr class="mt-2 mb-0">
+
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0" id="userTable" style="width:100%">
                         <thead class="bg-light-slate text-uppercase">
                             <tr>
                                 <th width="50px" class="text-center py-3">#</th>
                                 <th>INFORMASI USER</th>
+                                <th>EMAIL/USERNAME</th>
                                 <th>HAK AKSES / ROLE</th>
                                 <th class="text-center">AKSI</th>
                             </tr>
@@ -154,10 +182,34 @@
     .letter-spacing-1 { letter-spacing: 1px; }
 
     /* Action Buttons Soft */
-    .btn-soft-info { background: #e0f2fe; color: #0ea5e9; border: none; }
-    .btn-soft-primary { background: #e0e7ff; color: #4338ca; border: none; }
-    .btn-soft-warning { background: #fef3c7; color: #d97706; border: none; }
-    .btn-soft-danger { background: #fee2e2; color: #b91c1c; border: none; }
+    /* Premium Nav Pills */
+    .nav-pills-premium .nav-link {
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 700;
+        color: #64748b;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        margin-bottom: 10px;
+    }
+    .nav-pills-premium .nav-link:hover {
+        background: #f1f5f9;
+        color: #334155;
+    }
+    .nav-pills-premium .nav-link.active {
+        background: #fff !important;
+        color: #334155 !important;
+        border-color: #eab308;
+        box-shadow: 0 4px 12px rgba(234, 179, 8, 0.15);
+    }
+    .nav-pills-premium .nav-link i {
+        opacity: 0.7;
+    }
+    .nav-pills-premium .nav-link.active i {
+        color: #eab308;
+        opacity: 1;
+    }
 </style>
 @endpush
 

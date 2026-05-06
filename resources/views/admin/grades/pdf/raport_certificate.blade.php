@@ -81,11 +81,15 @@
     </div>
 
     <div class="signature" style="margin-top: 30px;">
+        @php
+            $kepala = get_kepala_madrasah();
+            $general = \App\Models\MailSetting::first();
+        @endphp
         <div class="signature-box">
-            <p>{{ $setting->city ?? 'Dawuhan' }}, {{ tanggal_indonesia(date('Y-m-d')) }}<br>{{ $setting->default_signer_position ?? 'Kepala Madrasah' }},</p>
+            <p>{{ $general->city ?? 'Dawuhan' }}, {{ tanggal_indonesia(date('Y-m-d')) }}<br>{{ $general->default_signer_position ?? 'Kepala Madrasah' }},</p>
             <div class="signature-space" style="height: 60px;"></div>
-            <p><strong><u>{{ $setting->default_signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
-            NIP. {{ $setting->default_signer_nip ?? '-' }}</p>
+            <p><strong><u>{{ $kepala->name ?? ($general->default_signer_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
+            NIP. {{ $kepala->nip ?? ($general->default_signer_nip ?? '-') }}</p>
         </div>
     </div>
 @endsection

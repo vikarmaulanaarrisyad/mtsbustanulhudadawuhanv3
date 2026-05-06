@@ -49,39 +49,9 @@
 </div>
 @endif
 
-<!-- Update Banner (Tidak muncul untuk Admin) -->
-@if(!$isAdmin)
-<div id="pwa-update-prompt" class="pwa-banner" style="display:none;">
-    <div class="pwa-banner-icon">
-        <img src="{{ $setting->pwa_icon ?? '/storage/pwa/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
-    </div>
-    <div class="pwa-banner-text">
-        <h6>Versi Baru Tersedia</h6>
-        <p>Pembaruan fitur & keamanan</p>
-    </div>
-    <div class="pwa-actions">
-        <button id="pwa-update-btn" class="pwa-btn-main pwa-btn-update">
-            <i class="fas fa-sync-alt"></i> UPDATE
-        </button>
-        <button id="pwa-close-update" class="pwa-btn-close">&times;</button>
-    </div>
-</div>
-@endif
+{{-- Update Banner Dihapus (Request User) --}}
 
-<!-- Updating Overlay -->
-<div id="id-updating-overlay" class="pwa-updating-overlay" style="display:none;">
-    <div class="pwa-updating-card">
-        <div class="pwa-updating-logo">
-            <img src="{{ $setting->pwa_icon ?? '/storage/pwa/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo">
-            <div class="pwa-spinner-ring"></div>
-        </div>
-        <h4>Memperbarui Aplikasi...</h4>
-        <p>Sedang mengunduh aset terbaru, mohon tunggu sebentar.</p>
-        <div class="pwa-progress-container">
-            <div id="pwa-progress-bar" class="pwa-progress-bar"></div>
-        </div>
-    </div>
-</div>
+
 
 <style>
 /* Premium PWA Design System */
@@ -183,15 +153,7 @@ body:has(.pwa-force-overlay[style*="display: flex"]) {
 .pwa-btn-force { width: 100%; font-size: 1.1rem; padding: 18px; border-radius: 20px; justify-content: center; }
 .pwa-refresh-link { display: block; margin-top: 20px; font-size: 0.85rem; color: #94a3b8; text-decoration: underline; font-weight: 600; }
 
-/* Progress Styling */
-.pwa-spinner-ring {
-    position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px;
-    border: 4px solid #f1f5f9; border-top-color: #6366f1; border-radius: 50%;
-    animation: pwaSpin 1.2s linear infinite;
-}
-@keyframes pwaSpin { to { transform: rotate(360deg); } }
-.pwa-progress-container { width: 100%; height: 8px; background: #f1f5f9; border-radius: 20px; margin-top: 25px; overflow: hidden; }
-.pwa-progress-bar { width: 0%; height: 100%; background: var(--pwa-indigo); transition: width 3s ease; box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
+
 </style>
 
 <script>
@@ -220,38 +182,10 @@ body:has(.pwa-force-overlay[style*="display: flex"]) {
     }
 
     if ('serviceWorker' in navigator) {
-        const swUrl = '/sw.js?v={{ $setting->pwa_version ?? time() }}';
-        navigator.serviceWorker.register(swUrl).then(reg => {
-            // Cek update segera saat aplikasi dibuka
-            reg.update();
-
-            // Background Check: Cek update setiap 60 detik
-            setInterval(() => {
-                reg.update().catch(() => {});
-            }, 60000);
-
-            // Jika sudah ada yang menunggu (waiting), langsung munculkan banner
-            if (reg.waiting) showUpdateBanner();
-
-            reg.addEventListener('updatefound', () => {
-                const newSW = reg.installing;
-                newSW.addEventListener('statechange', () => {
-                    // Tampilkan banner hanya jika versi baru sudah terdownload sepenuhnya
-                    if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-                        showUpdateBanner();
-                    }
-                });
-            });
-        });
-
-        let refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (refreshing) return;
-            refreshing = true;
-            if (sessionStorage.getItem('pwa_update_clicked')) {
-                sessionStorage.removeItem('pwa_update_clicked');
-                window.location.reload();
-            }
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+            // Service worker registered without explicit versioning to avoid re-registration loops
+        }).catch(err => {
+            console.error('SW Registration failed: ', err);
         });
     }
 
@@ -290,49 +224,6 @@ body:has(.pwa-force-overlay[style*="display: flex"]) {
     window.addEventListener('appinstalled', () => {
         if (forceOverlay) forceOverlay.style.display = 'none';
         if (installBanner) installBanner.style.display = 'none';
-    });
-
-    function showUpdateBanner() {
-        if (!sessionStorage.getItem('pwa_update_dismissed') && updateBanner) updateBanner.style.display = 'flex';
-    }
-
-    document.getElementById('pwa-update-btn')?.addEventListener('click', async () => {
-        if (updateBanner) updateBanner.style.display = 'none';
-        if (updatingOverlay) updatingOverlay.style.display = 'flex';
-        
-        // Progress Bar Animation
-        if (progressBar) progressBar.style.width = '100%';
-        
-        try {
-            // 1. Bersihkan Cache Storage
-            if ('caches' in window) {
-                const cacheNames = await caches.keys();
-                await Promise.all(cacheNames.map(name => caches.delete(name)));
-            }
-
-            // 2. Unregister Service Worker
-            if ('serviceWorker' in navigator) {
-                const registrations = await navigator.serviceWorker.getRegistrations();
-                for (let registration of registrations) {
-                    await registration.unregister();
-                }
-            }
-
-            // 3. Beri jeda sedikit untuk visual progress
-            setTimeout(() => {
-                sessionStorage.setItem('pwa_update_done', 'true');
-                window.location.href = window.location.pathname + '?v=' + Date.now();
-            }, 1500);
-
-        } catch (error) {
-            console.error('Update failed:', error);
-            window.location.reload();
-        }
-    });
-
-    document.getElementById('pwa-close-update')?.addEventListener('click', () => {
-        if (updateBanner) updateBanner.style.display = 'none';
-        sessionStorage.setItem('pwa_update_dismissed', 'true');
     });
 })();
 </script>

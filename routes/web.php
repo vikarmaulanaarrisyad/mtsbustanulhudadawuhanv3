@@ -8,7 +8,9 @@ use App\Http\Controllers\{
     AlbumController,
     CategoryController,
     ClassGroupController,
-    DashboardController,
+    Admin\AdminDashboardController,
+    Guru\GuruDashboardController,
+    Siswa\SiswaDashboardController,
     EducationController,
     ImageSliderController,
     MenuController,
@@ -38,6 +40,7 @@ use App\Http\Controllers\{
     SchoolMeetingController,
     StudentActiveStatementController,
     TeacherController,
+    PositionController,
     DutyLetterController,
     StudentPromotionController,
     StudentGraduationController,
@@ -89,18 +92,36 @@ Route::post('/ppdb/process-verify', [\App\Http\Controllers\Ppdb\PpdbVerification
 Route::get('/admin/ppdb/scanner', [\App\Http\Controllers\Ppdb\PpdbVerificationController::class, 'scanner'])->name('ppdb.scanner');
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.view|Super Admin|Admin|Guru|Petugas Verifikasi PPDB']], function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/teacher/schedule', [DashboardController::class, 'teacherSchedule'])->name('teacher.schedule');
-        Route::get('/class-students/{id}', [DashboardController::class, 'getClassStudents'])->name('teacher.class-students');
+    Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.admin|Super Admin|Admin']], function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
-        // Behavior Logs (Character Points)
-        Route::post('/behavior-logs', [\App\Http\Controllers\BehaviorLogController::class, 'store'])->name('behavior-logs.store');
-        Route::delete('/behavior-logs/{id}', [\App\Http\Controllers\BehaviorLogController::class, 'destroy'])->name('behavior-logs.destroy');
+        // Behavior Logs (Character Points) - Admin Access
+        Route::post('/behavior-logs', [\App\Http\Controllers\BehaviorLogController::class, 'store'])->name('admin.behavior-logs.store');
+        Route::delete('/behavior-logs/{id}', [\App\Http\Controllers\BehaviorLogController::class, 'destroy'])->name('admin.behavior-logs.destroy');
 
-        // Announcements
-        Route::get('/announcements', [AnnouncementController::class, 'teacherIndex'])->name('teacher.announcements');
-        Route::get('/announcements/{id}', [AnnouncementController::class, 'show'])->name('announcements.show');
+        // Announcements - Admin View
+        Route::get('/announcements/{id}', [AnnouncementController::class, 'show'])->name('admin.announcements.show');
+    });
+
+    // Guru Dashboard & Actions
+    Route::group(['prefix' => 'guru', 'middleware' => ['role_or_permission:dashboard.guru|Guru']], function () {
+        Route::get('/dashboard', [GuruDashboardController::class, 'index'])->name('guru.dashboard');
+        Route::get('/schedule', [GuruDashboardController::class, 'teacherSchedule'])->name('guru.schedule');
+        Route::get('/class-students/{id}', [GuruDashboardController::class, 'getClassStudents'])->name('guru.class-students');
+
+        // Behavior Logs (Guru)
+        Route::post('/behavior-logs', [\App\Http\Controllers\BehaviorLogController::class, 'store'])->name('guru.behavior-logs.store');
+        
+        // Announcements (Guru)
+        Route::get('/announcements', [AnnouncementController::class, 'teacherIndex'])->name('guru.announcements');
+    });
+
+    // Siswa Dashboard & Actions
+    Route::group(['prefix' => 'siswa', 'middleware' => ['role_or_permission:dashboard.siswa|Siswa']], function () {
+        Route::get('/dashboard', [SiswaDashboardController::class, 'index'])->name('siswa.dashboard');
+        Route::post('/store-attendance', [SiswaDashboardController::class, 'storeAttendance'])->name('siswa.store_attendance');
+        Route::post('/store-permit', [SiswaDashboardController::class, 'storePermit'])->name('siswa.store_permit');
+        Route::post('/store-mutabaah', [SiswaDashboardController::class, 'storeMutabaah'])->name('siswa.store_mutabaah');
     });
 
     // Admin Announcements
@@ -446,61 +467,104 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::controller(PpdbPaymentItemController::class)->group(function () {
-        Route::get('/admin/admission/ppdb/payment-items/data', 'data')->name('ppdb.payment_items_data');
-        Route::get('/admin/admission/ppdb/payment-items', 'index')->name('ppdb.payment_items');
-        Route::post('/admin/admission/ppdb/payment-items', 'store')->name('ppdb.payment_items_store');
-        Route::get('/admin/admission/ppdb/payment-items/{id}', 'show')->name('ppdb.payment_items_show');
-        Route::put('/admin/admission/ppdb/payment-items/{id}', 'update')->name('ppdb.payment_items_update');
-        Route::delete('/admin/admission/ppdb/payment-items/{id}', 'destroy')->name('ppdb.payment_items_destroy');
+    Route::group(['middleware' => ['permission:ppdb.view']], function () {
+        Route::controller(PpdbPaymentItemController::class)->group(function () {
+            Route::get('/admin/admission/ppdb/payment-items/data', 'data')->name('ppdb.payment_items_data');
+            Route::get('/admin/admission/ppdb/payment-items', 'index')->name('ppdb.payment_items');
+            Route::post('/admin/admission/ppdb/payment-items', 'store')->name('ppdb.payment_items_store');
+            Route::get('/admin/admission/ppdb/payment-items/{id}', 'show')->name('ppdb.payment_items_show');
+            Route::put('/admin/admission/ppdb/payment-items/{id}', 'update')->name('ppdb.payment_items_update');
+            Route::delete('/admin/admission/ppdb/payment-items/{id}', 'destroy')->name('ppdb.payment_items_destroy');
+        });
     });
 
-    Route::controller(PpdbRegistrantController::class)->group(function () {
-        Route::get('/admission/ppdb/dashboard', 'dashboard')->name('ppdb.admin_dashboard');
-        Route::get('/admission/ppdb/data', 'data')->name('ppdb.data');
-        Route::get('/admission/ppdb', 'index')->name('ppdb.index');
-        Route::get('/admission/ppdb/selection', 'selection')->name('ppdb.selection');
-        Route::get('/admission/ppdb/re-registration', 'reRegistration')->name('ppdb.re_registration');
-        Route::get('/admission/ppdb/re-registration-data', 'reRegistrationData')->name('ppdb.re_registration_data');
-        Route::get('/admission/ppdb/selection-data', 'selectionData')->name('ppdb.selection_data');
-        Route::post('/admission/ppdb/process-selection', 'processSelection')->name('ppdb.process_selection');
-        Route::post('/admission/ppdb/bulk-update-status', 'bulkUpdateStatus')->name('ppdb.bulk_update_status');
-        Route::post('/admission/ppdb/move-to-student/{id}', 'moveToStudent')->name('ppdb.move_to_student');
-        Route::post('/admission/ppdb/bulk-move-to-student', 'bulkMoveToStudent')->name('ppdb.bulk_move_to_student');
-        Route::get('/admission/ppdb/print-berita-acara', 'printBeritaAcara')->name('ppdb.print_berita_acara');
-        Route::get('/admission/ppdb/print-collective-sk', 'printCollectiveSK')->name('ppdb.print_collective_sk');
-        Route::get('/admission/ppdb/{id}', 'show')->name('ppdb.show');
-        Route::put('/admission/ppdb/{id}', 'update')->name('ppdb.update');
-        Route::post('/admission/ppdb', 'store')->name('ppdb.store');
-        Route::post('/admission/ppdb/{id}/verify', 'verify')->name('ppdb.verify');
-        Route::post('/admission/ppdb/{id}/verify-re-registration', 'verifyReRegistration')->name('ppdb.verify_re_registration');
-        Route::get('/admission/ppdb/document/{id}/download', 'downloadBerkas')->name('ppdb.download_berkas');
-        Route::get('/admission/ppdb/{id}/print-letter', 'printLetter')->name('ppdb.print_letter');
-        Route::delete('/admission/ppdb/{id}/destroy', 'destroy')->name('ppdb.destroy');
+    // PPDB Management (Granular Protection)
+    Route::group(['middleware' => ['permission:ppdb.view']], function () {
+        Route::get('/admission/ppdb/dashboard', [PpdbRegistrantController::class, 'dashboard'])->name('ppdb.admin_dashboard');
+        Route::get('/admission/ppdb/data', [PpdbRegistrantController::class, 'data'])->name('ppdb.data');
+        Route::get('/admission/ppdb', [PpdbRegistrantController::class, 'index'])->name('ppdb.index');
+        Route::get('/admission/ppdb/selection', [PpdbRegistrantController::class, 'selection'])->name('ppdb.selection');
+        Route::get('/admission/ppdb/re-registration', [PpdbRegistrantController::class, 'reRegistration'])->name('ppdb.re_registration');
+        Route::get('/admission/ppdb/re-registration-data', [PpdbRegistrantController::class, 'reRegistrationData'])->name('ppdb.re_registration_data');
+        Route::get('/admission/ppdb/selection-data', [PpdbRegistrantController::class, 'selectionData'])->name('ppdb.selection_data');
+        Route::get('/admission/ppdb/print-berita-acara', [PpdbRegistrantController::class, 'printBeritaAcara'])->name('ppdb.print_berita_acara');
+        Route::get('/admission/ppdb/print-collective-sk', [PpdbRegistrantController::class, 'printCollectiveSK'])->name('ppdb.print_collective_sk');
+        Route::get('/admission/ppdb/{id}', [PpdbRegistrantController::class, 'show'])->name('ppdb.show');
+        Route::get('/admission/ppdb/document/{id}/download', [PpdbRegistrantController::class, 'downloadBerkas'])->name('ppdb.download_berkas');
+        Route::get('/admission/ppdb/{id}/print-letter', [PpdbRegistrantController::class, 'printLetter'])->name('ppdb.print_letter');
+    });
+    Route::group(['middleware' => ['permission:ppdb.create']], function () {
+        Route::post('/admission/ppdb', [PpdbRegistrantController::class, 'store'])->name('ppdb.store');
+    });
+    Route::group(['middleware' => ['permission:ppdb.edit']], function () {
+        Route::put('/admission/ppdb/{id}', [PpdbRegistrantController::class, 'update'])->name('ppdb.update');
+    });
+    Route::group(['middleware' => ['permission:ppdb.verify']], function () {
+        Route::post('/admission/ppdb/process-selection', [PpdbRegistrantController::class, 'processSelection'])->name('ppdb.process_selection');
+        Route::post('/admission/ppdb/bulk-update-status', [PpdbRegistrantController::class, 'bulkUpdateStatus'])->name('ppdb.bulk_update_status');
+        Route::post('/admission/ppdb/move-to-student/{id}', [PpdbRegistrantController::class, 'moveToStudent'])->name('ppdb.move_to_student');
+        Route::post('/admission/ppdb/bulk-move-to-student', [PpdbRegistrantController::class, 'bulkMoveToStudent'])->name('ppdb.bulk_move_to_student');
+        Route::post('/admission/ppdb/{id}/verify', [PpdbRegistrantController::class, 'verify'])->name('ppdb.verify');
+        Route::post('/admission/ppdb/{id}/verify-re-registration', [PpdbRegistrantController::class, 'verifyReRegistration'])->name('ppdb.verify_re_registration');
+    });
+    Route::group(['middleware' => ['permission:ppdb.delete']], function () {
+        Route::delete('/admission/ppdb/{id}/destroy', [PpdbRegistrantController::class, 'destroy'])->name('ppdb.destroy');
     });
 
+    // Teacher Management (Granular Protection)
+    Route::group(['middleware' => ['permission:teacher.view']], function () {
+        Route::get('/teachers/data', [TeacherController::class, 'data'])->name('teachers.data');
+        Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
+    });
+    Route::group(['middleware' => ['permission:teacher.create']], function () {
+        Route::get('/teachers/download-template', [TeacherController::class, 'downloadTemplate'])->name('teachers.download_template');
+        Route::post('/teachers/import-excel', [TeacherController::class, 'importExcel'])->name('teachers.import_excel');
+        Route::post('/teachers', [TeacherController::class, 'store'])->name('teachers.store');
+    });
+    Route::group(['middleware' => ['permission:teacher.view']], function () {
+        Route::get('/teachers/{teacher}', [TeacherController::class, 'show'])->name('teachers.show');
+    });
+    Route::group(['middleware' => ['permission:teacher.edit']], function () {
+        Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])->name('teachers.update');
+    });
+    Route::group(['middleware' => ['permission:teacher.delete']], function () {
+        Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])->name('teachers.destroy');
+    });
 
+    // Position Management
+    Route::group(['middleware' => ['role_or_permission:Super Admin|Admin']], function () {
+        Route::get('/positions/data', [PositionController::class, 'data'])->name('positions.data');
+        Route::resource('/positions', PositionController::class);
+    });
 
-    Route::controller(StudentController::class)->group(function () {
-        Route::get('/academic/students/data', 'data')->name('students.data');
-        Route::get('/academic/students/download-template', 'downloadTemplate')->name('students.download_template');
-        Route::get('/academic/students', 'index')->name('students.index');
-        Route::get('/academic/students/export-excel', 'exportExcel')->name('students.export_excel');
-        Route::get('/academic/students/export-pdf', 'exportPDF')->name('students.export_pdf');
-        Route::post('/academic/students', 'store')->name('students.store');
-        Route::post('/academic/students/import-excel', 'importEXCEL')->name('students.import_excel');
-        Route::get('/academic/students/{id}', 'show')->name('students.show');
-        Route::put('/academic/students/{id}', 'update')->name('students.update');
-        Route::delete('/academic/students/{id}/destroy', 'destroy')->name('students.destroy');
-        Route::post('/academic/students/delete-selected', 'deleteSelected')->name('students.deleteSelected');
+    // Student Management (Granular Protection)
+    Route::group(['middleware' => ['permission:student.view']], function () {
+        Route::get('/academic/students/data', [StudentController::class, 'data'])->name('students.data');
+        Route::get('/academic/students', [StudentController::class, 'index'])->name('students.index');
+        Route::get('/academic/students/{id}', [StudentController::class, 'show'])->name('students.show');
+        Route::get('/academic/students/export-excel', [StudentController::class, 'exportExcel'])->name('students.export_excel');
+        Route::get('/academic/students/export-pdf', [StudentController::class, 'exportPDF'])->name('students.export_pdf');
+    });
+    Route::group(['middleware' => ['permission:student.create']], function () {
+        Route::get('/academic/students/download-template', [StudentController::class, 'downloadTemplate'])->name('students.download_template');
+        Route::post('/academic/students', [StudentController::class, 'store'])->name('students.store');
+        Route::post('/academic/students/import-excel', [StudentController::class, 'importEXCEL'])->name('students.import_excel');
+    });
+    Route::group(['middleware' => ['permission:student.edit']], function () {
+        Route::put('/academic/students/{id}', [StudentController::class, 'update'])->name('students.update');
+    });
+    Route::group(['middleware' => ['permission:student.delete']], function () {
+        Route::delete('/academic/students/{id}/destroy', [StudentController::class, 'destroy'])->name('students.destroy');
+        Route::post('/academic/students/delete-selected', [StudentController::class, 'deleteSelected'])->name('students.deleteSelected');
     });
 
     // Student ID Cards
     Route::get('/academic/students/{id}/card', [StudentCardController::class, 'print'])->name('students.card');
+    Route::get('/academic/students/{id}/card-pdf', [StudentCardController::class, 'downloadPdf'])->name('students.card_pdf');
     Route::get('/academic/students/class/{class_id}/cards', [StudentCardController::class, 'printByClass'])->name('students.class_cards');
 
     // PPDB Student Area
-    Route::group(['middleware' => ['role:ppdb'], 'prefix' => 'ppdb'], function () {
+    Route::group(['middleware' => ['role_or_permission:dashboard.ppdb|ppdb'], 'prefix' => 'ppdb'], function () {
         Route::get('/dashboard', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'index'])->name('ppdb.dashboard');
         Route::get('/print-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printRegistration'])->name('ppdb.print_registration');
         Route::get('/print-verification', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printVerification'])->name('ppdb.print_verification');
@@ -511,22 +575,48 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/print-payment', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printPayment'])->name('ppdb.print_payment');
         Route::post('/confirm-re-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'confirmReRegistration'])->name('ppdb.confirm_re_registration');
         Route::post('/verify-midtrans', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'verifyMidtrans'])->name('ppdb.verify_midtrans');
-        Route::post('/store-attendance', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeAttendance'])->name('ppdb.store_attendance');
-        Route::post('/store-permit', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storePermit'])->name('ppdb.store_permit');
-        Route::post('/store-mutabaah', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'storeMutabaah'])->name('ppdb.store_mutabaah');
     });
 
-    // Root redirect based on role
-    Route::get('/home', function () {
+    // Unified Dashboard redirect based on granular permissions
+    Route::get('/dashboard', function () {
         $user = auth()->user();
-        if ($user->hasRole('ppdb') || $user->hasRole('Siswa')) {
+        
+        if ($user->can('dashboard.admin')) {
+            return redirect()->route('admin.dashboard');
+        }
+        
+        if ($user->can('dashboard.guru')) {
+            return redirect()->route('guru.dashboard');
+        }
+        
+        if ($user->can('dashboard.siswa')) {
+            return redirect()->route('siswa.dashboard');
+        }
+        
+        if ($user->can('dashboard.ppdb')) {
             return redirect()->route('ppdb.dashboard');
         }
-        if ($user->hasRole('Petugas Verifikasi PPDB')) {
+        
+        if ($user->can('ppdb.scanner.view')) {
             return redirect()->route('ppdb.scanner');
         }
-        return redirect()->route('dashboard');
-    })->name('home');
+
+        // Fallback for roles if permissions are not explicitly set yet
+        if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
+            return redirect()->route('admin.dashboard');
+        }
+        if ($user->hasRole('Guru')) {
+            return redirect()->route('guru.dashboard');
+        }
+        if ($user->hasRole('Siswa')) {
+            return redirect()->route('siswa.dashboard');
+        }
+        if ($user->hasRole('ppdb')) {
+            return redirect()->route('ppdb.dashboard');
+        }
+
+        return redirect('/');
+    })->name('dashboard');
 
     // Persuratan
     Route::prefix('mail')->group(function () {
@@ -590,11 +680,20 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    // Teacher Management
-    Route::get('/teachers/data', [TeacherController::class, 'data'])->name('teachers.data');
-    Route::get('/teachers/download-template', [TeacherController::class, 'downloadTemplate'])->name('teachers.download_template');
-    Route::post('/teachers/import-excel', [TeacherController::class, 'importExcel'])->name('teachers.import_excel');
-    Route::resource('/teachers', TeacherController::class);
+
+
+    // Payroll Management
+    Route::group(['middleware' => ['role:Admin|Super Admin|Bendahara']], function () {
+        Route::get('/payrolls', [\App\Http\Controllers\PayrollController::class, 'index'])->name('payrolls.index');
+        Route::get('/payrolls/data', [\App\Http\Controllers\PayrollController::class, 'data'])->name('payrolls.data');
+        Route::post('/payrolls/generate', [\App\Http\Controllers\PayrollController::class, 'generate'])->name('payrolls.generate');
+        Route::get('/payrolls/{id}', [\App\Http\Controllers\PayrollController::class, 'show'])->name('payrolls.show');
+        Route::post('/payrolls/{id}/detail', [\App\Http\Controllers\PayrollController::class, 'storeDetail'])->name('payrolls.storeDetail');
+        Route::delete('/payrolls/detail/{id}', [\App\Http\Controllers\PayrollController::class, 'destroyDetail'])->name('payrolls.destroyDetail');
+        Route::post('/payrolls/{id}/pay', [\App\Http\Controllers\PayrollController::class, 'pay'])->name('payrolls.pay');
+        Route::get('/payrolls/{id}/print', [\App\Http\Controllers\PayrollController::class, 'print'])->name('payrolls.print');
+        Route::get('/payrolls/{id}/pdf', [\App\Http\Controllers\PayrollController::class, 'downloadPdf'])->name('payrolls.download_pdf');
+    });
 
     // Duty Letters (Surat Tugas & SPPD)
     Route::get('/duty-letters/data', [DutyLetterController::class, 'data'])->name('duty-letters.data');

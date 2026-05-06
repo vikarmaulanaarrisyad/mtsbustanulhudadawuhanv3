@@ -44,11 +44,14 @@
     </div>
 
     <div class="signature">
+        @php
+            $kepala = get_kepala_madrasah();
+        @endphp
         <div class="signature-box">
             <p>{{ $mail->signer_position ?? 'Kepala Madrasah' }},</p>
             <div class="signature-space"></div>
-            <p><strong><u>{{ $mail->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
-                NIP. {{ $mail->signer_nip ?? '-' }}</p>
+            <p><strong><u>{{ $kepala->name ?? ($mail->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH')) }}</u></strong><br>
+                NIP. {{ $kepala->nip ?? ($mail->signer_nip ?? '-') }}</p>
         </div>
         <div style="clear: both;"></div>
     </div>

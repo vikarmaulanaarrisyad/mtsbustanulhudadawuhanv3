@@ -56,12 +56,15 @@
     </div>
 
     <div class="signature">
+        @php
+            $kepala = get_kepala_madrasah();
+        @endphp
         <div class="signature-box">
             <p>Dawuhan, {{ \Carbon\Carbon::parse($cert->certificate_date)->translatedFormat('d F Y') }}<br>Kepala Madrasah,
             </p>
             <div class="signature-space"></div>
-            <p><strong><u>{{ $cert->signer_name ?? '...........................' }}</u></strong><br>
-                NIP. {{ $cert->signer_nip ?? '-' }}</p>
+            <p><strong><u>{{ $kepala->name ?? ($cert->signer_name ?? '...........................') }}</u></strong><br>
+                NIP. {{ $kepala->nip ?? ($cert->signer_nip ?? '-') }}</p>
         </div>
         <div style="clear: both;"></div>
     </div>

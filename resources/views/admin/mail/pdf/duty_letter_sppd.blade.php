@@ -40,13 +40,16 @@
         </table>
 
         <div class="signature" style="margin-top: 20px;">
-            @php $general = \App\Models\Setting::first(); @endphp
+            @php 
+                $general = \App\Models\Setting::first();
+                $kepala = get_kepala_madrasah();
+            @endphp
             <div class="signature-box">
                 <p>Dikeluarkan di : {{ $general->city ?? 'Dawuhan' }}<br>Tanggal : {{ \Carbon\Carbon::parse($letter->letter_date)->translatedFormat('d F Y') }}</p>
                 <p>{{ $letter->signer_position ?? 'Kepala Madrasah' }},</p>
                 <div class="signature-space" style="height: 60px;"></div>
-                <p><strong><u>{{ $letter->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
-                NIP. {{ $letter->signer_nip ?? '-' }}</p>
+                <p><strong><u>{{ $kepala->name ?? ($letter->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH')) }}</u></strong><br>
+                NIP. {{ $kepala->nip ?? ($letter->signer_nip ?? '-') }}</p>
             </div>
             <div style="clear: both;"></div>
         </div>

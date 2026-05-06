@@ -98,8 +98,8 @@ class StudentController extends Controller
                     <button onclick="editForm(`' . route('students.show', $student->id) . '`)" class="btn btn-xs" style="background-color:#6755a5; color:#fff;" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </button>
-                    <button onclick="printCard(' . $student->id . ')" class="btn btn-xs btn-success" title="Cetak Kartu QR">
-                        <i class="fas fa-address-card"></i>
+                    <button onclick="printCard(' . $student->id . ')" class="btn btn-xs btn-success" title="Cetak NISN">
+                        <i class="fas fa-id-card"></i>
                     </button>
                     <button onclick="deleteData(`' . route('students.destroy', $student->id) . '`, `' . $student->nama_lengkap . '`)" class="btn btn-xs" style="background-color:#d81b60; color:#fff;" title="Hapus">
                         <i class="fas fa-trash"></i>

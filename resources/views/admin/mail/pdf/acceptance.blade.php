@@ -64,14 +64,16 @@
     </div>
 
     <div class="signature">
+        @php
+            $kepala = get_kepala_madrasah();
+        @endphp
         <div class="signature-box">
-            <p>Dawuhan,
+            <p>{{ $general->city ?? 'Dawuhan' }},
                 {{ tanggal_indonesia($acceptance->acceptance_date) }}<br>{{ $acceptance->signer_position ?? 'Kepala Madrasah' }},
-                {{--  {{ \Carbon\Carbon::parse($acceptance->acceptance_date)->translatedFormat('d F Y') }}<br>{{ $acceptance->signer_position ?? 'Kepala Madrasah' }},  --}}
             </p>
             <div class="signature-space"></div>
-            <p><strong><u>{{ $acceptance->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
-                NIP. {{ $acceptance->signer_nip ?? '-' }}</p>
+            <p><strong><u>{{ $kepala->name ?? ($acceptance->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH')) }}</u></strong><br>
+                NIP. {{ $kepala->nip ?? ($acceptance->signer_nip ?? '-') }}</p>
         </div>
         <div style="clear: both;"></div>
     </div>

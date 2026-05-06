@@ -154,10 +154,13 @@
                 </div>
             </div>
             
-            <div class="modal-footer border-0 p-3 bg-white justify-content-center">
+            <div class="modal-footer border-0 p-3 bg-white d-flex justify-content-between align-items-center">
                 <span class="badge badge-light px-3 py-2 text-muted rounded-pill border">
-                    Status Akademik Saat Ini: <strong class="text-success ml-1" id="det_status">-</strong>
+                    Status Akademik: <strong class="text-success ml-1" id="det_status">-</strong>
                 </span>
+                <button type="button" id="btn-print-nisn" class="btn btn-success btn-sm font-weight-bold rounded-pill px-4 shadow-sm">
+                    <i class="fas fa-id-card mr-2"></i> CETAK NISN
+                </button>
             </div>
         </div>
     </div>

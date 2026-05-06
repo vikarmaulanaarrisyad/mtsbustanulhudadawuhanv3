@@ -135,23 +135,23 @@
                                 <p>Kelulusan Siswa</p>
                             </a>
                         </li>
-                        @if(auth()->user()->hasAnyRole(['Super Admin', 'Admin']) || auth()->user()->can('subjects.view'))
+                        @canany(['subjects.view', 'dashboard.admin'])
                         <li class="nav-item">
                             <a href="{{ route('subjects.index') }}" class="nav-link {{ request()->is('subjects*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Mata Pelajaran</p>
                             </a>
                         </li>
-                        @endif
-
-                        @if(auth()->user()->hasAnyRole(['Super Admin', 'Admin']) || auth()->user()->can('class-schedules.view'))
+                        @endcanany
+ 
+                        @canany(['class-schedules.view', 'dashboard.admin'])
                         <li class="nav-item">
                             <a href="{{ route('class-schedules.index') }}" class="nav-link {{ request()->is('class-schedules*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Jadwal Pelajaran</p>
                             </a>
                         </li>
-                        @endif
+                        @endcanany
                     </ul>
                 {{-- ================= PENGOLAHAN NILAI ================= --}}
                 <li class="nav-header">PENGOLAHAN NILAI</li>
@@ -186,7 +186,7 @@
                 </li>
 
                 {{-- ================= ABSENSI ================= --}}
-                @if(auth()->user()->hasAnyRole(['Admin', 'Super Admin']))
+                @can('dashboard.admin')
                 <li class="nav-header">ABSENSI & KEPEGAWAIAN</li>
                 <li class="nav-item">
                     <a href="{{ route('teacher.attendance.dashboard') }}" class="nav-link {{ request()->is('teacher/attendance*') ? 'active' : '' }}">
@@ -198,6 +198,12 @@
                     <a href="{{ route('teacher.permits.admin') }}" class="nav-link {{ request()->is('admin/teacher/permits*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-check-double"></i>
                         <p>Verifikasi Izin Guru</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('payrolls.index') }}" class="nav-link {{ request()->is('payrolls*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-money-check-alt"></i>
+                        <p>Penggajian Guru</p>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -242,7 +248,7 @@
                     </ul>
                 </li>
                 @else
-                    @canany(['teacher-attendance.view', 'attendance-settings.view'])
+                    @canany(['teacher-attendance.view', 'attendance-settings.view', 'dashboard.guru'])
                     <li class="nav-header">ABSENSI & KEPEGAWAIAN</li>
                     <li class="nav-item">
                         <a href="{{ route('teacher.attendance.dashboard') }}" class="nav-link {{ request()->is('teacher/attendance*') ? 'active' : '' }}">
@@ -273,14 +279,14 @@
                                 </a>
                             </li>
                             @endcan
-                            @if(auth()->user()->can('student-attendance.view') || auth()->user()->hasRole('Guru'))
+                            @canany(['student-attendance.view', 'dashboard.guru'])
                             <li class="nav-item">
                                 <a href="{{ route('student-attendances.index') }}" class="nav-link {{ request()->is('student-attendances*') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Log Presensi Siswa</p>
                                 </a>
                             </li>
-                            @endif
+                            @endcanany
                             <li class="nav-item">
                                 <a href="{{ route('holidays.index') }}" class="nav-link {{ request()->is('attendance/holidays*') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i>
@@ -298,7 +304,7 @@
                         </ul>
                     </li>
                     @endcanany
-                @endif
+                @endcan
 
                 {{-- ================= PERSURATAN ================= --}}
                 <li class="nav-header">LAYANAN PERSURATAN</li>
@@ -529,14 +535,23 @@
                 </li>
                 @endcanany
 
-                @if(auth()->user()->hasAnyRole(['Super Admin', 'Admin']))
+                @canany(['Super Admin', 'Admin'])
+                <li class="nav-item">
+                    <a href="{{ route('positions.index') }}" class="nav-link {{ request()->is('positions*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-briefcase"></i>
+                        <p>Master Jabatan</p>
+                    </a>
+                </li>
+                @endcanany
+
+                @can('dashboard.admin')
                 <li class="nav-item">
                     <a href="{{ route('announcements.admin') }}" class="nav-link {{ request()->is('admin/manage-announcements*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-bullhorn"></i>
                         <p>Pengumuman Madrasah</p>
                     </a>
                 </li>
-                @endif
+                @endcan
 
                 @can('setting.view')
                 <li class="nav-item">

@@ -138,6 +138,9 @@
                     </div>
 
                     <div class="p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200 mb-4">
+                        @php
+                            $kamad = get_kepala_madrasah();
+                        @endphp
                         <h6 class="text-dark font-weight-bold mb-3 d-flex align-items-center">
                             <span class="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center mr-2 text-slate">
                                 <i class="fas fa-signature text-xs"></i>
@@ -147,15 +150,15 @@
                         <div class="row">
                             <div class="col-md-4 mb-3 mb-md-0">
                                 <label class="text-[10px] font-black text-muted uppercase">Nama</label>
-                                <input type="text" name="default_signer_name" class="form-control form-control-sm font-weight-bold border-0 bg-white rounded-lg shadow-sm" value="{{ $mailSetting->default_signer_name }}" placeholder="Budi Santoso, S.Pd">
+                                <input type="text" name="default_signer_name" class="form-control form-control-sm font-weight-bold border-0 bg-white rounded-lg shadow-sm" value="{{ $mailSetting->default_signer_name ?? ($kamad->name ?? '') }}" placeholder="Budi Santoso, S.Pd">
                             </div>
                             <div class="col-md-4 mb-3 mb-md-0">
                                 <label class="text-[10px] font-black text-muted uppercase">Jabatan</label>
-                                <input type="text" name="default_signer_position" class="form-control form-control-sm font-weight-bold border-0 bg-white rounded-lg shadow-sm" value="{{ $mailSetting->default_signer_position }}" placeholder="Kepala Madrasah">
+                                <input type="text" name="default_signer_position" class="form-control form-control-sm font-weight-bold border-0 bg-white rounded-lg shadow-sm" value="{{ $mailSetting->default_signer_position ?? 'Kepala Madrasah' }}" placeholder="Kepala Madrasah">
                             </div>
                             <div class="col-md-4">
                                 <label class="text-[10px] font-black text-muted uppercase">NIP</label>
-                                <input type="text" name="default_signer_nip" class="form-control form-control-sm font-weight-bold border-0 bg-white rounded-lg shadow-sm" value="{{ $mailSetting->default_signer_nip }}" placeholder="19800101...">
+                                <input type="text" name="default_signer_nip" class="form-control form-control-sm font-weight-bold border-0 bg-white rounded-lg shadow-sm" value="{{ $mailSetting->default_signer_nip ?? ($kamad->nip ?? '') }}" placeholder="19800101...">
                             </div>
                         </div>
                     </div>

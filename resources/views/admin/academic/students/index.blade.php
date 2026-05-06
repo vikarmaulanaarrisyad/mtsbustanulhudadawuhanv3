@@ -319,6 +319,7 @@
                 $('#det_ayah').text(d.parents.father_name || '-');
                 $('#det_ibu').text(d.parents.mother_name || '-');
             }
+            $('#btn-print-nisn').attr('onclick', `printCard(${id})`);
             $(modalDetail).modal('show');
         }).fail(() => { Swal.close(); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal memuat detail.' }); });
     }
@@ -366,5 +367,9 @@
 
     function exportExcel() { window.open('{{ route("students.export_excel") }}?' + $.param({academic_year_id: $('#filter_academic_year').val(), class_group_id: $('#filter_class_group').val(), jenis_kelamin: $('#filter_jk').val()}), '_blank'); }
     function exportPDF() { window.open('{{ route("students.export_pdf") }}?' + $.param({academic_year_id: $('#filter_academic_year').val(), class_group_id: $('#filter_class_group').val(), jenis_kelamin: $('#filter_jk').val()}), '_blank'); }
+    
+    function printCard(id) {
+        window.open(`{{ url('/academic/students') }}/${id}/card-pdf`, '_blank');
+    }
 </script>
 @endpush

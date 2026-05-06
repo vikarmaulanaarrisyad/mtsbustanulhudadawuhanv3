@@ -232,12 +232,16 @@
     </div>
 
     <div class="signature-container">
+        @php
+            $kepala = get_kepala_madrasah();
+            $general = \App\Models\MailSetting::first();
+        @endphp
         <div class="signature-box">
-            <p>{{ $setting->city ?? 'Dawuhan' }}, {{ tanggal_indonesia(date('Y-m-d')) }}</p>
-            <p>{{ $setting->default_signer_position ?? 'Kepala Madrasah' }},</p>
+            <p>{{ $general->city ?? 'Dawuhan' }}, {{ tanggal_indonesia(date('Y-m-d')) }}</p>
+            <p>{{ $general->default_signer_position ?? 'Kepala Madrasah' }},</p>
             <div class="signature-space"></div>
-            <p><strong><u>{{ $setting->default_signer_name ?? 'KEPALA MADRASAH' }}</u></strong><br>
-            NIP. {{ $setting->default_signer_nip ?? '-' }}</p>
+            <p><strong><u>{{ $kepala->name ?? ($general->default_signer_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
+            NIP. {{ $kepala->nip ?? ($general->default_signer_nip ?? '-') }}</p>
         </div>
         <div style="clear: both;"></div>
     </div>

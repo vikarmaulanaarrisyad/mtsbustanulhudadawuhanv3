@@ -185,6 +185,42 @@
                 font-size: 1.2rem;
             }
         }
+        /* Premium Breadcrumb & Header */
+        .premium-breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 5px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .premium-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+            content: "\f105";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: #cbd5e0;
+            padding: 0 10px;
+        }
+        .premium-breadcrumb a {
+            color: #718096;
+            transition: all 0.3s;
+        }
+        .premium-breadcrumb a:hover {
+            color: #2d3748;
+            text-decoration: none;
+        }
+        .premium-breadcrumb .active {
+            color: #a0aec0;
+        }
+        .header-title-premium {
+            font-size: 1.75rem;
+            letter-spacing: -0.5px;
+        }
+        .letter-spacing-1 { letter-spacing: 1px; }
+        .bg-light-soft { background: #f8fafc; }
+        
+        .content-wrapper { background: #f8fafc !important; }
     </style>
 
     @stack('css')
@@ -211,20 +247,23 @@
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
-            <div class="content-header">
+            <div class="content-header pt-4 pb-2">
                 <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0">@yield('title')</h1>
-                        </div><!-- /.col -->
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                @section('breadcrumb')
-                                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                @show
-                            </ol>
-                        </div><!-- /.col -->
-                    </div><!-- /.row -->
+                    <div class="d-flex justify-content-between align-items-end mb-1 flex-wrap">
+                        <div>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb premium-breadcrumb">
+                                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="fas fa-home mr-1"></i> Dashboard</a></li>
+                                    @yield('breadcrumb')
+                                </ol>
+                            </nav>
+                            <h1 class="m-0 font-weight-bold text-dark header-title-premium">@yield('title')</h1>
+                        </div>
+                        <div class="header-date-premium d-none d-md-block text-right">
+                            <span class="text-muted small font-weight-bold uppercase letter-spacing-1">Hari Ini</span>
+                            <p class="mb-0 font-weight-bold text-dark">{{ tanggal_indonesia(date('Y-m-d'), true) }}</p>
+                        </div>
+                    </div>
                 </div><!-- /.container-fluid -->
             </div>
             <!-- /.content-header -->

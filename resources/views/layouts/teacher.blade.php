@@ -87,25 +87,25 @@
 
         <!-- Bottom Navigation (Fixed & Modernized Emerald) -->
         <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md h-24 bg-slate-900/95 bottom-nav-blur border-t border-white/10 rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex items-center justify-around px-6 z-[9999]">
-            <a href="{{ route('dashboard') }}" class="flex flex-col items-center space-y-1 {{ request()->is('admin/dashboard') ? 'text-emerald-400' : 'text-slate-500' }}">
+            <a href="{{ route('guru.dashboard') }}" class="flex flex-col items-center space-y-1 {{ request()->is('guru/dashboard*') ? 'text-emerald-400' : 'text-slate-500' }}">
                 <i class="fas fa-th-large text-xl"></i>
                 <span class="text-[9px] font-bold uppercase tracking-widest">Home</span>
             </a>
             
-            <a href="{{ route('teacher.schedule') }}" class="flex flex-col items-center space-y-1 {{ request()->is('admin/teacher/schedule*') ? 'text-emerald-400' : 'text-slate-500' }}">
+            <a href="{{ route('guru.schedule') }}" class="flex flex-col items-center space-y-1 {{ request()->is('guru/schedule*') ? 'text-emerald-400' : 'text-slate-500' }}">
                 <i class="fas fa-calendar-alt text-xl"></i>
                 <span class="text-[9px] font-bold uppercase tracking-widest">Jadwal</span>
             </a>
  
             <!-- Central Action (Floating Emerald) -->
             <div class="relative -top-8">
-                <a href="{{ route('student-attendances.index') }}" class="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-white shadow-2xl shadow-emerald-500/40 border-4 border-slate-900 active:scale-90 transition-all animate-pulse-emerald">
+                <a href="{{ route('student-attendances.scanner') }}" class="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-white shadow-2xl shadow-emerald-500/40 border-4 border-slate-900 active:scale-90 transition-all animate-pulse-emerald">
                     <i class="fas fa-fingerprint text-2xl"></i>
                 </a>
-                <span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] {{ request()->is('admin/student-attendances*') ? 'text-emerald-400' : 'text-slate-400' }} font-bold uppercase tracking-widest">Absensi</span>
+                <span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] {{ request()->is('student-attendances*') ? 'text-emerald-400' : 'text-slate-400' }} font-bold uppercase tracking-widest">Absensi</span>
             </div>
-
-            <a href="{{ route('teacher.attendance.dashboard') }}" class="flex flex-col items-center space-y-1 {{ request()->is('admin/teacher/attendance*') ? 'text-emerald-400' : 'text-slate-500' }}">
+ 
+            <a href="{{ route('teacher.attendance.dashboard') }}" class="flex flex-col items-center space-y-1 {{ request()->is('teacher/attendance*') ? 'text-emerald-400' : 'text-slate-500' }}">
                 <i class="fas fa-history text-xl"></i>
                 <span class="text-[9px] font-bold uppercase tracking-widest">Log</span>
             </a>

@@ -24,7 +24,6 @@ const CACHE_NAME = 'madrasah-v{$version}';
 const urlsToCache = ['/', '/login'];
 
 self.addEventListener('install', event => {
-    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
             return cache.addAll(urlsToCache);
@@ -34,16 +33,13 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
     event.waitUntil(
-        Promise.all([
-            self.clients.claim(),
-            caches.keys().then(cacheNames => {
-                return Promise.all(
-                    cacheNames
-                        .filter(name => name !== CACHE_NAME)
-                        .map(name => caches.delete(name))
-                );
-            })
-        ])
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames
+                    .filter(name => name !== CACHE_NAME)
+                    .map(name => caches.delete(name))
+            );
+        })
     );
 });
 
@@ -84,11 +80,6 @@ self.addEventListener('fetch', event => {
     );
 });
 
-self.addEventListener('message', event => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
-    }
-});
 JS;
 
         return response($swContent, 200, [
@@ -143,19 +134,12 @@ JS;
         }
         imagedestroy($image);
 
-        // Store reference path in settings and increment version to trigger SW update
-        $currentVersion = $setting->pwa_version ?? '1.0.0';
-        $parts = explode('.', $currentVersion);
-        $parts[2] = isset($parts[2]) ? (int)$parts[2] + 1 : 1;
-        $newVersion = implode('.', $parts);
-
         $setting->update([
             'pwa_icon' => '/storage/pwa/icons/icon-192x192.png',
-            'pwa_version' => $newVersion
         ]);
 
         return back()->with([
-            'message' => 'Ikon PWA berhasil diperbarui ke versi ' . $newVersion . '! Semua ukuran ikon telah diregenerasi.',
+            'message' => 'Ikon PWA berhasil diperbarui! Semua ukuran ikon telah diregenerasi.',
             'success' => true,
         ]);
     }

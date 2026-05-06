@@ -9,42 +9,68 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use App\Models\PermissionGroup;
 
 class UserController extends Controller
 {
     public function index()
     {
-        return view('konfigurasi.user.index');
+        $permissionGroups = PermissionGroup::with('permissions')->get();
+        return view('konfigurasi.user.index', compact('permissionGroups'));
     }
 
-    public function data()
+    public function data(Request $request)
     {
-        $query = User::with('roles')->get();
+        $query = User::with('roles');
+
+        if ($request->has('role') && !empty($request->role) && $request->role != 'all') {
+            $query->whereHas('roles', function($q) use ($request) {
+                if ($request->role == 'Admin') {
+                    $q->whereIn('name', ['Admin', 'Super Admin']);
+                } else {
+                    $q->where('name', $request->role);
+                }
+            });
+        }
 
         return datatables($query)
             ->addIndexColumn()
             ->addColumn('role_names', function ($r) {
-                return $r->roles->pluck('name')->implode(', ') ?: '<span class="badge badge-secondary">No Role</span>';
+                return $r->roles->pluck('name')->map(function($role) {
+                    $class = 'badge-secondary';
+                    if($role == 'Super Admin' || $role == 'Admin') $class = 'badge-danger';
+                    if($role == 'Guru') $class = 'badge-success';
+                    if($role == 'Siswa') $class = 'badge-info';
+                    if($role == 'ppdb') $class = 'badge-warning';
+                    return '<span class="badge '.$class.' px-2 py-1">'.$role.'</span>';
+                })->implode(' ') ?: '<span class="badge badge-secondary">No Role</span>';
             })
             ->addColumn('action', function ($query) {
                 $aksi = '';
 
                 if (Auth::user()->hasPermissionTo("user.show")) {
                     $aksi .= '
-                        <button onclick="detailForm(`' . route('users.detail', $query->id) . '`)" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></button>
+                        <button onclick="detailForm(`' . route('users.detail', $query->id) . '`)" class="btn btn-sm btn-soft-info" title="Detail"><i class="fas fa-eye"></i></button>
                     ';
                 }
                 if (Auth::user()->hasPermissionTo("user.edit")) {
                     $aksi .= '
-                        <button onclick="editForm(`' . route('users.edit', $query->id) . '`)" class="btn btn-sm btn-primary"><i class="fas fa-pencil-alt"></i></button>
-
+                        <button onclick="editForm(`' . route('users.edit', $query->id) . '`)" class="btn btn-sm btn-soft-primary" title="Edit"><i class="fas fa-pencil-alt"></i></button>
                     ';
                 }
                 if (Auth::user()->hasPermissionTo("user.delete")) {
                     $aksi .= '
-                        <button onclick="resetPassword(`' . route('users.reset_password', $query->id) . '`, `' . $query->name . '`)" class="btn btn-sm btn-warning"><i class="fas fa-key"></i></button>
-                        <button onclick="deleteData(`' . route('users.destroy', $query->id) . '`, `' . $query->name . '`)" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i></button>
+                        <button onclick="resetPassword(`' . route('users.reset_password', $query->id) . '`, `' . $query->name . '`)" class="btn btn-sm btn-soft-warning" title="Reset Password"><i class="fas fa-key"></i></button>
                     ';
+
+                    // Cek apakah user memiliki role Admin atau Super Admin agar tidak bisa dihapus
+                    $isAdmin = $query->hasRole(['Admin', 'Super Admin']);
+                    if (!$isAdmin) {
+                        $aksi .= '
+                            <button onclick="deleteData(`' . route('users.destroy', $query->id) . '`, `' . $query->name . '`)" class="btn btn-sm btn-soft-danger" title="Hapus"><i class="fas fa-trash-alt"></i></button>
+                        ';
+                    }
                 }
 
                 return $aksi;
@@ -84,6 +110,10 @@ class UserController extends Controller
 
             $user->assignRole($roles);
 
+            if ($request->has('permission_ids')) {
+                $user->syncPermissions(Permission::whereIn('id', $request->permission_ids)->pluck('name')->toArray());
+            }
+
             DB::commit();
 
             return response()->json([
@@ -101,7 +131,7 @@ class UserController extends Controller
 
     public function detail(Request $request, User $users)
     {
-        $users->load(['roles']);
+        $users->load(['roles', 'permissions']);
         return response()->json([
             'data' => $users
         ]);
@@ -109,7 +139,7 @@ class UserController extends Controller
 
     public function edit(Request $request, User $users)
     {
-        $users->load(['roles']);
+        $users->load(['roles', 'permissions']);
         return response()->json([
             'data' => $users
         ]);
@@ -156,6 +186,12 @@ class UserController extends Controller
 
             $users->syncRoles($roles);
 
+            if ($request->has('permission_ids')) {
+                $users->syncPermissions(Permission::whereIn('id', $request->permission_ids)->pluck('name')->toArray());
+            } else {
+                $users->syncPermissions([]);
+            }
+
             DB::commit();
 
             return response()->json([
@@ -173,6 +209,13 @@ class UserController extends Controller
 
     public function destroy(Request $request, User $users)
     {
+        // Proteksi: Admin dan Super Admin tidak boleh dihapus
+        if ($users->hasRole(['Admin', 'Super Admin'])) {
+            return response()->json([
+                'message' => 'Akun Administrator tidak dapat dihapus demi keamanan sistem.'
+            ], 403);
+        }
+
         $users->delete();
 
         return response()->json([
@@ -185,6 +228,16 @@ class UserController extends Controller
         $keyword = request()->get('q');
 
         $result = Role::where('name', "LIKE", "%$keyword%")
+            ->get();
+
+        return $result;
+    }
+
+    public function permissionSearch(Request $request)
+    {
+        $keyword = request()->get('q');
+
+        $result = Permission::where('name', "LIKE", "%$keyword%")
             ->get();
 
         return $result;

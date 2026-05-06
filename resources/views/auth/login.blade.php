@@ -120,7 +120,7 @@
                         showConfirmButton: false,
                         timer: 3000
                     }).then(() => {
-                        window.location.href = '{{ route('home') }}';
+                        window.location.href = '{{ route('dashboard') }}';
                     });
                 },
                 error: function(errors) {

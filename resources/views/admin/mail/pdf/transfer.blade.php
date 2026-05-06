@@ -73,15 +73,15 @@
     <div class="signature">
         @php
             $general = \App\Models\Setting::first();
+            $kepala = get_kepala_madrasah();
         @endphp
         <div class="signature-box">
             <p>{{ $general->city ?? 'Dawuhan' }},
                 {{ tanggal_indonesia($transfer->transfer_date) }}<br>{{ $transfer->signer_position ?? 'Kepala Madrasah' }},
             </p>
-            {{--  <p>{{ $general->city ?? 'Dawuhan' }}, {{ \Carbon\Carbon::parse($transfer->transfer_date)->translatedFormat('d F Y') }}<br>{{ $transfer->signer_position ?? 'Kepala Madrasah' }},</p>  --}}
             <div class="signature-space"></div>
-            <p><strong><u>{{ $transfer->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
-                NIP. {{ $transfer->signer_nip ?? '-' }}</p>
+            <p><strong><u>{{ $kepala->name ?? ($transfer->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH')) }}</u></strong><br>
+                NIP. {{ $kepala->nip ?? ($transfer->signer_nip ?? '-') }}</p>
         </div>
         <div style="clear: both;"></div>
     </div>

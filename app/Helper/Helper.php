@@ -204,3 +204,23 @@ function tambah_nol_didepan($value, $threshold = null)
 {
     return sprintf("%0" . $threshold . "s", $value);
 }
+
+if (!function_exists('get_kepala_madrasah')) {
+    function get_kepala_madrasah()
+    {
+        return \App\Models\Teacher::where(function($q) {
+            $q->where('position', 'LIKE', '%Kepala Madrasah%')
+              ->orWhere('additional_duty', 'LIKE', '%Kepala Madrasah%');
+        })->first();
+    }
+}
+
+if (!function_exists('get_bendahara_madrasah')) {
+    function get_bendahara_madrasah()
+    {
+        return \App\Models\Teacher::where(function($q) {
+            $q->where('position', 'LIKE', '%Bendahara%')
+              ->orWhere('additional_duty', 'LIKE', '%Bendahara%');
+        })->first();
+    }
+}

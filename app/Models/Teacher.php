@@ -24,4 +24,9 @@ class Teacher extends Model
     {
         return $this->belongsToMany(DutyLetter::class, 'duty_letter_teachers');
     }
+
+    public function payrolls()
+    {
+        return $this->hasMany(Payroll::class);
+    }
 }

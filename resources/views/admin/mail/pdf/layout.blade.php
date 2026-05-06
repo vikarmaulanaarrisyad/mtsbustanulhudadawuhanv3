@@ -18,9 +18,9 @@
 
         /* KOP SURAT */
         .kop-surat {
-            border-bottom: 3px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            border-bottom: 2.5px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 25px;
         }
 
         .kop-table {
@@ -31,7 +31,7 @@
         .kop-logo-td {
             width: 80px;
             vertical-align: middle;
-            text-align: left;
+            text-align: center;
         }
 
         .kop-logo {
@@ -41,6 +41,8 @@
         .kop-text-td {
             text-align: center;
             vertical-align: middle;
+            padding-left: 15px;
+            padding-right: 80px;
         }
 
         .kop-text h2 {
@@ -48,22 +50,22 @@
             font-size: 13pt;
             font-weight: normal;
             text-transform: uppercase;
-            line-height: 1.1;
+            line-height: 1.2;
         }
 
         .kop-text h1 {
-            margin: 0;
-            font-size: 16pt;
+            margin: 2px 0;
+            font-size: 18pt;
             text-transform: uppercase;
             font-weight: bold;
-            line-height: 1.1;
+            line-height: 1.2;
         }
 
         .kop-text p {
-            margin: 0;
-            font-size: 9pt;
-            font-style: italic;
-            line-height: 1.1;
+            margin: 1px 0;
+            font-size: 10pt;
+            font-style: normal;
+            line-height: 1.2;
         }
 
         .header-line {

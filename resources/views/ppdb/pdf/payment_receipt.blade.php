@@ -80,10 +80,14 @@
                     Scan untuk validasi sistem
                 </div>
                 <div style="float: right; width: 40%; text-align: center; font-size: 9pt;">
+                    @php
+                        $bendahara = get_bendahara_madrasah();
+                    @endphp
                     {{ $source->city ?? 'Dawuhan' }}, {{ date('d M Y') }}<br>
                     Bendahara PPDB,<br>
-                    <div style="height: 40px;"></div>
-                    <strong>( ............................ )</strong>
+                    <div style="height: 50px;"></div>
+                    <strong>{{ $bendahara->name ?? '( ............................ )' }}</strong><br>
+                    <span style="font-size: 8pt;">{{ $bendahara ? 'NIP. ' . ($bendahara->nip ?? '-') : '' }}</span>
                 </div>
                 <div style="clear: both;"></div>
             </div>

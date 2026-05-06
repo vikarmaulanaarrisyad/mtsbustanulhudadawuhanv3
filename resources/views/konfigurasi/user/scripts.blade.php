@@ -18,6 +18,9 @@
             responsive: true,
             ajax: {
                 url: '{{ route('users.data') }}',
+                data: function(d) {
+                    d.role = $('#roleTabs .nav-link.active').attr('data-role');
+                }
             },
             columns: [{
                     data: 'DT_RowIndex',
@@ -47,6 +50,11 @@
                 },
             ]
         });
+        
+        // Tab Filtering Logic
+        $('#roleTabs a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+            table.ajax.reload();
+        });
 
         $('#roles').select2({
             placeholder: 'Pilih Role User',
@@ -67,6 +75,61 @@
                 }
             }
         });
+ 
+        $('#permission_ids').select2({
+            placeholder: 'Pilih Izin Langsung',
+            theme: 'bootstrap4',
+            closeOnSelect: false,
+            allowClear: true,
+        });
+ 
+        // Sync toggles with select2
+        $('.menu-permission-check').on('change', function() {
+            const permissionName = $(this).val();
+            const isChecked = $(this).is(':checked');
+            const select2 = $('#permission_ids');
+            let currentValues = select2.val() || [];
+ 
+            // Find the ID for this permission name
+            const option = select2.find(`option[data-name="${permissionName}"]`);
+            if (option.length) {
+                const id = option.val();
+                if (isChecked) {
+                    if (!currentValues.includes(id)) {
+                        currentValues.push(id);
+                    }
+                } else {
+                    currentValues = currentValues.filter(v => v !== id);
+                }
+                select2.val(currentValues).trigger('change');
+            }
+        });
+ 
+        $('#permission_ids').on('change', function() {
+            const currentValues = $(this).val() || [];
+            
+            $('.menu-permission-check').each(function() {
+                const permissionName = $(this).val();
+                const option = $('#permission_ids').find(`option[data-name="${permissionName}"]`);
+                if (option.length) {
+                    const id = option.val();
+                    $(this).prop('checked', currentValues.includes(id.toString()));
+                }
+            });
+            
+            // Sync check all button
+            const totalChecks = $('.menu-permission-check').length;
+            const checkedCount = $('.menu-permission-check:checked').length;
+            $('#checkAllPermissions').prop('checked', totalChecks === checkedCount && totalChecks > 0);
+            
+            // Update summary count display
+            $('#checkedCountDisplay').text(currentValues.length);
+        });
+
+        $('#checkAllPermissions').on('change', function() {
+            const isChecked = $(this).is(':checked');
+            $('.menu-permission-check').prop('checked', isChecked).trigger('change');
+        });
 
         function addForm(url, title = 'Form Tambah Data User') {
             $(modal).modal('show');
@@ -78,8 +141,15 @@
             $(`${modal} #username`).prop('disabled', false);
             $(`${modal} #email`).prop('disabled', false);
             $(`${modal} #roles`).prop('disabled', false);
+            $(`${modal} #permission_ids`).prop('disabled', false);
             $(`${modal} #passwordRow`).show();
             $(`${modal} #submitBtn`).show();
+ 
+            $('#roles').empty().trigger('change');
+            $('#permission_ids').val(null).trigger('change');
+            $('.menu-permission-check').prop('checked', false);
+            $('.menu-permission-check').prop('disabled', false);
+            $('#checkAllPermissions').prop('checked', false).prop('disabled', false);
 
             resetForm(`${modal} form`);
         }
@@ -99,6 +169,9 @@
                     $(`${modal} #username`).prop('disabled', true);
                     $(`${modal} #email`).prop('disabled', true);
                     $(`${modal} #roles`).prop('disabled', true);
+                    $(`${modal} #permission_ids`).prop('disabled', true);
+                    $('.menu-permission-check').prop('disabled', true);
+                    $('#checkAllPermissions').prop('disabled', true);
                     $(`${modal} #passwordRow`).hide();
 
                     resetForm(`${modal} form`);
@@ -110,6 +183,11 @@
                         $('#roles').append(option);
                     }
                     $('#roles').trigger('change');
+
+                    if (response.data.permissions) {
+                        let permissionIds = response.data.permissions.map(p => p.id);
+                        $('#permission_ids').val(permissionIds).trigger('change');
+                    }
                 },
                 error: function(errors) {
                     Swal.fire({
@@ -137,6 +215,9 @@
                     $(`${modal} #username`).prop('disabled', false);
                     $(`${modal} #email`).prop('disabled', false);
                     $(`${modal} #roles`).prop('disabled', false);
+                    $(`${modal} #permission_ids`).prop('disabled', false);
+                    $('.menu-permission-check').prop('disabled', false);
+                    $('#checkAllPermissions').prop('disabled', false);
                     $(`${modal} #submitBtn`).show();
                     $(`${modal} #passwordRow`).hide();
 
@@ -149,6 +230,11 @@
                         $('#roles').append(option);
                     }
                     $('#roles').trigger('change');
+
+                    if (response.data.permissions) {
+                        let permissionIds = response.data.permissions.map(p => p.id);
+                        $('#permission_ids').val(permissionIds).trigger('change');
+                    }
                 },
                 error: function(xhr, status, error) {
                     var errorMessage = xhr.status + ': ' + xhr.statusText;

@@ -89,14 +89,17 @@
         </div>
         
         <div class="signature-box" style="float: right; width: 250px; text-align: center;">
+            @php
+                $kepala = get_kepala_madrasah();
+            @endphp
             <p>{{ $source->city ?? 'Dawuhan' }}, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
-               Panitia PPDB,
+               Kepala Madrasah,
             </p>
             <div style="height: 60px;">
                 {{-- Placeholder stempel digital jika ada --}}
             </div>
-            <p><strong><u>{{ $source->default_signer_name ?? 'PANITIA PENERIMAAN' }}</u></strong><br>
-                NIP. {{ $source->default_signer_nip ?? '-' }}</p>
+            <p><strong><u>{{ $kepala->name ?? ($source->default_signer_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
+                NIP. {{ $kepala->nip ?? ($source->default_signer_nip ?? '-') }}</p>
         </div>
         <div style="clear: both;"></div>
     </div>
