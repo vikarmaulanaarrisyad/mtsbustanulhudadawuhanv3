@@ -43,13 +43,7 @@ self.addEventListener('activate', event => {
                         .map(name => caches.delete(name))
                 );
             })
-        ]).then(() => {
-            self.clients.matchAll({ type: 'window' }).then(clients => {
-                clients.forEach(client => {
-                    client.postMessage({ type: 'SW_UPDATED', version: '{$version}' });
-                });
-            });
-        })
+        ])
     );
 });
 
