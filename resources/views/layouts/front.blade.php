@@ -1316,7 +1316,8 @@
     {{--  OVERLAY LOCK (Wajib Instal untuk Guru/Siswa) --}}
     {{-- ════════════════════════════════════════════ --}}
     @php
-        $isRestricted = auth()->check() && (auth()->user()->hasRole('Guru') || auth()->user()->hasRole('Siswa'));
+        // Kecuali Admin dan Super Admin, semua user (Guru, Siswa, PPDB) wajib install PWA
+        $isRestricted = auth()->check() && !auth()->user()->hasRole(['Admin', 'Super Admin']);
     @endphp
 
     @if($isRestricted)
