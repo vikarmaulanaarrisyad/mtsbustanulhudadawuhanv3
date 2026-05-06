@@ -92,7 +92,7 @@
                         <i class="fas fa-bell"></i>
                         <span class="badge badge-danger badge-pill position-absolute" style="top: -5px; right: -5px; font-size: 9px;">2</span>
                     </div>
-                    <form action="{{ route('logout') }}" method="POST" id="form-logout-siswa" class="d-inline">
+                    <form action="{{ route('logout') }}" method="POST" id="logout-form-main" class="d-inline">
                         @csrf
                         <div class="stu-header-icon bg-danger-soft" onclick="confirmLogout()">
                             <i class="fas fa-power-off"></i>
@@ -881,7 +881,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center">
-                    <form action="{{ route('logout') }}" method="POST" id="form-logout-siswa" class="d-inline">
+                    <form action="{{ route('logout') }}" method="POST" id="logout-form-main" class="d-inline">
                         @csrf
                         <div class="stu-header-icon bg-danger-soft" onclick="confirmLogout()">
                             <i class="fas fa-power-off"></i>
@@ -982,7 +982,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center">
-                    <form action="{{ route('logout') }}" method="POST" id="form-logout-registered" class="d-inline">
+                    <form action="{{ route('logout') }}" method="POST" id="logout-form-main" class="d-inline">
                         @csrf
                         <div class="stu-header-icon bg-danger-soft" onclick="confirmLogout()">
                             <i class="fas fa-power-off"></i>
@@ -1743,7 +1743,22 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('form-logout-siswa').submit();
+                const logoutForm = document.getElementById('logout-form-main');
+                if (logoutForm) {
+                    logoutForm.submit();
+                } else {
+                    // Fallback if form not found
+                    const genericForm = document.createElement('form');
+                    genericForm.method = 'POST';
+                    genericForm.action = '{{ route("logout") }}';
+                    const csrfToken = document.createElement('input');
+                    csrfToken.type = 'hidden';
+                    csrfToken.name = '_token';
+                    csrfToken.value = '{{ csrf_token() }}';
+                    genericForm.appendChild(csrfToken);
+                    document.body.appendChild(genericForm);
+                    genericForm.submit();
+                }
             }
         });
     }

@@ -1,400 +1,66 @@
 @extends('layouts.front')
 @push('css')
     <style>
-        #quote-fade {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            font-weight: 500;
+        /* Glassmorphism Variables */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --primary-gradient: linear-gradient(135deg, #0b8c89, #14b8a6);
         }
 
-        .fade-quote {
-            opacity: 0;
-            display: inline-block;
-            transition: opacity 1s ease-in-out;
-            margin-right: 15px;
-            /* Jeda antar quote */
-        }
-
-        .fade-quote.visible {
-            opacity: 1;
-        }
-
-        /* public/css/custom.css atau di <style> */
-
-
-        .carousel-item img {
-            object-fit: cover;
-            /* menjaga gambar proporsional */
-        }
-
-        /* Membatasi z-index tabel agar tidak menutupi navbar */
-        section.py-5.bg-white.mb-5 {
-            position: relative;
-            z-index: 1;
-            /* pastikan tabel tidak lebih tinggi dari navbar */
-        }
-
-        /* Menjaga header tabel tetap terlihat hanya di dalam kotak scroll, bukan di luar */
-        .table thead.sticky-top th {
-            top: 0;
-            z-index: 2;
-            /* agar header di atas isi tabel, tapi di bawah navbar */
-            background-color: #198754;
-            /* warna hijau Bootstrap success */
-            color: white;
-        }
-    </style>
-
-    <style>
-        .hover-effect {
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: default;
-        }
-
-        .hover-effect:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Card hover effect */
-        .hover-effect {
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: default;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .hover-effect:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Gradient border effect */
-        .gradient-border {
-            position: relative;
-            border: 3px solid;
-            border-radius: 15px;
-            background-clip: padding-box;
-            border-color: #04a30f;
-        }
-
-        /* Gallery hover */
-        .masonry-item:hover .hover-zoom {
-            transform: scale(1.05);
-        }
-        .masonry-item:hover .overlay-text {
-            opacity: 1 !important;
-        }
-
-        /* Hero Premium Styles */
-        .carousel-item {
-            height: 100vh !important;
-            min-height: 600px;
-            background: #000;
-            position: relative;
-            overflow: hidden;
-        }
-        .carousel-item img {
-            height: 100% !important;
-            width: 100% !important;
-            object-fit: cover;
-            opacity: 0.6;
-            filter: brightness(0.8);
-            transform: scale(1.05);
-            transition: transform 10s ease;
-        }
-        .carousel-item.active img {
-            transform: scale(1);
-        }
-        /* Gradient Overlay */
-        .carousel-item::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.4) 100%);
-            z-index: 1;
-        }
-        .carousel-caption {
-            bottom: 50% !important;
-            transform: translateY(50%);
-            text-align: center;
-            z-index: 10;
-            width: 80%;
-            left: 10%;
-        }
-        .carousel-caption h5 {
-            font-size: 4.5rem;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            margin-bottom: 20px;
-            animation: fadeInUp 1.2s ease-out forwards;
-            opacity: 0;
-        }
-        .carousel-caption p {
-            font-size: 1.5rem;
-            font-weight: 300;
-            color: rgba(255, 255, 255, 0.9);
-            text-shadow: 0 5px 15px rgba(0,0,0,0.6);
-            margin-bottom: 40px;
-            animation: fadeInUp 1.4s ease-out forwards;
-            animation-delay: 0.3s;
-            opacity: 0;
-        }
-        .hero-buttons {
-            animation: fadeInUp 1.6s ease-out forwards;
-            animation-delay: 0.6s;
-            opacity: 0;
-        }
-        .btn-hero {
-            padding: 12px 35px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.4s ease;
-        }
-        .btn-hero-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-            border: none;
-            color: white;
-            box-shadow: 0 10px 25px rgba(14, 170, 166, 0.4);
-        }
-        .btn-hero-primary:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(14, 170, 166, 0.6);
-            color: white;
-        }
-        .btn-hero-outline {
-            background: transparent;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            color: white;
-        }
-        .btn-hero-outline:hover {
-            background: white;
-            color: var(--primary-color);
-            transform: translateY(-5px);
-        }
-        .scroll-down-indicator {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            animation: bounce 2s infinite;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 2rem;
+        /* Animated Counter Enhancements */
+        .stat-box {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
         }
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
-            40% { transform: translateY(-15px) translateX(-50%); }
-            60% { transform: translateY(-7px) translateX(-50%); }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
+        .stat-box:hover {
+            transform: translateY(-15px) scale(1.05);
+            background: rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
 
-        /* Feature Cards */
-        .feature-icon {
+        /* Why Choose Us Section */
+        .choice-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 40px 30px;
+            transition: all 0.3s ease;
+            height: 100%;
+            border: 1px solid #f1f5f9;
+        }
+        .choice-card:hover {
+            box-shadow: 0 20px 40px rgba(11, 140, 137, 0.1);
+            transform: translateY(-10px);
+            border-color: #0b8c89;
+        }
+        .choice-icon-box {
             width: 70px;
             height: 70px;
-            background: rgba(14, 170, 166, 0.1);
-            color: #0eaaa6;
+            border-radius: 20px;
+            background: #f1f5f9;
+            color: #0b8c89;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            font-size: 30px;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
             transition: 0.3s;
         }
-        .feature-card:hover .feature-icon {
-            background: #0eaaa6;
+        .choice-card:hover .choice-icon-box {
+            background: #0b8c89;
             color: #fff;
-            transform: scale(1.1);
+            transform: rotate(10deg);
         }
 
-        /* Modern Post Cards */
-        .post-card {
-            border-radius: 20px !important;
-            overflow: hidden;
-            transition: 0.4s;
-        }
-        .post-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
-        }
-        .post-card .card-img-top {
-            height: 200px;
-            object-fit: cover;
-        }
-        .post-date-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: #198754;
-            color: #fff;
-            padding: 5px 15px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 5;
+        /* Hero Text Shadow */
+        .carousel-caption h1 {
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-weight: 900;
         }
 
-        /* Ekskul & Prestasi Styles */
-        .ekskul-card {
-            background: #fff;
-            border-radius: 20px;
-            transition: 0.3s;
-            border: 1px solid #eee;
-        }
-        .ekskul-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border-color: #0eaaa6;
-        }
-        .achievement-card {
-            border-radius: 20px;
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: 0.3s;
-        }
-        .achievement-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .medal-badge {
-            width: 40px;
-            height: 40px;
-            background: gold;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: bold;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        /* Premium Table Styles */
-        .premium-table {
-            border-collapse: separate;
-            border-spacing: 0 12px;
-            background: transparent;
-            margin-bottom: 0;
-            width: 100%;
-        }
-        .premium-table thead th {
-            border: none;
-            background: rgba(25, 135, 84, 0.1);
-            color: #198754;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            padding: 15px;
-            font-weight: 700;
-        }
-        .premium-table thead th:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-        .premium-table thead th:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-        
-        .premium-table tbody tr {
-            background: #fff;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-        .premium-table tbody tr:hover {
-            transform: translateY(-3px) scale(1.01);
-            box-shadow: 0 10px 25px rgba(25, 135, 84, 0.15);
-            z-index: 2;
-            position: relative;
-        }
-        .premium-table tbody td {
-            border: none;
-            padding: 15px 20px;
-            vertical-align: middle;
-        }
-        .premium-table tbody td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-        .premium-table tbody td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-
-        /* Gallery Masonry & Hover */
-        .masonry-grid {
-            column-count: 2;
-            column-gap: 15px;
-        }
-        @media (max-width: 576px) {
-            .masonry-grid {
-                column-count: 1;
-            }
-        }
-        .masonry-item {
-            break-inside: avoid;
-            margin-bottom: 15px;
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .masonry-item img {
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        .masonry-item:hover img {
-            transform: scale(1.1);
-        }
-        .masonry-item .overlay-gallery {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to top, rgba(25, 135, 84, 0.8), transparent);
-            opacity: 0;
-            transition: all 0.4s ease;
-            display: flex;
-            align-items: flex-end;
-            padding: 20px;
-            color: #fff;
-        }
-        .masonry-item:hover .overlay-gallery {
-            opacity: 1;
-        }
-        .overlay-gallery i {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
-            transform: translateY(20px);
-            transition: transform 0.4s ease;
-        }
-        .masonry-item:hover .overlay-gallery i {
-            transform: translateY(0);
-        }
-
-        /* News UI Improvements */
-        .post-image-wrapper {
-            overflow: hidden;
-        }
-        .post-card:hover .card-img-top {
-            transform: scale(1.1);
-        }
-        .post-category-tag {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
-            z-index: 5;
-        }
-        .post-date-badge {
-            background: rgba(0,0,0,0.6) !important;
-            backdrop-filter: blur(5px);
-            padding: 6px 12px !important;
+        /* Section Divider Path Color */
+        .section-divider .shape-fill {
+            fill: #f8f9fa;
         }
     </style>
 @endpush
@@ -540,51 +206,92 @@
 
     </section>
 
+    {{-- Why Choose Us Section --}}
+    <section class="why-us py-5 bg-white">
+        <div class="container py-4">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <span class="badge badge-success px-3 py-2 rounded-pill mb-3" style="background: rgba(11, 140, 137, 0.1); color: #0b8c89; font-weight: 700; letter-spacing: 1px;">KEUNGGULAN KAMI</span>
+                <h2 class="font-weight-bold text-dark mt-2" style="font-size: 2.5rem;">Mengapa Memilih Madrasah Kami?</h2>
+                <p class="text-muted">Kami berdedikasi untuk mencetak generasi yang unggul dalam ilmu dan mulia dalam akhlak.</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="choice-card">
+                        <div class="choice-icon-box">
+                            <i class="fas fa-mosque"></i>
+                        </div>
+                        <h4 class="font-weight-bold mb-3">Pendidikan Islami</h4>
+                        <p class="text-muted mb-0">Kurikulum yang mengintegrasikan nilai-nilai keislaman dengan ilmu pengetahuan modern secara harmonis.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="choice-card">
+                        <div class="choice-icon-box">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <h4 class="font-weight-bold mb-3">Fasilitas Modern</h4>
+                        <p class="text-muted mb-0">Lingkungan belajar yang kondusif didukung dengan fasilitas laboratorium dan teknologi digital terbaru.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="choice-card">
+                        <div class="choice-icon-box">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <h4 class="font-weight-bold mb-3">Prestasi Unggul</h4>
+                        <p class="text-muted mb-0">Terbukti mencetak santri-santri berprestasi baik di tingkat regional maupun nasional dalam berbagai bidang.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- Organic Divider --}}
     <div class="section-divider">
-        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120;120" preserveAspectRatio="none">
+        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
         </svg>
     </div>
 
     {{-- Statistics Animated Counter Section --}}
-    <section class="statistics py-5" style="background: linear-gradient(135deg, #0b8c89, #14b8a6); color: white; margin: 0; position: relative; overflow: hidden;">
+    <section class="statistics py-5" style="background: var(--primary-gradient); color: white; margin: 0; position: relative; overflow: hidden;">
         {{-- Decorative background shapes --}}
         <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
         <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
 
         <div class="container py-5">
             <div class="text-center mb-5" data-aos="fade-up">
-                <span class="badge px-4 py-2 rounded-pill mb-3 shadow-sm" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); font-size: 1.1rem; color: white; font-weight: 700;">Statistik Sekolah</span>
-                <p class="text-white-50">Beberapa data penting yang menunjukkan prestasi dan kekuatan sekolah kami</p>
+                <span class="badge px-4 py-2 rounded-pill mb-3 shadow-sm" style="background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2); font-size: 1rem; color: white; font-weight: 700; letter-spacing: 2px;">DATA & FAKTA</span>
+                <h2 class="font-weight-bold text-white">Statistik Keberhasilan Kami</h2>
             </div>
 
             <div class="row text-center">
                 <div class="col-md-3 col-6 mb-4 mb-md-0" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="stat-box p-4 rounded-xl" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; height: 100%;">
+                    <div class="stat-box p-4 rounded-xl" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); height: 100%;">
                         <i class="fa fa-chalkboard-teacher fa-3x mb-3 text-white opacity-90"></i>
-                        <h2 class="font-weight-bold counter mb-1" style="font-size: 3rem; color: white;" data-target="{{ $stats['teacher_count'] ?? 0 }}">0</h2>
+                        <h2 class="font-weight-bold counter mb-1" style="font-size: 3rem;" data-target="{{ $stats['teacher_count'] ?? 45 }}">0</h2>
                         <p class="mb-0 font-weight-bold small text-uppercase" style="letter-spacing: 2px; color: rgba(255,255,255,0.8);">Guru & Staff</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-6 mb-4 mb-md-0" data-aos="zoom-in" data-aos-delay="200">
-                    <div class="stat-box p-4 rounded-xl" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; height: 100%;">
+                    <div class="stat-box p-4 rounded-xl" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); height: 100%;">
                         <i class="fa fa-user-graduate fa-3x mb-3 text-white opacity-90"></i>
-                        <h2 class="font-weight-bold counter mb-1" style="font-size: 3rem; color: white;" data-target="{{ $stats['student_count'] ?? 0 }}">0</h2>
+                        <h2 class="font-weight-bold counter mb-1" style="font-size: 3rem;" data-target="{{ $stats['student_count'] ?? 1200 }}">0</h2>
                         <p class="mb-0 font-weight-bold small text-uppercase" style="letter-spacing: 2px; color: rgba(255,255,255,0.8);">Siswa Aktif</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-6 mb-4 mb-md-0" data-aos="zoom-in" data-aos-delay="300">
-                    <div class="stat-box p-4 rounded-xl" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; height: 100%;">
+                    <div class="stat-box p-4 rounded-xl" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); height: 100%;">
                         <i class="fa fa-running fa-3x mb-3 text-white opacity-90"></i>
-                        <h2 class="font-weight-bold counter mb-1" style="font-size: 3rem; color: white;" data-target="{{ $stats['extracurricular_count'] ?? 0 }}">0</h2>
+                        <h2 class="font-weight-bold counter mb-1" style="font-size: 3rem;" data-target="{{ $stats['extracurricular_count'] ?? 15 }}">0</h2>
                         <p class="mb-0 font-weight-bold small text-uppercase" style="letter-spacing: 2px; color: rgba(255,255,255,0.8);">Ekstrakurikuler</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-6 mb-4 mb-md-0" data-aos="zoom-in" data-aos-delay="400">
-                    <div class="stat-box p-4 rounded-xl" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; height: 100%;">
+                    <div class="stat-box p-4 rounded-xl" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); height: 100%;">
                         <i class="fa fa-trophy fa-3x mb-3 text-white opacity-90"></i>
-                        <h2 class="font-weight-bold counter mb-1" style="font-size: 3rem; color: white;" data-target="{{ $stats['achievement_count'] ?? 0 }}">0</h2>
+                        <h2 class="font-weight-bold counter mb-1" style="font-size: 3rem;" data-target="{{ $stats['achievement_count'] ?? 85 }}">0</h2>
                         <p class="mb-0 font-weight-bold small text-uppercase" style="letter-spacing: 2px; color: rgba(255,255,255,0.8);">Prestasi</p>
                     </div>
                 </div>
@@ -593,7 +300,7 @@
     </section>
 
     {{-- Organic Divider Reverse --}}
-    <div class="section-divider" style="transform: rotate(180deg); margin-top: -50px; z-index: -1;">
+    <div class="section-divider" style="transform: rotate(180deg); margin-top: -50px; z-index: 1;">
         <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill" style="fill: #f8f9fa;"></path>
         </svg>
@@ -784,51 +491,6 @@
         </div>
     </section>
 
-    {{--  Section Statistik Sekolah Profesional  --}}
-    <section id="statistik-sekolah" class="py-5" style="background: linear-gradient(135deg, #0eaaa6, #17ccc6);">
-        <div class="container">
-            <div class="text-center mb-5" style="color: rgb(255, 254, 254);" data-aos="fade-up">
-                <h2 class="fw-bold text-white shadow-sm d-inline-block px-4 py-2" style="border-radius: 10px; background: rgba(0,0,0,0.1);">Statistik Sekolah</h2>
-                <p class="lead mt-3">Beberapa data penting yang menunjukkan prestasi dan kekuatan sekolah kami</p>
-            </div>
-            <div class="row g-4 justify-content-center">
-
-                <!-- Card Statistik -->
-                <div class="col-md-3 mb-4" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="card gradient-border bg-white bg-opacity-10 border-0 shadow-lg text-center py-4 px-3 hover-effect h-100">
-                        <i class="fa fa-users display-4 mb-3 text-white" style="text-shadow: 0 4px 10px rgba(0,0,0,0.2);"></i>
-                        <h3 class="counter text-white font-weight-bold" data-target="1200">0</h3>
-                        <p class="fw-bold text-white-50">Siswa Aktif</p>
-                    </div>
-                </div>
-
-                <div class="col-md-3 mb-4" data-aos="zoom-in" data-aos-delay="200">
-                    <div class="card gradient-border bg-white bg-opacity-10 border-0 shadow-lg text-center py-4 px-3 hover-effect h-100">
-                        <i class="fa fa-chalkboard-teacher display-4 mb-3 text-white" style="text-shadow: 0 4px 10px rgba(0,0,0,0.2);"></i>
-                        <h3 class="counter text-white font-weight-bold" data-target="75">0</h3>
-                        <p class="fw-bold text-white-50">Tenaga Pendidik</p>
-                    </div>
-                </div>
-
-                <div class="col-md-3 mb-4" data-aos="zoom-in" data-aos-delay="300">
-                    <div class="card gradient-border bg-white bg-opacity-10 border-0 shadow-lg text-center py-4 px-3 hover-effect h-100">
-                        <i class="fa fa-school display-4 mb-3 text-white" style="text-shadow: 0 4px 10px rgba(0,0,0,0.2);"></i>
-                        <h3 class="counter text-white font-weight-bold" data-target="36">0</h3>
-                        <p class="fw-bold text-white-50">Ruang Kelas</p>
-                    </div>
-                </div>
-
-                <div class="col-md-3 mb-4" data-aos="zoom-in" data-aos-delay="400">
-                    <div class="card gradient-border bg-white bg-opacity-10 border-0 shadow-lg text-center py-4 px-3 hover-effect h-100">
-                        <i class="fa fa-trophy display-4 mb-3 text-white" style="text-shadow: 0 4px 10px rgba(0,0,0,0.2);"></i>
-                        <h3 class="counter text-white font-weight-bold" data-target="150">0</h3>
-                        <p class="fw-bold text-white-50">Prestasi Gemilang</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    {{--  End Section  --}}
 
     <section class="py-5 bg-white mb-5">
         <div class="container">
