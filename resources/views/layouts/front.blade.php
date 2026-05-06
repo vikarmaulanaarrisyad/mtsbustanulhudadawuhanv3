@@ -1309,7 +1309,7 @@
                 waHint.classList.remove('show-hint');
             }, 5000);
         }, 3000);
-
+    </script>
 
     {{-- PWA Registration & Active Version Check --}}
     <script>
