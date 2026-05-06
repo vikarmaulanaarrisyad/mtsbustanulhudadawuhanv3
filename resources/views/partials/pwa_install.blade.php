@@ -13,19 +13,19 @@
     <div class="pwa-force-card">
         <img src="{{ $setting->pwa_icon ?? '/storage/pwa/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo" class="pwa-force-logo">
         <h1 class="pwa-force-title">Aktivasi Aplikasi Digital</h1>
-        <p class="pwa-force-desc">Silakan pasang aplikasi Smart Madrasah di HP Anda untuk akses yang lebih cepat, aman, dan fitur lengkap.</p>
+        <p class="pwa-force-desc">Aplikasi terdeteksi dibuka melalui Browser Chrome/Safari. Demi keamanan dan fitur lengkap, silakan gunakan aplikasi <b>Smart Madrasah</b> yang telah terpasang di HP Anda.</p>
         
         <div class="pwa-device-guide android-only">
-            <div class="guide-item"><i class="fas fa-check-circle"></i> Siap dipasang ke layar utama.</div>
+            <div class="guide-item"><i class="fas fa-mobile-alt"></i> Buka aplikasi dari Layar Utama (Home Screen).</div>
         </div>
         <div class="pwa-device-guide ios-only">
-            <div class="guide-item"><i class="fas fa-share-square"></i> Klik <b>Share</b> di Safari, lalu <b>"Add to Home Screen"</b>.</div>
+            <div class="guide-item"><i class="fas fa-share-square"></i> Jika belum terpasang: Klik <b>Share</b> di Safari, lalu <b>"Add to Home Screen"</b>.</div>
         </div>
 
         <button id="pwa-force-install-btn" class="pwa-btn-main pwa-btn-install pwa-btn-force">
-            <span id="pwa-btn-text"><i class="fas fa-cloud-download-alt mr-2"></i> PASANG SEKARANG</span>
+            <span id="pwa-btn-text"><i class="fas fa-external-link-alt mr-2"></i> BUKA / PASANG APLIKASI</span>
         </button>
-        <a href="javascript:void(0)" onclick="window.location.reload()" class="pwa-refresh-link">Sudah pasang? Klik Segarkan</a>
+        <a href="javascript:void(0)" onclick="window.location.reload()" class="pwa-refresh-link">Sudah buka di aplikasi? Klik Segarkan</a>
     </div>
 </div>
 @endif

@@ -32,6 +32,11 @@ class DashboardController extends Controller
             return redirect()->route('ppdb.scanner');
         }
 
+        // Security: Cegah Siswa/Siswa Baru masuk ke dashboard admin
+        if ($user->hasRole(['Siswa', 'Siswa Baru'])) {
+            return redirect('/');
+        }
+
         $today = Carbon::today()->toDateString();
         $dayOfWeek = Carbon::today()->dayOfWeekIso; // 1 (Senin) - 7 (Minggu)
         
