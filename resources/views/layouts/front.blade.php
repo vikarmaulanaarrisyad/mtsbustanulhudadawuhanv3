@@ -1320,18 +1320,14 @@
                 navigator.serviceWorker.register('/sw.js')
                     .then(reg => {
                         console.log('PWA: Service Worker Active');
-                        
-                        // Cek update secara berkala (setiap 1 jam)
-                        setInterval(() => {
-                            reg.update();
-                        }, 3600000); 
+                        // reg.update() removed to prevent manual update triggers
                     })
                     .catch(err => {
                         console.log('PWA: Registration failed', err);
                     });
             });
 
-            // Handle Install Prompt (Hanya muncul jika belum install)
+            // Handle Install Prompt (Only for uninstalled users)
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
@@ -1340,10 +1336,9 @@
                 const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
                 
                 if (!isStandalone && !isDismissed) {
-                    // Beri waktu user untuk melihat konten sebelum menawarkan instalasi
                     setTimeout(() => {
                         showInstallBanner();
-                    }, 15000); 
+                    }, 20000); // Wait 20s
                 }
             });
 
@@ -1360,7 +1355,7 @@
                     confirmButtonColor: '#0b8c89',
                     position: 'top-end',
                     toast: true,
-                    timer: 10000,
+                    timer: 8000,
                     timerProgressBar: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -1372,22 +1367,12 @@
                             deferredPrompt = null;
                         });
                     } else {
-                        // Jika di-cancel, jangan tanya lagi di sesi ini
                         localStorage.setItem('pwa_install_dismissed', 'true'); 
                     }
                 });
             }
-
-            // Update otomatis tanpa notifikasi yang mengganggu
-            // User akan mendapatkan versi terbaru pada kunjungan berikutnya atau saat navigasi
-            let refreshing = false;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (refreshing) return;
-                refreshing = true;
-                // Hanya reload jika user tidak sedang di tengah pengisian form penting
-                // Untuk saat ini kita biarkan update terjadi secara alami saat navigasi
-                console.log('PWA: New version available, will be active on next load.');
-            });
+            
+            // controllerchange listener removed to prevent automatic reloads
         }
     </script>
 </body>
