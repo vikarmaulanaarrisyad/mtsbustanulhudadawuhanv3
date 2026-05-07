@@ -29,7 +29,9 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call([
-            FullProjectPermissionSeeder::class,
+            PermissionGroupTableSeeder::class,
+            PermissionTableSeeder::class,
+            RolesAndPermissionsSeeder::class,
             UserTableSeeder::class,
             SettingSeeder::class,
             SemesterSeeder::class,

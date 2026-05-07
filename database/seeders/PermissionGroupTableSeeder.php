@@ -38,6 +38,18 @@ class PermissionGroupTableSeeder extends Seeder
             ['name' => 'Izin Siswa', 'prefix' => 'student-permit', 'icon' => 'fa-envelope-open-text'],
             ['name' => 'Regis Wajah', 'prefix' => 'face-registration', 'icon' => 'fa-camera'],
             ['name' => 'Presensi Harian', 'prefix' => 'daily-attendance', 'icon' => 'fa-clock'],
+            ['name' => 'Pengumuman', 'prefix' => 'announcement', 'icon' => 'fa-bullhorn'],
+            ['name' => 'Agenda Sekolah', 'prefix' => 'school-agenda', 'icon' => 'fa-calendar-day'],
+            ['name' => 'Log Perilaku', 'prefix' => 'behavior-log', 'icon' => 'fa-vial'],
+            ['name' => 'Gaji & Payroll', 'prefix' => 'payroll', 'icon' => 'fa-money-check-alt'],
+            ['name' => 'Jabatan', 'prefix' => 'position', 'icon' => 'fa-briefcase'],
+            ['name' => 'Backup System', 'prefix' => 'backup', 'icon' => 'fa-database'],
+            ['name' => 'PWA Settings', 'prefix' => 'pwa', 'icon' => 'fa-mobile-alt'],
+            ['name' => 'Album Galeri', 'prefix' => 'albums', 'icon' => 'fa-images'],
+            ['name' => 'Slider Gambar', 'prefix' => 'image-sliders', 'icon' => 'fa-sliders-h'],
+            ['name' => 'Quotes', 'prefix' => 'quotes', 'icon' => 'fa-quote-left'],
+            ['name' => 'Halaman Statis', 'prefix' => 'pages', 'icon' => 'fa-file-alt'],
+            ['name' => 'Mutabaah & Tahfidz', 'prefix' => 'tahfidz', 'icon' => 'fa-quran'],
         ];
 
         foreach ($permissionGroups as $data) {
