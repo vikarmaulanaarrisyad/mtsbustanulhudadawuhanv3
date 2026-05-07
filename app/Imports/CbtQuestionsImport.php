@@ -18,8 +18,14 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
 
-class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithEvents
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+
+class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithEvents, WithChunkReading
 {
+    public function chunkSize(): int
+    {
+        return 5; // Process in small chunks to save memory
+    }
     protected CbtBank $bank;
     protected array $uploadedImages;
     protected int $importedCount = 0;
@@ -91,7 +97,9 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
     {
         // Try exact match first
         if (isset($this->drawings[$coordinate])) {
-            return $this->processDrawing($this->drawings[$coordinate]);
+            $drawing = $this->drawings[$coordinate];
+            unset($this->drawings[$coordinate]); // Clear from memory once used
+            return $this->processDrawing($drawing);
         }
 
         // Fallback: search for drawings that intersect with this cell
@@ -176,6 +184,7 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 
                 if ($index % 5 == 0) {
                     \Log::info("Processing row {$rowNumber}...");
+                    gc_collect_cycles(); // Force cleanup every 5 rows
                 }
 
                 // Skip completely empty rows

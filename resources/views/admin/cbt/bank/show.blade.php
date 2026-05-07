@@ -562,15 +562,17 @@ $(function(){
     });
 
     // Question type toggle
-    $('#questionType').on('change',function(){
-        var t=$(this).val();
-        var isPG=t==='pilihan_ganda'||t==='ganda_komplek';
+    $('#questionType').on('change', function(e, isInit){
+        var t = $(this).val();
+        if (!t) return;
+
+        var isPG = t === 'pilihan_ganda' || t === 'ganda_komplek';
         
         $('#optionsSection').toggle(isPG);
-        $('#matchingSection').toggle(t==='penjodohan');
-        $('#essaySection').toggle(t==='essay'||t==='uraian');
+        $('#matchingSection').toggle(t === 'penjodohan');
+        $('#essaySection').toggle(t === 'essay' || t === 'uraian');
 
-        // Fix: Toggle required attribute to prevent "not focusable" error
+        // Toggle required attribute safely
         if(isPG) {
             $('input[name="options[]"]').slice(0, 2).attr('required', true);
         } else {
@@ -578,14 +580,18 @@ $(function(){
         }
         
         // Toggle radio vs checkbox for PG vs PGK
-        if(t==='ganda_komplek'){
-            $('.correct-input').attr('type','checkbox').attr('name', 'correct_option[]');
+        const correctInputs = $('.correct-input');
+        if(t === 'ganda_komplek'){
+            correctInputs.attr('type', 'checkbox').attr('name', 'correct_option[]');
             $('#correctHint').text('Pilih multiple jawaban').removeClass('badge-soft-primary').addClass('badge-soft-purple');
         } else {
-            $('.correct-input').attr('type','radio').attr('name', 'correct_option');
+            correctInputs.attr('type', 'radio').attr('name', 'correct_option');
             $('#correctHint').text('Pilih 1 jawaban').removeClass('badge-soft-purple').addClass('badge-soft-primary');
         }
-    }).trigger('change');
+    });
+
+    // Trigger initial state without recursion risk
+    $('#questionType').trigger('change', [true]);
 
     // Drop zone logic
     var dz=$('#dropZone'), fi=$('#excelFile'), dc=$('.drop-content'), fp=$('#filePreview');

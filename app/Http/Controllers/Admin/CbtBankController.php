@@ -247,6 +247,11 @@ class CbtBankController extends Controller
      */
     public function importQuestions(Request $request, CbtBank $bank)
     {
+        // Disable debugbar to save memory
+        if (class_exists('\Barryvdh\Debugbar\Facades\Debugbar')) {
+            \Barryvdh\Debugbar\Facades\Debugbar::disable();
+        }
+
         // Increase limits for processing images in Excel
         ini_set('max_execution_time', 600); // 10 minutes
         ini_set('memory_limit', '512M');
