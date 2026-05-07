@@ -64,12 +64,11 @@ function loopForm(originalForm) {
             } else {
                 $(`[name=${field}]`).val(originalForm[field]);
             }
-
-            $("select").trigger("change");
         } else {
             $(`.preview-${field}`).attr("src", originalForm[field]).show();
         }
     }
+    $("select").trigger("change");
 }
 
 function loopErrors(errors) {

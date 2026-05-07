@@ -47,8 +47,8 @@ self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
     const url = new URL(event.request.url);
     
-    // Jangan ganggu halaman admin/setting atau request ke Google Drive
-    if (url.pathname.startsWith('/setting') || url.pathname.startsWith('/admin') || url.href.includes('google') || url.href.includes('open?op=get')) return;
+    // Jangan ganggu halaman admin/setting, request ke Google Drive, atau request data dinamis
+    if (url.pathname.startsWith('/setting') || url.pathname.startsWith('/admin') || url.href.includes('google') || url.href.includes('open?op=get') || url.pathname.endsWith('/data')) return;
 
     // 1. Strategi Network-First untuk Navigasi (HTML), Manifest, dan Gambar
     // Ini memastikan halaman & branding selalu yang paling baru
