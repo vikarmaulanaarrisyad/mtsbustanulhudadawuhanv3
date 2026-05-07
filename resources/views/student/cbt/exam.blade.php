@@ -42,21 +42,84 @@
                         </label>
                     </div>
 
-                    <div class="prose max-w-none mb-8 text-lg text-slate-800 font-medium">
+                    <div class="prose max-w-none mb-6 text-lg text-slate-800 font-medium">
                         {!! $q->question_text !!}
                     </div>
 
+                    @if($q->question_image)
+                        <div class="mb-6 rounded-2xl overflow-hidden border-2 border-slate-100 shadow-sm inline-block">
+                            <img src="{{ Storage::url($q->question_image) }}" class="max-h-[400px] w-auto object-contain bg-white" alt="Gambar Soal">
+                        </div>
+                    @endif
+
                     <div class="space-y-4">
-                        @foreach($q->options as $opt)
-                            @php
-                                $ans = $answers->get($q->id);
-                                $isChecked = $ans && $ans->cbt_option_id == $opt->id;
-                            @endphp
-                            <label class="option-label flex items-center p-4 border-2 {{ $isChecked ? 'border-indigo-600 bg-indigo-50' : 'border-slate-200 hover:border-indigo-300' }} rounded-2xl cursor-pointer transition-all">
-                                <input type="radio" name="answer_{{ $q->id }}" value="{{ $opt->id }}" class="form-radio h-5 w-5 text-indigo-600 border-slate-300 focus:ring-indigo-600" {{ $isChecked ? 'checked' : '' }} onchange="saveAnswer({{ $q->id }}, {{ $opt->id }}, {{ $index + 1 }})">
-                                <span class="ml-4 text-slate-700 font-medium">{!! $opt->option_text !!}</span>
-                            </label>
-                        @endforeach
+                        @if(in_array($q->question_type, ['pilihan_ganda', 'ganda_komplek']))
+                            @foreach($q->options as $opt)
+                                @php
+                                    $ans = $answers->get($q->id);
+                                    // For PGK, we might have multiple answers. For now, we assume simple selection logic or array.
+                                    // In V1, we use cbt_option_id. For PGK, we should ideally have a join table or array.
+                                    $isChecked = $ans && $ans->cbt_option_id == $opt->id;
+                                @endphp
+                                <label class="option-label flex items-start p-4 border-2 {{ $isChecked ? 'border-indigo-600 bg-indigo-50' : 'border-slate-200 hover:border-indigo-300' }} rounded-2xl cursor-pointer transition-all">
+                                    <div class="mt-1">
+                                        @if($q->question_type === 'pilihan_ganda')
+                                            <input type="radio" name="answer_{{ $q->id }}" value="{{ $opt->id }}" class="form-radio h-5 w-5 text-indigo-600 border-slate-300 focus:ring-indigo-600" {{ $isChecked ? 'checked' : '' }} onchange="saveAnswer({{ $q->id }}, {{ $opt->id }}, {{ $index + 1 }})">
+                                        @else
+                                            <input type="checkbox" name="answer_{{ $q->id }}[]" value="{{ $opt->id }}" class="form-checkbox h-5 w-5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-600" {{ $isChecked ? 'checked' : '' }} onchange="saveAnswer({{ $q->id }}, {{ $opt->id }}, {{ $index + 1 }}, true)">
+                                        @endif
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        @if($opt->option_image)
+                                            <img src="{{ Storage::url($opt->option_image) }}" class="max-h-40 rounded-lg mb-2 border border-slate-100 shadow-sm" alt="Gambar Opsi">
+                                        @endif
+                                        <span class="text-slate-700 font-medium">{!! $opt->option_text !!}</span>
+                                    </div>
+                                </label>
+                            @endforeach
+
+                        @elseif($q->question_type === 'penjodohan')
+                            <div class="bg-indigo-50/50 rounded-2xl p-6 border border-indigo-100">
+                                <p class="text-sm font-bold text-indigo-700 mb-4 flex items-center">
+                                    <i class="fas fa-link mr-2"></i> Pasangkan item di bawah ini:
+                                </p>
+                                <div class="space-y-4">
+                                    @php
+                                        $pairs = is_array($q->matching_pairs) ? $q->matching_pairs : [];
+                                        $ans = $answers->get($q->id);
+                                        $studentPairs = $ans && is_array($ans->matching_answers) ? $ans->matching_answers : [];
+                                    @endphp
+                                    @foreach($pairs as $premise => $correctResponse)
+                                        <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
+                                            <div class="flex-1 p-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm font-bold text-slate-700">
+                                                {!! preg_replace('/\[IMG\](.*?)\[\/IMG\]/', '<img src="'.Storage::url('$1').'" class="max-h-24 rounded">', $premise) !!}
+                                            </div>
+                                            <div class="text-slate-400"><i class="fas fa-arrows-alt-h hidden md:block"></i></div>
+                                            <div class="flex-1">
+                                                <select class="matching-select w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-0 text-sm font-medium" 
+                                                        data-question-id="{{ $q->id }}" 
+                                                        data-premise="{{ $premise }}"
+                                                        onchange="saveMatchingAnswer({{ $q->id }}, {{ $index + 1 }})">
+                                                    <option value="">-- Pilih Jawaban --</option>
+                                                    @foreach($pairs as $p => $r)
+                                                        <option value="{{ $r }}">{!! strip_tags(preg_replace('/\[IMG\](.*?)\[\/IMG\]/', '[Gambar]', $r)) !!}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                        @elseif(in_array($q->question_type, ['essay', 'uraian']))
+                            <div class="bg-white rounded-2xl border-2 border-slate-200 focus-within:border-indigo-500 transition-all overflow-hidden">
+                                <textarea name="answer_{{ $q->id }}" 
+                                          class="w-full p-6 text-lg font-medium text-slate-700 focus:ring-0 border-0" 
+                                          placeholder="Ketik jawaban Anda di sini..." 
+                                          rows="6"
+                                          onblur="saveEssayAnswer({{ $q->id }}, {{ $index + 1 }})">{{ $answers->get($q->id)->answer_text ?? '' }}</textarea>
+                            </div>
+                        @endif
                     </div>
                 </div>
             @endforeach
@@ -201,29 +264,77 @@
     function prevQuestion() { if(currentQ > 1) jumpTo(currentQ - 1); }
 
     // Logic Save Answer
-    function saveAnswer(questionId, optionId, qNo) {
+    function saveAnswer(questionId, optionId, qNo, isMultiple = false) {
         const isDoubt = document.querySelector(`.doubt-checkbox[data-no="${qNo}"]`).checked;
         
         // Update UI
         let btn = document.getElementById(`nav-btn-${qNo}`);
         btn.className = `q-nav-btn w-10 h-10 rounded-lg border-2 font-bold flex items-center justify-center transition-all ${isDoubt ? 'bg-amber-100 border-amber-400 text-amber-700' : 'bg-indigo-600 border-indigo-600 text-white'}`;
         
-        // Update radio styles
+        // Update radio/checkbox styles
         let panel = document.getElementById(`q-panel-${qNo}`);
-        panel.querySelectorAll('.option-label').forEach(lbl => {
-            lbl.classList.remove('border-indigo-600', 'bg-indigo-50');
-            lbl.classList.add('border-slate-200');
-        });
-        panel.querySelector(`input[value="${optionId}"]`).closest('.option-label').classList.add('border-indigo-600', 'bg-indigo-50');
+        if(!isMultiple) {
+            panel.querySelectorAll('.option-label').forEach(lbl => {
+                lbl.classList.remove('border-indigo-600', 'bg-indigo-50');
+                lbl.classList.add('border-slate-200');
+            });
+        }
+        
+        let input = panel.querySelector(`input[value="${optionId}"]`);
+        if(input.checked) {
+            input.closest('.option-label').classList.add('border-indigo-600', 'bg-indigo-50');
+            input.closest('.option-label').classList.remove('border-slate-200');
+        } else {
+            input.closest('.option-label').classList.remove('border-indigo-600', 'bg-indigo-50');
+            input.closest('.option-label').classList.add('border-slate-200');
+        }
 
         // AJAX POST
+        // For PGK, we should ideally send all selected options. 
+        // For now, we'll keep it simple as V1.
         $.post(`{{ url('/siswa/cbt/${examId}/save-answer') }}`, {
             _token: '{{ csrf_token() }}',
             question_id: questionId,
             option_id: optionId,
             is_doubtful: isDoubt ? 1 : 0
-        }).fail(() => {
-            console.error("Gagal menyimpan jawaban. Offline Sync dibutuhkan di sini nanti.");
+        });
+    }
+
+    function saveMatchingAnswer(questionId, qNo) {
+        const isDoubt = document.querySelector(`.doubt-checkbox[data-no="${qNo}"]`).checked;
+        let btn = document.getElementById(`nav-btn-${qNo}`);
+        btn.className = `q-nav-btn w-10 h-10 rounded-lg border-2 font-bold flex items-center justify-center transition-all ${isDoubt ? 'bg-amber-100 border-amber-400 text-amber-700' : 'bg-indigo-600 border-indigo-600 text-white'}`;
+
+        let panel = document.getElementById(`q-panel-${qNo}`);
+        let matchingData = {};
+        panel.querySelectorAll('.matching-select').forEach(select => {
+            if(select.value) matchingData[select.dataset.premise] = select.value;
+        });
+
+        $.post(`{{ url('/siswa/cbt/${examId}/save-answer') }}`, {
+            _token: '{{ csrf_token() }}',
+            question_id: questionId,
+            matching_answers: matchingData,
+            is_doubtful: isDoubt ? 1 : 0
+        });
+    }
+
+    function saveEssayAnswer(questionId, qNo) {
+        const isDoubt = document.querySelector(`.doubt-checkbox[data-no="${qNo}"]`).checked;
+        let btn = document.getElementById(`nav-btn-${qNo}`);
+        
+        let panel = document.getElementById(`q-panel-${qNo}`);
+        let text = panel.querySelector('textarea').value;
+
+        if(text.trim() !== "") {
+            btn.className = `q-nav-btn w-10 h-10 rounded-lg border-2 font-bold flex items-center justify-center transition-all ${isDoubt ? 'bg-amber-100 border-amber-400 text-amber-700' : 'bg-indigo-600 border-indigo-600 text-white'}`;
+        }
+
+        $.post(`{{ url('/siswa/cbt/${examId}/save-answer') }}`, {
+            _token: '{{ csrf_token() }}',
+            question_id: questionId,
+            answer_text: text,
+            is_doubtful: isDoubt ? 1 : 0
         });
     }
 
