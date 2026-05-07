@@ -8,7 +8,12 @@ use App\Models\CbtQuestion;
 use App\Models\CbtOption;
 use App\Models\Subject;
 use App\Models\Teacher;
+use App\Exports\CbtTemplateExport;
+use App\Imports\CbtQuestionsImport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class CbtBankController extends Controller
@@ -81,20 +86,64 @@ class CbtBankController extends Controller
     {
         $request->validate([
             'question_text' => 'required',
-            'options' => 'required|array|min:2',
-            'correct_option' => 'required',
+            'question_type' => 'required|in:pilihan_ganda,ganda_komplek,penjodohan,essay,uraian',
         ]);
 
-        $question = $bank->questions()->create([
-            'question_text' => $request->question_text,
-            'score_weight' => $request->score_weight ?? 1,
-        ]);
+        $questionType = $request->question_type;
 
-        foreach ($request->options as $index => $optionText) {
-            $question->options()->create([
-                'option_text' => $optionText,
-                'is_correct' => ($index == $request->correct_option)
-            ]);
+        // Handle question image upload
+        $imagePath = null;
+        if ($request->hasFile('question_image')) {
+            $imagePath = $request->file('question_image')->store('cbt/images', 'public');
+        }
+
+        $questionData = [
+            'question_text'  => $request->question_text,
+            'question_type'  => $questionType,
+            'question_image' => $imagePath,
+            'score_weight'   => $request->score_weight ?? 1,
+        ];
+
+        // Handle matching pairs
+        if ($questionType === 'penjodohan' && $request->matching_pairs) {
+            $pairs = [];
+            $premises = $request->input('matching_premises', []);
+            $responses = $request->input('matching_responses', []);
+            foreach ($premises as $i => $premise) {
+                if (!empty($premise) && !empty($responses[$i] ?? '')) {
+                    $pairs[$premise] = $responses[$i];
+                }
+            }
+            $questionData['matching_pairs'] = $pairs;
+        }
+
+        // Handle answer key for essay/uraian
+        if (in_array($questionType, ['essay', 'uraian'])) {
+            $questionData['answer_key'] = $request->answer_key;
+        }
+
+        $question = $bank->questions()->create($questionData);
+
+        // Create options for PG and PGK
+        if (in_array($questionType, ['pilihan_ganda', 'ganda_komplek'])) {
+            $options = $request->options ?? [];
+            $correctOptions = (array) ($request->correct_option ?? []);
+
+            foreach ($options as $index => $optionText) {
+                if (empty(trim($optionText))) continue;
+
+                // Handle option image
+                $optImagePath = null;
+                if ($request->hasFile("option_images.{$index}")) {
+                    $optImagePath = $request->file("option_images.{$index}")->store('cbt/images', 'public');
+                }
+
+                $question->options()->create([
+                    'option_text'  => $optionText,
+                    'option_image' => $optImagePath,
+                    'is_correct'   => in_array($index, $correctOptions),
+                ]);
+            }
         }
 
         return redirect()->back()->with('success', 'Soal berhasil ditambahkan');
@@ -102,7 +151,78 @@ class CbtBankController extends Controller
 
     public function destroyQuestion(CbtQuestion $question)
     {
+        // Delete associated images
+        if ($question->question_image) {
+            Storage::disk('public')->delete($question->question_image);
+        }
+        foreach ($question->options as $opt) {
+            if ($opt->option_image) {
+                Storage::disk('public')->delete($opt->option_image);
+            }
+        }
+
         $question->delete();
         return redirect()->back()->with('success', 'Soal berhasil dihapus');
+    }
+
+    // ==========================================
+    // IMPORT / EXPORT TEMPLATE
+    // ==========================================
+
+    /**
+     * Download Excel template for importing questions.
+     */
+    public function downloadTemplate(CbtBank $bank)
+    {
+        $filename = 'Template_Soal_' . Str::slug($bank->name) . '.xlsx';
+        return Excel::download(new CbtTemplateExport($bank->name), $filename);
+    }
+
+    /**
+     * Import questions from uploaded Excel file.
+     */
+    public function importQuestions(Request $request, CbtBank $bank)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls|max:10240', // max 10MB
+            'images.*' => 'nullable|image|max:5120', // max 5MB per image
+        ]);
+
+        // Collect uploaded images by their original filename
+        $uploadedImages = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $uploadedImages[$image->getClientOriginalName()] = $image;
+            }
+        }
+
+        $import = new CbtQuestionsImport($bank, $uploadedImages);
+        Excel::import($import, $request->file('file'));
+
+        $importedCount = $import->getImportedCount();
+        $errors = $import->getErrors();
+        $summary = $import->getSummary();
+
+        // Build summary message
+        $summaryParts = [];
+        $typeLabels = CbtQuestion::typeLabels();
+        foreach ($summary as $type => $count) {
+            if ($count > 0) {
+                $summaryParts[] = ($typeLabels[$type] ?? $type) . ": {$count}";
+            }
+        }
+
+        $message = "Berhasil mengimport {$importedCount} soal.";
+        if (!empty($summaryParts)) {
+            $message .= " (" . implode(', ', $summaryParts) . ")";
+        }
+
+        if (!empty($errors)) {
+            return redirect()->back()
+                ->with('warning', $message)
+                ->with('import_errors', $errors);
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 }

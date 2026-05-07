@@ -180,6 +180,9 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/{bank}/questions', 'show')->name('show');
                 Route::post('/{bank}/questions', 'storeQuestion')->name('storeQuestion');
                 Route::delete('/questions/{question}', 'destroyQuestion')->name('destroyQuestion');
+                // Import / Export
+                Route::get('/{bank}/download-template', 'downloadTemplate')->name('downloadTemplate');
+                Route::post('/{bank}/import-questions', 'importQuestions')->name('importQuestions');
             });
 
             Route::controller(\App\Http\Controllers\Admin\CbtExamController::class)->prefix('exam')->name('exam.')->group(function () {

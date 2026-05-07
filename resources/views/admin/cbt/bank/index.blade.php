@@ -216,10 +216,14 @@
 </style>
 @endsection
 
-@push('scripts')
+@push('css')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+@endpush
+
+@push('scripts')
+@include('includes.datatable')
+@include('includes.select2')
+
 <script>
     $(document).ready(function() {
         $('.select2').select2({ theme: 'classic' });
@@ -233,14 +237,14 @@
                 {data: 'name', render: function(data, type, row) {
                     return `<strong class="text-primary" style="font-size:15px;">${data}</strong>`;
                 }},
-                {data: 'subject.name', render: function(data) {
-                    return `<span class="badge badge-light border border-secondary text-dark"><i class="fas fa-book mr-1"></i> ${data}</span>`;
+                {data: 'subject.name', defaultContent: '-', render: function(data) {
+                    return `<span class="badge badge-light border border-secondary text-dark"><i class="fas fa-book mr-1"></i> ${data || '-'}</span>`;
                 }},
                 {data: 'class_level', className: 'text-center', render: function(data) {
-                    return `<span class="badge badge-info px-3 py-1 rounded-pill">Kelas ${data}</span>`;
+                    return `<span class="badge badge-info px-3 py-1 rounded-pill">Kelas ${data || '-'}</span>`;
                 }},
                 {data: 'questions_count', className: 'text-center', render: function(data) {
-                    return `<span class="font-weight-bold" style="font-size:18px;">${data}</span> <span class="text-muted text-xs d-block">Soal</span>`;
+                    return `<span class="font-weight-bold" style="font-size:18px;">${data || 0}</span> <span class="text-muted text-xs d-block">Soal</span>`;
                 }},
                 {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'}
             ]

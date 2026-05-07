@@ -14,6 +14,8 @@ class CbtStudentAnswer extends Model
     protected $casts = [
         'is_doubtful' => 'boolean',
         'is_correct' => 'boolean',
+        'selected_options' => 'array',
+        'matching_answers' => 'array',
     ];
 
     public function studentExam()
