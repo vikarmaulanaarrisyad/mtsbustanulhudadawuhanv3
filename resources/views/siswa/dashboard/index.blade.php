@@ -200,17 +200,17 @@
                             <span class="tool-label">Portal CBT</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
-                        <a href="javascript:void(0)" onclick="$('#modalMutabaah').modal('show')" class="tool-btn bg-grad-blue">
+                        <a href="javascript:void(0)" data-toggle="modal" data-target="#modalMutabaah" class="tool-btn bg-grad-blue">
                             <div class="tool-icon"><i class="fas fa-tasks"></i></div>
                             <span class="tool-label">Ibadah Harian</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
-                        <a href="javascript:void(0)" onclick="$('#modalTahfidz').modal('show')" class="tool-btn bg-grad-green">
+                        <a href="javascript:void(0)" data-toggle="modal" data-target="#modalTahfidz" class="tool-btn bg-grad-green">
                             <div class="tool-icon"><i class="fas fa-quran"></i></div>
                             <span class="tool-label">Tahfidz</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
-                        <a href="javascript:void(0)" onclick="$('#modalPengajuanIzin').modal('show')" class="tool-btn bg-grad-purple">
+                        <a href="javascript:void(0)" data-toggle="modal" data-target="#modalPengajuanIzin" class="tool-btn bg-grad-purple">
                             <div class="tool-icon"><i class="fas fa-envelope-open-text"></i></div>
                             <span class="tool-label">Izin/Sakit</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
@@ -220,7 +220,7 @@
                             <span class="tool-label">Kartu Siswa</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
-                        <a href="javascript:void(0)" onclick="$('#modalPoin').modal('show')" class="tool-btn bg-grad-orange">
+                        <a href="javascript:void(0)" data-toggle="modal" data-target="#modalPoin" class="tool-btn bg-grad-orange">
                             <div class="tool-icon"><i class="fas fa-medal"></i></div>
                             <span class="tool-label">Riwayat Poin</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
@@ -292,7 +292,9 @@
     </div>
 </div>
 
-@include('siswa.dashboard.modals')
+@push('modals')
+    @include('siswa.dashboard.modals')
+@endpush
 
 <!-- STYLES (MATCHING TEACHER) -->
 <style>

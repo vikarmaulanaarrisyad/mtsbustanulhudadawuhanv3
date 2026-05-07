@@ -24,7 +24,7 @@ class CbtController extends Controller
         $activeExams = CbtExam::where('is_active', true)
             ->where('exam_date', $today)
             ->whereHas('classes', function($q) use ($student) {
-                $q->where('class_group_id', $student->class_group_id);
+                $q->where('class_group_id', $student->student_class_group_id);
             })
             ->with(['bank', 'studentExams' => function($q) use ($student) {
                 $q->where('student_id', $student->id);

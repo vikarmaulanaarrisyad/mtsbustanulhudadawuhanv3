@@ -123,10 +123,8 @@
     </nav>
 
     <!-- CONTENT WRAPPER -->
-    <div class="pt-24 min-h-screen">
-        <div class="animate-fade-in">
-            @yield('content')
-        </div>
+    <div class="pt-24 min-h-screen px-4 md:px-0">
+        @yield('content')
     </div>
 
     <!-- FOOTER -->
@@ -163,6 +161,7 @@
     </script>
 
     @stack('scripts')
+    @stack('modals')
     @include('partials.pwa_install')
 </body>
 

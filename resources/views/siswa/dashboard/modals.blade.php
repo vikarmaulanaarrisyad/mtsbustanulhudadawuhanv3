@@ -221,6 +221,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     $(document).ready(function() {
         $('#formPengajuanIzin').submit(function(e) {
@@ -262,6 +263,7 @@
         });
     });
 </script>
+@endpush
 
 <style>
     .custom-scrollbar::-webkit-scrollbar { width: 5px; }
