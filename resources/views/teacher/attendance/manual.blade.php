@@ -122,6 +122,7 @@
 @endpush
 
 @push('scripts')
+@include('partials.offline_sync')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     /**
@@ -345,6 +346,18 @@
             } catch (err) {
                 this.state.isSubmitting = false;
                 if(btn) btn.disabled = false;
+
+                if (err.status === 0 || !navigator.onLine) {
+                    OfflineSync.save(this.config.endpoints.submit, {
+                        _token: '{{ csrf_token() }}',
+                        latitude: this.state.userLoc.lat,
+                        longitude: this.state.userLoc.lng,
+                        image: imageData,
+                        method: 'manual'
+                    });
+                    return;
+                }
+
                 Swal.fire({ icon: 'error', title: 'Gagal', text: err.responseJSON?.message || 'Terjadi kesalahan sistem.', customClass: { popup: 'rounded-3xl' } });
             }
         }

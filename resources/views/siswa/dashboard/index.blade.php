@@ -144,6 +144,24 @@
         @endif
     </div>
 
+    {{-- CBT EXAM PORTAL BANNER --}}
+    <div class="stu-main-card mb-4 shadow-lg p-0 overflow-hidden" style="background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%);">
+        <div class="p-4 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <div class="stu-action-icon bg-white text-indigo-600 mr-3">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                <div>
+                    <h5 class="font-weight-bold mb-0 text-white">Portal Ujian CBT</h5>
+                    <p class="text-white-50 mb-0" style="font-size: 13px;">Ujian Berbasis Komputer</p>
+                </div>
+            </div>
+            <a href="{{ route('student.cbt.dashboard') }}" class="btn btn-light btn-sm font-weight-bold" style="border-radius: 12px; padding: 8px 15px;">
+                Masuk <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+
     <div class="stu-content-wrapper">
         {{-- LAYANAN AKADEMIK GRID --}}
         <div class="stu-card mb-4">

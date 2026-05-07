@@ -99,7 +99,9 @@ class TeacherAttendanceController extends Controller
             if (!$setting) return response()->json(['message' => 'Pengaturan presensi belum dikonfigurasi.'], 422);
 
             $now = Carbon::now();
-            $time = $now->toTimeString();
+            $actualTime = $request->offline_time ? Carbon::parse($request->offline_time) : $now;
+            $time = $actualTime->toTimeString();
+            $date = $actualTime->toDateString();
 
             // Cek apakah hari ini sedang izin/sakit
             $existingAttendance = Attendance::where('teacher_id', $teacher->id)->where('date', $now->toDateString())->first();
@@ -128,18 +130,18 @@ class TeacherAttendanceController extends Controller
             }
 
             $attendance = Attendance::updateOrCreate(
-                ['teacher_id' => $teacher->id, 'date' => $now->toDateString()],
+                ['teacher_id' => $teacher->id, 'date' => $date],
                 [
-                    'check_in' => $now->toTimeString(),
+                    'check_in' => $time,
                     'status' => 'present',
-                    'check_in_ip' => $request->ip(),
+                    'check_in_ip' => $request->ip() . ($request->offline_time ? ' (Offline Sync)' : ''),
                     'check_in_lat' => $request->latitude,
                     'check_in_lng' => $request->longitude,
                     'image_in' => $request->image ? $this->saveFaceImage($request->image, $teacher->id, 'in') : null,
                 ]
             );
 
-            return response()->json(['message' => 'Berhasil! Absen Masuk tercatat pada ' . $now->format('H:i')]);
+            return response()->json(['message' => 'Berhasil! Absen Masuk tercatat pada ' . $actualTime->format('H:i')]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }
@@ -174,7 +176,9 @@ class TeacherAttendanceController extends Controller
             if (!$setting) return response()->json(['message' => 'Pengaturan presensi belum dikonfigurasi.'], 422);
 
             $now = Carbon::now();
-            $time = $now->toTimeString();
+            $actualTime = $request->offline_time ? Carbon::parse($request->offline_time) : $now;
+            $time = $actualTime->toTimeString();
+            $date = $actualTime->toDateString();
 
             // Validasi Waktu Pulang
             if ($time < $setting->check_out_start) {
@@ -196,20 +200,20 @@ class TeacherAttendanceController extends Controller
                 }
             }
 
-            $attendance = Attendance::where('teacher_id', $teacher->id)->where('date', $now->toDateString())->first();
+            $attendance = Attendance::where('teacher_id', $teacher->id)->where('date', $date)->first();
             if (!$attendance) {
                 return response()->json(['message' => 'Anda belum melakukan absen masuk hari ini.'], 422);
             }
 
             $attendance->update([
-                'check_out' => $now->toTimeString(),
-                'check_out_ip' => $request->ip(),
+                'check_out' => $time,
+                'check_out_ip' => $request->ip() . ($request->offline_time ? ' (Offline Sync)' : ''),
                 'check_out_lat' => $request->latitude,
                 'check_out_lng' => $request->longitude,
                 'image_out' => $request->image ? $this->saveFaceImage($request->image, $teacher->id, 'out') : null,
             ]);
 
-            return response()->json(['message' => 'Berhasil! Absen Pulang tercatat pada ' . $now->format('H:i')]);
+            return response()->json(['message' => 'Berhasil! Absen Pulang tercatat pada ' . $actualTime->format('H:i')]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }

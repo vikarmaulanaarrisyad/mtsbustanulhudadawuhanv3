@@ -254,6 +254,7 @@
 </style>
 
 @push('scripts')
+@include('partials.offline_sync')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script>
@@ -462,6 +463,14 @@
             isFaceDetected = false; 
             const faceLocked = document.getElementById('face-locked');
             if (faceLocked) faceLocked.classList.add('hidden'); 
+
+            if (err.status === 0 || !navigator.onLine) {
+                OfflineSync.save('{{ ($todayAttendance && !$todayAttendance->check_out) ? route('teacher.attendance.check-out') : route('teacher.attendance.check-in') }}', {
+                    _token: '{{ csrf_token() }}', latitude: userLat, longitude: userLng, image: imageData, method: method
+                });
+                return;
+            }
+
             Swal.fire('Gagal', err.responseJSON?.message || 'Error', 'error'); 
         });
     }

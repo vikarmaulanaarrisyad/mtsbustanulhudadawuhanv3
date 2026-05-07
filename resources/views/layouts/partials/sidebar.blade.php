@@ -595,6 +595,24 @@
                 </li>
                 @endcan
 
+                @can('dashboard.admin')
+                <li class="nav-header">AKADEMIK & CBT</li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.cbt.bank.index') }}" class="nav-link {{ request()->is('cbt/bank*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-database"></i>
+                        <p>Bank Soal CBT</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.cbt.exam.index') }}" class="nav-link {{ request()->is('cbt/exam*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-laptop-code"></i>
+                        <p>Jadwal Ujian CBT</p>
+                    </a>
+                </li>
+
+                <li class="nav-header">PENGATURAN SISTEM</li>
+                @endcan
+
                 @can('setting.view')
                 <li class="nav-item">
                     <a href="{{ route('setting.index') }}" class="nav-link {{ request()->is('setting*') ? 'active' : '' }}">

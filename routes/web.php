@@ -133,6 +133,16 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/store-attendance', [SiswaDashboardController::class, 'storeAttendance'])->name('siswa.store_attendance');
         Route::post('/store-permit', [SiswaDashboardController::class, 'storePermit'])->name('siswa.store_permit');
         Route::post('/store-mutabaah', [SiswaDashboardController::class, 'storeMutabaah'])->name('siswa.store_mutabaah');
+
+        // CBT Student
+        Route::controller(\App\Http\Controllers\Student\CbtController::class)->group(function () {
+            Route::get('/cbt', 'dashboard')->name('student.cbt.dashboard');
+            Route::post('/cbt/{exam}/join', 'join')->name('student.cbt.join');
+            Route::get('/cbt/{exam}/exam', 'exam')->name('student.cbt.exam');
+            Route::post('/cbt/{exam}/save-answer', 'saveAnswer')->name('student.cbt.save-answer');
+            Route::post('/cbt/{exam}/report-violation', 'reportViolation')->name('student.cbt.report-violation');
+            Route::post('/cbt/{exam}/finish', 'finish')->name('student.cbt.finish');
+        });
     });
 
     // Admin Announcements
@@ -155,6 +165,33 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/wa-gateway', 'index')->name('admin.wa-gateway.index');
             Route::post('/wa-gateway/settings', 'updateSettings')->name('admin.wa-gateway.update_settings');
             Route::post('/wa-gateway/send', 'sendMessage')->name('admin.wa-gateway.send');
+        });
+
+        // CBT Admin (Bank & Exam)
+        Route::prefix('cbt')->name('admin.cbt.')->group(function () {
+            Route::controller(\App\Http\Controllers\Admin\CbtBankController::class)->prefix('bank')->name('bank.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/data', 'data')->name('data');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{bank}/edit', 'edit')->name('edit');
+                Route::put('/{bank}', 'update')->name('update');
+                Route::delete('/{bank}', 'destroy')->name('destroy');
+                // Questions
+                Route::get('/{bank}/questions', 'show')->name('show');
+                Route::post('/{bank}/questions', 'storeQuestion')->name('storeQuestion');
+                Route::delete('/questions/{question}', 'destroyQuestion')->name('destroyQuestion');
+            });
+
+            Route::controller(\App\Http\Controllers\Admin\CbtExamController::class)->prefix('exam')->name('exam.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/data', 'data')->name('data');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{exam}/edit', 'edit')->name('edit');
+                Route::put('/{exam}', 'update')->name('update');
+                Route::delete('/{exam}', 'destroy')->name('destroy');
+                Route::post('/{exam}/refresh-token', 'refreshToken')->name('refresh-token');
+                Route::get('/{exam}/monitor', 'monitor')->name('monitor');
+            });
         });
     });
 
