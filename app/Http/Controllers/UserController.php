@@ -132,6 +132,8 @@ class UserController extends Controller
     public function detail(Request $request, User $users)
     {
         $users->load(['roles', 'permissions']);
+        $users->effective_permissions = $users->getAllPermissions()->pluck('id')->toArray();
+        
         return response()->json([
             'data' => $users
         ]);
@@ -140,6 +142,8 @@ class UserController extends Controller
     public function edit(Request $request, User $users)
     {
         $users->load(['roles', 'permissions']);
+        $users->effective_permissions = $users->getAllPermissions()->pluck('id')->toArray();
+
         return response()->json([
             'data' => $users
         ]);

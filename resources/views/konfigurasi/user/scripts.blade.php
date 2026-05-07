@@ -50,9 +50,9 @@
                 },
             ]
         });
-        
+
         // Tab Filtering Logic
-        $('#roleTabs a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+        $('#roleTabs a[data-toggle="pill"]').on('shown.bs.tab', function(e) {
             table.ajax.reload();
         });
 
@@ -75,21 +75,21 @@
                 }
             }
         });
- 
+
         $('#permission_ids').select2({
             placeholder: 'Pilih Izin Langsung',
             theme: 'bootstrap4',
             closeOnSelect: false,
             allowClear: true,
         });
- 
+
         // Sync toggles with select2
         $('.menu-permission-check').on('change', function() {
             const permissionName = $(this).val();
             const isChecked = $(this).is(':checked');
             const select2 = $('#permission_ids');
             let currentValues = select2.val() || [];
- 
+
             // Find the ID for this permission name
             const option = select2.find(`option[data-name="${permissionName}"]`);
             if (option.length) {
@@ -104,24 +104,24 @@
                 select2.val(currentValues).trigger('change');
             }
         });
- 
+
         $('#permission_ids').on('change', function() {
             const currentValues = $(this).val() || [];
-            
+
             $('.menu-permission-check').each(function() {
                 const permissionName = $(this).val();
                 const option = $('#permission_ids').find(`option[data-name="${permissionName}"]`);
                 if (option.length) {
                     const id = option.val();
-                    $(this).prop('checked', currentValues.includes(id.toString()));
+                    $(this).prop('checked', currentValues.map(String).includes(id.toString()));
                 }
             });
-            
+
             // Sync check all button
             const totalChecks = $('.menu-permission-check').length;
             const checkedCount = $('.menu-permission-check:checked').length;
             $('#checkAllPermissions').prop('checked', totalChecks === checkedCount && totalChecks > 0);
-            
+
             // Update summary count display
             $('#checkedCountDisplay').text(currentValues.length);
         });
@@ -144,7 +144,7 @@
             $(`${modal} #permission_ids`).prop('disabled', false);
             $(`${modal} #passwordRow`).show();
             $(`${modal} #submitBtn`).show();
- 
+
             $('#roles').empty().trigger('change');
             $('#permission_ids').val(null).trigger('change');
             $('.menu-permission-check').prop('checked', false);
@@ -184,9 +184,8 @@
                     }
                     $('#roles').trigger('change');
 
-                    if (response.data.permissions) {
-                        let permissionIds = response.data.permissions.map(p => p.id);
-                        $('#permission_ids').val(permissionIds).trigger('change');
+                    if (response.data.effective_permissions) {
+                        $('#permission_ids').val(response.data.effective_permissions).trigger('change');
                     }
                 },
                 error: function(errors) {
@@ -231,9 +230,8 @@
                     }
                     $('#roles').trigger('change');
 
-                    if (response.data.permissions) {
-                        let permissionIds = response.data.permissions.map(p => p.id);
-                        $('#permission_ids').val(permissionIds).trigger('change');
+                    if (response.data.effective_permissions) {
+                        $('#permission_ids').val(response.data.effective_permissions).trigger('change');
                     }
                 },
                 error: function(xhr, status, error) {
@@ -359,7 +357,7 @@
         function submitResetPassword(form) {
             let url = $(form).attr('action');
             let data = $(form).serialize();
-            
+
             $('#btnSubmitReset').prop('disabled', true).text('Sedang Memproses...');
 
             $.post(url, data)

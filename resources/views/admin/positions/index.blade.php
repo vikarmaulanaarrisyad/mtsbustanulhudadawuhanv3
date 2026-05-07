@@ -87,13 +87,14 @@
             ajax: {
                 url: '{{ route('positions.data') }}',
             },
+            order: [[1, 'asc']], // Order by code
             columns: [
-                {data: 'DT_RowIndex', name: 'DT_RowIndex', class: 'text-center'},
+                {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, class: 'text-center'},
                 {data: 'code', name: 'code'},
                 {data: 'name', name: 'name', class: 'font-weight-bold text-dark'},
                 {data: 'description', name: 'description'},
-                {data: 'signer', name: 'signer', class: 'text-center'},
-                {data: 'status', name: 'status', class: 'text-center'},
+                {data: 'signer', name: 'signer', orderable: false, searchable: false, class: 'text-center'},
+                {data: 'status', name: 'status', orderable: false, searchable: false, class: 'text-center'},
                 {data: 'action', name: 'action', orderable: false, searchable: false, class: 'text-center'}
             ]
         });

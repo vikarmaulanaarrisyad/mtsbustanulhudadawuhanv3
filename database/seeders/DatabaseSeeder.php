@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             StudentStatusSeeder::class,
             FeatureTestingSeeder::class,
             GradeManagementSeeder::class,
+            PositionSeeder::class,
         ]);
     }
 }

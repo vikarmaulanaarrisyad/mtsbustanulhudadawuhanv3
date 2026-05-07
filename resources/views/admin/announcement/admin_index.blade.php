@@ -99,11 +99,20 @@
 @endsection
 
 @push('scripts')
+@include('includes.datatable')
+@include('includes.select2')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <script>
     let table;
 
     $(function() {
+        if($('.select2-premium').length) {
+            $('.select2-premium').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Pilih...',
+                allowClear: true
+            });
+        }
         table = $('#announcement-table').DataTable({
             processing: true, serverSide: true, autoWidth: false,
             language: { searchPlaceholder: "Cari pengumuman...", search: "" },

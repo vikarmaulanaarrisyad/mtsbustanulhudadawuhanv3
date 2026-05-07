@@ -559,14 +559,14 @@
                 </li>
                 @endcanany
 
-                @canany(['Super Admin', 'Admin'])
+                @can('position.view')
                 <li class="nav-item">
                     <a href="{{ route('positions.index') }}" class="nav-link {{ request()->is('positions*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-briefcase"></i>
                         <p>Master Jabatan</p>
                     </a>
                 </li>
-                @endcanany
+                @endcan
 
                 @can('dashboard.admin')
                 <li class="nav-item">

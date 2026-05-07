@@ -25,9 +25,9 @@ class FullProjectPermissionSeeder extends Seeder
                 'dashboard.ppdb',
             ],
             'User Management' => [
-                'user.view', 'user.create', 'user.edit', 'user.delete',
-                'role.view', 'role.create', 'role.edit', 'role.delete',
-                'permission.view', 'permission-group.view',
+                'user.view', 'user.create', 'user.show', 'user.edit', 'user.delete',
+                'role.view', 'role.create', 'role.show', 'role.edit', 'role.delete',
+                'permission.view', 'permission.show', 'permission-group.view', 'permission-group.show',
             ],
             'Academic' => [
                 'academic-year.view', 'academic-year.create', 'academic-year.edit', 'academic-year.delete',

@@ -58,7 +58,6 @@ class AnnouncementController extends Controller
         $query = Announcement::query()->latest();
         return \Yajra\DataTables\Facades\DataTables::of($query)
             ->addIndexColumn()
-            ->editColumn('is_active', fn($q) => $q->is_active ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-danger">Nonaktif</span>')
             ->addColumn('action', function($q) {
                 return '<button onclick="editForm(`' . url('admin/announcements/' . $q->id) . '`)" class="btn btn-sm btn-info"><i class="fa fa-pencil-alt"></i></button>
                         <button onclick="deleteData(`' . url('admin/announcements/' . $q->id) . '`)" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>';

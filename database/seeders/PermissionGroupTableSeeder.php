@@ -14,87 +14,40 @@ class PermissionGroupTableSeeder extends Seeder
     public function run(): void
     {
         $permissionGroups = [
-            [
-                'name' => 'Dashboard'
-            ],
-            [
-                'name' => 'Konfigurasi'
-            ],
-            [
-                'name' => 'User'
-            ],
-            [
-                'name' => 'Role'
-            ],
-            [
-                'name' => 'Permission'
-            ],
-            [
-                'name' => 'Group Permission'
-            ],
-            [
-                'name' => 'Academic Year'
-            ],
-            [
-                'name' => 'Post'
-            ],
-            [
-                'name' => 'Tags'
-            ],
-            [
-                'name' => 'Image Sliders'
-            ],
-            [
-                'name' => 'Admission Quotas'
-            ],
-            [
-                'name' => 'Admission Types'
-            ],
-            [
-                'name' => 'Admission Phases'
-            ],
-            [
-                'name' => 'Student Admission'
-            ],
-            [
-                'name' => 'Residences'
-            ],
-            [
-                'name' => 'Category'
-            ],
-            [
-                'name' => 'Admission'
-            ],
-            [
-                'name' => 'Class Group'
-            ],
-            [
-                'name' => 'Transportation'
-            ],
-            [
-                'name' => 'Monthly Income'
-            ],
-            [
-                'name' => 'Educations'
-            ],
-            [
-                'name' => 'Student Status'
-            ],
-            [
-                'name' => 'Opening Speech'
-            ],
-            [
-                'name' => 'Quotes'
-            ],
-            [
-                'name' => 'Pengaturan'
-            ],
+            ['name' => 'Dashboard', 'prefix' => 'dashboard', 'icon' => 'fa-tachometer-alt'],
+            ['name' => 'PPDB Online', 'prefix' => 'ppdb', 'icon' => 'fa-user-plus'],
+            ['name' => 'Data Guru & Staf', 'prefix' => 'teacher', 'icon' => 'fa-users'],
+            ['name' => 'Data Siswa', 'prefix' => 'student', 'icon' => 'fa-user-graduate'],
+            ['name' => 'Data Alumni', 'prefix' => 'alumni', 'icon' => 'fa-user-tag'],
+            ['name' => 'Manajemen Kelas', 'prefix' => 'class-group', 'icon' => 'fa-school'],
+            ['name' => 'Mata Pelajaran', 'prefix' => 'subjects', 'icon' => 'fa-book'],
+            ['name' => 'Jadwal Pelajaran', 'prefix' => 'class-schedules', 'icon' => 'fa-calendar-alt'],
+            ['name' => 'Nilai Siswa', 'prefix' => 'grades', 'icon' => 'fa-file-invoice'],
+            ['name' => 'Presensi Guru', 'prefix' => 'teacher-attendance', 'icon' => 'fa-user-clock'],
+            ['name' => 'Presensi Siswa', 'prefix' => 'student-attendance', 'icon' => 'fa-clock'],
+            ['name' => 'Layanan Surat', 'prefix' => 'mail', 'icon' => 'fa-envelope-open-text'],
+            ['name' => 'Berita & Konten', 'prefix' => 'posts', 'icon' => 'fa-newspaper'],
+            ['name' => 'Pengaturan App', 'prefix' => 'setting', 'icon' => 'fa-cogs'],
+            ['name' => 'Manajemen User', 'prefix' => 'user', 'icon' => 'fa-user-cog'],
+            ['name' => 'Role & Izin', 'prefix' => 'role', 'icon' => 'fa-user-lock'],
+            ['name' => 'Izin Langsung', 'prefix' => 'permission', 'icon' => 'fa-key'],
+            ['name' => 'Grup Izin', 'prefix' => 'permission-group', 'icon' => 'fa-layer-group'],
+            ['name' => 'Tahun Akademik', 'prefix' => 'academic-year', 'icon' => 'fa-calendar-check'],
+            ['name' => 'Konfigurasi', 'prefix' => 'config', 'icon' => 'fa-wrench'],
+            ['name' => 'Izin Guru', 'prefix' => 'teacher-permit', 'icon' => 'fa-envelope-open-text'],
+            ['name' => 'Izin Siswa', 'prefix' => 'student-permit', 'icon' => 'fa-envelope-open-text'],
+            ['name' => 'Regis Wajah', 'prefix' => 'face-registration', 'icon' => 'fa-camera'],
+            ['name' => 'Presensi Harian', 'prefix' => 'daily-attendance', 'icon' => 'fa-clock'],
         ];
 
-        foreach ($permissionGroups as $permission) {
-            $permissionGroup = new PermissionGroup;
-            $permissionGroup->name = $permission['name'];
-            $permissionGroup->save();
+        foreach ($permissionGroups as $data) {
+            PermissionGroup::updateOrCreate(
+                ['name' => $data['name']],
+                [
+                    'prefix' => $data['prefix'],
+                    'icon' => $data['icon'],
+                ]
+            );
         }
     }
 }
