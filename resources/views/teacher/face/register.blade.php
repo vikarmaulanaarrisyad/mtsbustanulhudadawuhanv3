@@ -50,11 +50,23 @@
                     </div>
 
                     @if(!$teacher)
-                        <div class="text-center py-20">
-                            <i class="fas fa-user-lock fa-3x text-slate-200 mb-4"></i>
-                            <h5 class="font-bold text-slate-800">Akses Dibatasi</h5>
-                            <p class="text-xs text-slate-400">Profil Anda belum terdaftar sebagai staf.</p>
-                        </div>
+                        @if(auth()->user()->hasRole(['Admin', 'Super Admin']))
+                            <div id="admin-simulation-notice" class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100 text-center mb-4">
+                                <i class="fas fa-vial fa-3x text-indigo-400 mb-4"></i>
+                                <h5 class="font-black text-indigo-800 text-sm uppercase tracking-widest mb-2">Mode Simulasi Admin</h5>
+                                <p class="text-[10px] text-indigo-600 font-bold leading-relaxed mb-0">Akun Anda adalah Admin. Anda dapat mencoba fitur kamera & AI di sini, namun penyimpanan data hanya berlaku jika profil Guru terhubung.</p>
+                            </div>
+                            <div id="loading-models" class="text-center py-10">
+                                <div class="spinner-grow text-indigo-400 mb-3" role="status"></div>
+                                <p class="text-sm font-bold text-slate-500">Menyiapkan AI...</p>
+                            </div>
+                        @else
+                            <div class="text-center py-20">
+                                <i class="fas fa-user-lock fa-3x text-slate-200 mb-4"></i>
+                                <h5 class="font-bold text-slate-800">Akses Dibatasi</h5>
+                                <p class="text-xs text-slate-400">Profil Anda belum terdaftar sebagai staf.</p>
+                            </div>
+                        @endif
                     @else
                         <div id="loading-models" class="text-center py-20">
                             <div class="spinner-grow text-indigo-400 mb-3" role="status"></div>
@@ -240,7 +252,8 @@
         try {
             isModelsLoaded = true;
             document.getElementById('loading-models').classList.add('hidden');
-            document.getElementById('camera-container').classList.remove('hidden');
+            const cameraContainer = document.getElementById('camera-container');
+            if (cameraContainer) cameraContainer.classList.remove('hidden');
             
             // Step 1 Complete
             const step1Box = document.getElementById('step-1-box');
