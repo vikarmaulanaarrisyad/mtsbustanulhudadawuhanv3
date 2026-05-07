@@ -13,7 +13,7 @@
     <div class="pwa-force-card">
         <img src="{{ $setting->pwa_icon ?? '/storage/pwa/icons/icon-192x192.png' }}?v={{ $setting->pwa_version ?? time() }}" alt="Logo" class="pwa-force-logo">
         <h1 class="pwa-force-title">Aktivasi Aplikasi Digital</h1>
-        <p class="pwa-force-desc">Aplikasi terdeteksi dibuka melalui Browser Chrome/Safari. Demi keamanan dan fitur lengkap, silakan gunakan aplikasi <b>Smart Madrasah</b> yang telah terpasang di HP Anda.</p>
+        <p class="pwa-force-desc">Aplikasi ini harus dibuka melalui <b>Ikon di Layar Utama HP</b>. Jika sudah memasang, silakan keluar dari Chrome dan cari ikon <b>Smart Madrasah</b>. Jika belum, klik tombol di bawah.</p>
         
         <div class="pwa-device-guide android-only">
             <div class="guide-item"><i class="fas fa-mobile-alt"></i> Buka aplikasi dari Layar Utama (Home Screen).</div>
@@ -126,9 +126,11 @@ body.pwa-ios .ios-only { display: block; }
     overflow: hidden;
 }
 /* Lock body scroll when overlay is active */
-body:has(.pwa-force-overlay[style*="display: flex"]) {
+body.pwa-locked {
     overflow: hidden !important;
     height: 100vh !important;
+    position: fixed !important;
+    width: 100% !important;
 }
 
 .pwa-force-card, .pwa-updating-card {
@@ -170,15 +172,22 @@ body:has(.pwa-force-overlay[style*="display: flex"]) {
     const ua = navigator.userAgent.toLowerCase();
     const isAndroid = ua.indexOf("android") > -1;
     const isIos = /ipad|iphone|ipod/.test(ua) && !window.MSStream;
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                         window.navigator.standalone || 
+                         document.referrer.includes('android-app://') ||
+                         (navigator.userAgent.includes('WV') || navigator.userAgent.includes('WebView')); // Detect some webviews
 
-    if (isAndroid) document.body.classList.add('pwa-android');
-    else if (isIos) document.body.classList.add('pwa-ios');
+    // Debugging (Optional: user can see this in console if needed)
+    console.log('PWA State:', { isStandalone, restricted, isAndroid, isIos });
 
     if (restricted && !isStandalone && forceOverlay && (isAndroid || isIos)) {
+        // Show overlay only if NOT standalone
         forceOverlay.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        document.body.style.height = '100vh';
+        document.body.classList.add('pwa-locked');
+    } else if (forceOverlay) {
+        // Hide if already standalone
+        forceOverlay.style.display = 'none';
+        document.body.classList.remove('pwa-locked');
     }
 
     if ('serviceWorker' in navigator) {
@@ -201,15 +210,21 @@ body:has(.pwa-force-overlay[style*="display: flex"]) {
     const triggerInstall = async (banner) => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            await deferredPrompt.userChoice;
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('User choice:', outcome);
             deferredPrompt = null;
             if (banner) banner.style.display = 'none';
         } else {
             if (isAndroid) {
-                if (btnText) btnText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyiapkan Sistem...';
-                setTimeout(() => { if (!deferredPrompt && btnText) btnText.innerHTML = '<i class="fas fa-redo mr-2"></i> Klik Lagi Untuk Memasang'; }, 1500);
+                if (btnText) {
+                    btnText.innerHTML = '<i class="fas fa-search mr-2"></i> CEK LAYAR UTAMA HP';
+                    setTimeout(() => {
+                        alert('Aplikasi mungkin sudah terpasang. Silakan cari ikon "Smart Madrasah" di daftar aplikasi atau layar utama HP Anda. Jika belum ada, pastikan Anda menggunakan HTTPS dan Chrome terbaru.');
+                        if (btnText) btnText.innerHTML = '<i class="fas fa-external-link-alt mr-2"></i> BUKA / PASANG APLIKASI';
+                    }, 500);
+                }
             } else if (isIos) {
-                alert('Khusus iPhone: Klik ikon Share di Safari, lalu pilih "Add to Home Screen".');
+                alert('Khusus iPhone: Klik ikon Share (kotak panah atas) di Safari, lalu pilih "Add to Home Screen".');
             }
         }
     };
