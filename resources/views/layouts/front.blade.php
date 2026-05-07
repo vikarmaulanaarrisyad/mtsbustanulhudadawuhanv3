@@ -1085,7 +1085,6 @@
 </head>
 
 <body>
-    @include('partials.preloader')
 
     <!-- Reading Progress Bar -->
     <div class="progress-container">

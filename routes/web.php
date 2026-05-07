@@ -179,6 +179,8 @@ Route::group(['middleware' => ['auth']], function () {
                 // Questions
                 Route::get('/{bank}/questions', 'show')->name('show');
                 Route::post('/{bank}/questions', 'storeQuestion')->name('storeQuestion');
+                Route::get('/questions/{question}/edit', 'editQuestion')->name('editQuestion');
+                Route::put('/questions/{question}', 'updateQuestion')->name('updateQuestion');
                 Route::delete('/questions/{question}', 'destroyQuestion')->name('destroyQuestion');
                 // Import / Export
                 Route::get('/{bank}/download-template', 'downloadTemplate')->name('downloadTemplate');

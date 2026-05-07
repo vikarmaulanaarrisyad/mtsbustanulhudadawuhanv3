@@ -89,78 +89,142 @@ class CbtBankController extends Controller
             'question_type' => 'required|in:pilihan_ganda,ganda_komplek,penjodohan,essay,uraian',
         ]);
 
-        $questionType = $request->question_type;
+        \DB::beginTransaction();
+        try {
+            $questionData = [
+                'question_text' => $request->question_text,
+                'question_type' => $request->question_type,
+                'score_weight'  => $request->score_weight ?? 1,
+            ];
 
-        // Handle question image upload
-        $imagePath = null;
-        if ($request->hasFile('question_image')) {
-            $imagePath = $request->file('question_image')->store('cbt/images', 'public');
-        }
+            if ($request->hasFile('question_image')) {
+                $imagePath = $request->file('question_image')->store('cbt/images', 'public');
+                $questionData['question_image'] = $imagePath;
+            }
 
-        $questionData = [
-            'question_text'  => $request->question_text,
-            'question_type'  => $questionType,
-            'question_image' => $imagePath,
-            'score_weight'   => $request->score_weight ?? 1,
-        ];
+            // Additional logic for specific types
+            if ($request->question_type === 'penjodohan') {
+                $premises = $request->matching_premises ?? [];
+                $responses = $request->matching_responses ?? [];
+                $pairs = [];
+                foreach ($premises as $idx => $premise) {
+                    if (!empty($premise) && !empty($responses[$idx])) {
+                        $pairs[$premise] = $responses[$idx];
+                    }
+                }
+                $questionData['matching_pairs'] = $pairs;
+            } elseif (in_array($request->question_type, ['essay', 'uraian'])) {
+                $questionData['answer_key'] = $request->answer_key;
+            }
 
-        // Handle matching pairs
-        if ($questionType === 'penjodohan' && $request->matching_pairs) {
-            $pairs = [];
-            $premises = $request->input('matching_premises', []);
-            $responses = $request->input('matching_responses', []);
-            foreach ($premises as $i => $premise) {
-                if (!empty($premise) && !empty($responses[$i] ?? '')) {
-                    $pairs[$premise] = $responses[$i];
+            $question = $bank->questions()->create($questionData);
+
+            // Handle Options for PG/PGK
+            if (in_array($request->question_type, ['pilihan_ganda', 'ganda_komplek'])) {
+                $options = $request->options ?? [];
+                $correctOptions = (array) ($request->correct_option ?? []);
+
+                foreach ($options as $index => $optionText) {
+                    if (empty(trim($optionText))) continue;
+
+                    $optImagePath = null;
+                    if ($request->hasFile("option_images.$index")) {
+                        $optImagePath = $request->file("option_images.$index")->store('cbt/images', 'public');
+                    }
+
+                    $question->options()->create([
+                        'option_text'  => $optionText,
+                        'option_image' => $optImagePath,
+                        'is_correct'   => in_array($index, $correctOptions),
+                    ]);
                 }
             }
-            $questionData['matching_pairs'] = $pairs;
+
+            \DB::commit();
+            return redirect()->back()->with('success', 'Soal berhasil ditambahkan');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Error storing CBT question: ' . $e->getMessage());
+            return redirect()->back()->with('warning', 'Gagal menyimpan soal: ' . $e->getMessage())->withInput();
         }
+    }
 
-        // Handle answer key for essay/uraian
-        if (in_array($questionType, ['essay', 'uraian'])) {
-            $questionData['answer_key'] = $request->answer_key;
-        }
+    public function editQuestion(CbtQuestion $question)
+    {
+        $question->load('options');
+        return response()->json($question);
+    }
 
-        $question = $bank->questions()->create($questionData);
+    public function updateQuestion(Request $request, CbtQuestion $question)
+    {
+        $request->validate([
+            'question_text' => 'required',
+            'question_type' => 'required|in:pilihan_ganda,ganda_komplek,penjodohan,essay,uraian',
+        ]);
 
-        // Create options for PG and PGK
-        if (in_array($questionType, ['pilihan_ganda', 'ganda_komplek'])) {
-            $options = $request->options ?? [];
-            $correctOptions = (array) ($request->correct_option ?? []);
+        \DB::beginTransaction();
+        try {
+            $questionData = [
+                'question_text' => $request->question_text,
+                'question_type' => $request->question_type,
+                'score_weight'  => $request->score_weight ?? 1,
+            ];
 
-            foreach ($options as $index => $optionText) {
-                if (empty(trim($optionText))) continue;
-
-                // Handle option image
-                $optImagePath = null;
-                if ($request->hasFile("option_images.{$index}")) {
-                    $optImagePath = $request->file("option_images.{$index}")->store('cbt/images', 'public');
-                }
-
-                $question->options()->create([
-                    'option_text'  => $optionText,
-                    'option_image' => $optImagePath,
-                    'is_correct'   => in_array($index, $correctOptions),
-                ]);
+            if ($request->hasFile('question_image')) {
+                $imagePath = $request->file('question_image')->store('cbt/images', 'public');
+                $questionData['question_image'] = $imagePath;
             }
-        }
 
-        return redirect()->back()->with('success', 'Soal berhasil ditambahkan');
+            if ($request->question_type === 'penjodohan') {
+                $premises = $request->matching_premises ?? [];
+                $responses = $request->matching_responses ?? [];
+                $pairs = [];
+                foreach ($premises as $idx => $premise) {
+                    if (!empty($premise) && !empty($responses[$idx])) {
+                        $pairs[$premise] = $responses[$idx];
+                    }
+                }
+                $questionData['matching_pairs'] = $pairs;
+            } elseif (in_array($request->question_type, ['essay', 'uraian'])) {
+                $questionData['answer_key'] = $request->answer_key;
+            }
+
+            $question->update($questionData);
+
+            if (in_array($request->question_type, ['pilihan_ganda', 'ganda_komplek'])) {
+                $question->options()->delete();
+                $options = $request->options ?? [];
+                $correctOptions = (array) ($request->correct_option ?? []);
+
+                foreach ($options as $index => $optionText) {
+                    if (empty(trim($optionText))) continue;
+
+                    $optImagePath = null;
+                    if ($request->hasFile("option_images.$index")) {
+                        $optImagePath = $request->file("option_images.$index")->store('cbt/images', 'public');
+                    }
+
+                    $question->options()->create([
+                        'option_text'  => $optionText,
+                        'option_image' => $optImagePath,
+                        'is_correct'   => in_array($index, $correctOptions),
+                    ]);
+                }
+            } else {
+                $question->options()->delete();
+            }
+
+            \DB::commit();
+            return redirect()->back()->with('success', 'Soal berhasil diperbarui');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Error updating CBT question: ' . $e->getMessage());
+            return redirect()->back()->with('warning', 'Gagal memperbarui soal: ' . $e->getMessage());
+        }
     }
 
     public function destroyQuestion(CbtQuestion $question)
     {
-        // Delete associated images
-        if ($question->question_image) {
-            Storage::disk('public')->delete($question->question_image);
-        }
-        foreach ($question->options as $opt) {
-            if ($opt->option_image) {
-                Storage::disk('public')->delete($opt->option_image);
-            }
-        }
-
         $question->delete();
         return redirect()->back()->with('success', 'Soal berhasil dihapus');
     }
@@ -183,6 +247,10 @@ class CbtBankController extends Controller
      */
     public function importQuestions(Request $request, CbtBank $bank)
     {
+        // Increase limits for processing images in Excel
+        ini_set('max_execution_time', 600); // 10 minutes
+        ini_set('memory_limit', '512M');
+
         $request->validate([
             'file' => 'required|mimes:xlsx,xls|max:10240', // max 10MB
             'images.*' => 'nullable|image|max:5120', // max 5MB per image
@@ -196,8 +264,10 @@ class CbtBankController extends Controller
             }
         }
 
+        \Log::info('Starting CBT Question Import for bank ID: ' . $bank->id);
         $import = new CbtQuestionsImport($bank, $uploadedImages);
         Excel::import($import, $request->file('file'));
+        \Log::info('Excel::import finished.');
 
         $importedCount = $import->getImportedCount();
         $errors = $import->getErrors();

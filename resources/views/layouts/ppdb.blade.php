@@ -340,7 +340,6 @@
 </head>
 
 <body>
-    @include('partials.preloader')
 
     {{-- NAVBAR --}}
     <nav class="navbar navbar-expand-lg ppdb-navbar">

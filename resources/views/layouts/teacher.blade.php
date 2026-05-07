@@ -76,7 +76,6 @@
     </style>
 </head>
 <body class="bg-slate-50 font-sans antialiased text-slate-900">
-    @include('partials.preloader')
 
     <!-- Mobile Container -->
     <div class="max-w-md mx-auto min-h-screen relative shadow-2xl bg-white pb-32">

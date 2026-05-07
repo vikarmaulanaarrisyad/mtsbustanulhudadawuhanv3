@@ -153,7 +153,6 @@
 
 <body class="sidebar-mini layout-fixed layout-footer-fixed">
     <div class="wrapper">
-        @include('partials.preloader')
 
         <!-- Navbar -->
         @includeIf('layouts.partials.header')

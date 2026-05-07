@@ -89,12 +89,32 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
      */
     protected function getDrawingFromCell(string $coordinate): ?string
     {
+        // Try exact match first
         if (isset($this->drawings[$coordinate])) {
-            $drawing = $this->drawings[$coordinate];
-            
+            return $this->processDrawing($this->drawings[$coordinate]);
+        }
+
+        // Fallback: search for drawings that intersect with this cell
+        foreach ($this->drawings as $coord => $drawing) {
+            if (strpos($coord, $coordinate) !== false) {
+                return $this->processDrawing($drawing);
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Helper to process and save drawing
+     */
+    protected function processDrawing($drawing): ?string
+    {
+        try {
             if ($drawing instanceof Drawing) {
                 $path = $drawing->getPath();
-                $extension = pathinfo($path, PATHINFO_EXTENSION);
+                if (!file_exists($path)) return null;
+                
+                $extension = pathinfo($path, PATHINFO_EXTENSION) ?: 'png';
                 $filename = Str::uuid() . '.' . $extension;
                 $storagePath = 'cbt/images/' . $filename;
                 
@@ -106,13 +126,15 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 $imageContents = ob_get_contents();
                 ob_end_clean();
                 
-                $extension = 'png'; // Memory drawings are usually PNG/JPEG
+                $extension = 'png';
                 $filename = Str::uuid() . '.' . $extension;
                 $storagePath = 'cbt/images/' . $filename;
                 
                 Storage::disk('public')->put($storagePath, $imageContents);
                 return $storagePath;
             }
+        } catch (\Exception $e) {
+            \Log::error("Error processing Excel drawing: " . $e->getMessage());
         }
         return null;
     }
@@ -122,8 +144,13 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         return [
             BeforeSheet::class => function (BeforeSheet $event) {
                 $this->sheet = $event->sheet->getDelegate();
+                $this->drawings = [];
+                
+                // Get all drawings from the sheet
                 foreach ($this->sheet->getDrawingCollection() as $drawing) {
                     $coordinate = $drawing->getCoordinates();
+                    // Some drawings might be anchored to a range, e.g. "D4:E6"
+                    // We store the primary coordinate
                     $this->drawings[$coordinate] = $drawing;
                 }
             },
@@ -143,8 +170,13 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         DB::beginTransaction();
 
         try {
+            \Log::info('Importing ' . $rows->count() . ' rows.');
             foreach ($rows as $index => $row) {
-                $rowNumber = $index + 2; // Account for header row
+                $rowNumber = $index + 2; 
+                
+                if ($index % 5 == 0) {
+                    \Log::info("Processing row {$rowNumber}...");
+                }
 
                 // Skip completely empty rows
                 $soal = trim($row['soal'] ?? '');

@@ -130,6 +130,7 @@
             <div class="card-body pt-0">
                 <form action="{{ route('admin.cbt.bank.storeQuestion', $bank->id) }}" method="POST" enctype="multipart/form-data" id="questionForm">
                     @csrf
+                    <input type="hidden" name="_method" id="formMethod" value="POST">
                     <div class="form-group mb-3">
                         <label class="form-label-premium">TIPE SOAL</label>
                         <select name="question_type" id="questionType" class="form-control premium-select" required>
@@ -165,7 +166,7 @@
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <div class="input-group-text option-check-bg">
-                                        <input type="radio" name="correct_option[]" value="{{ $i }}" class="correct-input custom-control-input-premium">
+                                        <input type="radio" name="correct_option" value="{{ $i }}" class="correct-input custom-control-input-premium">
                                         <label class="mb-0 font-weight-bold ml-1">{{ $letter }}</label>
                                     </div>
                                 </div>
@@ -206,9 +207,14 @@
                         <input type="number" name="score_weight" class="form-control premium-input w-50" value="1" min="1" max="100">
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg font-weight-bold rounded-xl py-3 mt-4 hover-lift">
-                        <i class="fas fa-save mr-2"></i> SIMPAN SOAL
-                    </button>
+                    <div class="d-flex" style="gap:10px;">
+                        <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg font-weight-bold rounded-xl py-3 mt-4 hover-lift" id="btnSubmitQuestion">
+                            <i class="fas fa-save mr-2"></i> SIMPAN SOAL
+                        </button>
+                        <button type="button" class="btn btn-light btn-lg shadow-sm rounded-xl py-3 mt-4 d-none" id="btnCancelEdit" onclick="cancelEdit()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -330,13 +336,10 @@
                         </div>
 
                         <div class="q-actions d-flex flex-column" style="gap: 8px;">
-                            <form action="{{ route('admin.cbt.bank.destroyQuestion', $q->id) }}" method="POST" onsubmit="return confirm('Hapus soal ini selamanya?')">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-action btn-outline-danger" title="Hapus Soal">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                            <button class="btn btn-action btn-outline-info" title="Edit Soal (Soon)">
+                            <button class="btn btn-action btn-outline-danger" title="Hapus Soal" onclick="deleteQuestion({{ $q->id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="btn btn-action btn-outline-warning" title="Edit Soal" onclick="editQuestion({{ $q->id }})">
                                 <i class="fas fa-edit"></i>
                             </button>
                         </div>
@@ -562,16 +565,24 @@ $(function(){
     $('#questionType').on('change',function(){
         var t=$(this).val();
         var isPG=t==='pilihan_ganda'||t==='ganda_komplek';
+        
         $('#optionsSection').toggle(isPG);
         $('#matchingSection').toggle(t==='penjodohan');
         $('#essaySection').toggle(t==='essay'||t==='uraian');
+
+        // Fix: Toggle required attribute to prevent "not focusable" error
+        if(isPG) {
+            $('input[name="options[]"]').slice(0, 2).attr('required', true);
+        } else {
+            $('input[name="options[]"]').removeAttr('required');
+        }
         
         // Toggle radio vs checkbox for PG vs PGK
         if(t==='ganda_komplek'){
-            $('.correct-input').attr('type','checkbox');
+            $('.correct-input').attr('type','checkbox').attr('name', 'correct_option[]');
             $('#correctHint').text('Pilih multiple jawaban').removeClass('badge-soft-primary').addClass('badge-soft-purple');
         } else {
-            $('.correct-input').attr('type','radio');
+            $('.correct-input').attr('type','radio').attr('name', 'correct_option');
             $('#correctHint').text('Pilih 1 jawaban').removeClass('badge-soft-purple').addClass('badge-soft-primary');
         }
     }).trigger('change');
@@ -650,6 +661,95 @@ function filterQuestions(type){
         $('.question-wrapper').hide();
         $('.q-type-' + type).show();
     }
+}
+function deleteQuestion(id) {
+    Swal.fire({
+        title: 'Hapus Soal?',
+        text: "Data soal akan dihapus permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            let form = document.createElement('form');
+            form.action = `/admin/cbt/bank/questions/${id}`;
+            form.method = 'POST';
+            form.innerHTML = `@csrf @method('DELETE')`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+function editQuestion(id) {
+    Swal.fire({
+        title: 'Memuat Data...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+
+    $.get(`/admin/cbt/bank/questions/${id}/edit`, function(q) {
+        Swal.close();
+        
+        // Populate form
+        $('#formMethod').val('PUT');
+        $('#questionForm').attr('action', `/admin/cbt/bank/questions/${id}`);
+        $('#questionType').val(q.question_type).trigger('change');
+        $('textarea[name="question_text"]').val(q.question_text);
+        $('input[name="score_weight"]').val(q.score_weight);
+        
+        if (q.answer_key) $('textarea[name="answer_key"]').val(q.answer_key);
+
+        // Populate options
+        if (q.options && q.options.length > 0) {
+            q.options.forEach((opt, index) => {
+                $(`input[name="options[]"]`).eq(index).val(opt.option_text);
+                if (opt.is_correct) {
+                    if (q.question_type === 'ganda_komplek') {
+                        $(`.correct-input[value="${index}"]`).prop('checked', true);
+                    } else {
+                        $(`.correct-input[value="${index}"]`).prop('checked', true);
+                    }
+                }
+            });
+        }
+
+        // Populate matching pairs
+        if (q.question_type === 'penjodohan' && q.matching_pairs) {
+            $('#matchingPairs').empty();
+            let pairs = q.matching_pairs;
+            Object.keys(pairs).forEach((premise, index) => {
+                $('#matchingPairs').append(`<div class="matching-pair-row d-flex mb-2 align-items-center animate__animated animate__fadeInSmall">
+                    <input type="text" name="matching_premises[]" class="form-control premium-input-sm" value="${premise}">
+                    <div class="px-2"><i class="fas fa-link text-muted"></i></div>
+                    <input type="text" name="matching_responses[]" class="form-control premium-input-sm" value="${pairs[premise]}">
+                </div>`);
+            });
+        }
+
+        // UI Changes
+        $('.card-header h5').html('<i class="fas fa-edit mr-2 text-warning"></i>Edit Soal');
+        $('#btnSubmitQuestion').html('<i class="fas fa-save mr-2"></i> UPDATE SOAL').removeClass('btn-primary').addClass('btn-warning');
+        $('#btnCancelEdit').removeClass('d-none');
+        
+        // Scroll to form
+        $('html, body').animate({ scrollTop: $("#questionForm").offset().top - 100 }, 500);
+    });
+}
+
+function cancelEdit() {
+    $('#formMethod').val('POST');
+    $('#questionForm').attr('action', `{{ route('admin.cbt.bank.storeQuestion', $bank->id) }}`);
+    $('#questionForm')[0].reset();
+    $('#questionType').trigger('change');
+    
+    $('.card-header h5').html('<i class="fas fa-plus-circle mr-2 text-primary"></i>Tambah Soal Manual');
+    $('#btnSubmitQuestion').html('<i class="fas fa-save mr-2"></i> SIMPAN SOAL').removeClass('btn-warning').addClass('btn-primary');
+    $('#btnCancelEdit').addClass('d-none');
 }
 </script>
 @endpush

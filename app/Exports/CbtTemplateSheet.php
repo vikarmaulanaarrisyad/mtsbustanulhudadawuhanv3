@@ -14,6 +14,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class CbtTemplateSheet implements FromArray, WithTitle, WithHeadings, WithStyles, WithColumnWidths, WithEvents
 {
@@ -160,6 +161,32 @@ class CbtTemplateSheet implements FromArray, WithTitle, WithHeadings, WithStyles
 
                 // Freeze top row
                 $sheet->freezePane('A2');
+
+                // Add sample image to D2 (Gambar Soal)
+                if (file_exists(public_path('img/logo.png'))) {
+                    $drawing = new Drawing();
+                    $drawing->setName('Sample Image');
+                    $drawing->setDescription('Sample Question Image');
+                    $drawing->setPath(public_path('img/logo.png'));
+                    $drawing->setHeight(80);
+                    $drawing->setCoordinates('D2');
+                    $drawing->setOffsetX(10);
+                    $drawing->setOffsetY(10);
+                    $drawing->setWorksheet($sheet);
+                    
+                    // Adjust row height to fit image
+                    $sheet->getRowDimension(2)->setRowHeight(80);
+
+                    // Add sample image to F2 (Gambar Opsi A)
+                    $drawing2 = new Drawing();
+                    $drawing2->setName('Sample Option');
+                    $drawing2->setPath(public_path('img/logo.png'));
+                    $drawing2->setHeight(50);
+                    $drawing2->setCoordinates('F2');
+                    $drawing2->setOffsetX(10);
+                    $drawing2->setOffsetY(10);
+                    $drawing2->setWorksheet($sheet);
+                }
 
                 // Add bank name info at top
                 $sheet->getHeaderFooter()->setOddHeader('&L&B' . $this->bankName . '&R&D');
