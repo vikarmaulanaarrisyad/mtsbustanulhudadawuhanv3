@@ -28,6 +28,9 @@
                             <button class="btn btn-warning rounded-xl font-weight-bold shadow-lg hover-scale" data-toggle="modal" data-target="#importModal">
                                 <i class="fas fa-cloud-upload-alt mr-2"></i> Import Soal
                             </button>
+                            <button class="btn btn-info rounded-xl font-weight-bold shadow-lg hover-scale" data-toggle="modal" data-target="#aiModal">
+                                <i class="fas fa-robot mr-2"></i> AI Generator
+                            </button>
                             <button class="btn btn-danger rounded-xl font-weight-bold shadow-lg hover-scale" onclick="truncateQuestions()">
                                 <i class="fas fa-trash-alt mr-2"></i> Kosongkan
                             </button>
@@ -46,6 +49,7 @@
 <div class="row d-md-none mb-3 px-3">
     <div class="col-4 pr-1"><a href="{{ route('admin.cbt.bank.downloadTemplate', $bank->id) }}" class="btn btn-light btn-block rounded-lg shadow-sm px-1"><i class="fas fa-download mr-1"></i> Template</a></div>
     <div class="col-4 px-1"><button class="btn btn-warning btn-block rounded-lg shadow-sm px-1" data-toggle="modal" data-target="#importModal"><i class="fas fa-upload mr-1"></i> Import</button></div>
+    <div class="col-4 px-1"><button class="btn btn-info btn-block rounded-lg shadow-sm px-1" data-toggle="modal" data-target="#aiModal"><i class="fas fa-robot mr-1"></i> AI</button></div>
     <div class="col-4 pl-1"><button class="btn btn-danger btn-block rounded-lg shadow-sm px-1" onclick="truncateQuestions()"><i class="fas fa-trash mr-1"></i> Hapus</button></div>
 </div>
 
@@ -535,6 +539,92 @@
     </div>
 </div>
 
+{{-- AI GENERATOR MODAL --}}
+<div class="modal fade" id="aiModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content border-0 shadow-2xl" style="border-radius:25px;">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title font-weight-bold text-dark d-flex align-items-center">
+                    <div class="icon-shape bg-soft-primary mr-3"><i class="fas fa-robot"></i></div>
+                    AI QUESTION GENERATOR (GEMINI AI)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="aiInputSection">
+                    <div class="alert alert-soft-primary border-0 rounded-xl mb-4 p-3 d-flex align-items-center">
+                        <i class="fas fa-magic mr-3 fa-lg"></i>
+                        <div class="text-sm">Tempelkan materi/teks di bawah ini, dan AI akan secara otomatis merancang butir soal untuk Anda.</div>
+                    </div>
+                    
+                    <div class="form-group mb-4">
+                        <label class="form-label-premium">MATERI / SUMBER TEKS (MIN. 50 KARAKTER)</label>
+                        <textarea id="aiSourceText" class="form-control premium-input" rows="8" placeholder="Contoh: Ekosistem adalah suatu sistem ekologi yang terbentuk oleh hubungan timbal balik tak terpisahkan antara makhluk hidup dengan lingkungannya..."></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label-premium">TIPE SOAL</label>
+                                <select id="aiQuestionType" class="form-control premium-select">
+                                    <option value="pilihan_ganda">Pilihan Ganda (4 Opsi)</option>
+                                    <option value="essay">Essay / Uraian</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label-premium">JUMLAH SOAL</label>
+                                <div class="d-flex align-items-center">
+                                    <input type="range" class="custom-range flex-grow-1 mr-3" id="aiQuestionCount" min="1" max="20" value="5" oninput="$('#countLabel').text(this.value)">
+                                    <span class="badge badge-primary py-2 px-3 rounded-lg" style="min-width: 45px;"><span id="countLabel">5</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary btn-block btn-lg rounded-xl font-weight-bold shadow-lg py-3 mt-2" onclick="generateQuestions()">
+                        <i class="fas fa-wand-magic-sparkles mr-2"></i> GENERATE SOAL SEKARANG
+                    </button>
+                </div>
+
+                <div id="aiLoadingSection" class="text-center py-5 d-none">
+                    <div class="mb-4">
+                        <div class="upload-icon-pulse bg-soft-primary mx-auto" style="width: 100px; height: 100px;">
+                            <i class="fas fa-brain fa-3x text-primary animate-pulse"></i>
+                        </div>
+                    </div>
+                    <h5 class="font-weight-bold text-dark">AI Sedang Berpikir...</h5>
+                    <p class="text-muted">Menganalisis teks dan merancang butir soal terbaik.</p>
+                    <div class="progress rounded-pill mx-auto mt-4" style="height: 8px; max-width: 300px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div id="aiPreviewSection" class="d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <h6 class="font-weight-bold text-dark mb-0">HASIL GENERATE AI:</h6>
+                        <div class="text-xs font-weight-bold text-muted uppercase tracking-widest"><i class="fas fa-info-circle mr-1"></i> Tinjau & Edit jika perlu sebelum menyimpan</div>
+                    </div>
+                    
+                    <div id="aiQuestionsContainer" class="mb-4 custom-scrollbar" style="max-height: 450px; overflow-y: auto;">
+                        <!-- AI Questions will be injected here -->
+                    </div>
+
+                    <div class="d-flex" style="gap:12px;">
+                        <button type="button" class="btn btn-light rounded-xl font-weight-bold px-4" onclick="$('#aiPreviewSection').addClass('d-none'); $('#aiInputSection').removeClass('d-none');">
+                            <i class="fas fa-undo mr-2"></i> ULANGI
+                        </button>
+                        <button type="button" class="btn btn-success flex-grow-1 rounded-xl font-weight-bold shadow-lg" onclick="saveAiQuestions()">
+                            <i class="fas fa-save mr-2"></i> SIMPAN SEMUA SOAL KE BANK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
 /* PREMIUM DESIGN TOKENS */
 :root {
@@ -885,6 +975,140 @@ function truncateQuestions() {
             form.innerHTML = `@csrf @method('DELETE')`;
             document.body.appendChild(form);
             form.submit();
+        }
+    });
+}
+
+// AI GENERATOR FUNCTIONS
+let generatedQuestions = [];
+
+function generateQuestions() {
+    const text = $('#aiSourceText').val();
+    const type = $('#aiQuestionType').val();
+    const count = $('#aiQuestionCount').val();
+
+    if (text.length < 50) {
+        Swal.fire({ icon: 'warning', title: 'Teks Terlalu Pendek', text: 'Harap masukkan materi minimal 50 karakter agar AI bisa menganalisis dengan baik.', customClass: { popup: 'rounded-2xl' } });
+        return;
+    }
+
+    $('#aiInputSection').addClass('d-none');
+    $('#aiLoadingSection').removeClass('d-none');
+
+    $.post('{{ route("admin.cbt.bank.ai_generate", $bank->id) }}', {
+        _token: '{{ csrf_token() }}',
+        source_text: text,
+        type: type,
+        count: count
+    }).done(res => {
+        if (res.success) {
+            generatedQuestions = res.questions;
+            renderAiPreview();
+            $('#aiLoadingSection').addClass('d-none');
+            $('#aiPreviewSection').removeClass('d-none');
+        } else {
+            handleAiError(res.message);
+        }
+    }).fail(err => {
+        handleAiError(err.responseJSON?.message || 'Terjadi kesalahan sistem saat menghubungi AI.');
+    });
+}
+
+function handleAiError(msg) {
+    $('#aiLoadingSection').addClass('d-none');
+    $('#aiInputSection').removeClass('d-none');
+    Swal.fire({ icon: 'error', title: 'AI Error', text: msg, customClass: { popup: 'rounded-2xl' } });
+}
+
+function renderAiPreview() {
+    const container = $('#aiQuestionsContainer');
+    container.empty();
+
+    generatedQuestions.forEach((q, idx) => {
+        let html = `
+            <div class="card border mb-3 shadow-sm rounded-xl overflow-hidden">
+                <div class="card-header bg-light-gradient py-2 d-flex justify-content-between align-items-center">
+                    <span class="font-weight-bold text-sm text-primary">Soal #${idx + 1}</span>
+                    <button class="btn btn-xs btn-link text-danger p-0" onclick="removeAiQuestion(${idx})"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="card-body p-3">
+                    <textarea class="form-control text-sm font-weight-bold mb-3 border-0 bg-transparent p-0" rows="2" onchange="updateAiQuestion(${idx}, 'question_text', this.value)">${q.question_text}</textarea>
+        `;
+
+        if (q.options) {
+            html += `<div class="row no-gutters">`;
+            q.options.forEach((opt, oIdx) => {
+                const letter = String.fromCharCode(65 + oIdx);
+                html += `
+                    <div class="col-md-6 mb-2 pr-2">
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text ${opt.is_correct ? 'bg-success text-white border-success' : 'bg-light'} font-weight-bold">${letter}</span>
+                            </div>
+                            <input type="text" class="form-control" value="${opt.text}" onchange="updateAiOption(${idx}, ${oIdx}, this.value)">
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+        } else if (q.answer_key) {
+            html += `
+                <div class="bg-soft-success p-2 rounded border-left-success-4">
+                    <small class="text-success font-weight-bold text-uppercase d-block mb-1">Kunci Jawaban:</small>
+                    <textarea class="form-control form-control-sm border-0 bg-transparent p-0 text-dark" rows="2" onchange="updateAiQuestion(${idx}, 'answer_key', this.value)">${q.answer_key}</textarea>
+                </div>
+            `;
+        }
+
+        html += `</div></div>`;
+        container.append(html);
+    });
+}
+
+function removeAiQuestion(idx) {
+    generatedQuestions.splice(idx, 1);
+    renderAiPreview();
+}
+
+function updateAiQuestion(idx, key, val) {
+    generatedQuestions[idx][key] = val;
+}
+
+function updateAiOption(qIdx, oIdx, val) {
+    generatedQuestions[qIdx].options[oIdx].text = val;
+}
+
+function saveAiQuestions() {
+    if (generatedQuestions.length === 0) {
+        Swal.fire({ icon: 'warning', title: 'Kosong', text: 'Tidak ada soal untuk disimpan.', customClass: { popup: 'rounded-2xl' } });
+        return;
+    }
+
+    Swal.fire({
+        title: 'Simpan ke Bank?',
+        text: `Konfirmasi untuk menyimpan ${generatedQuestions.length} soal ini ke dalam database.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'YA, SIMPAN',
+        customClass: { popup: 'rounded-2xl' }
+    }).then(res => {
+        if (res.isConfirmed) {
+            Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+            
+            $.post('{{ route("admin.cbt.bank.ai_save", $bank->id) }}', {
+                _token: '{{ csrf_token() }}',
+                questions: generatedQuestions,
+                type: $('#aiQuestionType').val()
+            }).done(res => {
+                if (res.success) {
+                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: res.message, customClass: { popup: 'rounded-2xl' } })
+                    .then(() => location.reload());
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: res.message, customClass: { popup: 'rounded-2xl' } });
+                }
+            }).fail(err => {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan sistem saat menyimpan soal.', customClass: { popup: 'rounded-2xl' } });
+            });
         }
     });
 }

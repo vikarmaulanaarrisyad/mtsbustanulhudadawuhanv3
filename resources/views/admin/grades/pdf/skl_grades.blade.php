@@ -69,16 +69,29 @@
         </table>
     </div>
 
-    <div class="signature" style="margin-top: 30px;">
+    <div class="signature-container" style="margin-top: 30px; position: relative;">
+        {{-- QR VERIFICATION BOX --}}
+        <div style="float: left; width: 40%; text-align: left; padding-top: 10px;">
+            <div style="display: inline-block; padding: 5px; border: 1px solid #ccc; background: #fff;">
+                {!! $qrCode !!}
+            </div>
+            <p style="font-size: 8px; color: #666; margin-top: 5px; font-style: italic;">
+                Dokumen ini sah & terverifikasi secara digital.<br>
+                Scan QR Code untuk cek keaslian.<br>
+                Kode: <strong>{{ $verification->verification_code }}</strong>
+            </p>
+        </div>
+
         @php
             $kepala = get_kepala_madrasah();
             $general = \App\Models\MailSetting::first();
         @endphp
-        <div class="signature-box">
+        <div class="signature-box" style="float: right; width: 50%; text-align: center;">
             <p>{{ $general->city ?? 'Dawuhan' }}, {{ tanggal_indonesia(date('Y-m-d')) }}<br>{{ $general->default_signer_position ?? 'Kepala Madrasah' }},</p>
             <div class="signature-space" style="height: 60px;"></div>
             <p><strong><u>{{ $kepala->name ?? ($general->default_signer_name ?? 'KEPALA MADRASAH') }}</u></strong><br>
             NIP. {{ $kepala->nip ?? ($general->default_signer_nip ?? '-') }}</p>
         </div>
+        <div style="clear: both;"></div>
     </div>
 @endsection

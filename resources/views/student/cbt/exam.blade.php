@@ -6,42 +6,43 @@
 <!-- ULTRA PREMIUM CBT ENGINE V3 -->
 <div class="cbt-container fixed inset-0 z-[150] bg-[#fdfdfd] flex flex-col hidden overflow-hidden select-none" id="cbt-engine">
     <!-- TOP NAVIGATION BAR (GLASSMORPHISM) -->
-    <div class="h-24 md:h-20 bg-white/95 backdrop-blur-2xl border-b border-slate-100 flex items-center justify-between px-4 md:px-12 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative z-[70]">
-        <div class="flex items-center space-x-3 md:space-x-5">
+    <div class="h-16 md:h-20 bg-white/95 backdrop-blur-2xl border-b border-slate-100 flex items-center justify-between px-3 md:px-12 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative z-[70]">
+        <div class="flex items-center space-x-2 md:space-x-5">
             <div class="relative group">
-                <div class="absolute -inset-1 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                <div class="relative w-10 h-10 md:w-12 md:h-12 bg-indigo-600 rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-100 transform rotate-3 transition-transform group-hover:rotate-0">
-                    <i class="fas fa-laptop-code text-lg md:text-xl"></i>
+                <div class="absolute -inset-1 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg md:rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative w-8 h-8 md:w-12 md:h-12 bg-indigo-600 rounded-lg md:rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-100 transform rotate-3 transition-transform group-hover:rotate-0">
+                    <i class="fas fa-laptop-code text-sm md:text-xl"></i>
                 </div>
             </div>
             <div class="flex flex-col">
-                <h1 class="text-xs md:text-xl font-black text-slate-800 leading-tight tracking-tight truncate max-w-[120px] md:max-w-none">{{ $exam->name }}</h1>
-                <div class="flex items-center space-x-2">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                    <p class="text-[8px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">{{ $exam->bank->subject->name ?? 'Mata Pelajaran' }}</p>
+                <h1 class="text-[10px] md:text-xl font-black text-slate-800 leading-tight tracking-tight truncate max-w-[80px] md:max-w-none">{{ $exam->name }}</h1>
+                <div class="flex items-center space-x-1">
+                    <span class="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <p class="text-[6px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] truncate max-w-[60px] md:max-w-none">{{ $exam->bank->subject->name ?? 'Mata Pelajaran' }}</p>
                 </div>
             </div>
         </div>
         
         <div class="flex items-center space-x-2 md:space-x-10">
-            <div class="hidden sm:flex flex-col items-center md:items-end bg-rose-50 px-4 py-2 md:px-6 md:py-2.5 rounded-2xl md:rounded-[1.5rem] border border-rose-100">
-                <span class="text-[7px] md:text-[9px] text-rose-400 font-black uppercase tracking-[0.2em] mb-0.5">Pelanggaran</span>
+            <div class="hidden sm:flex flex-col items-center md:items-end bg-rose-50 px-3 py-1.5 md:px-6 md:py-2.5 rounded-xl md:rounded-[1.5rem] border border-rose-100">
+                <span class="text-[6px] md:text-[9px] text-rose-400 font-black uppercase tracking-[0.2em] mb-0.5">Pelanggaran</span>
                 <div class="flex items-center space-x-2">
-                    <span class="text-sm md:text-xl font-black text-rose-600" id="violation-count">{{ $studentExam->violation_count ?? 0 }}</span>
-                    <span class="text-[10px] md:text-sm font-black text-rose-300">/ 3</span>
+                    <span class="text-xs md:text-xl font-black text-rose-600" id="violation-count">{{ $studentExam->violation_count ?? 0 }}</span>
+                    <span class="text-[8px] md:text-sm font-black text-rose-300">/ 3</span>
                 </div>
             </div>
 
-            <div class="timer-display flex flex-col items-center md:items-end bg-slate-900 px-4 py-2 md:px-6 md:py-2.5 rounded-2xl md:rounded-[1.5rem] shadow-2xl shadow-indigo-100/50 border border-slate-800">
-                <span class="text-[7px] md:text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-0.5">Time Remaining</span>
-                <div class="text-lg md:text-3xl font-black text-white font-mono tracking-tighter leading-none" id="timer">--:--:--</div>
+            <div class="timer-display flex flex-col items-center md:items-end bg-slate-900 px-3 py-1.5 md:px-6 md:py-2.5 rounded-xl md:rounded-[1.5rem] shadow-2xl shadow-indigo-100/50 border border-slate-800">
+                <span class="text-[6px] md:text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-0.5">Sisa Waktu</span>
+                <div class="text-xs md:text-3xl font-black text-white font-mono tracking-tighter leading-none" id="timer">--:--:--</div>
             </div>
-            <div class="h-10 w-px bg-slate-100 hidden md:block"></div>
-            <button onclick="finishExam()" class="group relative px-4 py-2.5 md:px-10 md:py-4 overflow-hidden rounded-xl md:rounded-2xl bg-white text-slate-900 border border-slate-200 font-black text-[10px] md:text-sm uppercase tracking-widest transition-all hover:bg-rose-600 hover:text-white hover:border-rose-600 hover:shadow-[0_20px_40px_-10px_rgba(225,29,72,0.3)] active:scale-95">
-                <span class="relative z-10">Akhiri Ujian</span>
+            <div class="h-8 w-px bg-slate-100 hidden md:block"></div>
+            <button onclick="finishExam()" class="group relative px-3 py-2 md:px-10 md:py-4 overflow-hidden rounded-xl md:rounded-2xl bg-white text-slate-900 border border-slate-200 font-black text-[9px] md:text-sm uppercase tracking-widest transition-all hover:bg-rose-600 hover:text-white hover:border-rose-600 hover:shadow-[0_20px_40px_-10px_rgba(225,29,72,0.3)] active:scale-95">
+                <span class="relative z-10 hidden md:block">Akhiri Ujian</span>
+                <span class="relative z-10 md:hidden">AKHIRI</span>
             </button>
-            <button onclick="toggleNav()" class="lg:hidden w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 shadow-inner hover:bg-indigo-600 hover:text-white transition-all">
-                <i class="fas fa-th-large text-base"></i>
+            <button onclick="toggleNav()" class="lg:hidden w-8 h-8 md:w-10 md:h-10 bg-indigo-50 rounded-lg md:rounded-xl flex items-center justify-center text-indigo-600 shadow-inner hover:bg-indigo-600 hover:text-white transition-all">
+                <i class="fas fa-th-large text-xs md:text-base"></i>
             </button>
         </div>
     </div>
@@ -61,7 +62,7 @@
                             <div class="flex items-center space-x-6">
                                 <div class="relative">
                                     <div class="absolute -inset-2 bg-indigo-500 rounded-full blur opacity-10 animate-pulse"></div>
-                                    <span class="relative w-16 h-16 bg-white border border-slate-100 text-indigo-600 flex items-center justify-center rounded-[1.8rem] font-black text-3xl shadow-xl">
+                                    <span class="relative w-12 h-12 md:w-16 md:h-16 bg-white border border-slate-100 text-indigo-600 flex items-center justify-center rounded-2xl md:rounded-[1.8rem] font-black text-xl md:text-3xl shadow-xl">
                                         {{ $index + 1 }}
                                     </span>
                                 </div>
@@ -75,16 +76,16 @@
                         </div>
 
                         <!-- QUESTION CARD -->
-                        <div class="bg-white rounded-[3.5rem] p-8 md:p-14 border border-slate-100 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.04)] mb-10 group/card hover:shadow-[0_40px_120px_-20px_rgba(0,0,0,0.08)] transition-all duration-700">
-                            <div class="prose-container mb-12">
-                                <div class="text-xl md:text-[1.75rem] text-slate-800 font-medium leading-[1.6] tracking-tight antialiased">
+                        <div class="bg-white rounded-[2rem] md:rounded-[3.5rem] p-5 md:p-14 border border-slate-100 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.04)] mb-8 md:mb-10 group/card hover:shadow-[0_40px_120px_-20px_rgba(0,0,0,0.08)] transition-all duration-700">
+                            <div class="prose-container mb-8 md:mb-12">
+                                <div class="text-lg md:text-[1.75rem] text-slate-800 font-medium leading-relaxed md:leading-[1.6] tracking-tight antialiased">
                                     {!! $q->question_text !!}
                                 </div>
                             </div>
 
                             @if($q->question_image)
-                                <div class="mb-12 rounded-[2.5rem] overflow-hidden border-[12px] border-slate-50 shadow-2xl bg-white text-center group/img">
-                                    <img src="{{ Storage::url($q->question_image) }}" class="max-h-[600px] w-auto mx-auto object-contain transition-transform duration-700 group-hover/img:scale-[1.02]" alt="Gambar Soal">
+                                <div class="mb-8 md:mb-12 rounded-2xl md:rounded-[2.5rem] overflow-hidden border-4 md:border-[12px] border-slate-50 shadow-xl md:shadow-2xl bg-white text-center group/img">
+                                    <img src="{{ Storage::url($q->question_image) }}" class="max-h-[300px] md:max-h-[600px] w-auto mx-auto object-contain transition-transform duration-700 group-hover/img:scale-[1.02]" alt="Gambar Soal">
                                 </div>
                             @endif
 
@@ -98,8 +99,8 @@
                                                 $isChecked = $ans && $ans->cbt_option_id == $opt->id;
                                                 $letter = chr(65 + $optIndex);
                                             @endphp
-                                            <label class="option-label group flex items-start p-6 md:p-8 border-2 {{ $isChecked ? 'border-indigo-600 bg-indigo-50/50 shadow-2xl shadow-indigo-100/50' : 'border-slate-50 bg-slate-50/30 hover:border-indigo-300 hover:bg-white hover:shadow-xl' }} rounded-[2.5rem] cursor-pointer transition-all duration-300">
-                                                <div class="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-2xl {{ $isChecked ? 'bg-indigo-600 text-white' : 'bg-white text-slate-400 group-hover:bg-indigo-100 group-hover:text-indigo-600' }} font-black text-xl transition-all shadow-sm border border-slate-100">
+                                            <label class="option-label group flex items-start p-4 md:p-8 border-2 {{ $isChecked ? 'border-indigo-600 bg-indigo-50/50 shadow-2xl shadow-indigo-100/50' : 'border-slate-50 bg-slate-50/30 hover:border-indigo-300 hover:bg-white hover:shadow-xl' }} rounded-3xl md:rounded-[2.5rem] cursor-pointer transition-all duration-300">
+                                                <div class="flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl {{ $isChecked ? 'bg-indigo-600 text-white' : 'bg-white text-slate-400 group-hover:bg-indigo-100 group-hover:text-indigo-600' }} font-black text-base md:text-xl transition-all shadow-sm border border-slate-100 shrink-0">
                                                     {{ $letter }}
                                                 </div>
                                                 
@@ -117,12 +118,12 @@
                                                             <img src="{{ Storage::url($opt->option_image) }}" class="max-h-48 w-auto object-contain p-2" alt="Gambar Opsi">
                                                         </div>
                                                     @endif
-                                                    <div class="text-slate-700 font-bold text-lg md:text-xl leading-relaxed">{!! $opt->option_text !!}</div>
+                                                    <div class="text-slate-700 font-bold text-base md:text-xl leading-relaxed">{!! $opt->option_text !!}</div>
                                                 </div>
                                                 
-                                                <div class="ml-4 mt-3">
-                                                    <div class="w-8 h-8 rounded-full border-2 {{ $isChecked ? 'border-indigo-600 bg-indigo-600' : 'border-slate-300 bg-white' }} flex items-center justify-center transition-all group-hover:border-indigo-400">
-                                                        @if($isChecked) <i class="fas fa-check text-xs text-white"></i> @endif
+                                                <div class="ml-2 md:ml-4 mt-2 md:mt-3">
+                                                    <div class="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 {{ $isChecked ? 'border-indigo-600 bg-indigo-600' : 'border-slate-300 bg-white' }} flex items-center justify-center transition-all group-hover:border-indigo-400">
+                                                        @if($isChecked) <i class="fas fa-check text-[8px] md:text-xs text-white"></i> @endif
                                                     </div>
                                                 </div>
                                             </label>
@@ -293,6 +294,32 @@
                 </div>
             </div>
         </div>
+
+        <!-- AI PROCTORING MONITOR (FLOATING) -->
+        <div class="fixed bottom-6 right-6 z-[200] group hidden" id="ai-proctor-window">
+            <div class="relative bg-white/80 backdrop-blur-xl rounded-[2rem] p-3 shadow-2xl border border-white/50 transition-all duration-500 hover:scale-105 group-[.minimized]:w-14 group-[.minimized]:h-14 overflow-hidden">
+                <div class="flex items-center space-x-3 mb-3 group-[.minimized]:hidden">
+                    <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></div>
+                    <span class="text-[9px] font-black text-slate-800 uppercase tracking-widest">AI LIVE PROCTOR</span>
+                    <button onclick="toggleAIProctor()" class="ml-auto text-slate-400 hover:text-slate-600 transition-colors">
+                        <i class="fas fa-minus text-[10px]"></i>
+                    </button>
+                </div>
+                
+                <div class="relative rounded-2xl overflow-hidden bg-black aspect-video group-[.minimized]:hidden w-44">
+                    <video id="proctor-video" autoplay muted playsinline class="w-full h-full object-cover grayscale opacity-80"></video>
+                    <canvas id="proctor-canvas" class="absolute inset-0 w-full h-full"></canvas>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    <div id="ai-status-overlay" class="absolute bottom-2 left-2 px-2 py-1 bg-emerald-500/90 text-[8px] font-black text-white rounded-lg uppercase tracking-widest hidden animate-pulse">
+                        TERDETEKSI
+                    </div>
+                </div>
+
+                <button onclick="toggleAIProctor()" class="absolute inset-0 hidden group-[.minimized]:flex items-center justify-center text-indigo-600">
+                    <i class="fas fa-user-shield"></i>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -358,6 +385,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script>
     const examId = {{ $exam->id }};
     const totalQuestions = {{ $exam->bank->questions->count() }};
@@ -390,6 +418,61 @@
         $('#nav-overlay').toggleClass('hidden');
     }
 
+    function toggleAIProctor() {
+        $('#ai-proctor-window').toggleClass('minimized');
+    }
+
+    let isAIActive = false;
+    let aiViolationStreak = 0;
+
+    async function initAIProctoring() {
+        try {
+            await Promise.all([
+                faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+            ]);
+            
+            const video = document.getElementById('proctor-video');
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 } });
+            video.srcObject = stream;
+            
+            isAIActive = true;
+            $('#ai-proctor-window').removeClass('hidden');
+
+            video.addEventListener('play', () => {
+                const canvas = document.getElementById('proctor-canvas');
+                const displaySize = { width: video.clientWidth, height: video.clientHeight };
+                faceapi.matchDimensions(canvas, displaySize);
+
+                setInterval(async () => {
+                    if (!isAIActive) return;
+                    
+                    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
+                    const overlay = $('#ai-status-overlay');
+                    
+                    if (detections.length === 1) {
+                        overlay.text('TERDETEKSI').removeClass('bg-rose-500 hidden').addClass('bg-emerald-500');
+                        aiViolationStreak = 0;
+                    } else if (detections.length === 0) {
+                        overlay.text('WAJAH TIDAK ADA').removeClass('bg-emerald-500 hidden').addClass('bg-rose-500');
+                        aiViolationStreak++;
+                    } else {
+                        overlay.text('MULTIPLE PERSON').removeClass('bg-emerald-500 hidden').addClass('bg-rose-500');
+                        aiViolationStreak++;
+                    }
+
+                    if (aiViolationStreak >= 10) { // Trigger violation every ~50 seconds of issues
+                        reportViolation();
+                        aiViolationStreak = 0;
+                    }
+                }, 5000);
+            });
+
+        } catch (err) {
+            console.warn('AI Proctoring failed to initialize:', err);
+            $('#ai-proctor-window').addClass('hidden');
+        }
+    }
+
     function startCBT() {
         const enterExam = () => {
             $('#pre-exam-screen').addClass('hidden');
@@ -397,6 +480,7 @@
             jumpTo(1);
             startTimer();
             initAntiCheat();
+            initAIProctoring();
         };
 
         if (document.documentElement.requestFullscreen) {

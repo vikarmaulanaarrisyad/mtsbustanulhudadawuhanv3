@@ -67,6 +67,11 @@
                         <div class="nav-icon-box"><i class="fas fa-mobile-alt"></i></div>
                         <span>Pengaturan PWA</span>
                     </a>
+                    <a class="nav-link @if (request('pills') == 'ai') active @endif mb-2 d-flex align-items-center"
+                        href="{{ route('setting.index') }}?pills=ai">
+                        <div class="nav-icon-box"><i class="fas fa-brain"></i></div>
+                        <span>Integrasi AI</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -101,6 +106,9 @@
                     </div>
                     <div class="tab-pane fade @if (request('pills') == 'pwa') show active @endif">
                         @includeIf('setting.pwa')
+                    </div>
+                    <div class="tab-pane fade @if (request('pills') == 'ai') show active @endif">
+                        @includeIf('setting.ai')
                     </div>
                 </div>
             </div>

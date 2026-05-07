@@ -156,6 +156,12 @@ class SettingController extends Controller
             ];
         }
 
+        if ($request->has('pills') && $request->pills == 'ai') {
+            $rules = [
+                'gemini_api_key' => 'nullable|string|min:20',
+            ];
+        }
+
         $data = $request->except('path_image', 'path_image_header', 'path_breadcrumb', 'path_image_footer');
 
         // Auto-increment PWA version when PWA settings change → triggers SW update on all devices

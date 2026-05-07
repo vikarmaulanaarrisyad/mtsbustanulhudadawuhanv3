@@ -92,6 +92,9 @@ Route::get('/ppdb/cek/{regNumber}', [\App\Http\Controllers\Ppdb\PpdbVerification
 Route::post('/ppdb/process-verify', [\App\Http\Controllers\Ppdb\PpdbVerificationController::class, 'processVerify'])->name('ppdb.process_verify_scan');
 Route::get('/admin/ppdb/scanner', [\App\Http\Controllers\Ppdb\PpdbVerificationController::class, 'scanner'])->name('ppdb.scanner');
 
+// Document Verification (Public)
+Route::get('/verify/{code}', [\App\Http\Controllers\VerificationController::class, 'verify'])->name('verify.document');
+
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.admin|Super Admin|Admin']], function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
@@ -187,6 +190,9 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::post('/{bank}/import-questions', 'importQuestions')->name('importQuestions');
                 Route::delete('/{bank}/truncate-questions', 'truncateQuestions')->name('truncateQuestions');
                 Route::post('/{bank}/upload-images', 'bulkUploadImages')->name('uploadImages');
+                // AI Generator
+                Route::post('/{bank}/ai-generate', 'generateAiQuestions')->name('ai_generate');
+                Route::post('/{bank}/ai-save', 'saveAiQuestions')->name('ai_save');
             });
 
             Route::controller(\App\Http\Controllers\Admin\CbtExamController::class)->prefix('exam')->name('exam.')->group(function () {
@@ -646,7 +652,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/verify-midtrans', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'verifyMidtrans'])->name('ppdb.verify_midtrans');
     });
 
-    // Unified Dashboard redirect based on granular permissions
+    Auth::routes();
+
     Route::get('/dashboard', function () {
         $user = auth()->user();
         

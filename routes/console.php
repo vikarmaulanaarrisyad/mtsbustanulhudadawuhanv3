@@ -33,3 +33,6 @@ Schedule::call(function () {
         }
     }
 })->everyFiveMinutes();
+
+// Schedule Otomatis Update Status CBT (Aktif/Nonaktif)
+Schedule::command('cbt:update-status')->everyMinute();

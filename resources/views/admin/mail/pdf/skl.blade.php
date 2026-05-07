@@ -56,12 +56,24 @@
         </p>
     </div>
 
-    <div class="signature" style="margin-top: 40px;">
+    <div class="signature-container" style="margin-top: 40px; position: relative;">
+        {{-- QR VERIFICATION BOX --}}
+        <div style="float: left; width: 40%; text-align: left; padding-top: 10px;">
+            <div style="display: inline-block; padding: 5px; border: 1px solid #ccc; background: #fff;">
+                {!! $qrCode !!}
+            </div>
+            <p style="font-size: 8px; color: #666; margin-top: 5px; font-style: italic;">
+                Dokumen ini sah & terverifikasi secara digital.<br>
+                Scan QR Code untuk cek keaslian.<br>
+                Kode: <strong>{{ $verification->verification_code }}</strong>
+            </p>
+        </div>
+
         @php
             $general = \App\Models\MailSetting::first();
             $kepala = get_kepala_madrasah();
         @endphp
-        <div class="signature-box">
+        <div class="signature-box" style="float: right; width: 50%; text-align: center;">
             <p>{{ $general->city ?? 'Dawuhan' }},
                 {{ tanggal_indonesia($student->tanggal_keluar) }}<br>{{ $general->default_signer_position ?? 'Kepala Madrasah' }},
             </p>

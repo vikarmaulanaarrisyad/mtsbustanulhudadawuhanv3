@@ -8,6 +8,7 @@ use App\Models\CbtQuestion;
 use App\Models\CbtOption;
 use App\Models\Subject;
 use App\Models\Teacher;
+use App\Services\GeminiAiService;
 use App\Exports\CbtTemplateExport;
 use App\Imports\CbtQuestionsImport;
 use Illuminate\Http\Request;
@@ -513,6 +514,77 @@ class CbtBankController extends Controller
 
         if (!$processed) {
             $errors[] = "File '{$originalName}' tidak cocok dengan No Soal manapun dan tidak ditemukan referensinya di kolom Gambar Excel.";
+        }
+    }
+
+    /**
+     * Generate questions using AI.
+     */
+    public function generateAiQuestions(Request $request, GeminiAiService $aiService)
+    {
+        $request->validate([
+            'source_text' => 'required|string|min:50',
+            'type' => 'required|in:pilihan_ganda,essay',
+            'count' => 'required|integer|min:1|max:20',
+        ]);
+
+        try {
+            $questions = $aiService->generateQuestions(
+                $request->source_text,
+                $request->type,
+                $request->count
+            );
+
+            return response()->json([
+                'success' => true,
+                'questions' => $questions
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Save AI generated questions to bank.
+     */
+    public function saveAiQuestions(Request $request, CbtBank $bank)
+    {
+        $request->validate([
+            'questions' => 'required|array',
+            'type' => 'required|in:pilihan_ganda,essay',
+        ]);
+
+        \DB::beginTransaction();
+        try {
+            $type = $request->type;
+            foreach ($request->questions as $qData) {
+                if (empty($qData['question_text'])) continue;
+
+                $question = $bank->questions()->create([
+                    'question_text' => $qData['question_text'],
+                    'question_type' => $type === 'pilihan_ganda' ? 'pilihan_ganda' : 'essay',
+                    'score_weight'  => $qData['score_weight'] ?? ($type === 'pilihan_ganda' ? 1 : 5),
+                    'answer_key'    => $qData['answer_key'] ?? null,
+                ]);
+
+                if ($type === 'pilihan_ganda' && isset($qData['options'])) {
+                    foreach ($qData['options'] as $opt) {
+                        $question->options()->create([
+                            'option_text' => $opt['text'],
+                            'is_correct'  => $opt['is_correct'] ?? false,
+                        ]);
+                    }
+                }
+            }
+
+            \DB::commit();
+            return response()->json(['success' => true, 'message' => count($request->questions) . ' soal berhasil disimpan ke bank.']);
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 }

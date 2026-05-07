@@ -7,6 +7,7 @@ use App\Models\Subject;
 use App\Models\GradeSetting;
 use App\Models\StudentGrade;
 use App\Models\ClassGroup;
+use App\Services\DocumentVerificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -317,10 +318,11 @@ class StudentGradeController extends Controller
         return $pdf->stream('SK_Nilai_Raport_' . $student->nama_lengkap . '.pdf');
     }
 
-    public function printSKL($student_id)
+    public function printSKL($student_id, DocumentVerificationService $verificationService)
     {
         $student = Student::with(['profile', 'parents', 'classGroup'])->findOrFail($student_id);
         $setting = \App\Models\MailSetting::first();
+        $appSetting = \App\Models\Setting::first();
         
         $level = '';
         $classLevels = [];
@@ -378,7 +380,17 @@ class StudentGradeController extends Controller
             ];
         }
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.grades.pdf.skl_grades', compact('student', 'setting', 'dataGrades', 'level'));
+        // Generate verification record
+        $verification = $verificationService->generate(
+            $student, 
+            'Daftar Nilai SKL', 
+            $student->skl_number ?? $student->nis,
+            ['final_avg' => collect($dataGrades)->avg('ns')]
+        );
+
+        $qrCode = $verificationService->generateQrCode($verification->verification_code, 70);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.grades.pdf.skl_grades', compact('student', 'setting', 'dataGrades', 'level', 'verification', 'qrCode', 'appSetting'));
         $pdf->setPaper('a4', 'portrait');
         return $pdf->stream('Daftar_Nilai_SKL_' . $student->nama_lengkap . '.pdf');
     }

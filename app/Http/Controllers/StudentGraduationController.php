@@ -6,6 +6,7 @@ use App\Models\Student;
 use App\Models\AcademicYear;
 use App\Models\StudentHistory;
 use App\Models\MailSetting;
+use App\Services\DocumentVerificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -138,11 +139,23 @@ class StudentGraduationController extends Controller
         }
     }
 
-    public function printSKL($id)
+    public function printSKL($id, DocumentVerificationService $verificationService)
     {
         $student = Student::with(['profile', 'parents', 'classGroup'])->findOrFail($id);
-        $setting = MailSetting::first(); // Use mail settings for signer
-        $pdf = Pdf::loadView('admin.mail.pdf.skl', compact('student', 'setting'));
+        $setting = MailSetting::first(); 
+        $appSetting = \App\Models\Setting::first();
+
+        // Generate verification record
+        $verification = $verificationService->generate(
+            $student, 
+            'Surat Keterangan Lulus (SKL)', 
+            $student->skl_number ?? $student->nis,
+            ['academic_year' => $student->academicYear->academic_year ?? '-']
+        );
+
+        $qrCode = $verificationService->generateQrCode($verification->verification_code, 80);
+
+        $pdf = Pdf::loadView('admin.mail.pdf.skl', compact('student', 'setting', 'verification', 'qrCode', 'appSetting'));
         return $pdf->stream('SKL_' . str_replace('/', '-', ($student->skl_number ?? $student->nis)) . '.pdf');
     }
 }
