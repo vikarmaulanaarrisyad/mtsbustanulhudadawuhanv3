@@ -26,9 +26,13 @@ const urlsToCache = ['/', '/login'];
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(urlsToCache);
-        }).catch(() => {})
+            // Use individual add() to avoid total failure if one URL fails
+            return Promise.allSettled(
+                urlsToCache.map(url => cache.add(url))
+            );
+        })
     );
+    self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
