@@ -5,399 +5,163 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>PPDB - {{ $setting->company_name ?? 'Sekolah' }} | @yield('title', 'Dashboard')</title>
+    <title>@yield('title', 'Dashboard') | {{ $setting->company_name ?? 'Sekolah' }}</title>
 
     <link rel="icon" href="{{ $setting->pwa_icon ?? asset('/img/favicon.png') }}?v={{ $setting->pwa_version ?? time() }}" type="image/*">
     <link rel="manifest" href="/manifest.json?v={{ $setting->pwa_version ?? time() }}">
-    <meta name="theme-color" content="{{ $setting->pwa_theme_color ?? '#10b981' }}">
+    <meta name="theme-color" content="{{ $setting->pwa_theme_color ?? '#6366f1' }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="{{ $setting->pwa_short_name ?? 'Madrasah' }}">
-    <link rel="apple-touch-icon" href="/storage/pwa/icons/icon-192x192.png?v={{ $setting->pwa_version ?? time() }}">
-
-    <!-- Bootstrap 4 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- Fontawesome -->
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    
+    <!-- Bootstrap 4 (Legacy support) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="{{ asset('AdminLTE') }}/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 
     <style>
-        * {
-            font-family: 'Poppins', sans-serif;
+        :root {
+            --p-indigo: #6366f1;
+            --p-blue: #3b82f6;
+            --p-emerald: #10b981;
+            --p-rose: #f43f5e;
+            --p-amber: #f59e0b;
+            --p-slate-800: #1e293b;
         }
 
-        body {
-            background: #f4f7f6;
-            min-height: 100vh;
-            color: #2d3748;
+        * { font-family: 'Outfit', sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
         }
 
-        .ppdb-navbar {
-            background: #ffffff;
-            border-bottom: 1px solid #edf2f7;
-            padding: 0.75rem 0;
-        }
+        .bg-grad-indigo { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); }
+        .bg-grad-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .bg-grad-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        .bg-grad-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .bg-grad-emerald { background: linear-gradient(135deg, #059669 0%, #064e3b 100%); }
+        .bg-grad-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
 
-        .ppdb-navbar .navbar-brand {
-            font-weight: 800;
-            font-size: 1.25rem;
-            color: #1a7431 !important;
-            letter-spacing: -0.025em;
-        }
-
-        .ppdb-navbar .nav-link {
-            color: #4a5568 !important;
-            font-weight: 500;
-            padding: 0.5rem 1rem !important;
-            transition: all 0.2s;
-        }
-
-        .ppdb-navbar .nav-link:hover {
-            color: #1a7431 !important;
-        }
-
-        .ppdb-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 15px;
-        }
-
-        .ppdb-card {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-            border: none;
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .ppdb-card .card-header {
-            background: #ffffff;
-            color: #1a7431;
-            font-weight: 700;
-            font-size: 1.1rem;
-            padding: 20px 30px;
-            border-bottom: 1px solid #edf2f7;
-            display: flex;
-            align-items: center;
-        }
-
-        .ppdb-card .card-body {
-            padding: 30px;
-        }
-
-        .status-card {
-            border-radius: 16px;
-            padding: 30px;
-            text-align: center;
-            color: #fff;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .status-card.pending {
-            background: linear-gradient(135deg, #fefcbf 0%, #faf089 100%);
-            color: #744210;
-        }
-
-        .status-card.berkas_lengkap {
-            background: linear-gradient(135deg, #4fd1c5 0%, #38b2ac 100%);
-        }
-
-        .status-card.berkas_tidak_lengkap {
-            background: linear-gradient(135deg, #feb2b2 0%, #f56565 100%);
-        }
-
-        .status-card.diterima {
-            background: linear-gradient(135deg, #68d391 0%, #48bb78 100%);
-        }
-
-        .status-card.daftar_ulang {
-            background: linear-gradient(135deg, #63b3ed 0%, #3182ce 100%);
-        }
-
-        .status-card.daftar_ulang_terverifikasi {
-            background: linear-gradient(135deg, #38b2ac 0%, #2c7a7b 100%);
-        }
-
-        .status-card.cadangan {
-            background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
-        }
-
-        .status-card.ditolak {
-            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
-        }
-
-        .status-card h3 {
-            font-weight: 800;
-            margin: 0;
-            font-size: 1.75rem;
-        }
-
-        .status-card p {
-            margin: 8px 0 0;
-            opacity: 0.9;
-            font-weight: 500;
-        }
-
-        .doc-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 20px;
-            border-bottom: 1px solid #edf2f7;
-            transition: background 0.2s;
-        }
-
-        .doc-item:hover {
-            background: #f7fafc;
-        }
-
-        .doc-item:last-child {
-            border-bottom: none;
-        }
-
-        .doc-item .doc-name {
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .form-section-title {
-            font-weight: 700;
-            color: #1a7431;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            margin-top: 30px;
-        }
-
-        .form-section-title::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: #edf2f7;
-            margin-left: 15px;
-        }
-
-        .form-control {
-            border-radius: 10px;
-            padding: 0.75rem 1rem;
-            height: auto;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            transition: all 0.2s;
-        }
-
-        .form-control:focus {
-            background: #fff;
-            border-color: #48bb78;
-            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.15);
-        }
-
-        .btn-ppdb {
-            background: #1a7431;
-            color: #fff;
-            border: none;
-            padding: 12px 35px;
-            border-radius: 10px;
-            font-weight: 700;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        .btn-logout {
             transition: all 0.3s;
         }
-
-        .btn-ppdb:hover {
-            background: #146c43;
-            color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(26, 116, 49, 0.3);
+        .btn-logout:hover {
+            color: #f43f5e !important;
+            transform: translateX(3px);
         }
 
-        .welcome-banner {
-            background: linear-gradient(135deg, #1a7431 0%, #28a745 100%);
-            color: #fff;
-            border-radius: 16px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 15px -3px rgba(26, 116, 49, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        .welcome-banner::after {
-            content: "";
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-        }
-
-        .welcome-banner p {
-            opacity: 0.9;
-            margin: 0;
-            font-size: 1.05rem;
-        }
-
-        /* Stepper UI */
-        .ppdb-stepper {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            position: relative;
-        }
-
-        .ppdb-stepper .step {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 2;
-        }
-
-        .ppdb-stepper .step-icon {
-            width: 45px;
-            height: 45px;
-            background: #edf2f7;
-            color: #a0aec0;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            margin-bottom: 12px;
-            transition: all 0.3s;
-            border: 4px solid #fff;
-        }
-
-        .ppdb-stepper .step.active .step-icon {
-            background: #1a7431;
-            color: #fff;
-            box-shadow: 0 0 0 4px rgba(26, 116, 49, 0.1);
-        }
-
-        .ppdb-stepper .step.success .step-icon {
-            background: #28a745;
-            color: #fff;
-        }
-
-        .ppdb-stepper .step.danger .step-icon {
-            background: #dc3545;
-            color: #fff;
-        }
-
-        .ppdb-stepper .step-label {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #4a5568;
-            margin-bottom: 2px;
-        }
-
-        .ppdb-stepper .step-desc {
-            font-size: 0.7rem;
-            color: #a0aec0;
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        .ppdb-stepper .step-line {
-            position: absolute;
-            top: 22px;
-            height: 3px;
-            background: #edf2f7;
-            z-index: 1;
-        }
-
-        .ppdb-stepper .step-line.active {
-            background: #1a7431;
-        }
-
-        /* Line positions for 4 steps */
-        .ppdb-stepper .step-line:nth-of-type(2) {
-            left: 12.5%;
-            width: 25%;
-        }
-
-        .ppdb-stepper .step-line:nth-of-type(4) {
-            left: 37.5%;
-            width: 25%;
-        }
-
-        .ppdb-stepper .step-line:nth-of-type(6) {
-            left: 62.5%;
-            width: 25%;
-        }
+        /* Animation Keyframes */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
     </style>
     @stack('css')
 </head>
 
 <body>
+    <!-- MODERN NAV BAR -->
+    <nav class="glass-nav fixed top-0 left-0 right-0 z-[100] transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between items-center h-20">
+                <!-- Brand/Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                        <i class="fas fa-graduation-cap text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="block text-sm font-black text-slate-800 leading-none tracking-tight">MADRASAH</span>
+                        <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Digital System</span>
+                    </div>
+                </div>
 
-    {{-- NAVBAR --}}
-    <nav class="navbar navbar-expand-lg ppdb-navbar">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('ppdb.dashboard') }}">
-                {{-- Logo/Title hidden by user request --}}
-            </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ppdbNav">
-                <i class="fas fa-bars text-white"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="ppdbNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('ppdb.dashboard') }}">
-                            <i class="fas fa-home mr-1"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <span class="nav-link">
-                            <i class="fas fa-user mr-1"></i> {{ Auth::user()->name }}
-                        </span>
-                    </li>
-                    <li class="nav-item">
-                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="nav-link btn btn-link" style="cursor:pointer;">
-                                <i class="fas fa-sign-out-alt mr-1"></i> Keluar
-                            </button>
-                        </form>
-                    </li>
-                </ul>
+                <!-- Nav Links (Desktop) -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{{ route('siswa.dashboard') }}" class="text-sm font-black text-slate-400 hover:text-indigo-600 transition-colors flex items-center">
+                        <i class="fas fa-home mr-2 text-xs"></i> DASHBOARD
+                    </a>
+                    @if(Auth::user()->can('student.cbt.dashboard'))
+                    <a href="{{ route('student.cbt.dashboard') }}" class="text-sm font-black text-slate-400 hover:text-indigo-600 transition-colors flex items-center">
+                        <i class="fas fa-laptop-code mr-2 text-xs"></i> CBT PORTAL
+                    </a>
+                    @endif
+                </div>
+
+                <!-- User Profile & Logout -->
+                <div class="flex items-center space-x-4">
+                    <div class="hidden lg:flex flex-col items-end mr-2">
+                        <span class="text-xs font-black text-slate-800 leading-none">{{ Auth::user()->name }}</span>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">SISWA</span>
+                    </div>
+                    <div class="h-10 w-[1px] bg-slate-200 hidden md:block"></div>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn-logout text-slate-400 hover:text-rose-500 transition-all">
+                            <i class="fas fa-sign-out-alt text-lg"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </nav>
 
-    {{-- CONTENT --}}
-    <div class="ppdb-container">
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-            </div>
-        @endif
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle mr-1"></i> {{ session('error') }}
-                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-            </div>
-        @endif
-
-        @yield('content')
+    <!-- CONTENT WRAPPER -->
+    <div class="pt-24 min-h-screen">
+        <div class="animate-fade-in">
+            @yield('content')
+        </div>
     </div>
 
+    <!-- FOOTER -->
+    <footer class="py-12 bg-white border-t border-slate-100 mt-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="text-center md:text-left">
+                    <span class="text-sm font-black text-slate-800">© {{ date('Y') }} {{ $setting->company_name ?? 'Madrasah' }}</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Modern Student Portal V3.0</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-slate-300 hover:text-indigo-600 transition-colors"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-slate-300 hover:text-indigo-600 transition-colors"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-slate-300 hover:text-indigo-600 transition-colors"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-
+    <!-- SCRIPTS -->
     <script src="{{ asset('AdminLTE') }}/plugins/jquery/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('AdminLTE') }}/plugins/sweetalert2/sweetalert2.min.js"></script>
+    
+    <script>
+        // Navbar Scroll Effect
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 10) {
+                $('.glass-nav').addClass('shadow-xl shadow-slate-200/50 py-1');
+            } else {
+                $('.glass-nav').removeClass('shadow-xl shadow-slate-200/50 py-1');
+            }
+        });
+    </script>
+
     @stack('scripts')
     @include('partials.pwa_install')
 </body>
