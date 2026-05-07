@@ -13,7 +13,7 @@
         type="image/*">
     <link rel="manifest" href="/manifest.json?v={{ $setting->pwa_version ?? '1.0.0' }}">
     <meta name="theme-color" content="{{ $setting->pwa_theme_color ?? '#10b981' }}">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="{{ $setting->pwa_short_name ?? 'Madrasah' }}">
     <link rel="apple-touch-icon" href="/storage/pwa/icons/icon-192x192.png?v={{ $setting->pwa_version ?? '1.0.0' }}">
@@ -341,7 +341,9 @@
 
     <!-- AdminLTE App -->
     <script src="{{ asset('AdminLTE/dist/js/adminlte.js?v=3.2.0') }}"></script>
-    <script src="{{ asset('AdminLTE/dist/js/pages/dashboard.js') }}"></script>
+    @if(request()->is('dashboard*') || request()->is('admin/dashboard*'))
+        <script src="{{ asset('AdminLTE/dist/js/pages/dashboard.js') }}"></script>
+    @endif
 
     <script src="{{ asset('/js/custom.js') }}"></script>
     <script>
@@ -353,11 +355,13 @@
     <script>
         window.addEventListener('load', function() {
             const preloader = document.getElementById('preloader');
-            preloader.style.transition = 'opacity 0.7s ease';
-            preloader.style.opacity = 0;
-            setTimeout(() => {
-                preloader.style.display = 'none';
-            }, 700);
+            if (preloader) {
+                preloader.style.transition = 'opacity 0.7s ease';
+                preloader.style.opacity = 0;
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 700);
+            }
         });
     </script>
 
