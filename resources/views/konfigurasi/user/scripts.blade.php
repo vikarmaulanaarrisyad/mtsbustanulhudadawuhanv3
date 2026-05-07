@@ -84,13 +84,18 @@
         });
 
         // Sync toggles with select2
+        let isSyncing = false;
+
         $('.menu-permission-check').on('change', function() {
+            if (isSyncing) return;
+            isSyncing = true;
+
             const permissionName = $(this).val();
             const isChecked = $(this).is(':checked');
             const select2 = $('#permission_ids');
             let currentValues = select2.val() || [];
 
-            // Find the ID for this permission name
+            // Find the ID for this permission name from the select2 options
             const option = select2.find(`option[data-name="${permissionName}"]`);
             if (option.length) {
                 const id = option.val();
@@ -103,17 +108,22 @@
                 }
                 select2.val(currentValues).trigger('change');
             }
+            isSyncing = false;
         });
 
         $('#permission_ids').on('change', function() {
+            if (isSyncing) return;
+            isSyncing = true;
+
             const currentValues = $(this).val() || [];
+            const valueSet = new Set(currentValues.map(String));
 
             $('.menu-permission-check').each(function() {
                 const permissionName = $(this).val();
                 const option = $('#permission_ids').find(`option[data-name="${permissionName}"]`);
                 if (option.length) {
                     const id = option.val();
-                    $(this).prop('checked', currentValues.map(String).includes(id.toString()));
+                    $(this).prop('checked', valueSet.has(id.toString()));
                 }
             });
 
@@ -124,6 +134,8 @@
 
             // Update summary count display
             $('#checkedCountDisplay').text(currentValues.length);
+            
+            isSyncing = false;
         });
 
         $('#checkAllPermissions').on('change', function() {

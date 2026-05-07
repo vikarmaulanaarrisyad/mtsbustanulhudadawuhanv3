@@ -16,13 +16,15 @@ class UserController extends Controller
 {
     public function index()
     {
-        $permissionGroups = PermissionGroup::with('permissions')->get();
+        $permissionGroups = PermissionGroup::with('permissions:id,name,permission_group_id')
+            ->whereNotNull('prefix')
+            ->get();
         return view('konfigurasi.user.index', compact('permissionGroups'));
     }
 
     public function data(Request $request)
     {
-        $query = User::with('roles');
+        $query = User::with('roles:id,name');
 
         if ($request->has('role') && !empty($request->role) && $request->role != 'all') {
             $query->whereHas('roles', function($q) use ($request) {
@@ -33,6 +35,12 @@ class UserController extends Controller
                 }
             });
         }
+
+        // Pre-calculate permissions for the current user once to save resources
+        $me = Auth::user();
+        $canShow = $me->can('user.show');
+        $canEdit = $me->can('user.edit');
+        $canDelete = $me->can('user.delete');
 
         return datatables($query)
             ->addIndexColumn()
@@ -46,26 +54,26 @@ class UserController extends Controller
                     return '<span class="badge '.$class.' px-2 py-1">'.$role.'</span>';
                 })->implode(' ') ?: '<span class="badge badge-secondary">No Role</span>';
             })
-            ->addColumn('action', function ($query) {
+            ->addColumn('action', function ($query) use ($canShow, $canEdit, $canDelete) {
                 $aksi = '';
 
-                if (Auth::user()->can("user.show")) {
+                if ($canShow) {
                     $aksi .= '
                         <button onclick="detailForm(`' . route('users.detail', $query->id) . '`)" class="btn btn-sm btn-soft-info" title="Detail"><i class="fas fa-eye"></i></button>
                     ';
                 }
-                if (Auth::user()->can("user.edit")) {
+                if ($canEdit) {
                     $aksi .= '
                         <button onclick="editForm(`' . route('users.edit', $query->id) . '`)" class="btn btn-sm btn-soft-primary" title="Edit"><i class="fas fa-pencil-alt"></i></button>
                     ';
                 }
-                if (Auth::user()->can("user.delete")) {
+                if ($canDelete) {
                     $aksi .= '
                         <button onclick="resetPassword(`' . route('users.reset_password', $query->id) . '`, `' . $query->name . '`)" class="btn btn-sm btn-soft-warning" title="Reset Password"><i class="fas fa-key"></i></button>
                     ';
 
-                    // Cek apakah user memiliki role Admin atau Super Admin agar tidak bisa dihapus
-                    $isAdmin = $query->hasRole(['Admin', 'Super Admin']);
+                    // Use contains on collection instead of hasRole() to avoid N+1 queries
+                    $isAdmin = $query->roles->contains(fn($r) => in_array($r->name, ['Admin', 'Super Admin']));
                     if (!$isAdmin) {
                         $aksi .= '
                             <button onclick="deleteData(`' . route('users.destroy', $query->id) . '`, `' . $query->name . '`)" class="btn btn-sm btn-soft-danger" title="Hapus"><i class="fas fa-trash-alt"></i></button>
