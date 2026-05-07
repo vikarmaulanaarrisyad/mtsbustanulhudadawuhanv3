@@ -57,11 +57,11 @@ class CbtTemplateSheet implements FromArray, WithTitle, WithHeadings, WithStyles
     {
         // Return sample rows
         return [
-            [1, 'PG', 'Siapakah presiden pertama Indonesia?', '', 'Soekarno', '', 'Soeharto', '', 'Habibie', '', 'Megawati', '', '', '', 'A', 1, ''],
-            [2, 'PGK', 'Manakah yang termasuk bilangan prima?', '', '2', '', '4', '', '5', '', '6', '', '7', '', 'A,C,E', 1, ''],
+            [1, 'PG', 'Berapakah hasil dari 2 + 3?', '1.jpg', '4', '', '5', '1_B.png', '6', '', '7', '', '', '', 'B', 1, ''],
+            [2, 'PGK', 'Manakah yang termasuk hewan mamalia?', 'paus.jpg', 'Hiu', '', 'Paus', '', 'Lumba-lumba', '', 'Pari', '', 'Kura-kura', '', 'B,C', 1, ''],
             [3, 'Penjodohan', 'Jodohkan negara dengan ibukotanya', '', '', '', '', '', '', '', '', '', '', '', '', 1, '{"Indonesia":"Jakarta","Malaysia":"Kuala Lumpur","Thailand":"Bangkok"}'],
-            [4, 'Essay', 'Jelaskan pengertian fotosintesis!', '', '', '', '', '', '', '', '', '', '', '', 'Fotosintesis adalah proses pembuatan makanan oleh tumbuhan hijau', 2, ''],
-            [5, 'Uraian', 'Uraikan proses terjadinya hujan secara lengkap!', '', '', '', '', '', '', '', '', '', '', '', '', 3, ''],
+            [4, 'Essay', 'Apa nama ibukota Indonesia?', '', '', '', '', '', '', '', '', '', '', '', 'Jakarta', 2, ''],
+            [5, 'Uraian', 'Jelaskan cara menjaga kebersihan lingkungan!', '', '', '', '', '', '', '', '', '', '', '', '', 3, ''],
         ];
     }
 
@@ -161,32 +161,6 @@ class CbtTemplateSheet implements FromArray, WithTitle, WithHeadings, WithStyles
 
                 // Freeze top row
                 $sheet->freezePane('A2');
-
-                // Add sample image to D2 (Gambar Soal)
-                if (file_exists(public_path('img/logo.png'))) {
-                    $drawing = new Drawing();
-                    $drawing->setName('Sample Image');
-                    $drawing->setDescription('Sample Question Image');
-                    $drawing->setPath(public_path('img/logo.png'));
-                    $drawing->setHeight(80);
-                    $drawing->setCoordinates('D2');
-                    $drawing->setOffsetX(10);
-                    $drawing->setOffsetY(10);
-                    $drawing->setWorksheet($sheet);
-                    
-                    // Adjust row height to fit image
-                    $sheet->getRowDimension(2)->setRowHeight(80);
-
-                    // Add sample image to F2 (Gambar Opsi A)
-                    $drawing2 = new Drawing();
-                    $drawing2->setName('Sample Option');
-                    $drawing2->setPath(public_path('img/logo.png'));
-                    $drawing2->setHeight(50);
-                    $drawing2->setCoordinates('F2');
-                    $drawing2->setOffsetX(10);
-                    $drawing2->setOffsetY(10);
-                    $drawing2->setWorksheet($sheet);
-                }
 
                 // Add bank name info at top
                 $sheet->getHeaderFooter()->setOddHeader('&L&B' . $this->bankName . '&R&D');

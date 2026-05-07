@@ -300,4 +300,39 @@ class CbtBankController extends Controller
 
         return redirect()->back()->with('success', $message);
     }
+
+    /**
+     * Delete all questions and images from a bank.
+     */
+    public function truncateQuestions(CbtBank $bank)
+    {
+        try {
+            \DB::beginTransaction();
+            $questions = $bank->questions()->get();
+            
+            foreach ($questions as $question) {
+                // Delete question image
+                if ($question->question_image) {
+                    Storage::disk('public')->delete($question->question_image);
+                }
+                
+                // Delete option images
+                foreach ($question->options as $option) {
+                    if ($option->option_image) {
+                        Storage::disk('public')->delete($option->option_image);
+                    }
+                }
+                
+                // Delete the question (cascade to options should be handled by DB or Eloquent)
+                $question->delete();
+            }
+            
+            \DB::commit();
+            return redirect()->back()->with('success', 'Semua soal dan file gambar berhasil dihapus secara permanen.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Error truncating CBT questions: ' . $e->getMessage());
+            return redirect()->back()->with('warning', 'Gagal mengosongkan soal: ' . $e->getMessage());
+        }
+    }
 }

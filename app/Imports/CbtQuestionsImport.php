@@ -19,20 +19,21 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
 
 use Maatwebsite\Excel\Concerns\WithChunkReading;
-
 class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithEvents, WithChunkReading
 {
     public function chunkSize(): int
     {
-        return 5; // Process in small chunks to save memory
+        return 50; // Process in larger chunks to reduce overhead
     }
     protected CbtBank $bank;
     protected array $uploadedImages;
     protected int $importedCount = 0;
+    protected int $currentRow = 1; // Track current row globally across chunks
     protected array $errors = [];
     protected array $summary = [];
     protected $sheet;
     protected $drawings = [];
+    protected bool $drawingsLoaded = false;
 
     public function __construct(CbtBank $bank, array $uploadedImages = [])
     {
@@ -83,11 +84,66 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
     {
         if (isset($this->uploadedImages[$filename])) {
             $file = $this->uploadedImages[$filename];
-            $storagePath = 'cbt/images/' . Str::uuid() . '_' . $filename;
+            $extension = $file->getClientOriginalExtension() ?: 'png';
+            $storagePath = 'cbt/images/' . Str::uuid() . '.' . $extension;
             Storage::disk('public')->put($storagePath, file_get_contents($file->getRealPath()));
+            
+            // Remove from memory to save space
+            unset($this->uploadedImages[$filename]);
+            
             return $storagePath;
         }
         return null;
+    }
+
+    /**
+     * Find image from uploaded images by potential filenames.
+     */
+    protected function findUploadedImage(array $names): ?string
+    {
+        foreach ($names as $name) {
+            if (empty($name)) continue;
+            
+            // 1. Try exact match from array key
+            if (isset($this->uploadedImages[$name])) {
+                return $this->saveImage($name);
+            }
+            
+            // 2. Try case-insensitive search if not found
+            foreach ($this->uploadedImages as $originalName => $file) {
+                if (strtolower($originalName) === strtolower($name)) {
+                    return $this->saveImage($originalName);
+                }
+                
+                // 3. Try without extension
+                $nameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+                if (strtolower($nameWithoutExt) === strtolower($name)) {
+                    return $this->saveImage($originalName);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Resolve image from multiple sources: embedded, filename in cell, or naming convention.
+     */
+    protected function resolveImage($col, $rowNumber, $excelValue, $conventionNames = []): ?string
+    {
+        // 1. Check if the cell itself contains a filename string
+        if (!empty($excelValue) && is_string($excelValue) && !is_numeric($excelValue)) {
+            $found = $this->findUploadedImage([trim($excelValue)]);
+            if ($found) return $found;
+        }
+
+        // 2. Check for naming convention (e.g. "1.jpg" or "row_2_A")
+        if (!empty($conventionNames)) {
+            $found = $this->findUploadedImage($conventionNames);
+            if ($found) return $found;
+        }
+
+        // 3. Check for embedded drawing in the cell
+        return $this->getDrawingFromCell($col . $rowNumber);
     }
 
     /**
@@ -102,10 +158,14 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             return $this->processDrawing($drawing);
         }
 
-        // Fallback: search for drawings that intersect with this cell
+        // Fallback: search for drawings that might be anchored to a range (e.g. "D4:E6")
         foreach ($this->drawings as $coord => $drawing) {
-            if (strpos($coord, $coordinate) !== false) {
-                return $this->processDrawing($drawing);
+            if (strpos($coord, ':') !== false) {
+                $parts = explode(':', $coord);
+                if ($parts[0] === $coordinate) {
+                    unset($this->drawings[$coord]);
+                    return $this->processDrawing($drawing);
+                }
             }
         }
         
@@ -152,14 +212,16 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         return [
             BeforeSheet::class => function (BeforeSheet $event) {
                 $this->sheet = $event->sheet->getDelegate();
-                $this->drawings = [];
                 
-                // Get all drawings from the sheet
-                foreach ($this->sheet->getDrawingCollection() as $drawing) {
-                    $coordinate = $drawing->getCoordinates();
-                    // Some drawings might be anchored to a range, e.g. "D4:E6"
-                    // We store the primary coordinate
-                    $this->drawings[$coordinate] = $drawing;
+                // IMPORTANT: When chunking, BeforeSheet is called for every chunk.
+                // We only want to load drawings once to save memory and time.
+                if (!$this->drawingsLoaded) {
+                    $this->drawings = [];
+                    foreach ($this->sheet->getDrawingCollection() as $drawing) {
+                        $coordinate = $drawing->getCoordinates();
+                        $this->drawings[$coordinate] = $drawing;
+                    }
+                    $this->drawingsLoaded = true;
                 }
             },
         ];
@@ -178,13 +240,14 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         DB::beginTransaction();
 
         try {
-            \Log::info('Importing ' . $rows->count() . ' rows.');
+            \Log::info('Importing ' . $rows->count() . ' rows starting from row ' . ($this->currentRow + 1));
             foreach ($rows as $index => $row) {
-                $rowNumber = $index + 2; 
+                $this->currentRow++;
+                $rowNumber = $this->currentRow;
                 
-                if ($index % 5 == 0) {
+                if ($index % 10 == 0) {
                     \Log::info("Processing row {$rowNumber}...");
-                    gc_collect_cycles(); // Force cleanup every 5 rows
+                    gc_collect_cycles(); // Force cleanup
                 }
 
                 // Skip completely empty rows
@@ -207,16 +270,22 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     continue;
                 }
 
-                // Get image from cell (Gambar Soal is in column D)
-                $imagePath = $this->getDrawingFromCell('D' . $rowNumber);
+                // Resolve Question Image
+                $no = trim($row['no'] ?? '');
+                $conventionNames = [];
+                if (!empty($no)) $conventionNames[] = $no;
+                $conventionNames[] = "soal_" . $rowNumber;
+                $conventionNames[] = (string) $rowNumber;
+
+                $imagePath = $this->resolveImage('D', $rowNumber, $row['gambar_soal'] ?? null, $conventionNames);
                 
-                // Fallback to manual upload reference in text if no embedded image
+                // Fallback to manual upload reference in text [IMG:...]
                 if (!$imagePath) {
                     $questionText = $soal;
                     $imageRef = $this->extractImageReference($questionText);
                     if ($imageRef) {
                         $imagePath = $this->saveImage($imageRef);
-                        $soal = $questionText; // Update text after extraction
+                        $soal = $questionText;
                     }
                 }
 
@@ -276,11 +345,11 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 if (in_array($questionType, ['pilihan_ganda', 'ganda_komplek'])) {
                     // Mapping columns: Opsi A(E), Gambar A(F), Opsi B(G), Gambar B(H), Opsi C(I), Gambar C(J), Opsi D(K), Gambar D(L), Opsi E(M), Gambar E(N)
                     $optionConfigs = [
-                        'A' => ['text' => 'opsi_a', 'img_col' => 'F'],
-                        'B' => ['text' => 'opsi_b', 'img_col' => 'H'],
-                        'C' => ['text' => 'opsi_c', 'img_col' => 'J'],
-                        'D' => ['text' => 'opsi_d', 'img_col' => 'L'],
-                        'E' => ['text' => 'opsi_e', 'img_col' => 'N'],
+                        'A' => ['text' => 'opsi_a', 'img_col' => 'F', 'img_text' => 'gambar_opsi_a'],
+                        'B' => ['text' => 'opsi_b', 'img_col' => 'H', 'img_text' => 'gambar_opsi_b'],
+                        'C' => ['text' => 'opsi_c', 'img_col' => 'J', 'img_text' => 'gambar_opsi_c'],
+                        'D' => ['text' => 'opsi_d', 'img_col' => 'L', 'img_text' => 'gambar_opsi_d'],
+                        'E' => ['text' => 'opsi_e', 'img_col' => 'N', 'img_text' => 'gambar_opsi_e'],
                     ];
                     
                     $correctAnswers = array_map('trim', explode(',', strtoupper(trim($row['jawaban_benar'] ?? 'A'))));
@@ -289,8 +358,13 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     foreach ($optionConfigs as $letter => $cfg) {
                         $optionText = trim($row[$cfg['text']] ?? '');
                         
-                        // Check for embedded image in the designated column
-                        $optImagePath = $this->getDrawingFromCell($cfg['img_col'] . $rowNumber);
+                        // Resolve Option Image
+                        $optConventionNames = [];
+                        if (!empty($no)) $optConventionNames[] = "{$no}_{$letter}";
+                        $optConventionNames[] = "{$rowNumber}_{$letter}";
+                        $optConventionNames[] = "soal_{$rowNumber}_{$letter}";
+
+                        $optImagePath = $this->resolveImage($cfg['img_col'], $rowNumber, $row[$cfg['img_text'] ?? ''] ?? null, $optConventionNames);
                         
                         if (empty($optionText) && !$optImagePath) {
                             continue;
@@ -298,7 +372,7 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
                         $hasAnyOption = true;
 
-                        // Fallback to manual upload reference if no embedded image
+                        // Fallback to manual upload reference in option text
                         if (!$optImagePath && !empty($optionText)) {
                             $tempText = $optionText;
                             $optImageRef = $this->extractImageReference($tempText);

@@ -28,6 +28,9 @@
                             <button class="btn btn-warning rounded-xl font-weight-bold shadow-lg hover-scale" data-toggle="modal" data-target="#importModal">
                                 <i class="fas fa-cloud-upload-alt mr-2"></i> Import Soal
                             </button>
+                            <button class="btn btn-danger rounded-xl font-weight-bold shadow-lg hover-scale" onclick="truncateQuestions()">
+                                <i class="fas fa-trash-alt mr-2"></i> Kosongkan
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -41,8 +44,9 @@
 
 {{-- Mobile buttons --}}
 <div class="row d-md-none mb-3 px-3">
-    <div class="col-6 pr-1"><a href="{{ route('admin.cbt.bank.downloadTemplate', $bank->id) }}" class="btn btn-light btn-block rounded-lg shadow-sm"><i class="fas fa-download mr-1"></i> Template</a></div>
-    <div class="col-6 pl-1"><button class="btn btn-warning btn-block rounded-lg shadow-sm" data-toggle="modal" data-target="#importModal"><i class="fas fa-upload mr-1"></i> Import</button></div>
+    <div class="col-4 pr-1"><a href="{{ route('admin.cbt.bank.downloadTemplate', $bank->id) }}" class="btn btn-light btn-block rounded-lg shadow-sm px-1"><i class="fas fa-download mr-1"></i> Template</a></div>
+    <div class="col-4 px-1"><button class="btn btn-warning btn-block rounded-lg shadow-sm px-1" data-toggle="modal" data-target="#importModal"><i class="fas fa-upload mr-1"></i> Import</button></div>
+    <div class="col-4 pl-1"><button class="btn btn-danger btn-block rounded-lg shadow-sm px-1" onclick="truncateQuestions()"><i class="fas fa-trash mr-1"></i> Hapus</button></div>
 </div>
 
 {{-- STATS SECTION --}}
@@ -400,29 +404,58 @@
                     </div>
 
                     {{-- Upload Area --}}
-                    <div class="upload-section mb-4">
-                        <h6 class="form-label-premium mb-2">PILIH FILE EXCEL</h6>
-                        <div class="drop-zone-premium" id="dropZone">
-                            <input type="file" name="file" id="excelFile" accept=".xlsx,.xls" required class="d-none">
-                            <div class="drop-content py-5 text-center">
-                                <div class="upload-icon-pulse mb-3">
-                                    <i class="fas fa-file-excel fa-3x text-success"></i>
-                                </div>
-                                <h6 class="font-weight-bold text-dark mb-1">Tarik file Excel ke sini</h6>
-                                <p class="text-muted small mb-0">atau <span class="text-primary font-weight-bold cursor-pointer">pilih dari komputer</span></p>
-                                <p class="text-xs text-muted mt-2">Maksimum ukuran file: 10 MB</p>
-                            </div>
-                            <div class="file-preview-premium d-none" id="filePreview">
-                                <div class="d-flex align-items-center p-3 bg-white rounded-lg border shadow-sm">
-                                    <i class="fas fa-file-excel fa-2x text-success mr-3"></i>
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <div class="font-weight-bold text-dark text-truncate" id="fileName">Template.xlsx</div>
-                                        <div class="text-muted text-xs" id="fileSize">0 KB</div>
+                    <div class="row">
+                        <div class="col-md-7">
+                            <div class="upload-section mb-4">
+                                <h6 class="form-label-premium mb-2">PILIH FILE EXCEL <span class="text-danger">*</span></h6>
+                                <div class="drop-zone-premium" id="dropZone">
+                                    <input type="file" name="file" id="excelFile" accept=".xlsx,.xls" required class="d-none">
+                                    <div class="drop-content py-4 text-center">
+                                        <div class="upload-icon-pulse mb-2">
+                                            <i class="fas fa-file-excel fa-2x text-success"></i>
+                                        </div>
+                                        <h6 class="font-weight-bold text-dark mb-1 text-sm">Tarik file Excel ke sini</h6>
+                                        <p class="text-xs text-muted mb-0">atau <span class="text-primary font-weight-bold cursor-pointer">pilih file</span></p>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-soft-danger rounded-circle p-2 ml-2" onclick="clearFile()">
-                                        <i class="fas fa-times"></i>
-                                    </button>
+                                    <div class="file-preview-premium d-none" id="filePreview">
+                                        <div class="d-flex align-items-center p-2 bg-white rounded-lg border shadow-sm">
+                                            <i class="fas fa-file-excel fa-xl text-success mr-2"></i>
+                                            <div class="flex-grow-1 overflow-hidden">
+                                                <div class="font-weight-bold text-dark text-truncate text-xs" id="fileName">Template.xlsx</div>
+                                            </div>
+                                            <button type="button" class="btn btn-xs btn-soft-danger rounded-circle p-1 ml-1" onclick="clearFile()">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="upload-section mb-4">
+                                <h6 class="form-label-premium mb-2">FILE GAMBAR (OPSIONAL)</h6>
+                                <div class="drop-zone-premium" id="dropZoneImages" style="min-height: 125px;">
+                                    <input type="file" name="images[]" id="imageFiles" accept="image/*" multiple class="d-none">
+                                    <div class="drop-content py-4 text-center" id="imageDropContent">
+                                        <div class="mb-2">
+                                            <i class="fas fa-images fa-2x text-primary"></i>
+                                        </div>
+                                        <h6 class="font-weight-bold text-dark mb-1 text-xs">Upload Gambar</h6>
+                                        <p class="text-xs text-muted mb-0">Klik untuk memilih</p>
+                                    </div>
+                                    <div class="file-preview-premium d-none" id="imagePreviewContainer">
+                                        <div class="d-flex align-items-center p-2 bg-white rounded-lg border shadow-sm">
+                                            <i class="fas fa-photo-video fa-xl text-primary mr-2"></i>
+                                            <div class="flex-grow-1 overflow-hidden">
+                                                <div class="font-weight-bold text-dark text-xs" id="imageCountText">0 Gambar terpilih</div>
+                                            </div>
+                                            <button type="button" class="btn btn-xs btn-soft-danger rounded-circle p-1 ml-1" onclick="clearImages()">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-muted mt-2"><i class="fas fa-info-circle mr-1"></i> Pilih semua file gambar soal & opsi sekaligus.</p>
                             </div>
                         </div>
                     </div>
@@ -443,7 +476,7 @@
                         <div class="d-flex align-items-start">
                             <i class="fas fa-lightbulb text-info mr-3 mt-1"></i>
                             <div class="small">
-                                <strong class="text-info">Tips:</strong> Untuk gambar opsi, letakkan gambar di cell yang disediakan pada template. Gambar akan otomatis ter-extract dan terhubung dengan soal.
+                                <strong class="text-info">Tips:</strong> Namai file gambar Anda sesuai Nomor Soal (misal: <code>1.jpg</code>, <code>1_A.jpg</code>) agar sistem dapat menghubungkannya secara otomatis.
                             </div>
                         </div>
                     </div>
@@ -630,12 +663,36 @@ $(function(){
             $('#progressPercent').text(Math.round(progress) + '%');
         }, 800);
     });
+
+    // Drop zone logic for Images
+    var dzi=$('#dropZoneImages'), ifi=$('#imageFiles'), idc=$('#imageDropContent'), ipc=$('#imagePreviewContainer');
+    dzi.on('click',function(){ifi.click();});
+    dzi.on('dragover',function(e){e.preventDefault();$(this).addClass('dragover');});
+    dzi.on('dragleave drop',function(){$(this).removeClass('dragover');});
+    dzi.on('drop',function(e){
+        e.preventDefault();
+        ifi[0].files=e.originalEvent.dataTransfer.files;
+        ifi.trigger('change');
+    });
+    ifi.on('change',function(){
+        if(this.files.length){
+            $('#imageCountText').text(this.files.length + ' Gambar terpilih');
+            idc.addClass('d-none');
+            ipc.removeClass('d-none');
+        }
+    });
 });
 
 function clearFile(){
     $('#excelFile').val('');
     $('#filePreview').addClass('d-none');
-    $('.drop-content').removeClass('d-none');
+    $('.drop-content').first().removeClass('d-none');
+}
+
+function clearImages(){
+    $('#imageFiles').val('');
+    $('#imagePreviewContainer').addClass('d-none');
+    $('#imageDropContent').removeClass('d-none');
 }
 
 function addMatchingPair(){
@@ -756,6 +813,36 @@ function cancelEdit() {
     $('.card-header h5').html('<i class="fas fa-plus-circle mr-2 text-primary"></i>Tambah Soal Manual');
     $('#btnSubmitQuestion').html('<i class="fas fa-save mr-2"></i> SIMPAN SOAL').removeClass('btn-warning').addClass('btn-primary');
     $('#btnCancelEdit').addClass('d-none');
+}
+
+function truncateQuestions() {
+    Swal.fire({
+        title: 'Kosongkan Bank Soal?',
+        text: "SEMUA soal dan file gambar di bank ini akan dihapus permanen! Tindakan ini tidak dapat dibatalkan.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Hapus Semua!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Mohon Tunggu...',
+                text: 'Sedang menghapus semua data...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            let form = document.createElement('form');
+            form.action = `{{ route('admin.cbt.bank.truncateQuestions', $bank->id) }}`;
+            form.method = 'POST';
+            form.innerHTML = `@csrf @method('DELETE')`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
 }
 </script>
 @endpush
