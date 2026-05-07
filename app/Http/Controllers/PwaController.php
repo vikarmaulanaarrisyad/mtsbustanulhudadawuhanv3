@@ -21,7 +21,7 @@ class PwaController extends Controller
         $swContent = <<<JS
 // Service Worker - Madrasah Digital v{$version}
 const CACHE_NAME = 'madrasah-v{$version}';
-const urlsToCache = ['/', '/login'];
+const urlsToCache = ['/login'];
 
 self.addEventListener('install', event => {
     event.waitUntil(

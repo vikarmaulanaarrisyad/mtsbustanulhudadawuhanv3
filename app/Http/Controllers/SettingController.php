@@ -142,6 +142,7 @@ class SettingController extends Controller
                 'pwa_short_name' => 'required|string|max:50',
                 'pwa_theme_color' => 'required|string|regex:/^#[a-fA-F0-9]{6}$/',
                 'pwa_background_color' => 'required|string|regex:/^#[a-fA-F0-9]{6}$/',
+                'pwa_force_install' => 'nullable|boolean',
                 'google_drive_folder_id' => 'nullable|string',
                 'google_drive_json' => 'nullable|file|mimes:json',
             ];

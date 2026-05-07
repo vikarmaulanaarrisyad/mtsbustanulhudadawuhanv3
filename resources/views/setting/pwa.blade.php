@@ -95,6 +95,29 @@
                 </div>
             </div>
         </div>
+        
+        {{-- Force Install Toggle --}}
+        <div class="row mt-2">
+            <div class="col-12">
+                <div class="form-group mb-4">
+                    <div class="custom-control custom-switch custom-switch-lg p-0">
+                        <div class="d-flex align-items-center justify-content-between p-3 rounded" style="background:#f8fafc; border: 1.5px solid #e2e8f0; border-radius:15px !important;">
+                            <div style="flex:1;">
+                                <h6 class="mb-1 font-weight-bold" style="color:#1e293b;">Wajib Instal Aplikasi (Force PWA)</h6>
+                                <p class="mb-0 text-muted" style="font-size:0.85rem;">
+                                    Jika diaktifkan, Guru, Siswa, dan Pendaftar PPDB <b>wajib</b> memasang aplikasi di layar utama HP mereka sebelum bisa mengakses sistem via browser.
+                                </p>
+                            </div>
+                            <div class="custom-control custom-switch ml-3">
+                                <input type="hidden" name="pwa_force_install" value="0">
+                                <input type="checkbox" name="pwa_force_install" class="custom-control-input" id="pwa_force_install" value="1" {{ ($setting->pwa_force_install ?? 0) ? 'checked' : '' }}>
+                                <label class="custom-control-label" for="pwa_force_install" style="cursor:pointer;"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         {{-- Warna --}}
         <div class="row">

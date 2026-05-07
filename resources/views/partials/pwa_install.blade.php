@@ -4,8 +4,8 @@
 @php
     $user = auth()->user();
     $isAdmin = $user && $user->hasRole(['Admin', 'Super Admin']);
-    // Selain Admin/Super Admin, semua user (Guru, Siswa, PPDB) wajib install PWA
-    $isRestricted = auth()->check() && !$isAdmin;
+    // Selain Admin/Super Admin, semua user (Guru, Siswa, PPDB) wajib install PWA jika fitur diaktifkan
+    $isRestricted = auth()->check() && !$isAdmin && ($setting->pwa_force_install ?? 0);
 @endphp
 
 @if($isRestricted)
@@ -173,9 +173,7 @@ body.pwa-locked {
     const isAndroid = ua.indexOf("android") > -1;
     const isIos = /ipad|iphone|ipod/.test(ua) && !window.MSStream;
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                         window.navigator.standalone || 
-                         document.referrer.includes('android-app://') ||
-                         (navigator.userAgent.includes('WV') || navigator.userAgent.includes('WebView')); // Detect some webviews
+                         window.navigator.standalone === true;
 
     // Debugging (Optional: user can see this in console if needed)
     console.log('PWA State:', { isStandalone, restricted, isAndroid, isIos });
@@ -217,9 +215,9 @@ body.pwa-locked {
         } else {
             if (isAndroid) {
                 if (btnText) {
-                    btnText.innerHTML = '<i class="fas fa-search mr-2"></i> CEK LAYAR UTAMA HP';
+                    btnText.innerHTML = '<i class="fas fa-sync fa-spin mr-2"></i> MENUNGGU PROMPT...';
                     setTimeout(() => {
-                        alert('Aplikasi mungkin sudah terpasang. Silakan cari ikon "Smart Madrasah" di daftar aplikasi atau layar utama HP Anda. Jika belum ada, pastikan Anda menggunakan HTTPS dan Chrome terbaru.');
+                        alert('Browser (Chrome/Safari) belum memunculkan tombol instal. Pastikan:\n1. Menggunakan HTTPS (Gembok Hijau)\n2. Chrome/Safari versi terbaru\n3. Jika sudah dipasang, cari ikon "Smart Madrasah" di menu HP Anda.');
                         if (btnText) btnText.innerHTML = '<i class="fas fa-external-link-alt mr-2"></i> BUKA / PASANG APLIKASI';
                     }, 500);
                 }
