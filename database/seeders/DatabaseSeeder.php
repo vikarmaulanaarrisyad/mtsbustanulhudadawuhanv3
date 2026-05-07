@@ -11,6 +11,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Reset cached roles and permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         // Sapu bersih SEMUA file dan folder di storage public
         $disk = \Illuminate\Support\Facades\Storage::disk('public');
         $allDirectories = $disk->allDirectories();

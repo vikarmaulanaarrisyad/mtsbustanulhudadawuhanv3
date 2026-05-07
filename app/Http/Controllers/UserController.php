@@ -49,17 +49,17 @@ class UserController extends Controller
             ->addColumn('action', function ($query) {
                 $aksi = '';
 
-                if (Auth::user()->hasPermissionTo("user.show")) {
+                if (Auth::user()->can("user.show")) {
                     $aksi .= '
                         <button onclick="detailForm(`' . route('users.detail', $query->id) . '`)" class="btn btn-sm btn-soft-info" title="Detail"><i class="fas fa-eye"></i></button>
                     ';
                 }
-                if (Auth::user()->hasPermissionTo("user.edit")) {
+                if (Auth::user()->can("user.edit")) {
                     $aksi .= '
                         <button onclick="editForm(`' . route('users.edit', $query->id) . '`)" class="btn btn-sm btn-soft-primary" title="Edit"><i class="fas fa-pencil-alt"></i></button>
                     ';
                 }
-                if (Auth::user()->hasPermissionTo("user.delete")) {
+                if (Auth::user()->can("user.delete")) {
                     $aksi .= '
                         <button onclick="resetPassword(`' . route('users.reset_password', $query->id) . '`, `' . $query->name . '`)" class="btn btn-sm btn-soft-warning" title="Reset Password"><i class="fas fa-key"></i></button>
                     ';
