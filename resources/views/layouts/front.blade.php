@@ -1085,14 +1085,7 @@
 </head>
 
 <body>
-    <!-- Preloader Ring Effect -->
-    <div id="preloader">
-        <div class="preloader-wrapper">
-            <div class="loader-ring"></div>
-            <img src="{{ Storage::url($setting->path_image ?? 'images/logo.png') }}" alt="Logo"
-                class="logo-loading">
-        </div>
-    </div>
+    @include('partials.preloader')
 
     <!-- Reading Progress Bar -->
     <div class="progress-container">
@@ -1242,18 +1235,7 @@
             }
         });
 
-        window.addEventListener('load', function() {
-            const preloader = document.getElementById('preloader');
-            // Tambahkan delay 1 detik agar preloader terlihat elegan sebelum menghilang
-            setTimeout(() => {
-                preloader.style.transition = 'opacity 0.8s ease-out, visibility 0.8s';
-                preloader.style.opacity = 0;
-                preloader.style.visibility = 'hidden';
-                setTimeout(() => {
-                    preloader.style.display = 'none';
-                }, 800);
-            }, 1000);
-        });
+
     </script>
 
 

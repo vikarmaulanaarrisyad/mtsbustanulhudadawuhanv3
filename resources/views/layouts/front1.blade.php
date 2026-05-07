@@ -177,6 +177,7 @@
 </head>
 
 <body>
+    @include('partials.preloader')
 
     {{-- Header Atas --}}
     <div class="topbar">

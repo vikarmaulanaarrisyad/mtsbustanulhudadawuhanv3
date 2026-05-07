@@ -172,6 +172,7 @@
 </head>
 
 <body>
+    @include('partials.preloader')
 
     @yield('content')
 
