@@ -382,7 +382,7 @@
                 });
         }
     </script>
-    {{--  @include('partials.pwa_install')  --}}
+    @include('partials.pwa_install')
 </body>
 
 </html>
