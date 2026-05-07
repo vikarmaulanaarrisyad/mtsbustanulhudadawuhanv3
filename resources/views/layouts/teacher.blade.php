@@ -98,17 +98,17 @@
                 <span class="text-[9px] font-bold uppercase tracking-widest">Jadwal</span>
             </a>
  
-            <!-- Central Action (Floating Emerald) -->
+            <!-- Central Action: Teacher's Own Face Attendance -->
             <div class="relative -top-8">
-                <a href="{{ route('student-attendances.scanner') }}" class="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-white shadow-2xl shadow-emerald-500/40 border-4 border-slate-900 active:scale-90 transition-all animate-pulse-emerald">
-                    <i class="fas fa-fingerprint text-2xl"></i>
+                <a href="{{ route('teacher.attendance.dashboard') }}" class="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-white shadow-2xl shadow-emerald-500/40 border-4 border-slate-900 active:scale-90 transition-all animate-pulse-emerald">
+                    <i class="fas fa-camera text-2xl"></i>
                 </a>
-                <span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] {{ request()->is('student-attendances*') ? 'text-emerald-400' : 'text-slate-400' }} font-bold uppercase tracking-widest">Absensi</span>
+                <span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] {{ request()->is('teacher/attendance*') ? 'text-emerald-400' : 'text-slate-400' }} font-bold uppercase tracking-widest">Absensi</span>
             </div>
  
-            <a href="{{ route('teacher.attendance.dashboard') }}" class="flex flex-col items-center space-y-1 {{ request()->is('teacher/attendance*') ? 'text-emerald-400' : 'text-slate-500' }}">
-                <i class="fas fa-history text-xl"></i>
-                <span class="text-[9px] font-bold uppercase tracking-widest">Log</span>
+            <a href="{{ route('student-attendances.scanner') }}" class="flex flex-col items-center space-y-1 {{ request()->is('student-attendances*') ? 'text-emerald-400' : 'text-slate-500' }}">
+                <i class="fas fa-qrcode text-xl"></i>
+                <span class="text-[9px] font-bold uppercase tracking-widest">Scan Siswa</span>
             </a>
 
             <a href="{{ route('profile.show') }}" class="flex flex-col items-center space-y-1 {{ request()->is('user/profile*') ? 'text-emerald-400' : 'text-slate-500' }}">

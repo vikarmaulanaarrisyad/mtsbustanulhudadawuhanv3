@@ -98,6 +98,14 @@ class FrontMenuSeeder extends Seeder
                     ['title' => 'Cek Status Pendaftaran', 'url' => '/ppdb/check'],
                 ]
             ],
+            [
+                'menu_title' => 'Login',
+                'menu_url' => '/login',
+                'menu_parent_id' => 0,
+                'menu_position' => 9,
+                'menu_type' => 'link',
+                'sub' => []
+            ],
         ];
 
         foreach ($menus as $m) {

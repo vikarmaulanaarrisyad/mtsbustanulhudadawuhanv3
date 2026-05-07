@@ -33,6 +33,7 @@ class AttendanceSettingController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'radius' => 'nullable|numeric',
+            'enable_face_attendance' => 'nullable|boolean',
         ]);
 
         AttendanceSetting::updateOrCreate(

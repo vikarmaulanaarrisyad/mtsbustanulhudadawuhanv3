@@ -1092,12 +1092,6 @@
         <div class="progress-bar" id="myBar"></div>
     </div>
 
-    @php
-        $menus = App\Models\Menu::where('menu_parent_id', 0)->orderBy('menu_position')->get();
-    @endphp
-
-    {{-- Navbar --}}
-
     <nav class="navbar navbar-expand-sm sticky-top fixed-top navbar-light bg-white border-bottom shadow-sm">
         <div class="container">
             <a class="navbar-brand font-weight-bold text-success d-flex align-items-center" href="{{ url('/') }}">
@@ -1117,10 +1111,32 @@
 
             <!-- Overlay -->
             <div class="offcanvas-overlay" id="offcanvasOverlay"></div>
+
+            @php
+                $menus = App\Models\Menu::where('menu_parent_id', 0)
+                    ->whereNotIn('menu_title', ['Beranda', 'Login'])
+                    ->orderBy('menu_position')
+                    ->get();
+            @endphp
             <!-- MENU -->
             <div class="collapse navbar-collapse offcanvas-menu" id="navbar1">
                 <ul class="navbar-nav ml-auto">
+                    {{-- Permanent: Beranda --}}
+                    <li class="nav-item {{ request()->is('/') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('/') }}">
+                            <i class="fas fa-home d-lg-none mr-2"></i> Beranda
+                        </a>
+                    </li>
+
+                    {{-- Dynamic Menus --}}
                     @include('layouts.partials.frontend-menu', ['menus' => $menus])
+
+                    {{-- Permanent: Login --}}
+                    <li class="nav-item ml-lg-3">
+                        <a class="nav-link btn btn-sm btn-outline-success px-4 rounded-pill font-weight-bold" href="{{ url('/login') }}">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Login
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>

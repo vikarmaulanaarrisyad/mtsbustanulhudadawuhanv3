@@ -120,7 +120,8 @@
                                 <form id="formCheckIn" action="{{ route('teacher.attendance.check-in') }}" method="POST">
                                     @csrf
                                     <a href="{{ route('teacher.attendance.dashboard') }}" class="btn-action primary mx-auto block text-center no-underline">
-                                        Mulai Presensi Wajah <i class="fas fa-camera ml-3"></i>
+                                        {{ ($setting->enable_face_attendance ?? true) ? 'Mulai Presensi Wajah' : 'Mulai Presensi GPS' }} 
+                                        <i class="fas fa-{{ ($setting->enable_face_attendance ?? true) ? 'camera' : 'location-arrow' }} ml-3"></i>
                                     </a>
                                 </form>
                             </div>
@@ -146,7 +147,10 @@
                                                 </div>
                                                 <div class="relative z-10">
                                                     <span class="block text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">Sesi Pulang</span>
-                                                    <h4 class="text-sm font-black text-slate-800 mb-0 uppercase tracking-widest">PRESENSI WAJAH <i class="fas fa-chevron-right ml-1"></i></h4>
+                                                    <h4 class="text-sm font-black text-slate-800 mb-0 uppercase tracking-widest">
+                                                        {{ ($setting->enable_face_attendance ?? true) ? 'PRESENSI WAJAH' : 'PRESENSI GPS' }} 
+                                                        <i class="fas fa-chevron-right ml-1"></i>
+                                                    </h4>
                                                 </div>
                                                 <a href="{{ route('teacher.attendance.dashboard') }}" class="absolute inset-0 z-20"></a>
                                                 <form id="formCheckOut" action="{{ route('teacher.attendance.check-out') }}" method="POST" class="d-none">@csrf</form>
@@ -189,18 +193,36 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <a href="{{ route('teacher.attendance.dashboard') }}" class="tool-btn bg-grad-indigo">
-                            <div class="tool-icon"><i class="fas fa-camera"></i></div>
-                            <span class="tool-label">Presensi Wajah</span>
+                            <div class="tool-icon"><i class="fas fa-{{ ($setting->enable_face_attendance ?? true) ? 'camera' : 'fingerprint' }}"></i></div>
+                            <span class="tool-label">{{ ($setting->enable_face_attendance ?? true) ? 'Presensi Wajah' : 'Presensi GPS' }}</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
+                        @if($setting->enable_face_attendance ?? true)
                         <a href="{{ route('teacher.face.registration') }}" class="tool-btn bg-grad-blue">
                             <div class="tool-icon"><i class="fas fa-user-shield"></i></div>
                             <span class="tool-label">Reg Wajah</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
+                        @else
+                        <a href="{{ route('teacher.attendance.manual') }}" class="tool-btn bg-grad-blue">
+                            <div class="tool-icon"><i class="fas fa-map-marked-alt"></i></div>
+                            <span class="tool-label">Peta Lokasi</span>
+                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        </a>
+                        @endif
                         <a href="{{ route('guru.schedule') }}" class="tool-btn bg-grad-green">
                             <div class="tool-icon"><i class="fas fa-calendar-alt"></i></div>
                             <span class="tool-label">Jadwal</span>
+                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        </a>
+                        <a href="{{ route('guru.attendance.report') }}" class="tool-btn bg-grad-purple">
+                            <div class="tool-icon"><i class="fas fa-chart-line"></i></div>
+                            <span class="tool-label">Statistik</span>
+                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        </a>
+                        <a href="{{ route('guru.journal.index') }}" class="tool-btn bg-grad-emerald">
+                            <div class="tool-icon"><i class="fas fa-file-signature"></i></div>
+                            <span class="tool-label">Jurnal KBM</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
                         <a href="javascript:void(0)" onclick="openPermitModal()" class="tool-btn bg-grad-orange">
@@ -464,6 +486,7 @@
     .bg-grad-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
     .bg-grad-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
     .bg-grad-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .bg-grad-emerald { background: linear-gradient(135deg, #059669 0%, #064e3b 100%); }
     .bg-grad-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
 
     /* Buttons */

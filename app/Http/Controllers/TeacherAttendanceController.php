@@ -70,6 +70,25 @@ class TeacherAttendanceController extends Controller
         ));
     }
 
+    public function manual()
+    {
+        $teacher = Teacher::where('user_id', Auth::id())->first();
+        if (!$teacher) {
+            return redirect()->route('dashboard')->with('error', 'Akun Anda tidak terhubung dengan data Guru/Staf.');
+        }
+
+        $setting = AttendanceSetting::first();
+        $today = Carbon::today();
+        $todayAttendance = Attendance::where('teacher_id', $teacher->id)->where('date', $today)->first();
+
+        // Check permission & times
+        $now = Carbon::now()->toTimeString();
+        $canCheckIn = ($now >= $setting->check_in_start && $now <= $setting->check_in_end && (!$todayAttendance || !$todayAttendance->check_in));
+        $canCheckOut = ($todayAttendance && $todayAttendance->check_in && !$todayAttendance->check_out && $now >= $setting->check_out_start && $now <= $setting->check_out_end);
+
+        return view('teacher.attendance.manual', compact('teacher', 'setting', 'todayAttendance', 'canCheckIn', 'canCheckOut'));
+    }
+
     public function checkIn(Request $request)
     {
         try {

@@ -153,6 +153,24 @@
                         </div>
                     </div>
 
+                    {{-- KEAMANAN AI --}}
+                    <div class="card border-0 shadow-sm rounded-15 mb-4">
+                        <div class="card-body p-4 border-left-rose">
+                            <h6 class="text-uppercase text-muted font-weight-bold mb-3"><i class="fas fa-user-shield mr-2 text-rose"></i> Fitur Keamanan Biometrik</h6>
+                            <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-15 border border-dashed">
+                                <div class="pr-4">
+                                    <h6 class="font-weight-bold mb-1">Wajib Registrasi & Verifikasi Wajah AI</h6>
+                                    <p class="text-xs text-muted mb-0">Jika aktif, guru wajib menscan wajah untuk absen. Jika non-aktif, guru hanya perlu validasi lokasi (GPS).</p>
+                                </div>
+                                <div class="custom-control custom-switch custom-switch-lg">
+                                    <input type="hidden" name="enable_face_attendance" value="0">
+                                    <input type="checkbox" class="custom-control-input" id="enable_face_attendance" name="enable_face_attendance" value="1" {{ ($settingAttendace->enable_face_attendance ?? true) ? 'checked' : '' }}>
+                                    <label class="custom-control-label" for="enable_face_attendance"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="text-right">
                         <button type="button" onclick="submitSetting()" class="btn btn-amber rounded-pill px-5 py-2 font-weight-bold shadow-amber text-dark" id="btnSave">
                             <i class="fas fa-save mr-2"></i> SIMPAN KONFIGURASI
@@ -271,6 +289,14 @@
         background: #f0f9ff; border-color: #0ea5e9; color: #0ea5e9;
     }
     .custom-day-checkbox input:checked + label .icon-check { color: #0ea5e9; }
+
+    /* Custom Switch Large */
+    .custom-switch-lg .custom-control-label::before { height: 2rem; width: 3.5rem; border-radius: 2rem; }
+    .custom-switch-lg .custom-control-label::after { width: calc(2rem - 4px); height: calc(2rem - 4px); border-radius: 2rem; }
+    .custom-switch-lg .custom-control-input:checked ~ .custom-control-label::after { transform: translateX(1.5rem); }
+    .custom-switch-lg .custom-control-label { padding-top: 0.5rem; padding-left: 2rem; }
+    .border-left-rose { border-left: 4px solid #f43f5e; }
+    .text-rose { color: #f43f5e; }
 </style>
 @endsection
 

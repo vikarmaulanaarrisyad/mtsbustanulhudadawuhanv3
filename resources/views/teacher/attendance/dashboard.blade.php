@@ -1,6 +1,6 @@
 @extends($layout)
 
-@section('title', 'Presensi Wajah AI')
+@section('title', ($setting->enable_face_attendance ?? true) ? 'Presensi Wajah AI' : 'Presensi Digital GPS')
 
 @section('content')
 <div class="dashboard-wrapper pb-24 min-h-screen bg-slate-50">
@@ -14,7 +14,7 @@
                     </a>
                     <div>
                         <span class="bg-white/20 backdrop-blur-md text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest mb-1 inline-block text-white">Smart Attendance</span>
-                        <h1 class="text-3xl font-black text-white tracking-tight leading-tight">Presensi Wajah AI</h1>
+                        <h1 class="text-3xl font-black text-white tracking-tight leading-tight">{{ ($setting->enable_face_attendance ?? true) ? 'Presensi Wajah AI' : 'Presensi Digital GPS' }}</h1>
                     </div>
                 </div>
                 <div class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 text-center hidden md:block">
@@ -97,55 +97,77 @@
                             <i class="fas fa-spinner fa-spin mr-2"></i> Mendeteksi Lokasi & Geofence...
                         </div>
 
-                        <!-- Camera Viewport -->
-                        <div class="relative mb-10 group mx-auto max-w-[320px]">
-                            <div id="face-container" class="relative rounded-[2.5rem] overflow-hidden border-4 border-slate-100 bg-slate-900 aspect-[3/4] flex items-center justify-center shadow-2xl">
-                                <video id="video" autoplay muted playsinline class="w-full h-full object-cover"></video>
-                                <canvas id="overlay" class="absolute top-0 left-0 w-full h-full"></canvas>
-                                
-                                <!-- AI Elements -->
-                                <div class="scan-line"></div>
-                                <div class="face-frame"></div>
-                                
-                                <div id="face-loading" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center text-white z-20">
-                                    <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                    <p class="text-[10px] font-black uppercase tracking-[0.2em]">Memuat AI Core...</p>
-                                </div>
-
-                                <div id="face-locked" class="hidden absolute inset-0 bg-emerald-500/80 backdrop-blur-sm flex flex-col items-center justify-center text-white z-20 animate__animated animate__zoomIn">
-                                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 border border-white/30">
-                                        <i class="fas fa-check text-4xl"></i>
+                        <!-- Camera Viewport / Manual Mode -->
+                        @if($setting->enable_face_attendance)
+                            <div class="relative mb-10 group mx-auto max-w-[320px]">
+                                <div id="face-container" class="relative rounded-[2.5rem] overflow-hidden border-4 border-slate-100 bg-slate-900 aspect-[3/4] flex items-center justify-center shadow-2xl">
+                                    <video id="video" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                                    <canvas id="overlay" class="absolute top-0 left-0 w-full h-full"></canvas>
+                                    
+                                    <!-- AI Elements -->
+                                    <div class="scan-line"></div>
+                                    <div class="face-frame"></div>
+                                    
+                                    <div id="face-loading" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center text-white z-20">
+                                        <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                        <p class="text-[10px] font-black uppercase tracking-[0.2em]">Memuat AI Core...</p>
                                     </div>
-                                    <p class="text-lg font-black uppercase tracking-widest">Wajah Dikenali!</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Helpful Indicator -->
-                            <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-white px-6 py-2 rounded-full shadow-xl border border-slate-100 whitespace-nowrap z-30">
-                                <span id="instruction-text" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tatap Kamera Sekarang</span>
-                            </div>
-                        </div>
 
-                        <!-- Action Buttons -->
-                        <div class="flex flex-col space-y-4 max-w-xs mx-auto">
-                            @if(!$faceDescriptor)
-                                <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100 text-center mb-4">
-                                    <p class="text-[10px] font-black text-indigo-600 uppercase mb-3">Wajah Belum Terdaftar</p>
-                                    <button id="btn-register-face" disabled class="w-full bg-indigo-600 text-white rounded-2xl py-4 font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-200 active:scale-95 transition-all">
-                                        <i class="fas fa-id-card mr-2"></i> DAFTARKAN WAJAH SAYA
-                                    </button>
+                                    <div id="face-locked" class="hidden absolute inset-0 bg-emerald-500/80 backdrop-blur-sm flex flex-col items-center justify-center text-white z-20 animate__animated animate__zoomIn">
+                                        <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 border border-white/30">
+                                            <i class="fas fa-check text-4xl"></i>
+                                        </div>
+                                        <p class="text-lg font-black uppercase tracking-widest">Wajah Dikenali!</p>
+                                    </div>
                                 </div>
-                            @else
-                                <div class="text-center pt-4">
-                                    <button id="btn-manual" class="text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-indigo-600 transition-colors mb-4 block mx-auto">
-                                        <i class="fas fa-fingerprint mr-2"></i> Gunakan Absen Manual
-                                    </button>
-                                    <button id="btn-submit-manual" class="hidden w-full bg-slate-900 text-white rounded-2xl py-4 font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">
-                                        {{ $canCheckIn ? 'Kirim Absen Masuk' : 'Kirim Absen Pulang' }}
-                                    </button>
+                                
+                                <!-- Helpful Indicator -->
+                                <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-white px-6 py-2 rounded-full shadow-xl border border-slate-100 whitespace-nowrap z-30">
+                                    <span id="instruction-text" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tatap Kamera Sekarang</span>
                                 </div>
-                            @endif
-                        </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex flex-col space-y-4 max-w-xs mx-auto">
+                                @if(!$faceDescriptor)
+                                    <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100 text-center mb-4">
+                                        <p class="text-[10px] font-black text-indigo-600 uppercase mb-3">Wajah Belum Terdaftar</p>
+                                        <button id="btn-register-face" disabled class="w-full bg-indigo-600 text-white rounded-2xl py-4 font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-200 active:scale-95 transition-all">
+                                            <i class="fas fa-id-card mr-2"></i> DAFTARKAN WAJAH SAYA
+                                        </button>
+                                    </div>
+                                @else
+                                    <div class="text-center pt-4">
+                                        <a href="{{ route('teacher.attendance.manual') }}" class="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors">
+                                            <i class="fas fa-map-marker-alt mr-1"></i> Masalah Kamera? Gunakan Absen Map & Manual
+                                        </a>
+                                        <button id="btn-submit-manual" class="hidden w-full bg-slate-900 text-white rounded-2xl py-4 font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">
+                                            {{ $canCheckIn ? 'Kirim Absen Masuk' : 'Kirim Absen Pulang' }}
+                                        </button>
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <div class="text-center py-10">
+                                <div class="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                                    <i class="fas fa-map-marker-alt text-4xl"></i>
+                                </div>
+                                <h4 class="text-xl font-black text-slate-800 mb-2">Presensi GPS Aktif</h4>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-8">Validasi wajah dinonaktifkan oleh Admin.</p>
+                                
+                                <button id="btn-submit-gps" class="w-full bg-emerald-600 text-white rounded-[2rem] py-5 font-black text-sm uppercase tracking-widest shadow-2xl shadow-emerald-200 active:scale-95 transition-all">
+                                    <i class="fas fa-fingerprint mr-2 text-lg"></i>
+                                    Kirim Presensi Sekarang
+                                </button>
+                                <a href="{{ route('teacher.attendance.manual') }}" class="mt-6 block text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors">
+                                    <i class="fas fa-map-marked-alt mr-1"></i> Lihat Peta Presensi
+                                </a>
+                                
+                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mt-6">
+                                    <p class="text-[9px] text-slate-400 font-black uppercase mb-0">Lokasi Anda akan diverifikasi berdasarkan radius kantor.</p>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>
@@ -256,8 +278,22 @@
     function initGeo() {
         if (navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
-                userLat = pos.coords.latitude;
-                userLng = pos.coords.longitude;
+                const { latitude, longitude, accuracy } = pos.coords;
+                
+                // --- DETEKSI FAKE GPS / MOCK LOCATION ---
+                const isMocked = pos.mocked || (pos.coords && pos.coords.mocked);
+                const isSuspiciousAccuracy = accuracy <= 0 || (accuracy > 0 && accuracy < 0.5);
+
+                if (isMocked || isSuspiciousAccuracy) {
+                    geoStatus.innerHTML = `<i class="fas fa-exclamation-triangle text-rose-500 mr-2"></i> FAKE GPS TERDETEKSI!`;
+                    geoStatus.classList.add('animate-pulse');
+                    userLat = null; userLng = null;
+                    return;
+                }
+                // ----------------------------------------
+
+                userLat = latitude;
+                userLng = longitude;
                 if (OFFICE_LAT && OFFICE_LNG) {
                     const dist = calculateDistance(userLat, userLng, OFFICE_LAT, OFFICE_LNG);
                     if (dist <= RADIUS) {
@@ -288,6 +324,7 @@
 
     // AI Core
     async function initFace() {
+        if (!video) return; // Skip if Face Attendance is disabled
         try {
             await Promise.all([
                 faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
@@ -373,29 +410,69 @@
 
     async function submitAttendance(method) {
         if (isAttendanceSent) return;
+        if (!userLat || !userLng) {
+            Swal.fire('Gagal', 'Lokasi tidak terdeteksi atau Anda menggunakan Fake GPS.', 'error');
+            return;
+        }
         if (OFFICE_LAT && OFFICE_LNG) {
             const dist = calculateDistance(userLat, userLng, OFFICE_LAT, OFFICE_LNG);
             if (dist > RADIUS) {
                 Swal.fire('Gagal', `Anda berada di luar jangkauan (${Math.round(dist)}m).`, 'error');
                 isFaceDetected = false; isAttendanceSent = false;
-                document.getElementById('face-locked').classList.add('hidden');
+                const faceLocked = document.getElementById('face-locked');
+                if (faceLocked) faceLocked.classList.add('hidden');
                 return;
             }
         }
         isAttendanceSent = true;
         Swal.fire({ title: 'Mengirim...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
+        let imageData = null;
+        if (video && video.videoWidth) {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth; 
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            imageData = canvas.toDataURL('image/jpeg');
+        }
+
+        const isCheckOut = '{{ ($todayAttendance && !$todayAttendance->check_out) ? '1' : '0' }}' === '1';
+        
         $.post('{{ ($todayAttendance && !$todayAttendance->check_out) ? route('teacher.attendance.check-out') : route('teacher.attendance.check-in') }}', {
-            _token: '{{ csrf_token() }}', latitude: userLat, longitude: userLng, image: canvas.toDataURL('image/jpeg'), method: method
+            _token: '{{ csrf_token() }}', latitude: userLat, longitude: userLng, image: imageData, method: method
         })
-        .done(res => { Swal.fire({ icon: 'success', title: 'Berhasil', text: res.message, timer: 2000, showConfirmButton: false }).then(() => location.reload()); })
-        .fail(err => { isAttendanceSent = false; isFaceDetected = false; document.getElementById('face-locked').classList.add('hidden'); Swal.fire('Gagal', err.responseJSON?.message || 'Error', 'error'); });
+        .done(res => { 
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'Berhasil', 
+                text: res.message + (isCheckOut ? '' : '\nSilahkan isi jurnal KBM hari ini.'), 
+                timer: isCheckOut ? 2000 : 3000, 
+                showConfirmButton: !isCheckOut,
+                confirmButtonText: 'Isi Jurnal Sekarang',
+                customClass: { popup: 'rounded-3xl', confirmButton: 'rounded-2xl px-6' } 
+            }).then(() => {
+                if (!isCheckOut) {
+                    location.href = '{{ route('guru.journal.index') }}';
+                } else {
+                    location.reload();
+                }
+            });
+        })
+        .fail(err => { 
+            isAttendanceSent = false; 
+            isFaceDetected = false; 
+            const faceLocked = document.getElementById('face-locked');
+            if (faceLocked) faceLocked.classList.add('hidden'); 
+            Swal.fire('Gagal', err.responseJSON?.message || 'Error', 'error'); 
+        });
     }
 
     btnManual?.addEventListener('click', () => btnSubmitManual.classList.toggle('hidden'));
     btnSubmitManual?.addEventListener('click', () => submitAttendance('manual'));
+    
+    document.getElementById('btn-submit-gps')?.addEventListener('click', function() {
+        submitAttendance('gps');
+    });
+
     initGeo(); initFace();
 </script>
 @endpush

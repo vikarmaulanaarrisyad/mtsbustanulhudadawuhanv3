@@ -240,6 +240,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ route('admin.teaching-journals.index') }}" class="nav-link {{ request()->is('admin/teaching-journals*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Monitoring Jurnal KBM</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ route('student-attendances.index') }}" class="nav-link {{ request()->is('student-attendances*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Log Presensi Siswa</p>
@@ -293,6 +299,12 @@
                             <a href="{{ route('teacher.face.registration') }}" class="nav-link {{ request()->is('teacher/face-registration*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Registrasi Wajah AI</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('guru.journal.index') }}" class="nav-link {{ request()->is('guru/journal*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Jurnal KBM Saya</p>
                             </a>
                         </li>
                         @can('teacher-attendance.view')
@@ -573,6 +585,12 @@
                     <a href="{{ route('announcements.admin') }}" class="nav-link {{ request()->is('admin/manage-announcements*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-bullhorn"></i>
                         <p>Pengumuman Madrasah</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.wa-gateway.index') }}" class="nav-link {{ request()->is('admin/wa-gateway*') ? 'active' : '' }}">
+                        <i class="nav-icon fab fa-whatsapp"></i>
+                        <p>WA Gateway</p>
                     </a>
                 </li>
                 @endcan

@@ -12,6 +12,7 @@ use App\Models\TeacherPermit;
 use App\Models\ClassSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\AttendanceSetting;
  
 class GuruDashboardController extends Controller
 {
@@ -85,10 +86,12 @@ class GuruDashboardController extends Controller
             ->take(5)
             ->get();
  
+        $setting = AttendanceSetting::first();
+
         return view('guru.dashboard.index', compact(
             'teacher', 'schedules', 'myAttendances', 'todayAttendance', 
             'totalSchedules', 'homeroomClass', 'myStudents', 
-            'unreadAnnouncementsCount', 'myPermits', 'onLeave', 'announcements'
+            'unreadAnnouncementsCount', 'myPermits', 'onLeave', 'announcements', 'setting'
         ));
     }
  
@@ -113,6 +116,77 @@ class GuruDashboardController extends Controller
         return view('guru.dashboard.schedule', compact('teacher', 'schedules'));
     }
  
+    public function attendanceReport(Request $request)
+    {
+        $user = auth()->user();
+        $teacher = Teacher::where('user_id', $user->id)->first();
+        
+        if (!$teacher) {
+            return redirect()->route('guru.dashboard')->with('error', 'Profil Guru tidak ditemukan.');
+        }
+
+        $month = $request->get('month', Carbon::now()->month);
+        $year = $request->get('year', Carbon::now()->year);
+        $date = Carbon::createFromDate($year, $month, 1);
+
+        $attendances = Attendance::where('teacher_id', $teacher->id)
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->orderBy('date', 'asc')
+            ->get();
+
+        // Statistics
+        $stats = [
+            'present' => $attendances->where('status', 'present')->count(),
+            'late' => $attendances->where('status', 'late')->count(),
+            'absent' => $attendances->where('status', 'absent')->count(),
+            'permit' => $attendances->where('status', 'permit')->count(),
+            'sick' => $attendances->where('status', 'sick')->count(),
+            'total_hours' => 0,
+            'attendance_rate' => 0
+        ];
+
+        $totalWorkingDays = $date->daysInMonth;
+        // Simple working days calculation (excluding weekends could be added if needed)
+        // But here we use actual data from the month
+        
+        $presentCount = $stats['present'] + $stats['late'];
+        if ($totalWorkingDays > 0) {
+            $stats['attendance_rate'] = round(($presentCount / $totalWorkingDays) * 100, 1);
+        }
+
+        // Calculate total hours
+        foreach ($attendances as $attendance) {
+            if ($attendance->check_in && $attendance->check_out) {
+                $in = Carbon::parse($attendance->check_in);
+                $out = Carbon::parse($attendance->check_out);
+                $stats['total_hours'] += $out->diffInMinutes($in) / 60;
+            }
+        }
+        $stats['total_hours'] = round($stats['total_hours'], 1);
+
+        // Data for charts
+        $chartData = [
+            'labels' => $attendances->pluck('date')->map(fn($d) => $d->format('d/m'))->toArray(),
+            'hours' => [],
+            'status_counts' => [
+                $stats['present'], $stats['late'], $stats['absent'], $stats['permit'], $stats['sick']
+            ]
+        ];
+
+        foreach ($attendances as $attendance) {
+            if ($attendance->check_in && $attendance->check_out) {
+                $in = Carbon::parse($attendance->check_in);
+                $out = Carbon::parse($attendance->check_out);
+                $chartData['hours'][] = round($out->diffInMinutes($in) / 60, 1);
+            } else {
+                $chartData['hours'][] = 0;
+            }
+        }
+
+        return view('guru.dashboard.report', compact('teacher', 'attendances', 'stats', 'chartData', 'month', 'year'));
+    }
+
     public function getClassStudents($id)
     {
         $students = Student::where('student_class_group_id', $id)

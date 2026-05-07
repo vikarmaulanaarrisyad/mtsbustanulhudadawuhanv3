@@ -115,6 +115,16 @@ Route::group(['middleware' => ['auth']], function () {
         
         // Announcements (Guru)
         Route::get('/announcements', [AnnouncementController::class, 'teacherIndex'])->name('guru.announcements');
+
+        // Attendance Report (Guru)
+        Route::get('/attendance/report', [GuruDashboardController::class, 'attendanceReport'])->name('guru.attendance.report');
+
+        // Teaching Journal (Guru)
+        Route::prefix('journal')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Guru\TeachingJournalController::class, 'index'])->name('guru.journal.index');
+            Route::get('/create', [\App\Http\Controllers\Guru\TeachingJournalController::class, 'create'])->name('guru.journal.create');
+            Route::post('/store', [\App\Http\Controllers\Guru\TeachingJournalController::class, 'store'])->name('guru.journal.store');
+        });
     });
 
     // Siswa Dashboard & Actions
@@ -132,6 +142,20 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
         Route::put('/announcements/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
         Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+
+        // Teaching Journal Monitoring (Admin)
+        Route::controller(\App\Http\Controllers\Admin\AdminTeachingJournalController::class)->group(function () {
+            Route::get('/teaching-journals', 'index')->name('admin.teaching-journals.index');
+            Route::get('/teaching-journals/data', 'data')->name('admin.teaching-journals.data');
+            Route::get('/teaching-journals/export-pdf', 'exportPdf')->name('admin.teaching-journals.export-pdf');
+        });
+
+        // WA Gateway (Admin)
+        Route::controller(\App\Http\Controllers\Admin\WaGatewayController::class)->group(function () {
+            Route::get('/wa-gateway', 'index')->name('admin.wa-gateway.index');
+            Route::post('/wa-gateway/settings', 'updateSettings')->name('admin.wa-gateway.update_settings');
+            Route::post('/wa-gateway/send', 'sendMessage')->name('admin.wa-gateway.send');
+        });
     });
 
     Route::group(['middleware' => ['permission:user.view']], function () {
@@ -732,14 +756,17 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('admin/mail/student-acceptances/{id}/print', [StudentAcceptanceController::class, 'print'])->name('student-acceptances.print');
     Route::resource('admin/mail/student-acceptances', StudentAcceptanceController::class)->names('student-acceptances');
 
-    // Teacher Attendance Portal
-    Route::get('/teacher/attendance', [TeacherAttendanceController::class, 'dashboard'])->name('teacher.attendance.dashboard');
-    Route::post('/teacher/attendance/check-in', [TeacherAttendanceController::class, 'checkIn'])->name('teacher.attendance.check-in');
-    Route::post('/teacher/attendance/check-out', [TeacherAttendanceController::class, 'checkOut'])->name('teacher.attendance.check-out');
-
-    // Face Recognition Registration
-    Route::get('/teacher/face-registration', [FaceRecognitionController::class, 'registerView'])->name('teacher.face.registration');
-    Route::post('/teacher/face-registration', [FaceRecognitionController::class, 'saveDescriptor'])->name('teacher.face.save');
+    // Teacher Attendance & Face Recognition (Granular Protection)
+    Route::group(['middleware' => ['permission:teacher-attendance.view']], function () {
+        Route::get('/teacher/attendance', [TeacherAttendanceController::class, 'dashboard'])->name('teacher.attendance.dashboard');
+        Route::get('/teacher/attendance/manual', [TeacherAttendanceController::class, 'manual'])->name('teacher.attendance.manual');
+        Route::post('/teacher/attendance/check-in', [TeacherAttendanceController::class, 'checkIn'])->name('teacher.attendance.check-in');
+        Route::post('/teacher/attendance/check-out', [TeacherAttendanceController::class, 'checkOut'])->name('teacher.attendance.check-out');
+        
+        // Face Recognition Registration
+        Route::get('/teacher/face-registration', [FaceRecognitionController::class, 'registerView'])->name('teacher.face.registration');
+        Route::post('/teacher/face-registration', [FaceRecognitionController::class, 'saveDescriptor'])->name('teacher.face.save');
+    });
 
     // Teacher Permits (Pengajuan Izin)
     Route::get('/teacher/permits', [TeacherPermitController::class, 'index'])->name('teacher.permits.index');
