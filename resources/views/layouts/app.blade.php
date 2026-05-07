@@ -8,7 +8,9 @@
 
     <title>{{ $setting->company_name }} - @yield('title')</title>
 
-    <link rel="icon" href="{{ $setting->pwa_icon ?? Storage::url($setting->path_image ?? '') }}?v={{ $setting->pwa_version ?? time() }}" type="image/*">
+    <link rel="icon"
+        href="{{ $setting->pwa_icon ?? Storage::url($setting->path_image ?? '') }}?v={{ $setting->pwa_version ?? time() }}"
+        type="image/*">
     <link rel="manifest" href="/manifest.json?v={{ $setting->pwa_version ?? time() }}">
     <meta name="theme-color" content="{{ $setting->pwa_theme_color ?? '#10b981' }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -77,15 +79,18 @@
             overflow-y: auto;
             max-height: calc(100vh - 57px);
             scrollbar-width: thin;
-            scrollbar-color: rgba(0,0,0,.2) transparent;
+            scrollbar-color: rgba(0, 0, 0, .2) transparent;
         }
+
         .sidebar::-webkit-scrollbar {
             width: 5px;
         }
+
         .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(0,0,0,.2);
+            background: rgba(0, 0, 0, .2);
             border-radius: 4px;
         }
+
         .sidebar::-webkit-scrollbar-track {
             background: transparent;
         }
@@ -185,6 +190,7 @@
                 font-size: 1.2rem;
             }
         }
+
         /* Premium Breadcrumb & Header */
         .premium-breadcrumb {
             background: transparent;
@@ -195,32 +201,45 @@
             letter-spacing: 1px;
             font-weight: 700;
         }
-        .premium-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+
+        .premium-breadcrumb .breadcrumb-item+.breadcrumb-item::before {
             content: "\f105";
             font-family: "Font Awesome 5 Free";
             font-weight: 900;
             color: #cbd5e0;
             padding: 0 10px;
         }
+
         .premium-breadcrumb a {
             color: #718096;
             transition: all 0.3s;
         }
+
         .premium-breadcrumb a:hover {
             color: #2d3748;
             text-decoration: none;
         }
+
         .premium-breadcrumb .active {
             color: #a0aec0;
         }
+
         .header-title-premium {
             font-size: 1.75rem;
             letter-spacing: -0.5px;
         }
-        .letter-spacing-1 { letter-spacing: 1px; }
-        .bg-light-soft { background: #f8fafc; }
-        
-        .content-wrapper { background: #f8fafc !important; }
+
+        .letter-spacing-1 {
+            letter-spacing: 1px;
+        }
+
+        .bg-light-soft {
+            background: #f8fafc;
+        }
+
+        .content-wrapper {
+            background: #f8fafc !important;
+        }
     </style>
 
     @stack('css')
@@ -253,7 +272,8 @@
                         <div>
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb premium-breadcrumb">
-                                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="fas fa-home mr-1"></i> Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i
+                                                class="fas fa-home mr-1"></i> Dashboard</a></li>
                                     @yield('breadcrumb')
                                 </ol>
                             </nav>
@@ -345,16 +365,24 @@
     @stack('scripts')
     <script>
         function generateNumber(model, type, targetSelector, column = 'letter_number') {
-            $.get('{{ route("letter-number.generate") }}', { model, type, column })
+            $.get('{{ route('letter-number.generate') }}', {
+                    model,
+                    type,
+                    column
+                })
                 .done(response => {
                     $(targetSelector).val(response.number);
                 })
                 .fail(xhr => {
-                    Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal mendapatkan nomor surat otomatis.' });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Gagal mendapatkan nomor surat otomatis.'
+                    });
                 });
         }
     </script>
-    @include('partials.pwa_install')
+    {{--  @include('partials.pwa_install')  --}}
 </body>
 
 </html>

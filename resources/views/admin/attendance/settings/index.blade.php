@@ -119,6 +119,40 @@
                         </div>
                     </div>
 
+                    {{-- LOKASI & RADIUS --}}
+                    <div class="card border-0 shadow-sm rounded-15 mb-4">
+                        <div class="card-body p-4 border-left-success">
+                            <h6 class="text-uppercase text-muted font-weight-bold mb-3"><i class="fas fa-map-marker-alt mr-2 text-success"></i> Konfigurasi Lokasi & Radius</h6>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group mb-3">
+                                        <label class="text-xs font-weight-bold text-muted uppercase">Latitude</label>
+                                        <input type="text" name="latitude" id="latitude" class="form-control font-weight-bold" value="{{ $settingAttendace->latitude }}" placeholder="-6.12345678">
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group mb-3">
+                                        <label class="text-xs font-weight-bold text-muted uppercase">Longitude</label>
+                                        <input type="text" name="longitude" id="longitude" class="form-control font-weight-bold" value="{{ $settingAttendace->longitude }}" placeholder="106.12345678">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group mb-3">
+                                        <label class="text-xs font-weight-bold text-muted uppercase">Radius (m)</label>
+                                        <input type="number" name="radius" class="form-control font-weight-bold" value="{{ $settingAttendace->radius ?? 100 }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info border-0 rounded-10 py-2 px-3 mb-0 d-flex align-items-center">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                <small>Admin dapat mengatur koordinat kantor dan batas jarak maksimal (dalam meter) guru boleh melakukan absen.</small>
+                                <button type="button" onclick="getCurrentLocation()" class="btn btn-sm btn-info ml-auto shadow-sm rounded-pill">
+                                    <i class="fas fa-location-arrow mr-1"></i> Lokasi Saya
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="text-right">
                         <button type="button" onclick="submitSetting()" class="btn btn-amber rounded-pill px-5 py-2 font-weight-bold shadow-amber text-dark" id="btnSave">
                             <i class="fas fa-save mr-2"></i> SIMPAN KONFIGURASI
@@ -249,6 +283,23 @@
         if(this.checked) { icon.removeClass('fa-circle').addClass('fa-check-circle'); }
         else { icon.removeClass('fa-check-circle').addClass('fa-circle'); }
     });
+
+    function getCurrentLocation() {
+        if (navigator.geolocation) {
+            Swal.fire({ title: 'Mencari Lokasi...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            navigator.geolocation.getCurrentPosition(function(position) {
+                $('#latitude').val(position.coords.latitude);
+                $('#longitude').val(position.coords.longitude);
+                Swal.close();
+                Swal.fire({ icon: 'success', title: 'Lokasi Ditemukan', text: 'Koordinat telah diperbarui.', timer: 1500, showConfirmButton: false });
+            }, function(error) {
+                Swal.close();
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Pastikan GPS aktif dan izin lokasi diberikan.' });
+            });
+        } else {
+            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Browser tidak mendukung geolokasi.' });
+        }
+    }
 
     function submitSetting() {
         let btn = $('#btnSave');

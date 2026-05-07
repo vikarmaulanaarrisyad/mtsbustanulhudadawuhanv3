@@ -30,6 +30,9 @@ class AttendanceSettingController extends Controller
             'check_out_start' => 'required',
             'check_out_end' => 'required|after:check_out_start',
             'work_days' => 'required|array',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'radius' => 'nullable|numeric',
         ]);
 
         AttendanceSetting::updateOrCreate(

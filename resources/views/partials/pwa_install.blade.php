@@ -175,7 +175,7 @@ body:has(.pwa-force-overlay[style*="display: flex"]) {
     if (isAndroid) document.body.classList.add('pwa-android');
     else if (isIos) document.body.classList.add('pwa-ios');
 
-    if (restricted && !isStandalone && forceOverlay) {
+    if (restricted && !isStandalone && forceOverlay && (isAndroid || isIos)) {
         forceOverlay.style.display = 'flex';
         document.body.style.overflow = 'hidden';
         document.body.style.height = '100vh';

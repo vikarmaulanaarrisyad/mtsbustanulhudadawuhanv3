@@ -60,6 +60,7 @@ use App\Http\Controllers\{
     StudentGradeController,
     TeacherPermitController,
     StudentPermitController,
+    FaceRecognitionController,
     BackupController
 };
 
@@ -736,6 +737,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/teacher/attendance/check-in', [TeacherAttendanceController::class, 'checkIn'])->name('teacher.attendance.check-in');
     Route::post('/teacher/attendance/check-out', [TeacherAttendanceController::class, 'checkOut'])->name('teacher.attendance.check-out');
 
+    // Face Recognition Registration
+    Route::get('/teacher/face-registration', [FaceRecognitionController::class, 'registerView'])->name('teacher.face.registration');
+    Route::post('/teacher/face-registration', [FaceRecognitionController::class, 'saveDescriptor'])->name('teacher.face.save');
+
     // Teacher Permits (Pengajuan Izin)
     Route::get('/teacher/permits', [TeacherPermitController::class, 'index'])->name('teacher.permits.index');
     Route::post('/teacher/permits', [TeacherPermitController::class, 'store'])->name('teacher.permits.store');
@@ -758,6 +763,7 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('/reports/data', [AttendanceReportController::class, 'data'])->name('attendance-reports.data');
         Route::get('/reports/print', [AttendanceReportController::class, 'print'])->name('attendance-reports.print');
+        Route::get('/live', [TeacherAttendanceController::class, 'liveMonitoring'])->name('admin.attendance.live');
         Route::resource('/reports', AttendanceReportController::class)->names('attendance-reports');
     });
 

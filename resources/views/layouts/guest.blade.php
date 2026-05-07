@@ -36,15 +36,15 @@
 
     <style>
         :root {
-            --primary: #198754;
-            --primary-hover: #146c43;
-            --bg-gradient: linear-gradient(135deg, #198754 0%, #0eaaa6 100%);
-            --glass-bg: rgba(255, 255, 255, 0.92);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --input-bg: #f9fafb;
-            --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-gradient: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            --glass-bg: rgba(255, 255, 255, 0.98);
+            --glass-border: rgba(255, 255, 255, 1);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --input-bg: #f8fafc;
+            --shadow-soft: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         body {

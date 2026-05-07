@@ -222,6 +222,18 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            <a href="{{ route('admin.attendance.live') }}" class="nav-link {{ request()->routeIs('admin.attendance.live') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Presensi Guru (Live)</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('teacher.face.registration') }}" class="nav-link {{ request()->is('teacher/face-registration*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Registrasi Wajah AI</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ route('attendance-reports.index') }}" class="nav-link {{ request()->is('attendance/reports*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Log Presensi Guru</p>
@@ -271,14 +283,26 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            @can('teacher-attendance.view')
-                            <li class="nav-item">
-                                <a href="{{ route('attendance-reports.index') }}" class="nav-link {{ request()->is('attendance/reports*') ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Log Presensi Guru</p>
-                                </a>
-                            </li>
-                            @endcan
+                        <li class="nav-item">
+                            <a href="{{ route('teacher.attendance.dashboard') }}" class="nav-link {{ request()->is('teacher/attendance*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Presensi Harian</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('teacher.face.registration') }}" class="nav-link {{ request()->is('teacher/face-registration*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Registrasi Wajah AI</p>
+                            </a>
+                        </li>
+                        @can('teacher-attendance.view')
+                        <li class="nav-item">
+                            <a href="{{ route('attendance-reports.index') }}" class="nav-link {{ request()->is('attendance/reports*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Log Presensi Guru</p>
+                            </a>
+                        </li>
+                        @endcan
                             @canany(['student-attendance.view', 'dashboard.guru'])
                             <li class="nav-item">
                                 <a href="{{ route('student-attendances.index') }}" class="nav-link {{ request()->is('student-attendances*') ? 'active' : '' }}">
