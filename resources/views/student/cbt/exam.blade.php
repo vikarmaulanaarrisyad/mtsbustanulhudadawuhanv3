@@ -4,30 +4,44 @@
 
 @section('content')
 <!-- ULTRA PREMIUM CBT ENGINE V3 -->
-<div class="cbt-container fixed inset-0 z-[150] bg-[#f8fafc] flex flex-col hidden overflow-hidden" id="cbt-engine">
+<div class="cbt-container fixed inset-0 z-[150] bg-[#fdfdfd] flex flex-col hidden overflow-hidden select-none" id="cbt-engine">
     <!-- TOP NAVIGATION BAR (GLASSMORPHISM) -->
-    <div class="h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-6 md:px-12 shadow-sm relative z-30">
-        <div class="flex items-center space-x-5">
-            <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-100 transform rotate-3">
-                <i class="fas fa-laptop-code text-xl"></i>
+    <div class="h-24 md:h-20 bg-white/95 backdrop-blur-2xl border-b border-slate-100 flex items-center justify-between px-4 md:px-12 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative z-[70]">
+        <div class="flex items-center space-x-3 md:space-x-5">
+            <div class="relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative w-10 h-10 md:w-12 md:h-12 bg-indigo-600 rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-100 transform rotate-3 transition-transform group-hover:rotate-0">
+                    <i class="fas fa-laptop-code text-lg md:text-xl"></i>
+                </div>
             </div>
-            <div class="hidden sm:block">
-                <h1 class="text-lg font-black text-slate-800 leading-tight tracking-tight">{{ $exam->name }}</h1>
-                <p class="text-[10px] text-indigo-500 font-bold uppercase tracking-[0.2em]">{{ $exam->bank->subject->name ?? 'Mata Pelajaran' }}</p>
+            <div class="flex flex-col">
+                <h1 class="text-xs md:text-xl font-black text-slate-800 leading-tight tracking-tight truncate max-w-[120px] md:max-w-none">{{ $exam->name }}</h1>
+                <div class="flex items-center space-x-2">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <p class="text-[8px] md:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">{{ $exam->bank->subject->name ?? 'Mata Pelajaran' }}</p>
+                </div>
             </div>
         </div>
         
-        <div class="flex items-center space-x-4 md:space-x-10">
-            <div class="flex flex-col items-end">
-                <span class="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mb-1">Sisa Waktu</span>
-                <div class="text-2xl md:text-4xl font-black text-rose-600 font-mono tracking-tighter leading-none" id="timer">--:--:--</div>
+        <div class="flex items-center space-x-2 md:space-x-10">
+            <div class="hidden sm:flex flex-col items-center md:items-end bg-rose-50 px-4 py-2 md:px-6 md:py-2.5 rounded-2xl md:rounded-[1.5rem] border border-rose-100">
+                <span class="text-[7px] md:text-[9px] text-rose-400 font-black uppercase tracking-[0.2em] mb-0.5">Pelanggaran</span>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm md:text-xl font-black text-rose-600" id="violation-count">{{ $studentExam->violation_count ?? 0 }}</span>
+                    <span class="text-[10px] md:text-sm font-black text-rose-300">/ 3</span>
+                </div>
             </div>
-            <div class="h-10 w-px bg-slate-200 hidden md:block"></div>
-            <button onclick="finishExam()" class="px-6 py-3 md:px-10 md:py-4 bg-slate-900 text-white rounded-2xl font-black text-xs md:text-sm uppercase tracking-widest hover:bg-rose-600 transition-all shadow-2xl active:scale-95">
-                Selesai
+
+            <div class="timer-display flex flex-col items-center md:items-end bg-slate-900 px-4 py-2 md:px-6 md:py-2.5 rounded-2xl md:rounded-[1.5rem] shadow-2xl shadow-indigo-100/50 border border-slate-800">
+                <span class="text-[7px] md:text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-0.5">Time Remaining</span>
+                <div class="text-lg md:text-3xl font-black text-white font-mono tracking-tighter leading-none" id="timer">--:--:--</div>
+            </div>
+            <div class="h-10 w-px bg-slate-100 hidden md:block"></div>
+            <button onclick="finishExam()" class="group relative px-4 py-2.5 md:px-10 md:py-4 overflow-hidden rounded-xl md:rounded-2xl bg-white text-slate-900 border border-slate-200 font-black text-[10px] md:text-sm uppercase tracking-widest transition-all hover:bg-rose-600 hover:text-white hover:border-rose-600 hover:shadow-[0_20px_40px_-10px_rgba(225,29,72,0.3)] active:scale-95">
+                <span class="relative z-10">Akhiri Ujian</span>
             </button>
-            <button onclick="toggleNav()" class="lg:hidden w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
-                <i class="fas fa-th-large text-lg"></i>
+            <button onclick="toggleNav()" class="lg:hidden w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 shadow-inner hover:bg-indigo-600 hover:text-white transition-all">
+                <i class="fas fa-th-large text-base"></i>
             </button>
         </div>
     </div>
@@ -35,44 +49,47 @@
     <!-- MAIN ENGINE AREA -->
     <div class="flex-1 flex overflow-hidden relative">
         <!-- LEFT: QUESTION CONTENT -->
-        <div class="flex-1 overflow-y-auto p-6 md:p-16 relative pb-40 custom-scrollbar" id="question-area">
+        <div class="flex-1 overflow-y-auto p-4 md:p-16 relative pb-44 custom-scrollbar bg-slate-50/30" id="question-area">
             <div class="max-w-4xl mx-auto">
                 @foreach($exam->bank->questions as $index => $q)
-                    <div class="question-panel hidden animate-fade-in" id="q-panel-{{ $index + 1 }}" data-qid="{{ $q->id }}">
-                        <div class="mb-10 flex items-center justify-between">
-                            <div class="flex items-center space-x-4">
-                                <span class="w-14 h-14 bg-slate-900 text-white flex items-center justify-center rounded-[1.5rem] font-black text-2xl shadow-2xl">
-                                    {{ $index + 1 }}
-                                </span>
-                                <div class="h-1.5 w-12 bg-indigo-100 rounded-full"></div>
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Butir Pertanyaan</span>
-                            </div>
-                            
-                            <label class="flex items-center space-x-4 cursor-pointer group bg-white px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm transition-all hover:border-amber-200">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-amber-600 transition-colors">Ragu-ragu?</span>
-                                <div class="relative inline-flex items-center">
-                                    <input type="checkbox" class="doubt-checkbox sr-only peer" data-no="{{ $index + 1 }}">
-                                    <div class="w-11 h-6 bg-slate-100 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                    @php
+                        $ans = $answers->get($q->id);
+                        $isDoubtful = $ans && $ans->is_doubtful ? 1 : 0;
+                    @endphp
+                    <div class="question-panel hidden animate-fade-in" id="q-panel-{{ $index + 1 }}" data-qid="{{ $q->id }}" data-doubtful="{{ $isDoubtful }}">
+                        <div class="mb-12 flex items-center justify-between">
+                            <div class="flex items-center space-x-6">
+                                <div class="relative">
+                                    <div class="absolute -inset-2 bg-indigo-500 rounded-full blur opacity-10 animate-pulse"></div>
+                                    <span class="relative w-16 h-16 bg-white border border-slate-100 text-indigo-600 flex items-center justify-center rounded-[1.8rem] font-black text-3xl shadow-xl">
+                                        {{ $index + 1 }}
+                                    </span>
                                 </div>
-                            </label>
+                                <div class="hidden md:block">
+                                    <div class="h-1.5 w-20 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-indigo-600 w-1/3"></div>
+                                    </div>
+                                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] mt-2 block">Butir Soal</span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- QUESTION CARD -->
-                        <div class="bg-white rounded-[3rem] p-8 md:p-12 border border-slate-100 shadow-2xl shadow-slate-200/40 mb-10">
-                            <div class="prose-container mb-10">
-                                <div class="text-xl md:text-2xl text-slate-800 font-bold leading-relaxed tracking-tight">
+                        <div class="bg-white rounded-[3.5rem] p-8 md:p-14 border border-slate-100 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.04)] mb-10 group/card hover:shadow-[0_40px_120px_-20px_rgba(0,0,0,0.08)] transition-all duration-700">
+                            <div class="prose-container mb-12">
+                                <div class="text-xl md:text-[1.75rem] text-slate-800 font-medium leading-[1.6] tracking-tight antialiased">
                                     {!! $q->question_text !!}
                                 </div>
                             </div>
 
                             @if($q->question_image)
-                                <div class="mb-10 rounded-[2.5rem] overflow-hidden border-8 border-slate-50 shadow-inner bg-slate-50 text-center">
-                                    <img src="{{ Storage::url($q->question_image) }}" class="max-h-[600px] w-auto mx-auto object-contain p-4" alt="Gambar Soal">
+                                <div class="mb-12 rounded-[2.5rem] overflow-hidden border-[12px] border-slate-50 shadow-2xl bg-white text-center group/img">
+                                    <img src="{{ Storage::url($q->question_image) }}" class="max-h-[600px] w-auto mx-auto object-contain transition-transform duration-700 group-hover/img:scale-[1.02]" alt="Gambar Soal">
                                 </div>
                             @endif
 
                             <!-- OPTIONS GRID -->
-                            <div class="space-y-5">
+                            <div class="grid grid-cols-1 gap-4 md:gap-6">
                                 @if(in_array($q->question_type, ['pilihan_ganda', 'ganda_komplek']))
                                     <div class="grid grid-cols-1 gap-5">
                                         @foreach($q->options as $optIndex => $opt)
@@ -130,7 +147,8 @@
                                                         <select class="matching-select w-full p-6 bg-white border-2 border-slate-100 rounded-3xl focus:border-indigo-500 focus:ring-8 focus:ring-indigo-50 font-black text-slate-700 appearance-none transition-all shadow-xl" 
                                                                 data-question-id="{{ $q->id }}" 
                                                                 data-premise="{{ $premise }}"
-                                                                onchange="saveMatchingAnswer({{ $q->id }}, {{ $index + 1 }})">
+                                                                onchange="saveMatchingAnswer({{ $q->id }}, {{ $index + 1 }})"
+                                                                oninput="updateNavColorLocal({{ $index + 1 }})">
                                                             <option value="">Pilih Pasangan...</option>
                                                             @foreach($pairs as $p => $r)
                                                                 <option value="{{ $r }}">{!! strip_tags($r) !!}</option>
@@ -151,67 +169,127 @@
                                                   class="w-full p-10 text-xl font-bold text-slate-800 focus:ring-0 border-0 placeholder:text-slate-300" 
                                                   placeholder="Tuliskan jawaban lengkap Anda di sini..." 
                                                   rows="10"
+                                                  oninput="updateNavColorLocal({{ $index + 1 }})"
                                                   onblur="saveEssayAnswer({{ $q->id }}, {{ $index + 1 }})">{{ $answers->get($q->id)->answer_text ?? '' }}</textarea>
                                     </div>
                                 @endif
+
+                                <!-- QUESTION CARD FOOTER (NAVIGATION) -->
+                                <div class="mt-16 pt-10 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                                    <div class="flex items-center space-x-4 w-full md:w-auto">
+                                        @if($index > 0)
+                                            <button onclick="prevQuestion()" class="flex-1 md:flex-none h-14 px-10 bg-slate-100 text-slate-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center group">
+                                                <i class="fas fa-chevron-left mr-3 transition-transform group-hover:-translate-x-1"></i> Kembali
+                                            </button>
+                                        @endif
+                                        
+                                        <label class="flex items-center cursor-pointer group bg-slate-50 px-6 py-4 rounded-2xl border border-slate-100 hover:border-amber-200 transition-all">
+                                            <span class="mr-3 text-[10px] font-black text-slate-400 group-hover:text-amber-500 uppercase tracking-widest transition-colors">Ragu-ragu</span>
+                                            <div class="relative">
+                                                <input type="checkbox" class="sr-only doubt-checkbox" data-no="{{ $index + 1 }}" onchange="toggleDoubtLocal({{ $index + 1 }})" {{ $ans && $ans->is_doubtful ? 'checked' : '' }}>
+                                                <div class="w-10 h-5 bg-slate-200 rounded-full transition-colors box-bg"></div>
+                                                <div class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform dot shadow-sm"></div>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <div class="flex items-center space-x-4 w-full md:w-auto">
+                                        <div class="hidden md:flex flex-col items-end mr-4">
+                                            <span class="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Penyelesaian</span>
+                                            <span class="text-sm font-black text-slate-800">{{ $index + 1 }} / {{ $exam->bank->questions->count() }}</span>
+                                        </div>
+
+                                        @if($index < $exam->bank->questions->count() - 1)
+                                            <button onclick="nextQuestion()" class="flex-1 md:flex-none h-14 px-14 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center group">
+                                                Lanjut <i class="fas fa-chevron-right ml-3 transition-transform group-hover:translate-x-1"></i>
+                                            </button>
+                                        @else
+                                            <button onclick="finishExam()" class="flex-1 md:flex-none h-14 px-14 bg-rose-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl shadow-rose-100 flex items-center justify-center group">
+                                                AKHIRI UJIAN <i class="fas fa-check-double ml-3 transition-transform group-hover:scale-110"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 @endforeach
             </div>
 
-            <!-- BOTTOM NAVIGATION (FLOATING) -->
-            <div class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl bg-white/80 backdrop-blur-2xl border border-white/50 p-4 md:p-6 rounded-[2.5rem] shadow-2xl z-20 flex justify-between items-center gap-4">
-                <button onclick="prevQuestion()" class="flex-1 md:flex-none px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95" id="btn-prev">
-                    <i class="fas fa-arrow-left mr-3"></i> <span class="hidden md:inline">Sebelumnya</span>
-                </button>
-                
-                <div class="hidden md:flex flex-col items-center">
-                    <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Kemajuan</span>
-                    <span class="text-sm font-black text-indigo-600 uppercase tracking-widest" id="progress-text">Soal 1 / 40</span>
-                </div>
-
-                <button onclick="nextQuestion()" class="flex-1 md:flex-none px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl shadow-indigo-100 disabled:opacity-30 disabled:pointer-events-none active:scale-95" id="btn-next">
-                    <span class="hidden md:inline">Selanjutnya</span> <i class="fas fa-arrow-right ml-3"></i>
-                </button>
-            </div>
         </div>
 
-        <!-- RIGHT: NUMBER GRID SIDEBAR -->
-        <div class="fixed inset-y-0 right-0 w-80 bg-white border-l border-slate-100 p-8 flex flex-col z-40 transform translate-x-full lg:translate-x-0 transition-transform duration-700 ease-in-out shadow-2xl lg:shadow-none" id="sidebar-nav">
-            <div class="flex items-center justify-between mb-10">
-                <div>
-                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-[0.2em] mb-1">Navigasi Soal</h3>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Klik nomor untuk melompat</p>
+        <!-- RIGHT: NUMBER GRID SIDEBAR (DESKTOP PERMANENT) -->
+        <div class="hidden lg:flex w-96 bg-white border-l border-slate-100 p-10 flex-col z-20 shadow-[-10px_0_40px_-20px_rgba(0,0,0,0.05)] relative">
+            <div class="flex items-center space-x-4 mb-10">
+                <div class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white">
+                    <i class="fas fa-layer-group text-sm"></i>
                 </div>
-                <button onclick="toggleNav()" class="lg:hidden w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center hover:text-rose-500 transition-colors">
-                    <i class="fas fa-times"></i>
-                </button>
+                <div>
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest leading-none mb-1">Navigasi</h3>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pilih Nomor Soal</p>
+                </div>
             </div>
             
-            <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <div class="grid grid-cols-4 gap-4">
+            <div class="flex-1 overflow-y-auto pr-3 custom-scrollbar">
+                <div class="grid grid-cols-5 gap-3">
                     @foreach($exam->bank->questions as $index => $q)
                         @php
                             $ans = $answers->get($q->id);
-                            $statusClass = 'bg-slate-50 border-transparent text-slate-300 hover:border-slate-200';
+                            $statusClass = 'bg-slate-50 border-slate-100 text-slate-300 hover:border-indigo-300 hover:text-indigo-600';
                             if ($ans) {
-                                $statusClass = $ans->is_doubtful ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-200' : 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100';
+                                $statusClass = $ans->is_doubtful ? 'bg-amber-500 border-amber-400 text-white shadow-lg shadow-amber-200 animate-pulse' : 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-100';
                             }
                         @endphp
-                        <button onclick="jumpTo({{ $index + 1 }})" class="q-nav-btn w-14 h-14 rounded-2xl border-2 font-black text-sm flex items-center justify-center transition-all duration-300 {{ $statusClass }}" id="nav-btn-{{ $index + 1 }}">
+                        <button onclick="jumpTo({{ $index + 1 }})" class="q-nav-btn w-full aspect-square rounded-2xl border-2 font-black text-xs flex items-center justify-center transition-all duration-300 {{ $statusClass }}" id="nav-btn-desktop-{{ $index + 1 }}">
                             {{ $index + 1 }}
                         </button>
                     @endforeach
                 </div>
             </div>
 
-            <div class="mt-10 pt-10 border-t border-slate-50 space-y-6">
-                <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest block">Keterangan Warna</span>
-                <div class="grid grid-cols-1 gap-4">
-                    <div class="flex items-center space-x-4"><div class="w-6 h-6 bg-indigo-600 rounded-lg shadow-sm"></div><span class="text-[9px] text-slate-500 font-black uppercase tracking-widest">Sudah Dijawab</span></div>
-                    <div class="flex items-center space-x-4"><div class="w-6 h-6 bg-amber-500 rounded-lg shadow-sm"></div><span class="text-[9px] text-slate-500 font-black uppercase tracking-widest">Ragu-ragu</span></div>
-                    <div class="flex items-center space-x-4"><div class="w-6 h-6 bg-slate-100 rounded-lg"></div><span class="text-[9px] text-slate-500 font-black uppercase tracking-widest">Belum Dijawab</span></div>
+            <div class="mt-10 pt-8 border-t border-slate-50">
+                <h4 class="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] mb-6">Informasi Status</h4>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4"><div class="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div><span class="text-[10px] text-slate-500 font-black uppercase tracking-widest">Terjawab</span></div>
+                        <span class="text-[9px] font-bold text-slate-300">{{ $answers->count() }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4"><div class="w-2.5 h-2.5 bg-amber-500 rounded-full"></div><span class="text-[10px] text-slate-500 font-black uppercase tracking-widest">Ragu-ragu</span></div>
+                        <span class="text-[9px] font-bold text-slate-300">{{ $answers->where('is_doubtful', true)->count() }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: NUMBER GRID SIDEBAR (MOBILE DRAWER) -->
+        <div class="lg:hidden fixed top-24 bottom-0 right-0 w-80 bg-white border-l border-slate-50 p-8 flex flex-col z-[80] transform translate-x-full transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] shadow-[-20px_0_60px_-15px_rgba(0,0,0,0.1)]" id="sidebar-nav">
+            <div class="flex items-center justify-between mb-10">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white">
+                        <i class="fas fa-layer-group text-sm"></i>
+                    </div>
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Navigasi</h3>
+                </div>
+                <button onclick="toggleNav()" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                <div class="grid grid-cols-4 gap-3">
+                    @foreach($exam->bank->questions as $index => $q)
+                        @php
+                            $ans = $answers->get($q->id);
+                            $statusClass = 'bg-slate-50 border-slate-100 text-slate-300 hover:border-indigo-300 hover:text-indigo-600';
+                            if ($ans) {
+                                $statusClass = $ans->is_doubtful ? 'bg-amber-500 border-amber-400 text-white shadow-lg shadow-amber-200 animate-pulse' : 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-100';
+                            }
+                        @endphp
+                        <button onclick="jumpTo({{ $index + 1 }})" class="q-nav-btn w-full aspect-square rounded-2xl border-2 font-black text-sm flex items-center justify-center transition-all duration-300 {{ $statusClass }}" id="nav-btn-mobile-{{ $index + 1 }}">
+                            {{ $index + 1 }}
+                        </button>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -222,8 +300,8 @@
 <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[140] hidden lg:hidden transition-opacity duration-500" id="nav-overlay" onclick="toggleNav()"></div>
 
 <!-- PRE-EXAM SCREEN (MODERNIZED) -->
-<div class="max-w-4xl mx-auto my-20 px-6" id="pre-exam-screen">
-    <div class="bg-white rounded-[4rem] p-12 md:p-20 shadow-2xl shadow-slate-200 border border-slate-100 text-center relative overflow-hidden">
+<div class="max-w-4xl mx-auto my-10 md:my-20 px-4 md:px-6" id="pre-exam-screen">
+    <div class="bg-white rounded-[3rem] md:rounded-[4rem] p-8 md:p-20 shadow-2xl shadow-slate-200 border border-slate-100 text-center relative overflow-hidden">
         <div class="w-32 h-32 bg-indigo-600/10 rounded-[3rem] flex items-center justify-center mx-auto mb-10 transform rotate-12 shadow-inner">
             <i class="fas fa-user-shield text-5xl text-indigo-600"></i>
         </div>
@@ -267,6 +345,10 @@
 <form id="finish-form" action="{{ route('student.cbt.finish', $exam->id) }}" method="POST" class="hidden">@csrf</form>
 
 <style>
+    .dot { transition: all 0.3s; }
+    .doubt-checkbox:checked ~ .box-bg { background-color: #f59e0b !important; }
+    .doubt-checkbox:checked ~ .dot { transform: translateX(20px); background-color: #fff !important; }
+
     .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .custom-scrollbar::-webkit-scrollbar { width: 5px; }
@@ -280,9 +362,9 @@
     const examId = {{ $exam->id }};
     const totalQuestions = {{ $exam->bank->questions->count() }};
     let currentQ = 1;
-    let endTime = new Date("{{ $exam->end_time }}").getTime();
+    let endTime = new Date("{{ \Carbon\Carbon::parse($exam->exam_date)->format('Y-m-d') }}T{{ $exam->end_time }}").getTime();
     let durationSeconds = {{ $exam->duration_minutes * 60 }};
-    let studentStartTime = new Date("{{ $studentExam->start_time }}").getTime();
+    let studentStartTime = new Date("{{ \Carbon\Carbon::parse($studentExam->start_time)->format('Y-m-d\TH:i:s') }}").getTime();
     let maxAllowedTime = studentStartTime + (durationSeconds * 1000);
     let finalEndTime = Math.min(endTime, maxAllowedTime);
 
@@ -309,15 +391,31 @@
     }
 
     function startCBT() {
-        document.documentElement.requestFullscreen().then(() => {
+        const enterExam = () => {
             $('#pre-exam-screen').addClass('hidden');
             $('#cbt-engine').removeClass('hidden');
             jumpTo(1);
             startTimer();
             initAntiCheat();
-        }).catch(() => {
-            Swal.fire({ icon: 'error', title: 'Akses Ditolak', text: 'Harap izinkan mode Fullscreen untuk memulai ujian.', customClass: { popup: 'rounded-[2.5rem]' } });
-        });
+        };
+
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().then(enterExam).catch(() => {
+                // If failed (common on some mobile browsers), allow entry but warn
+                enterExam();
+                Swal.fire({ 
+                    icon: 'warning', 
+                    title: 'Peringatan Layar', 
+                    text: 'Browser Anda tidak mendukung mode layar penuh otomatis. Harap tetap fokus pada halaman ujian.', 
+                    timer: 3000,
+                    showConfirmButton: false,
+                    customClass: { popup: 'rounded-[2.5rem]' } 
+                });
+            });
+        } else {
+            // No fullscreen support (iOS Safari)
+            enterExam();
+        }
     }
 
     function jumpTo(qNo) {
@@ -327,20 +425,85 @@
         $('#btn-prev').prop('disabled', currentQ === 1);
         $('#btn-next').prop('disabled', currentQ === totalQuestions);
         $('#progress-text').text(`Soal ${currentQ} / ${totalQuestions}`);
+        
         $('.q-nav-btn').removeClass('ring-8 ring-indigo-50 border-indigo-600 scale-110');
-        $(`#nav-btn-${qNo}`).addClass('ring-8 ring-indigo-50 border-indigo-600 scale-110');
+        $(`#nav-btn-desktop-${qNo}, #nav-btn-mobile-${qNo}`).addClass('ring-8 ring-indigo-50 border-indigo-600 scale-110');
         if (window.innerWidth < 1024 && !$('#sidebar-nav').hasClass('translate-x-full')) toggleNav();
     }
 
     function nextQuestion() { if(currentQ < totalQuestions) jumpTo(currentQ + 1); }
     function prevQuestion() { if(currentQ > 1) jumpTo(currentQ - 1); }
 
-    function saveAnswer(questionId, optionId, qNo, isMultiple = false) {
-        const isDoubt = $(`.doubt-checkbox[data-no="${qNo}"]`).is(':checked');
-        let btn = $(`#nav-btn-${qNo}`);
-        btn.removeClass('bg-slate-50 border-transparent text-slate-300').addClass(isDoubt ? 'bg-amber-500 border-amber-500 text-white shadow-amber-200' : 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-100');
+    function updateNavColorLocal(qNo) {
+        const panel = $(`#q-panel-${qNo}`);
+        const isDoubt = panel.find('.doubt-checkbox').is(':checked');
+        const hasAnswer = checkHasAnswer(panel.data('qid'));
+        const btn = $(`#nav-btn-desktop-${qNo}, #nav-btn-mobile-${qNo}`);
         
-        let panel = $(`#q-panel-${qNo}`);
+        if (hasAnswer) {
+            btn.removeClass('bg-slate-50 border-slate-100 text-slate-300');
+            if (isDoubt) {
+                btn.removeClass('bg-indigo-600').addClass('bg-amber-500 border-amber-500 shadow-amber-200 animate-pulse');
+            } else {
+                btn.removeClass('bg-amber-500 shadow-amber-200 animate-pulse').addClass('bg-indigo-600 border-indigo-600 shadow-indigo-100 text-white');
+            }
+        } else {
+            btn.removeClass('bg-indigo-600 bg-amber-500 shadow-amber-200 shadow-indigo-100 animate-pulse text-white').addClass('bg-slate-50 border-slate-100 text-slate-300');
+        }
+    }
+
+    function toggleDoubtLocal(qNo) {
+        const panel = $(`#q-panel-${qNo}`);
+        const qid = panel.data('qid');
+        const isChecked = panel.find('.doubt-checkbox').is(':checked');
+        
+        panel.data('doubtful', isChecked ? 1 : 0);
+        
+        $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
+            _token: '{{ csrf_token() }}',
+            question_id: qid,
+            is_doubtful: isChecked ? 1 : 0
+        }).done(() => {
+            const btn = $(`#nav-btn-desktop-${qNo}, #nav-btn-mobile-${qNo}`);
+            if (isChecked) {
+                btn.removeClass('bg-indigo-600').addClass('bg-amber-500 border-amber-500 shadow-amber-200 animate-pulse');
+            } else {
+                const hasAnswer = checkHasAnswer(qid);
+                if (hasAnswer) {
+                    btn.removeClass('bg-amber-500 shadow-amber-200 animate-pulse').addClass('bg-indigo-600 border-indigo-600 shadow-indigo-100');
+                } else {
+                    btn.removeClass('bg-amber-500 shadow-amber-200 animate-pulse').addClass('bg-slate-50 border-slate-100 text-slate-300');
+                }
+            }
+        });
+    }
+
+    function checkHasAnswer(qid) {
+        const panel = $(`.question-panel[data-qid="${qid}"]`);
+        const type = panel.find('.options-grid, .matching-grid, textarea').length > 0;
+        
+        if (panel.find('input[type="radio"]:checked, input[type="checkbox"]:checked').length > 0) return true;
+        if (panel.find('textarea').val()?.trim() !== '') return true;
+        
+        let matchingAnswered = true;
+        panel.find('.matching-select').each(function() {
+            if ($(this).val() === '') matchingAnswered = false;
+        });
+        if (panel.find('.matching-select').length > 0 && matchingAnswered) return true;
+
+        return false;
+    }
+
+    function saveAnswer(questionId, optionId, qNo, isMultiple = false) {
+        const panel = $(`#q-panel-${qNo}`);
+        const isDoubt = panel.find('.doubt-checkbox').is(':checked');
+        let btn = $(`#nav-btn-desktop-${qNo}, #nav-btn-mobile-${qNo}`);
+        
+        // Update local data attribute
+        $(`#q-panel-${qNo}`).data('doubtful', isDoubt ? 1 : 0);
+
+        btn.removeClass('bg-slate-50 border-transparent text-slate-300').addClass(isDoubt ? 'bg-amber-500 border-amber-500 text-white shadow-amber-200 animate-pulse' : 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-100');
+        
         if(!isMultiple) {
             panel.find('.option-label').removeClass('border-indigo-600 bg-indigo-50/50 shadow-2xl shadow-indigo-100/50').addClass('border-slate-50 bg-slate-50/30');
         }
@@ -359,7 +522,12 @@
     }
 
     function saveMatchingAnswer(questionId, qNo) {
-        const isDoubt = $(`.doubt-checkbox[data-no="${qNo}"]`).is(':checked');
+        const panel = $(`#q-panel-${qNo}`);
+        const isDoubt = panel.find('.doubt-checkbox').is(':checked');
+        
+        // Update local data attribute
+        $(`#q-panel-${qNo}`).data('doubtful', isDoubt ? 1 : 0);
+
         let answers = [];
         $(`#q-panel-${qNo} .matching-select`).each(function() {
             answers.push({
@@ -375,11 +543,22 @@
             is_doubtful: isDoubt ? 1 : 0
         });
         
-        $(`#nav-btn-${qNo}`).addClass('bg-indigo-600 border-indigo-600 text-white shadow-indigo-100');
+        const btn = $(`#nav-btn-desktop-${qNo}, #nav-btn-mobile-${qNo}`);
+        btn.removeClass('bg-slate-50 border-transparent text-slate-300');
+        if (isDoubt) {
+            btn.removeClass('bg-indigo-600').addClass('bg-amber-500 border-amber-500 text-white shadow-amber-200 animate-pulse');
+        } else {
+            btn.removeClass('bg-amber-500 shadow-amber-200 animate-pulse').addClass('bg-indigo-600 border-indigo-600 text-white shadow-indigo-100');
+        }
     }
 
     function saveEssayAnswer(questionId, qNo) {
-        const isDoubt = $(`.doubt-checkbox[data-no="${qNo}"]`).is(':checked');
+        const panel = $(`#q-panel-${qNo}`);
+        const isDoubt = panel.find('.doubt-checkbox').is(':checked');
+        
+        // Update local data attribute
+        $(`#q-panel-${qNo}`).data('doubtful', isDoubt ? 1 : 0);
+
         const text = $(`textarea[name="answer_${questionId}"]`).val();
         
         $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
@@ -389,10 +568,16 @@
             is_doubtful: isDoubt ? 1 : 0
         });
 
+        const btn = $(`#nav-btn-desktop-${qNo}, #nav-btn-mobile-${qNo}`);
         if (text.trim() !== '') {
-            $(`#nav-btn-${qNo}`).addClass('bg-indigo-600 border-indigo-600 text-white shadow-indigo-100');
+            btn.removeClass('bg-slate-50 border-transparent text-slate-300');
+            if (isDoubt) {
+                btn.removeClass('bg-indigo-600').addClass('bg-amber-500 border-amber-500 text-white shadow-amber-200 animate-pulse');
+            } else {
+                btn.removeClass('bg-amber-500 shadow-amber-200 animate-pulse').addClass('bg-indigo-600 border-indigo-600 text-white shadow-indigo-100');
+            }
         } else {
-            $(`#nav-btn-${qNo}`).removeClass('bg-indigo-600 border-indigo-600 text-white shadow-indigo-100').addClass('bg-slate-50 border-transparent text-slate-300');
+            btn.removeClass('bg-indigo-600 bg-amber-500 shadow-amber-200 animate-pulse text-white').addClass('bg-slate-50 border-slate-100 text-slate-300');
         }
     }
 
@@ -424,6 +609,10 @@
 
     function reportViolation() {
         $.post('{{ route("student.cbt.report-violation", $exam->id) }}', { _token: '{{ csrf_token() }}' }).done(res => {
+            if (res.violation_count !== undefined) {
+                $('#violation-count').text(res.violation_count);
+            }
+            
             if (res.action === 'force_submit') {
                 Swal.fire({ icon: 'error', title: 'DISKUALIFIKASI', text: res.message, showConfirmButton: false, allowOutsideClick: false, customClass: { popup: 'rounded-[2.5rem]' } });
                 setTimeout(() => forceSubmitExam(), 2000);

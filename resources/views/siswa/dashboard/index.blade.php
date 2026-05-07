@@ -41,83 +41,104 @@
     @endphp
 
     <!-- TOP HEADER SECTION -->
-    <div class="header-banner bg-grad-indigo pt-10 pb-24 px-6 relative overflow-hidden">
+    <div class="header-banner bg-grad-indigo pt-12 pb-32 px-6 relative overflow-hidden">
         <div class="max-w-7xl mx-auto relative z-10">
-            <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
-                <div class="flex items-center space-x-6">
-                    <div class="profile-frame p-1 rounded-[2rem] bg-white/20 backdrop-blur-md">
-                        @if($student->profile && $student->profile->foto)
-                            <img src="{{ asset('storage/' . $student->profile->foto) }}" class="w-20 h-20 rounded-[1.8rem] object-cover shadow-2xl border-2 border-white/50">
-                        @else
-                            <div class="w-20 h-20 bg-white/20 rounded-[1.8rem] flex items-center justify-center border-2 border-white/50 shadow-2xl backdrop-blur-md">
-                                <span class="text-3xl font-black text-white">{{ substr($student->nama_lengkap, 0, 2) }}</span>
-                            </div>
-                        @endif
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0">
+                <div class="flex items-center space-x-6 md:space-x-8">
+                    <div class="relative group">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-[2.2rem] blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
+                        <div class="profile-frame relative p-1 rounded-[2.2rem] bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl">
+                            @if($student->profile && $student->profile->foto)
+                                <img src="{{ asset('storage/' . $student->profile->foto) }}" class="w-24 h-24 md:w-28 md:h-28 rounded-[2rem] object-cover border-2 border-white/50">
+                            @else
+                                <div class="w-24 h-24 md:w-28 md:h-28 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[2rem] flex items-center justify-center border-2 border-white/50 shadow-2xl backdrop-blur-md">
+                                    <span class="text-4xl font-black text-white">{{ substr($student->nama_lengkap, 0, 1) }}</span>
+                                </div>
+                            @endif
+                        </div>
                     </div>
                     <div class="text-white text-center md:text-left">
-                        <span class="bg-white/20 backdrop-blur-md text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest mb-2 inline-block">{{ $greeting }}</span>
-                        <h1 class="text-3xl font-black tracking-tight leading-tight">{{ $student->nama_lengkap }}</h1>
-                        <p class="text-white/70 text-xs font-bold mt-1"><i class="fas fa-id-card mr-2"></i> {{ $student->nisn }} • {{ $student->classGroup->group_name ?? '-' }}</p>
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
+                            <span class="bg-indigo-500/40 backdrop-blur-md text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-lg">{{ $greeting }}</span>
+                            <span class="bg-emerald-500/40 backdrop-blur-md text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-lg">Siswa Aktif</span>
+                        </div>
+                        <h1 class="text-3xl md:text-5xl font-black tracking-tighter leading-none mb-3">{{ $student->nama_lengkap }}</h1>
+                        <div class="flex items-center justify-center md:justify-start space-x-4 text-white/70 text-[10px] md:text-xs font-black uppercase tracking-widest">
+                            <span class="flex items-center"><i class="fas fa-id-card mr-2 text-indigo-400"></i> {{ $student->nisn }}</span>
+                            <span class="w-1 h-1 bg-white/30 rounded-full"></span>
+                            <span class="flex items-center"><i class="fas fa-layer-group mr-2 text-indigo-400"></i> {{ $student->classGroup->group_name ?? '-' }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex space-x-3">
-                    <div class="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/10 text-center min-w-[100px]">
-                        <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Status</span>
-                        <span class="text-xs font-black text-white bg-indigo-500/80 px-3 py-1 rounded-full border border-indigo-400">SISWA AKTIF</span>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden lg:flex flex-col items-end bg-white/5 backdrop-blur-md px-6 py-3 rounded-[2rem] border border-white/10 shadow-2xl">
+                        <span class="text-[9px] font-black text-white/50 uppercase tracking-widest mb-1">Tahun Pelajaran</span>
+                        <span class="text-sm font-black text-white">{{ $student->academicYear->year ?? '-' }}</span>
                     </div>
-                    <button onclick="confirmLogout()" class="w-14 h-14 bg-white/10 backdrop-blur-md rounded-3xl border border-white/10 text-white hover:bg-rose-500 transition-all flex items-center justify-center shadow-xl">
-                        <i class="fas fa-power-off text-lg"></i>
+                    <button onclick="confirmLogout()" class="w-14 h-14 md:w-16 md:h-16 bg-white/10 backdrop-blur-md rounded-[1.8rem] border border-white/10 text-white hover:bg-rose-500 hover:border-rose-400 transition-all flex items-center justify-center shadow-2xl active:scale-90 group">
+                        <i class="fas fa-power-off text-xl group-hover:scale-110 transition-transform"></i>
                     </button>
-                    <form id="logout-form-dashboard" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
                 </div>
             </div>
         </div>
         
-        <!-- Decoration -->
-        <div class="absolute right-[-50px] top-[-50px] w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-        <div class="absolute left-[-30px] bottom-[-30px] w-48 h-48 bg-indigo-400/10 rounded-full blur-2xl"></div>
+        <!-- Animated Background Elements -->
+        <div class="absolute right-[-100px] top-[-100px] w-96 h-96 bg-white/10 rounded-full blur-[100px] animate-pulse"></div>
+        <div class="absolute left-[-50px] bottom-[-50px] w-64 h-64 bg-indigo-500/20 rounded-full blur-[80px]"></div>
     </div>
 
     <!-- MAIN CONTENT AREA -->
-    <div class="max-w-7xl mx-auto px-6 -mt-12 relative z-20">
+    <div class="max-w-7xl mx-auto px-6 -mt-16 relative z-20">
         
         <!-- KPI SECTION - VIBRANT GRID -->
-        <div class="row g-4 mb-10">
-            <div class="col-6 col-md-3">
-                <div class="kpi-card bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-50 relative overflow-hidden group hover:-translate-y-2 transition-all duration-300">
-                    <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                        <i class="fas fa-calendar-check"></i>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-12">
+            <div class="group">
+                <div class="bg-white p-6 md:p-8 rounded-[3rem] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] border border-slate-50 relative overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_30px_60px_-15px_rgba(99,102,241,0.2)]">
+                    <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-inner">
+                        <i class="fas fa-calendar-check text-xl"></i>
                     </div>
-                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Hadir</span>
-                    <h3 class="text-2xl font-black text-slate-800 mb-0">{{ $attendanceStats['H'] }} <small class="text-[10px] text-slate-400">Hari</small></h3>
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Hadir</span>
+                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">{{ $attendanceStats['H'] }} <small class="text-xs text-slate-300 font-bold uppercase ml-1">Hari</small></h3>
+                    <div class="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <i class="fas fa-calendar-check fa-4x"></i>
+                    </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="kpi-card bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-50 relative overflow-hidden group hover:-translate-y-2 transition-all duration-300">
-                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
-                        <i class="fas fa-book-open"></i>
+            <div class="group">
+                <div class="bg-white p-6 md:p-8 rounded-[3rem] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] border border-slate-50 relative overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_30px_60px_-15px_rgba(16,185,129,0.2)]">
+                    <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500 shadow-inner">
+                        <i class="fas fa-book-open text-xl"></i>
                     </div>
-                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Jadwal</span>
-                    <h3 class="text-2xl font-black text-slate-800 mb-0">{{ $todaySchedule->count() }} <small class="text-[10px] text-slate-400">Mapel</small></h3>
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Mata Pelajaran</span>
+                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">{{ $todaySchedule->count() }} <small class="text-xs text-slate-300 font-bold uppercase ml-1">Aktif</small></h3>
+                    <div class="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <i class="fas fa-book-open fa-4x"></i>
+                    </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="kpi-card bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-50 relative overflow-hidden group hover:-translate-y-2 transition-all duration-300">
-                    <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-sm">
-                        <i class="fas fa-medal"></i>
+            <div class="group">
+                <div class="bg-white p-6 md:p-8 rounded-[3rem] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] border border-slate-50 relative overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_30px_60px_-15px_rgba(245,158,11,0.2)]">
+                    <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500 shadow-inner">
+                        <i class="fas fa-medal text-xl"></i>
                     </div>
-                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Poin Akhlak</span>
-                    <h3 class="text-2xl font-black text-slate-800 mb-0">{{ $netPoints }} <small class="text-[10px] text-slate-400">PTS</small></h3>
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Poin Karakter</span>
+                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">{{ $netPoints }} <small class="text-xs text-slate-300 font-bold uppercase ml-1">PTS</small></h3>
+                    <div class="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <i class="fas fa-medal fa-4x"></i>
+                    </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="kpi-card bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-50 relative overflow-hidden group hover:-translate-y-2 transition-all duration-300">
-                    <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-sm">
-                        <i class="fas fa-chart-pie"></i>
+            <div class="group">
+                <div class="bg-white p-6 md:p-8 rounded-[3rem] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] border border-slate-50 relative overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_30px_60px_-15px_rgba(244,63,94,0.2)]">
+                    <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-rose-600 group-hover:text-white transition-all duration-500 shadow-inner">
+                        <i class="fas fa-chart-pie text-xl"></i>
                     </div>
-                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Presensi</span>
-                    <h3 class="text-2xl font-black text-slate-800 mb-0">{{ $attPercentage }} <small class="text-[10px] text-slate-400">%</small></h3>
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Persentase Absen</span>
+                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">{{ $attPercentage }}<small class="text-lg text-slate-300 font-black ml-1">%</small></h3>
+                    <div class="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <i class="fas fa-chart-pie fa-4x"></i>
+                    </div>
                 </div>
             </div>
         </div>
