@@ -348,7 +348,52 @@
         if(input.is(':checked')) {
             input.closest('.option-label').addClass('border-indigo-600 bg-indigo-50/50 shadow-2xl shadow-indigo-100/50').removeClass('border-slate-50 bg-slate-50/30');
         }
-        $.post('{{ url("/siswa/cbt/${examId}/save-answer") }}', { _token: '{{ csrf_token() }}', question_id: questionId, option_id: optionId, is_doubtful: isDoubt ? 1 : 0 });
+        $.post('{{ route("student.cbt.save-answer", $exam->id) }}', { 
+            _token: '{{ csrf_token() }}', 
+            question_id: questionId, 
+            option_id: optionId, 
+            is_doubtful: isDoubt ? 1 : 0 
+        }).fail(function() {
+            console.error("Gagal menyimpan jawaban");
+        });
+    }
+
+    function saveMatchingAnswer(questionId, qNo) {
+        const isDoubt = $(`.doubt-checkbox[data-no="${qNo}"]`).is(':checked');
+        let answers = [];
+        $(`#q-panel-${qNo} .matching-select`).each(function() {
+            answers.push({
+                premise: $(this).data('premise'),
+                response: $(this).val()
+            });
+        });
+
+        $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
+            _token: '{{ csrf_token() }}',
+            question_id: questionId,
+            matching_answers: answers,
+            is_doubtful: isDoubt ? 1 : 0
+        });
+        
+        $(`#nav-btn-${qNo}`).addClass('bg-indigo-600 border-indigo-600 text-white shadow-indigo-100');
+    }
+
+    function saveEssayAnswer(questionId, qNo) {
+        const isDoubt = $(`.doubt-checkbox[data-no="${qNo}"]`).is(':checked');
+        const text = $(`textarea[name="answer_${questionId}"]`).val();
+        
+        $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
+            _token: '{{ csrf_token() }}',
+            question_id: questionId,
+            answer_text: text,
+            is_doubtful: isDoubt ? 1 : 0
+        });
+
+        if (text.trim() !== '') {
+            $(`#nav-btn-${qNo}`).addClass('bg-indigo-600 border-indigo-600 text-white shadow-indigo-100');
+        } else {
+            $(`#nav-btn-${qNo}`).removeClass('bg-indigo-600 border-indigo-600 text-white shadow-indigo-100').addClass('bg-slate-50 border-transparent text-slate-300');
+        }
     }
 
     function finishExam() {
@@ -378,7 +423,7 @@
     }
 
     function reportViolation() {
-        $.post('{{ url("/siswa/cbt/${examId}/report-violation") }}', { _token: '{{ csrf_token() }}' }).done(res => {
+        $.post('{{ route("student.cbt.report-violation", $exam->id) }}', { _token: '{{ csrf_token() }}' }).done(res => {
             if (res.action === 'force_submit') {
                 Swal.fire({ icon: 'error', title: 'DISKUALIFIKASI', text: res.message, showConfirmButton: false, allowOutsideClick: false, customClass: { popup: 'rounded-[2.5rem]' } });
                 setTimeout(() => forceSubmitExam(), 2000);

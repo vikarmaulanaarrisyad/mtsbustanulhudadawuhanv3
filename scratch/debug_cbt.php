@@ -8,13 +8,15 @@ use App\Models\CbtExam;
 use App\Models\Student;
 use Carbon\Carbon;
 
-$studentUser = \App\Models\User::find(11);
-if ($studentUser) {
-    echo "User ID 11: " . $studentUser->name . "\n";
-    $student = Student::where('user_id', 11)->first();
-    if ($student) {
-        echo "Student ID: " . $student->id . " | ClassID: '" . $student->student_class_group_id . "'\n";
+$registrant = \App\Models\PpdbRegistrant::first();
+if ($registrant) {
+    echo "Registrant found! UserID: " . $registrant->user_id . "\n";
+    $user = \App\Models\User::find($registrant->user_id);
+    if ($user) {
+        echo "Username: " . $user->username . "\n";
     }
+} else {
+    echo "No registrant found in DB.\n";
 }
 
 $today = Carbon::today()->toDateString();

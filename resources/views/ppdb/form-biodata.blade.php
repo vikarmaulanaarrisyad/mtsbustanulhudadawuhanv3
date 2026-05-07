@@ -1,13 +1,13 @@
 {{-- FORM BIODATA PPDB --}}
-<div class="ppdb-card border-0 shadow-sm" style="border-radius: 20px; overflow: hidden;">
-    <div class="card-header bg-white border-0 py-4 px-4">
+<div class="glass-card border-0 shadow-2xl mb-8" style="border-radius: 2.5rem; overflow: hidden; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);">
+    <div class="card-header bg-white/50 border-0 py-6 px-8">
         <div class="d-flex align-items-center">
-            <div class="bg-primary-light text-primary rounded-lg p-2 mr-3 d-flex align-items-center justify-content-center" style="width: 46px; height: 46px; border-radius: 12px !important;">
+            <div class="bg-indigo-soft text-indigo-600 rounded-2xl p-3 mr-4 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; border-radius: 1.25rem !important; background: rgba(99, 102, 241, 0.1);">
                 <i class="fas fa-edit fa-lg"></i>
             </div>
             <div>
-                <h5 class="mb-0 font-weight-bold" style="color: #1e293b; letter-spacing: -0.5px;">{{ isset($registrant) ? 'Perbarui Data Pendaftaran' : 'Formulir Pendaftaran' }}</h5>
-                <p class="text-muted mb-0 small">Silakan isi informasi calon siswa dengan lengkap</p>
+                <h4 class="mb-0 font-weight-bold" style="color: #1e1b4b; letter-spacing: -0.5px;">{{ isset($registrant) ? 'Perbarui Data Pendaftaran' : 'Formulir Pendaftaran' }}</h4>
+                <p class="text-muted mb-0 small font-medium">Silakan isi informasi calon siswa dengan lengkap</p>
             </div>
         </div>
     </div>
@@ -185,14 +185,14 @@
                 </div>
             </div>
 
-            <div class="submit-section mt-5 p-4 rounded-xl shadow-sm border" style="background: #f8fafc; border-radius: 16px;">
+            <div class="submit-section mt-10 p-6 rounded-3xl shadow-xl border-0" style="background: rgba(248, 250, 252, 0.8); backdrop-filter: blur(10px); border-radius: 1.5rem;">
                 <div class="row align-items-center">
                     <div class="col-md-8 text-muted small mb-4 mb-md-0 d-flex">
-                        <i class="fas fa-shield-alt fa-2x mr-3 text-primary opacity-50"></i>
-                        <span>Pastikan data yang Anda isi sudah benar sebelum melanjutkan ke tahap berikutnya (Unggah Berkas).</span>
+                        <i class="fas fa-shield-alt fa-3x mr-4 text-indigo-600 opacity-40"></i>
+                        <span class="font-medium">Pastikan data yang Anda isi sudah benar sebelum melanjutkan ke tahap berikutnya. Data yang sudah diverifikasi tidak dapat diubah kembali tanpa bantuan admin.</span>
                     </div>
                     <div class="col-md-4 text-right">
-                        <button type="submit" class="btn btn-primary btn-block py-3 font-weight-bold" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);" id="btnSubmitBiodata">
+                        <button type="submit" class="btn bg-grad-indigo text-white btn-block py-4 font-bold" style="border-radius: 1rem; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);" id="btnSubmitBiodata">
                             {{ isset($registrant) ? 'Simpan Perubahan' : 'Lanjut Unggah Berkas' }} <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
@@ -244,50 +244,53 @@
         max-width: 60px;
     }
     .registration-stepper .step.active .step-num {
-        background: #3b82f6;
+        background: linear-gradient(135deg, #6366f1, #4338ca);
         color: white;
-        border-color: #3b82f6;
-        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        border-color: #6366f1;
+        box-shadow: 0 8px 15px rgba(99, 102, 241, 0.3);
     }
     .registration-stepper .step.active .step-text {
-        color: #1e293b;
+        color: #4338ca;
+        font-weight: 800;
     }
 
     /* Clean Form Elements */
     .form-section-header {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
-        color: #3b82f6;
-        font-weight: 800;
-        margin-bottom: 20px;
-        padding-bottom: 8px;
-        border-bottom: 2px solid #eff6ff;
+        letter-spacing: 2px;
+        color: #4f46e5;
+        font-weight: 900;
+        margin-bottom: 25px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid rgba(99, 102, 241, 0.1);
         display: inline-block;
     }
     .form-label-clean {
         font-size: 0.85rem;
-        font-weight: 600;
-        color: #475569;
-        margin-bottom: 8px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 10px;
+        display: block;
     }
     .form-control-clean {
         display: block;
         width: 100%;
-        padding: 12px 16px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: #1e293b;
+        padding: 14px 20px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1e1b4b;
         background-color: #f8fafc;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 12px;
-        transition: all 0.2s;
+        border: 2px solid #f1f5f9;
+        border-radius: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .form-control-clean:focus {
         outline: none;
         background-color: #fff;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        border-color: #6366f1;
+        box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.15);
+        transform: translateY(-2px);
     }
     .custom-select-clean {
         appearance: none;
@@ -298,21 +301,21 @@
     }
     .file-upload-trigger {
         display: block;
-        padding: 12px 16px;
+        padding: 14px 20px;
         background: #fff;
-        border: 1.5px dashed #cbd5e1;
-        border-radius: 12px;
-        color: #64748b;
-        font-size: 0.85rem;
-        font-weight: 600;
+        border: 2px dashed #e2e8f0;
+        border-radius: 1rem;
+        color: #6366f1;
+        font-size: 0.9rem;
+        font-weight: 700;
         text-align: center;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s;
     }
     .file-upload-trigger:hover {
-        border-color: #3b82f6;
-        background: #f0f9ff;
-        color: #3b82f6;
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.05);
+        transform: translateY(-2px);
     }
 </style>
 

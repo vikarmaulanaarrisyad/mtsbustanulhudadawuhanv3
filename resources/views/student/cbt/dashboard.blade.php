@@ -133,6 +133,12 @@
                                                 <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 block">HASIL UJIAN</span>
                                                 <div class="text-3xl font-black text-emerald-600">{{ number_format($studentExam->final_score, 1) }}</div>
                                             </div>
+                                        @elseif($status === 'doing')
+                                            <div class="flex flex-col gap-3 w-full md:w-auto">
+                                                <a href="{{ route('student.cbt.exam', $exam->id) }}" class="w-full bg-amber-500 text-white rounded-2xl py-4 px-10 font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl shadow-amber-100 flex items-center justify-center">
+                                                    LANJUTKAN UJIAN <i class="fas fa-play ml-3"></i>
+                                                </a>
+                                            </div>
                                         @else
                                             <form action="{{ route('student.cbt.join', $exam->id) }}" method="POST" class="flex flex-col gap-3 w-full md:w-auto">
                                                 @csrf

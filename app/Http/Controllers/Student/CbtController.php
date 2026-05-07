@@ -40,7 +40,7 @@ class CbtController extends Controller
         $student = Student::where('user_id', Auth::id())->firstOrFail();
 
         // Validasi Token
-        if (strtoupper($request->token) !== $exam->token) {
+        if (strtoupper(trim($request->token)) !== $exam->token) {
             return back()->with('error', 'Token Ujian tidak valid!');
         }
 
@@ -107,6 +107,9 @@ class CbtController extends Controller
             ],
             [
                 'cbt_option_id' => $request->option_id,
+                'selected_options' => $request->selected_options,
+                'matching_answers' => $request->matching_answers,
+                'answer_text' => $request->answer_text,
                 'is_doubtful' => $request->is_doubtful ?? false
             ]
         );

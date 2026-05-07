@@ -18,22 +18,23 @@
 
     @elseif($registrant || $ppdbOpen)
         {{-- PROGRESS STEPPER GLOBAL (HANYA UNTUK PENDAFTAR BELUM JADI SISWA) --}}
-        <div class="stu-card mb-4 overflow-hidden border-0 shadow-sm" style="border-radius: 20px;">
+        {{-- PREMIUM STEPPER (REFINED) --}}
+        <div class="glass-card mb-6 overflow-hidden border-0 shadow-lg" style="border-radius: 2.5rem; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px);">
             <div class="card-body p-0">
-                <div class="p-4" style="background: linear-gradient(135deg, #0b8c89 0%, #15b3af 100%);">
+                <div class="p-6 bg-grad-indigo">
                     <div class="d-flex justify-content-between align-items-center text-white">
                         <div>
-                            <h5 class="mb-1 font-weight-bold">Halo, {{ $user->name }}!</h5>
+                            <h4 class="mb-1 font-weight-bold">Halo, {{ $user->name }}!</h4>
                             <p class="mb-0 opacity-75 small"><i class="fas fa-map-marker-alt mr-1"></i> Selamat datang di portal pendaftaran madrasah digital.</p>
                         </div>
                         <div class="text-right">
-                            <span class="badge badge-light px-3 py-2 rounded-pill font-weight-bold" style="color: #0b8c89; font-size: 11px;">
+                            <span class="badge badge-light px-4 py-2 rounded-pill font-weight-bold text-indigo-600" style="font-size: 11px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                                 @if($currentStep == 1) TAHAP 1: BIODATA @elseif($currentStep == 2) TAHAP 2: BERKAS @elseif($currentStep == 3) TAHAP 3: SELEKSI @else TAHAP 4: PENGUMUMAN @endif
                             </span>
                         </div>
                     </div>
                 </div>
-                <div class="p-4 bg-white">
+                <div class="p-6">
                     <div class="ppdb-main-stepper d-flex align-items-center justify-content-between">
                         <div class="step-item {{ $currentStep >= 1 ? 'active' : '' }}">
                             <div class="step-icon"><i class="fas fa-user-edit"></i></div>
@@ -64,24 +65,25 @@
             .ppdb-main-stepper .step-icon { width: 45px; height: 45px; border-radius: 14px; background: #f1f5f9; color: #94a3b8; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 8px; transition: 0.4s; border: 2px solid #e2e8f0; }
             .ppdb-main-stepper .step-label { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
             .ppdb-main-stepper .step-line { flex: 1; height: 4px; background: #f1f5f9; margin-top: -30px; border-radius: 10px; position: relative; z-index: 1; }
-            .ppdb-main-stepper .step-item.active .step-icon { background: #0b8c89; color: white; border-color: #0b8c89; box-shadow: 0 5px 15px rgba(11, 140, 137, 0.25); }
-            .ppdb-main-stepper .step-item.active .step-label { color: #0b8c89; }
-            .ppdb-main-stepper .step-line.active { background: #0b8c89; }
+            .ppdb-main-stepper .step-item.active .step-icon { background: #6366f1; color: white; border-color: #6366f1; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); transform: scale(1.1); }
+            .ppdb-main-stepper .step-item.active .step-label { color: #6366f1; font-weight: 900; }
+            .ppdb-main-stepper .step-line.active { background: #6366f1; }
         </style>
 
         @if(!$registrant)
         {{-- PREMIUM HEADER FOR APPLICANTS --}}
-        <div class="stu-new-header mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+        {{-- PREMIUM HEADER FOR APPLICANTS --}}
+        <div class="stu-new-header mb-6">
+            <div class="d-flex justify-content-between align-items-center mb-6">
                 <div class="d-flex align-items-center">
-                    <div class="stu-avatar-box mr-3">
+                    <div class="stu-avatar-box mr-4">
                         <div class="stu-avatar-text">{{ substr($user->name, 0, 2) }}</div>
                     </div>
                     <div>
-                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 11px; letter-spacing: 1px;">CALON SISWA BARU</p>
-                        <h4 class="text-white font-weight-bold mb-1">{{ $user->name }}</h4>
+                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 11px; letter-spacing: 1.5px;">CALON SISWA BARU</p>
+                        <h3 class="text-white font-weight-bold mb-1">{{ $user->name }}</h3>
                         <div class="d-flex align-items-center">
-                            <span class="stu-dot mr-1" style="background: #fbbf24;"></span>
+                            <span class="stu-dot mr-2" style="background: #fbbf24; box-shadow: 0 0 12px #fbbf24;"></span>
                             <span class="text-white-50 font-weight-bold text-uppercase" style="font-size: 10px;">PROSES PENDAFTARAN</span>
                         </div>
                     </div>
@@ -89,21 +91,21 @@
                 <div class="d-flex align-items-center">
                     <form action="{{ route('logout') }}" method="POST" id="logout-form-main" class="d-inline">
                         @csrf
-                        <div class="stu-header-icon bg-danger-soft" onclick="confirmLogout()">
+                        <div class="stu-header-icon bg-danger-soft hover-scale" onclick="confirmLogout()">
                             <i class="fas fa-power-off"></i>
                         </div>
                     </form>
                 </div>
             </div>
             
-            <div class="stu-stat-new glass-card w-100 py-3">
+            <div class="stu-stat-new glass-card w-100 py-4 px-6">
                 <div class="d-flex align-items-center">
-                    <div class="stu-stat-icon-box bg-white-soft mr-3">
+                    <div class="stu-stat-icon-box bg-white-soft mr-4">
                         <i class="fas fa-id-card"></i>
                     </div>
                     <div>
-                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 10px;">ID PENDAFTARAN</p>
-                        <h5 class="text-white font-weight-bold mb-0">BARU / {{ now()->year }}</h5>
+                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 10px; letter-spacing: 1px;">ID PENDAFTARAN</p>
+                        <h4 class="text-white font-weight-bold mb-0">BARU / {{ now()->year }}</h4>
                     </div>
                 </div>
             </div>
@@ -111,31 +113,32 @@
 
         <div class="stu-content-wrapper">
             {{-- PREMIUM BANNER SLIDER --}}
+            {{-- PREMIUM BANNER SLIDER --}}
             <div class="stu-banner-wrapper">
-                <div id="bannerCarouselApp" class="carousel slide stu-banner-card" data-ride="carousel">
+                <div id="bannerCarouselApp" class="carousel slide stu-banner-card shadow-2xl" data-ride="carousel" style="border-radius: 2.5rem;">
                     <ol class="carousel-indicators">
                         @php $totalSlides = $announcements->count(); @endphp
                         @for($i = 0; $i < ($totalSlides ?: 1); $i++)
                             <li data-target="#bannerCarouselApp" data-slide-to="{{ $i }}" class="{{ $i == 0 ? 'active' : '' }}"></li>
                         @endfor
                     </ol>
-                    <div class="carousel-inner">
+                    <div class="carousel-inner h-100">
                         @if($announcements->isNotEmpty())
                             @foreach($announcements as $idx => $ann)
-                                <div class="carousel-item {{ $idx == 0 ? 'active' : '' }}">
-                                    <div class="stu-banner-item" style="background: linear-gradient(135deg, {{ $idx % 2 == 0 ? '#065f46, #10b981' : '#1e3a8a, #3b82f6' }});">
-                                        <h3 class="stu-banner-title">{{ $ann->title }}</h3>
-                                        <p class="stu-banner-text">{{ strip_tags($ann->content) }}</p>
-                                        <button class="stu-banner-btn" onclick='showAnnouncement(@json($ann))'>Lihat Detail</button>
+                                <div class="carousel-item h-100 {{ $idx == 0 ? 'active' : '' }}">
+                                    <div class="stu-banner-item h-100 d-flex flex-column justify-content-center" style="background: linear-gradient(135deg, {{ $idx % 2 == 0 ? '#4338ca, #6366f1' : '#1e1b4b, #3730a3' }});">
+                                        <h3 class="stu-banner-title font-bold">{{ $ann->title }}</h3>
+                                        <p class="stu-banner-text opacity-90">{{ strip_tags($ann->content) }}</p>
+                                        <button class="stu-banner-btn hover-glow mt-4" onclick='showAnnouncement(@json($ann))'>Lihat Detail</button>
                                     </div>
                                 </div>
                             @endforeach
                         @else
-                            <div class="carousel-item active">
-                                <div class="stu-banner-item">
-                                    <h3 class="stu-banner-title">Selamat Datang di Madrasah Digital</h3>
-                                    <p class="stu-banner-text">Silakan lengkapi pendaftaran Anda untuk bergabung bersama kami.</p>
-                                    <button class="stu-banner-btn">Mulai Pendaftaran</button>
+                            <div class="carousel-item h-100 active">
+                                <div class="stu-banner-item h-100 d-flex flex-column justify-content-center bg-grad-indigo">
+                                    <h3 class="stu-banner-title font-bold">Selamat Datang di Madrasah Digital</h3>
+                                    <p class="stu-banner-text opacity-90">Silakan lengkapi pendaftaran Anda untuk bergabung bersama kami.</p>
+                                    <button class="stu-banner-btn hover-glow mt-4">Mulai Pendaftaran</button>
                                 </div>
                             </div>
                         @endif
@@ -172,17 +175,18 @@
 
     @else
         {{-- PREMIUM HEADER FOR REGISTERED APPLICANTS --}}
-        <div class="stu-new-header mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+        {{-- PREMIUM HEADER FOR REGISTERED APPLICANTS --}}
+        <div class="stu-new-header mb-6">
+            <div class="d-flex justify-content-between align-items-center mb-6">
                 <div class="d-flex align-items-center">
-                    <div class="stu-avatar-box mr-3">
+                    <div class="stu-avatar-box mr-4">
                         <div class="stu-avatar-text">{{ substr($user->name, 0, 2) }}</div>
                     </div>
                     <div>
-                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 11px; letter-spacing: 1px;">PENDAFTAR TERVERIFIKASI</p>
-                        <h4 class="text-white font-weight-bold mb-1">{{ $user->name }}</h4>
+                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 11px; letter-spacing: 1.5px;">PENDAFTAR TERVERIFIKASI</p>
+                        <h3 class="text-white font-weight-bold mb-1">{{ $user->name }}</h3>
                         <div class="d-flex align-items-center">
-                            <span class="stu-dot mr-1"></span>
+                            <span class="stu-dot mr-2" style="background: #10b981; box-shadow: 0 0 12px #10b981;"></span>
                             <span class="text-white-50 font-weight-bold text-uppercase" style="font-size: 10px;">{{ $registrant->public_status_label }}</span>
                         </div>
                     </div>
@@ -190,21 +194,21 @@
                 <div class="d-flex align-items-center">
                     <form action="{{ route('logout') }}" method="POST" id="logout-form-main" class="d-inline">
                         @csrf
-                        <div class="stu-header-icon bg-danger-soft" onclick="confirmLogout()">
+                        <div class="stu-header-icon bg-danger-soft hover-scale" onclick="confirmLogout()">
                             <i class="fas fa-power-off"></i>
                         </div>
                     </form>
                 </div>
             </div>
             
-            <div class="stu-stat-new glass-card w-100 py-3">
+            <div class="stu-stat-new glass-card w-100 py-4 px-6">
                 <div class="d-flex align-items-center">
-                    <div class="stu-stat-icon-box bg-white-soft mr-3">
+                    <div class="stu-stat-icon-box bg-white-soft mr-4">
                         <i class="fas fa-id-badge"></i>
                     </div>
                     <div>
-                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 10px;">NOMOR REGISTRASI</p>
-                        <h5 class="text-white font-weight-bold mb-0">{{ $registrant->registration_number ?? 'MENGALOKASI...' }}</h5>
+                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 10px; letter-spacing: 1px;">NOMOR REGISTRASI</p>
+                        <h4 class="text-white font-weight-bold mb-0">{{ $registrant->registration_number ?? 'MENGALOKASI...' }}</h4>
                     </div>
                 </div>
             </div>
@@ -212,31 +216,32 @@
 
         <div class="stu-content-wrapper">
             {{-- PREMIUM BANNER SLIDER --}}
+            {{-- PREMIUM BANNER SLIDER --}}
             <div class="stu-banner-wrapper">
-                <div id="bannerCarouselReg" class="carousel slide stu-banner-card" data-ride="carousel">
+                <div id="bannerCarouselReg" class="carousel slide stu-banner-card shadow-2xl" data-ride="carousel" style="border-radius: 2.5rem;">
                     <ol class="carousel-indicators">
                         @php $totalSlides = $announcements->count(); @endphp
                         @for($i = 0; $i < ($totalSlides ?: 1); $i++)
                             <li data-target="#bannerCarouselReg" data-slide-to="{{ $i }}" class="{{ $i == 0 ? 'active' : '' }}"></li>
                         @endfor
                     </ol>
-                    <div class="carousel-inner">
+                    <div class="carousel-inner h-100">
                         @if($announcements->isNotEmpty())
                             @foreach($announcements as $idx => $ann)
-                                <div class="carousel-item {{ $idx == 0 ? 'active' : '' }}">
-                                    <div class="stu-banner-item" style="background: linear-gradient(135deg, {{ $idx % 2 == 0 ? '#065f46, #10b981' : '#1e3a8a, #3b82f6' }});">
-                                        <h3 class="stu-banner-title">{{ $ann->title }}</h3>
-                                        <p class="stu-banner-text">{{ strip_tags($ann->content) }}</p>
-                                        <button class="stu-banner-btn" onclick='showAnnouncement(@json($ann))'>Lihat Detail</button>
+                                <div class="carousel-item h-100 {{ $idx == 0 ? 'active' : '' }}">
+                                    <div class="stu-banner-item h-100 d-flex flex-column justify-content-center" style="background: linear-gradient(135deg, {{ $idx % 2 == 0 ? '#4338ca, #6366f1' : '#1e1b4b, #3730a3' }});">
+                                        <h3 class="stu-banner-title font-bold">{{ $ann->title }}</h3>
+                                        <p class="stu-banner-text opacity-90">{{ strip_tags($ann->content) }}</p>
+                                        <button class="stu-banner-btn hover-glow mt-4" onclick='showAnnouncement(@json($ann))'>Lihat Detail</button>
                                     </div>
                                 </div>
                             @endforeach
                         @else
-                            <div class="carousel-item active">
-                                <div class="stu-banner-item">
-                                    <h3 class="stu-banner-title">Selamat Datang di Madrasah Digital</h3>
-                                    <p class="stu-banner-text">Pantau status pendaftaran Anda secara berkala di sini.</p>
-                                    <button class="stu-banner-btn">Lihat Status</button>
+                            <div class="carousel-item h-100 active">
+                                <div class="stu-banner-item h-100 d-flex flex-column justify-content-center bg-grad-indigo">
+                                    <h3 class="stu-banner-title font-bold">Selamat Datang di Madrasah Digital</h3>
+                                    <p class="stu-banner-text opacity-90">Pantau status pendaftaran Anda secara berkala di sini.</p>
+                                    <button class="stu-banner-btn hover-glow mt-4">Lihat Status</button>
                                 </div>
                             </div>
                         @endif
@@ -279,13 +284,14 @@
     /* ========== PREMIUM STUDENT DASHBOARD STYLES (TEACHER STYLE) ========== */
 
     /* New Premium Header */
+    /* New Premium Header (Indigo) */
     .stu-new-header {
-        background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+        background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
         margin: -20px -15px 30px -15px;
-        padding: 40px 25px 100px 25px;
-        border-bottom-left-radius: 40px;
-        border-bottom-right-radius: 40px;
-        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+        padding: 50px 30px 120px 30px;
+        border-bottom-left-radius: 3rem;
+        border-bottom-right-radius: 3rem;
+        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.2);
         position: relative;
     }
     .stu-avatar-box {
@@ -401,23 +407,23 @@
         transition: all 0.2s;
         flex: 1;
     }
-    .stu-bottom-nav .nav-item.active { color: #10b981; }
+    .stu-bottom-nav .nav-item.active { color: #6366f1; }
     .stu-bottom-nav .nav-item i { font-size: 1.4rem; margin-bottom: 5px; transition: transform 0.2s; }
-    .stu-bottom-nav .nav-item:hover i { transform: translateY(-3px); }
+    .stu-bottom-nav .nav-item:hover i { transform: translateY(-5px); color: #818cf8; }
     
     .stu-fab {
-        width: 68px; height: 68px;
-        background: linear-gradient(135deg, #10b981, #059669);
+        width: 72px; height: 72px;
+        background: linear-gradient(135deg, #6366f1, #4338ca);
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        color: white; font-size: 2rem;
-        margin-top: -65px;
-        border: 7px solid #1e293b;
-        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-        transition: all 0.3s;
+        color: white; font-size: 2.2rem;
+        margin-top: -75px;
+        border: 8px solid #1e293b;
+        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.5);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         cursor: pointer;
     }
-    .stu-fab:hover { transform: scale(1.1) rotate(5deg); color: white; }
+    .stu-fab:hover { transform: scale(1.15) rotate(15deg); color: white; box-shadow: 0 15px 35px rgba(99, 102, 241, 0.6); }
 
     /* Standard Cards Enhancement */
     .stu-card {
@@ -711,10 +717,10 @@
     }
     
     .stu-new-header {
-        background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
-        padding-left: 25px;
-        padding-right: 25px;
-        padding-bottom: 120px;
+        background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+        padding-left: 30px;
+        padding-right: 30px;
+        padding-bottom: 140px;
         position: relative;
     }
     
@@ -724,9 +730,15 @@
         max-width: 1200px;
         margin: 0 auto;
     }
-    .bg-grad-green { background: linear-gradient(135deg, #065f46, #10b981); }
+    .bg-grad-green { background: linear-gradient(135deg, #4338ca, #6366f1); }
     .bg-success-soft { background-color: rgba(16, 185, 129, 0.1); }
     .bg-danger-soft { background-color: rgba(239, 68, 68, 0.1); }
+    .text-indigo-600 { color: #4f46e5 !important; }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+    .hover-scale { transition: transform 0.2s; }
+    .hover-scale:hover { transform: scale(1.1); }
+    .hover-glow { transition: all 0.3s; }
+    .hover-glow:hover { box-shadow: 0 0 20px rgba(255,255,255,0.4); transform: translateY(-2px); }
 </style>
 @endpush
 

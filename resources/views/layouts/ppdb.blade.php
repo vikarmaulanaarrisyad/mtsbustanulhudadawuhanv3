@@ -158,6 +158,39 @@
                 $('.glass-nav').removeClass('shadow-xl shadow-slate-200/50 py-1');
             }
         });
+
+        // Global Alerts
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        @if(session('success'))
+            Toast.fire({ icon: 'success', title: '{{ session("success") }}' });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'Oops...', 
+                text: '{{ session("error") }}',
+                confirmButtonColor: '#6366f1',
+                customClass: { popup: 'rounded-[2rem]' }
+            });
+        @endif
+
+        @if($errors->any())
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'Kesalahan Input', 
+                text: '{{ $errors->first() }}',
+                confirmButtonColor: '#6366f1',
+                customClass: { popup: 'rounded-[2rem]' }
+            });
+        @endif
     </script>
 
     @stack('scripts')

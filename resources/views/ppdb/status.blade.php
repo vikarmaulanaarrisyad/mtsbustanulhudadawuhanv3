@@ -8,11 +8,11 @@
 @endphp
 
 {{-- PREMIUM STEPPER PENDAFTARAN --}}
-<div class="stu-card mb-4">
-    <div class="stu-card-body p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h6 class="font-weight-bold text-dark mb-0" style="font-size: 14px; letter-spacing: 0.5px;">ALUR PENDAFTARAN</h6>
-            <span class="badge badge-soft-success px-3 py-1" style="border-radius: 6px; font-size: 10px;">{{ round(($uploadedRequired/$requiredCount)*100) }}% LENGKAP</span>
+<div class="glass-card mb-8 shadow-xl" style="border-radius: 2rem; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px);">
+    <div class="card-body p-6">
+        <div class="d-flex justify-content-between align-items-center mb-6">
+            <h6 class="font-weight-bold text-indigo-900 mb-0" style="font-size: 14px; letter-spacing: 0.5px;">ALUR PENDAFTARAN</h6>
+            <span class="badge bg-indigo-soft text-indigo-600 px-4 py-2" style="border-radius: 10px; font-size: 11px; font-weight: 800; background: rgba(99, 102, 241, 0.1);">{{ round(($uploadedRequired/$requiredCount)*100) }}% LENGKAP</span>
         </div>
         
         <div class="registration-stepper">
@@ -118,40 +118,40 @@
         border-radius: 10px;
     }
     .registration-stepper .step.active .step-num {
-        background: linear-gradient(135deg, #10b981, #059669);
+        background: linear-gradient(135deg, #6366f1, #4338ca);
         color: white;
         border: none;
-        box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+        box-shadow: 0 8px 15px rgba(99, 102, 241, 0.3);
     }
     .registration-stepper .step.active .step-text {
-        color: #059669;
+        color: #4338ca;
     }
     .registration-stepper .step-line.active {
-        background: linear-gradient(to right, #10b981, #059669);
+        background: linear-gradient(to right, #6366f1, #4338ca);
     }
 </style>
 
 {{-- STATUS CARD & TOMBOL CETAK HANYA MUNCUL JIKA BERKAS LENGKAP --}}
 @if($isAllUploaded)
     {{-- STATUS CARD --}}
-    <div class="status-card {{ $registrant->status }} mb-4">
+    <div class="status-card {{ $registrant->status }} mb-6 shadow-xl border-0" style="border-radius: 2rem;">
         @if($registrant->status === 'pending')
-            <i class="fas fa-history fa-2x mb-3"></i>
+            <i class="fas fa-history fa-3x mb-4 opacity-50"></i>
         @elseif($registrant->status === 'berkas_lengkap')
-            <i class="fas fa-folder-open fa-2x mb-3"></i>
+            <i class="fas fa-folder-open fa-3x mb-4 opacity-50"></i>
         @elseif($registrant->status === 'berkas_tidak_lengkap')
-            <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
+            <i class="fas fa-exclamation-circle fa-3x mb-4 opacity-50"></i>
         @elseif($registrant->status === 'diterima')
-            <i class="fas fa-check-double fa-2x mb-3"></i>
+            <i class="fas fa-check-double fa-3x mb-4 opacity-50"></i>
         @elseif($registrant->status === 'daftar_ulang' || $registrant->status === 'daftar_ulang_terverifikasi')
-            <i class="fas fa-user-check fa-2x mb-3"></i>
+            <i class="fas fa-user-check fa-3x mb-4 opacity-50"></i>
         @elseif($registrant->status === 'cadangan')
-            <i class="fas fa-clock fa-2x mb-3"></i>
+            <i class="fas fa-clock fa-3x mb-4 opacity-50"></i>
         @elseif($registrant->status === 'ditolak')
-            <i class="fas fa-times-circle fa-2x mb-3"></i>
+            <i class="fas fa-times-circle fa-3x mb-4 opacity-50"></i>
         @endif
-        <h3 class="mb-1">{{ $registrant->public_status_label }}</h3>
-        <p class="mb-0 font-weight-normal opacity-75">Nomor Registrasi: <span class="font-weight-bold">{{ $registrant->registration_number }}</span></p>
+        <h2 class="mb-2 font-bold">{{ $registrant->public_status_label }}</h2>
+        <p class="mb-0 font-weight-normal opacity-80">Nomor Registrasi: <span class="font-weight-bold" style="letter-spacing: 1px;">{{ $registrant->registration_number }}</span></p>
     </div>
 
     {{-- TOMBOL CETAK --}}
@@ -191,14 +191,14 @@
     </div>
 
     @if($registrant->status === 'diterima' && $isAnnouncementActive)
-        <div class="ppdb-card border-left-success shadow-sm mb-4 animate__animated animate__pulse animate__infinite animate__slow">
-            <div class="card-body">
+        <div class="glass-card border-0 shadow-2xl mb-8 overflow-hidden animate__animated animate__pulse animate__infinite animate__slow" style="border-radius: 2rem; background: rgba(16, 185, 129, 0.1); border-left: 8px solid #10b981 !important;">
+            <div class="card-body p-6">
                 <div class="d-md-flex align-items-center justify-content-between">
-                    <div class="mb-3 mb-md-0">
-                        <h5 class="font-weight-bold text-success mb-1"><i class="fas fa-award mr-2"></i>Selamat! Anda Dinyatakan Lulus</h5>
-                        <p class="mb-0 text-muted">Silakan unduh Surat Keterangan Kelulusan (SK) resmi Anda di sini.</p>
+                    <div class="mb-4 mb-md-0">
+                        <h4 class="font-weight-bold text-success mb-1"><i class="fas fa-award mr-2"></i>Selamat! Anda Dinyatakan Lulus</h4>
+                        <p class="mb-0 text-muted font-medium">Silakan unduh Surat Keterangan Kelulusan (SK) resmi Anda di sini.</p>
                     </div>
-                    <a href="{{ route('ppdb.print_letter', $registrant->id) }}" class="btn btn-success btn-lg px-4 shadow">
+                    <a href="{{ route('ppdb.print_letter', $registrant->id) }}" class="btn btn-success btn-lg px-6 py-3 shadow-lg font-bold" style="border-radius: 1rem;">
                         <i class="fas fa-file-pdf mr-2"></i> Cetak SK Kelulusan
                     </a>
                 </div>
@@ -241,13 +241,13 @@
                                 @php $totalAmount += $item->amount; @endphp
                             @endforeach
                         </div>
-                        <div class="billing-footer bg-primary text-white p-4">
+                        <div class="billing-footer bg-grad-indigo text-white p-6">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <div class="text-uppercase text-xs opacity-75 font-weight-bold mb-1">Total yang harus dibayar</div>
-                                    <h3 class="font-weight-bold mb-0">Rp {{ number_format($totalAmount, 0, ',', '.') }}</h3>
+                                    <div class="text-uppercase text-xs opacity-80 font-weight-bold mb-1 letter-spacing-1">Total Tagihan</div>
+                                    <h2 class="font-weight-bold mb-0">Rp {{ number_format($totalAmount, 0, ',', '.') }}</h2>
                                 </div>
-                                <i class="fas fa-file-invoice-dollar fa-3x opacity-25"></i>
+                                <i class="fas fa-file-invoice-dollar fa-4x opacity-20"></i>
                             </div>
                         </div>
                     </div>
@@ -729,20 +729,20 @@
         <p class="mb-0 text-muted">Masa pendaftaran dan perbaikan berkas telah ditutup. Anda tidak dapat lagi mengunggah atau mengubah dokumen.</p>
     </div>
 @elseif(!in_array($registrant->status, ['berkas_lengkap', 'diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi', 'ditolak', 'sudah_masuk_siswa']))
-    <div class="ppdb-card mb-4" id="upload-section" style="border-top: 4px solid #007bff;">
-    <div class="card-header bg-white py-3">
+    <div class="glass-card mb-8 shadow-2xl overflow-hidden border-0" id="upload-section" style="border-radius: 2.5rem; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);">
+    <div class="card-header bg-white/50 py-6 px-8 border-0">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h6 class="font-weight-bold mb-1"><i class="fas fa-cloud-upload-alt mr-2 text-primary"></i> Unggah Berkas Persyaratan</h6>
-                <small class="text-muted">Lengkapi semua dokumen untuk melanjutkan proses seleksi</small>
+                <h5 class="font-weight-bold mb-1" style="color: #1e1b4b;"><i class="fas fa-cloud-upload-alt mr-2 text-indigo-600"></i> Unggah Berkas Persyaratan</h5>
+                <p class="text-muted small mb-0 font-medium">Lengkapi semua dokumen untuk melanjutkan proses seleksi</p>
             </div>
             <div class="text-right">
-                <span class="badge badge-pill {{ $isAllUploaded ? 'badge-success' : 'badge-primary' }} px-3 py-2" style="font-size: 0.85rem;">
+                <span class="badge badge-pill {{ $isAllUploaded ? 'bg-success text-white' : 'bg-indigo-600 text-white' }} px-4 py-2 shadow-lg" style="font-size: 0.9rem; border-radius: 1rem;">
                     <i class="fas {{ $isAllUploaded ? 'fa-check-circle' : 'fa-tasks' }} mr-1"></i>
                     {{ $uploadedRequired }}/{{ $requiredCount }}
                 </span>
-                <div class="progress mt-2" style="height: 6px; width: 80px; border-radius: 10px; margin-left: auto;">
-                    <div class="progress-bar {{ $isAllUploaded ? 'bg-success' : 'bg-primary' }}" style="width: {{ $requiredCount > 0 ? round(($uploadedRequired/$requiredCount)*100) : 0 }}%"></div>
+                <div class="progress mt-3" style="height: 8px; width: 100px; border-radius: 10px; margin-left: auto; background: rgba(0,0,0,0.05);">
+                    <div class="progress-bar {{ $isAllUploaded ? 'bg-success' : 'bg-indigo-600' }} shadow-sm" style="width: {{ $requiredCount > 0 ? round(($uploadedRequired/$requiredCount)*100) : 0 }}%; border-radius: 10px;"></div>
                 </div>
             </div>
         </div>
