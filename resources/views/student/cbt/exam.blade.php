@@ -5,138 +5,218 @@
 @section('content')
 <div class="cbt-container fixed inset-0 z-50 bg-slate-50 flex flex-col hidden" id="cbt-engine">
     <!-- Topbar -->
-    <div class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shadow-sm">
-        <div class="flex items-center space-x-4">
-            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold">
+    <div class="h-16 md:h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shadow-sm relative z-30">
+        <div class="flex items-center space-x-3 md:space-x-4">
+            <div class="w-10 h-10 md:w-12 md:h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-indigo-200">
                 CBT
             </div>
-            <div>
-                <h1 class="text-lg font-bold text-slate-800">{{ $exam->name }}</h1>
-                <p class="text-xs text-slate-500 font-medium">{{ $exam->bank->subject->name ?? 'Mata Pelajaran' }}</p>
+            <div class="hidden sm:block">
+                <h1 class="text-sm md:text-lg font-black text-slate-800 leading-tight">{{ $exam->name }}</h1>
+                <p class="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest">{{ $exam->bank->subject->name ?? 'Mata Pelajaran' }}</p>
             </div>
         </div>
         
-        <div class="flex items-center space-x-6">
+        <div class="flex items-center space-x-3 md:space-x-8">
             <div class="flex flex-col items-end">
-                <span class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Sisa Waktu</span>
-                <div class="text-2xl font-black text-rose-600 font-mono tracking-wider" id="timer">--:--:--</div>
+                <span class="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-0.5">Sisa Waktu</span>
+                <div class="text-xl md:text-3xl font-black text-rose-600 font-mono tracking-tighter" id="timer">--:--:--</div>
             </div>
-            <button onclick="finishExam()" class="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
-                Selesai Ujian
+            <div class="h-10 w-px bg-slate-200 hidden md:block"></div>
+            <button onclick="finishExam()" class="px-4 py-2 md:px-8 md:py-3 bg-indigo-600 text-white rounded-xl font-black text-xs md:text-sm uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100">
+                Selesai
+            </button>
+            <!-- Mobile Nav Toggle -->
+            <button onclick="toggleNav()" class="lg:hidden w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
+                <i class="fas fa-th-large"></i>
             </button>
         </div>
     </div>
 
     <!-- Main Content -->
-    <div class="flex-1 flex overflow-hidden">
+    <div class="flex-1 flex overflow-hidden relative">
         <!-- Left: Question Area -->
-        <div class="flex-1 overflow-y-auto p-8 relative" id="question-area">
-            @foreach($exam->bank->questions as $index => $q)
-                <div class="question-panel hidden" id="q-panel-{{ $index + 1 }}" data-qid="{{ $q->id }}">
-                    <div class="mb-6 flex items-center justify-between">
-                        <span class="px-4 py-1.5 bg-slate-100 text-slate-600 font-black rounded-lg text-sm">Soal No. {{ $index + 1 }}</span>
-                        
-                        <label class="flex items-center space-x-2 cursor-pointer bg-amber-50 px-4 py-1.5 rounded-lg border border-amber-200 hover:bg-amber-100 transition-colors">
-                            <input type="checkbox" class="doubt-checkbox form-checkbox h-4 w-4 text-amber-500 rounded border-amber-300 focus:ring-amber-500" data-no="{{ $index + 1 }}">
-                            <span class="text-sm font-bold text-amber-700">Ragu-ragu</span>
-                        </label>
-                    </div>
-
-                    <div class="prose max-w-none mb-6 text-lg text-slate-800 font-medium">
-                        {!! $q->question_text !!}
-                    </div>
-
-                    @if($q->question_image)
-                        <div class="mb-6 rounded-2xl overflow-hidden border-2 border-slate-100 shadow-sm inline-block">
-                            <img src="{{ Storage::url($q->question_image) }}" class="max-h-[400px] w-auto object-contain bg-white" alt="Gambar Soal">
-                        </div>
-                    @endif
-
-                    <div class="space-y-4">
-                        @if(in_array($q->question_type, ['pilihan_ganda', 'ganda_komplek']))
-                            @foreach($q->options as $opt)
-                                @php
-                                    $ans = $answers->get($q->id);
-                                    // For PGK, we might have multiple answers. For now, we assume simple selection logic or array.
-                                    // In V1, we use cbt_option_id. For PGK, we should ideally have a join table or array.
-                                    $isChecked = $ans && $ans->cbt_option_id == $opt->id;
-                                @endphp
-                                <label class="option-label flex items-start p-4 border-2 {{ $isChecked ? 'border-indigo-600 bg-indigo-50' : 'border-slate-200 hover:border-indigo-300' }} rounded-2xl cursor-pointer transition-all">
-                                    <div class="mt-1">
-                                        @if($q->question_type === 'pilihan_ganda')
-                                            <input type="radio" name="answer_{{ $q->id }}" value="{{ $opt->id }}" class="form-radio h-5 w-5 text-indigo-600 border-slate-300 focus:ring-indigo-600" {{ $isChecked ? 'checked' : '' }} onchange="saveAnswer({{ $q->id }}, {{ $opt->id }}, {{ $index + 1 }})">
-                                        @else
-                                            <input type="checkbox" name="answer_{{ $q->id }}[]" value="{{ $opt->id }}" class="form-checkbox h-5 w-5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-600" {{ $isChecked ? 'checked' : '' }} onchange="saveAnswer({{ $q->id }}, {{ $opt->id }}, {{ $index + 1 }}, true)">
-                                        @endif
-                                    </div>
-                                    <div class="ml-4 flex-1">
-                                        @if($opt->option_image)
-                                            <img src="{{ Storage::url($opt->option_image) }}" class="max-h-40 rounded-lg mb-2 border border-slate-100 shadow-sm" alt="Gambar Opsi">
-                                        @endif
-                                        <span class="text-slate-700 font-medium">{!! $opt->option_text !!}</span>
-                                    </div>
-                                </label>
-                            @endforeach
-
-                        @elseif($q->question_type === 'penjodohan')
-                            <div class="bg-indigo-50/50 rounded-2xl p-6 border border-indigo-100">
-                                <p class="text-sm font-bold text-indigo-700 mb-4 flex items-center">
-                                    <i class="fas fa-link mr-2"></i> Pasangkan item di bawah ini:
-                                </p>
-                                <div class="space-y-4">
-                                    @php
-                                        $pairs = is_array($q->matching_pairs) ? $q->matching_pairs : [];
-                                        $ans = $answers->get($q->id);
-                                        $studentPairs = $ans && is_array($ans->matching_answers) ? $ans->matching_answers : [];
-                                    @endphp
-                                    @foreach($pairs as $premise => $correctResponse)
-                                        <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
-                                            <div class="flex-1 p-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm font-bold text-slate-700">
-                                                {!! preg_replace('/\[IMG\](.*?)\[\/IMG\]/', '<img src="'.Storage::url('$1').'" class="max-h-24 rounded">', $premise) !!}
-                                            </div>
-                                            <div class="text-slate-400"><i class="fas fa-arrows-alt-h hidden md:block"></i></div>
-                                            <div class="flex-1">
-                                                <select class="matching-select w-full p-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-0 text-sm font-medium" 
-                                                        data-question-id="{{ $q->id }}" 
-                                                        data-premise="{{ $premise }}"
-                                                        onchange="saveMatchingAnswer({{ $q->id }}, {{ $index + 1 }})">
-                                                    <option value="">-- Pilih Jawaban --</option>
-                                                    @foreach($pairs as $p => $r)
-                                                        <option value="{{ $r }}">{!! strip_tags(preg_replace('/\[IMG\](.*?)\[\/IMG\]/', '[Gambar]', $r)) !!}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                    @endforeach
+        <div class="flex-1 overflow-y-auto p-4 md:p-12 relative pb-32" id="question-area">
+            <div class="max-w-4xl mx-auto">
+                @foreach($exam->bank->questions as $index => $q)
+                    <div class="question-panel hidden animate-in fade-in slide-in-from-bottom-4 duration-500" id="q-panel-{{ $index + 1 }}" data-qid="{{ $q->id }}">
+                        <div class="mb-8 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-12 h-12 bg-slate-800 text-white flex items-center justify-center rounded-2xl font-black text-xl shadow-lg">
+                                    {{ $index + 1 }}
+                                </span>
+                                <div class="h-1 w-8 bg-slate-200 rounded-full"></div>
+                                <span class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Pertanyaan</span>
+                            </div>
+                            
+                            <label class="flex items-center space-x-3 cursor-pointer group">
+                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest group-hover:text-amber-600 transition-colors">Ragu-ragu?</span>
+                                <div class="relative inline-flex items-center">
+                                    <input type="checkbox" class="doubt-checkbox sr-only peer" data-no="{{ $index + 1 }}">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
                                 </div>
+                            </label>
+                        </div>
+
+                        <div class="bg-white rounded-[2.5rem] p-6 md:p-10 border border-slate-100 shadow-xl shadow-slate-200/40 mb-8">
+                            <div class="prose prose-slate max-w-none mb-8 text-lg md:text-xl text-slate-800 font-bold leading-relaxed">
+                                {!! $q->question_text !!}
                             </div>
 
-                        @elseif(in_array($q->question_type, ['essay', 'uraian']))
-                            <div class="bg-white rounded-2xl border-2 border-slate-200 focus-within:border-indigo-500 transition-all overflow-hidden">
-                                <textarea name="answer_{{ $q->id }}" 
-                                          class="w-full p-6 text-lg font-medium text-slate-700 focus:ring-0 border-0" 
-                                          placeholder="Ketik jawaban Anda di sini..." 
-                                          rows="6"
-                                          onblur="saveEssayAnswer({{ $q->id }}, {{ $index + 1 }})">{{ $answers->get($q->id)->answer_text ?? '' }}</textarea>
+                            @if($q->question_image)
+                                <div class="mb-8 rounded-3xl overflow-hidden border-4 border-slate-50 shadow-inner bg-white text-center">
+                                    <img src="{{ Storage::url($q->question_image) }}" class="max-h-[500px] w-auto mx-auto object-contain p-2" alt="Gambar Soal">
+                                </div>
+                            @endif
+
+                            <div class="space-y-4">
+                                @if(in_array($q->question_type, ['pilihan_ganda', 'ganda_komplek']))
+                                    <div class="grid grid-cols-1 gap-4">
+                                        @foreach($q->options as $optIndex => $opt)
+                                            @php
+                                                $ans = $answers->get($q->id);
+                                                $isChecked = $ans && $ans->cbt_option_id == $opt->id;
+                                                $letter = chr(65 + $optIndex);
+                                            @endphp
+                                            <label class="option-label group flex items-start p-4 md:p-6 border-2 {{ $isChecked ? 'border-indigo-600 bg-indigo-50 shadow-lg shadow-indigo-100' : 'border-slate-100 hover:border-indigo-300 hover:bg-slate-50' }} rounded-[2rem] cursor-pointer transition-all duration-300">
+                                                <div class="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-2xl {{ $isChecked ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-600' }} font-black text-lg transition-colors shadow-sm">
+                                                    {{ $letter }}
+                                                </div>
+                                                
+                                                <div class="ml-4 md:ml-6 flex-1">
+                                                    <div class="hidden">
+                                                        @if($q->question_type === 'pilihan_ganda')
+                                                            <input type="radio" name="answer_{{ $q->id }}" value="{{ $opt->id }}" {{ $isChecked ? 'checked' : '' }} onchange="saveAnswer({{ $q->id }}, {{ $opt->id }}, {{ $index + 1 }})">
+                                                        @else
+                                                            <input type="checkbox" name="answer_{{ $q->id }}[]" value="{{ $opt->id }}" {{ $isChecked ? 'checked' : '' }} onchange="saveAnswer({{ $q->id }}, {{ $opt->id }}, {{ $index + 1 }}, true)">
+                                                        @endif
+                                                    </div>
+                                                    
+                                                    @if($opt->option_image)
+                                                        <div class="mb-3 rounded-2xl overflow-hidden border border-slate-100 shadow-sm bg-white inline-block">
+                                                            <img src="{{ Storage::url($opt->option_image) }}" class="max-h-40 w-auto object-contain p-1" alt="Gambar Opsi">
+                                                        </div>
+                                                    @endif
+                                                    <div class="text-slate-700 font-bold text-base md:text-lg leading-relaxed">{!! $opt->option_text !!}</div>
+                                                </div>
+                                                
+                                                <div class="ml-2 mt-2">
+                                                    <div class="w-6 h-6 rounded-full border-2 {{ $isChecked ? 'border-indigo-600 bg-indigo-600' : 'border-slate-200' }} flex items-center justify-center transition-all">
+                                                        @if($isChecked) <i class="fas fa-check text-[10px] text-white"></i> @endif
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+
+                                @elseif($q->question_type === 'penjodohan')
+                                    <div class="bg-indigo-50/40 rounded-[2.5rem] p-6 md:p-10 border-2 border-indigo-100/50">
+                                        <p class="text-xs font-black text-indigo-400 uppercase tracking-[0.2em] mb-6 flex items-center">
+                                            <i class="fas fa-link mr-2"></i> Mode Penjodohan
+                                        </p>
+                                        <div class="space-y-6">
+                                            @php
+                                                $pairs = is_array($q->matching_pairs) ? $q->matching_pairs : [];
+                                                $ans = $answers->get($q->id);
+                                            @endphp
+                                            @foreach($pairs as $premise => $correctResponse)
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                                                    <div class="p-5 bg-white border-2 border-white rounded-2xl shadow-sm text-base md:text-lg font-bold text-slate-700">
+                                                        {!! preg_replace('/\[IMG\](.*?)\[\/IMG\]/', '<div class="mt-2 text-center"><img src="'.Storage::url('$1').'" class="max-h-32 mx-auto rounded-xl shadow-sm border border-slate-100"></div>', $premise) !!}
+                                                    </div>
+                                                    <div class="relative">
+                                                        <select class="matching-select w-full p-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 font-bold text-slate-700 appearance-none transition-all" 
+                                                                data-question-id="{{ $q->id }}" 
+                                                                data-premise="{{ $premise }}"
+                                                                onchange="saveMatchingAnswer({{ $q->id }}, {{ $index + 1 }})">
+                                                            <option value="">-- Pilih Pasangan --</option>
+                                                            @foreach($pairs as $p => $r)
+                                                                <option value="{{ $r }}">{!! strip_tags(preg_replace('/\[IMG\](.*?)\[\/IMG\]/', '[Gambar]', $r)) !!}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                            <i class="fas fa-chevron-down"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                @elseif(in_array($q->question_type, ['essay', 'uraian']))
+                                    <div class="bg-white rounded-[2.5rem] border-2 border-slate-100 focus-within:border-indigo-400 focus-within:ring-8 focus-within:ring-indigo-50 transition-all overflow-hidden shadow-inner">
+                                        <textarea name="answer_{{ $q->id }}" 
+                                                  class="w-full p-8 text-lg md:text-xl font-bold text-slate-700 focus:ring-0 border-0 placeholder:text-slate-300" 
+                                                  placeholder="Tuliskan jawaban lengkap Anda di sini..." 
+                                                  rows="8"
+                                                  onblur="saveEssayAnswer({{ $q->id }}, {{ $index + 1 }})">{{ $answers->get($q->id)->answer_text ?? '' }}</textarea>
+                                    </div>
+                                @endif
                             </div>
-                        @endif
+                        </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
 
             <!-- Navigation Buttons -->
-            <div class="absolute bottom-8 left-8 right-8 flex justify-between">
-                <button onclick="prevQuestion()" class="px-6 py-2.5 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-bold hover:bg-slate-50 transition-colors" id="btn-prev">
-                    <i class="fas fa-arrow-left mr-2"></i> Sebelumnya
-                </button>
-                <button onclick="nextQuestion()" class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200" id="btn-next">
-                    Selanjutnya <i class="fas fa-arrow-right ml-2"></i>
-                </button>
+            <div class="fixed bottom-0 left-0 right-0 p-4 md:p-8 bg-white/80 backdrop-blur-xl border-t border-slate-200 z-20">
+                <div class="max-w-4xl mx-auto flex justify-between items-center gap-4">
+                    <button onclick="prevQuestion()" class="flex-1 md:flex-none px-6 py-4 bg-white border-2 border-slate-200 text-slate-700 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-50 transition-all disabled:opacity-30" id="btn-prev">
+                        <i class="fas fa-arrow-left mr-2"></i> <span class="hidden md:inline">Sebelumnya</span>
+                    </button>
+                    
+                    <div class="hidden md:flex items-center space-x-2">
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest" id="progress-text">Soal 1 dari 40</span>
+                    </div>
+
+                    <button onclick="nextQuestion()" class="flex-1 md:flex-none px-10 py-4 bg-slate-800 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-200 disabled:opacity-30" id="btn-next">
+                        <span class="hidden md:inline">Selanjutnya</span> <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Right: Number Grid -->
-        <div class="w-80 bg-white border-l border-slate-200 p-6 flex flex-col">
+        <!-- Right: Number Grid Sidebar -->
+        <div class="fixed inset-y-0 right-0 w-80 bg-white border-l border-slate-200 p-8 flex flex-col z-40 transform translate-x-full lg:translate-x-0 transition-transform duration-500 ease-in-out shadow-2xl lg:shadow-none" id="sidebar-nav">
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="text-sm font-black text-slate-800 uppercase tracking-[0.2em]">Navigasi Soal</h3>
+                <button onclick="toggleNav()" class="lg:hidden text-slate-400 hover:text-rose-500 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                <div class="grid grid-cols-4 gap-3">
+                    @foreach($exam->bank->questions as $index => $q)
+                        @php
+                            $ans = $answers->get($q->id);
+                            $statusClass = 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-300';
+                            if ($ans) {
+                                $statusClass = $ans->is_doubtful ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-200' : 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100';
+                            }
+                        @endphp
+                        <button onclick="jumpTo({{ $index + 1 }})" class="q-nav-btn w-12 h-12 rounded-xl border-2 font-black text-sm flex items-center justify-center transition-all duration-300 {{ $statusClass }}" id="nav-btn-{{ $index + 1 }}">
+                            {{ $index + 1 }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="mt-8 pt-8 border-t border-slate-100 space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Legenda</span>
+                </div>
+                <div class="grid grid-cols-1 gap-3">
+                    <div class="flex items-center space-x-3"><div class="w-5 h-5 bg-indigo-600 rounded-lg shadow-sm"></div><span class="text-[10px] text-slate-500 font-black uppercase tracking-widest">Sudah Dijawab</span></div>
+                    <div class="flex items-center space-x-3"><div class="w-5 h-5 bg-amber-500 rounded-lg shadow-sm"></div><span class="text-[10px] text-slate-500 font-black uppercase tracking-widest">Ragu-ragu</span></div>
+                    <div class="flex items-center space-x-3"><div class="w-5 h-5 bg-slate-50 rounded-lg"></div><span class="text-[10px] text-slate-500 font-black uppercase tracking-widest">Belum Dijawab</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Nav Overlay -->
+<div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-30 hidden lg:hidden" id="nav-overlay" onclick="toggleNav()"></div>
             <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6">Navigasi Soal</h3>
             
             <div class="grid grid-cols-5 gap-3 overflow-y-auto pb-4">
@@ -235,6 +315,13 @@
     }
 
     // Engine UI
+    function toggleNav() {
+        const sidebar = document.getElementById('sidebar-nav');
+        const overlay = document.getElementById('nav-overlay');
+        sidebar.classList.toggle('translate-x-full');
+        overlay.classList.toggle('hidden');
+    }
+
     function startCBT() {
         document.documentElement.requestFullscreen().then(() => {
             document.getElementById('pre-exam-screen').classList.add('hidden');
@@ -254,10 +341,17 @@
         
         document.getElementById('btn-prev').disabled = currentQ === 1;
         document.getElementById('btn-next').disabled = currentQ === totalQuestions;
+        document.getElementById('progress-text').innerText = `Soal ${currentQ} dari ${totalQuestions}`;
         
         // Update nav UI active state
-        document.querySelectorAll('.q-nav-btn').forEach(btn => btn.classList.remove('ring-4', 'ring-indigo-200', 'border-indigo-600'));
-        document.getElementById(`nav-btn-${qNo}`).classList.add('ring-4', 'ring-indigo-200', 'border-indigo-600');
+        document.querySelectorAll('.q-nav-btn').forEach(btn => btn.classList.remove('ring-4', 'ring-indigo-100', 'border-indigo-600', 'scale-110'));
+        document.getElementById(`nav-btn-${qNo}`).classList.add('ring-4', 'ring-indigo-100', 'border-indigo-600', 'scale-110');
+
+        // On mobile, close nav after jump
+        if (window.innerWidth < 1024) {
+            const sidebar = document.getElementById('sidebar-nav');
+            if(!sidebar.classList.contains('translate-x-full')) toggleNav();
+        }
     }
 
     function nextQuestion() { if(currentQ < totalQuestions) jumpTo(currentQ + 1); }
