@@ -369,45 +369,58 @@
 <div class="modal fade" id="importModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content overflow-hidden border-0 shadow-2xl" style="border-radius:25px;">
-            <div class="modal-header text-white border-0 py-4 px-4 d-flex align-items-center" style="background: linear-gradient(135deg, #4f46e5, #7c3aed);">
-                <div class="modal-title-box">
-                    <h4 class="modal-title font-weight-bold mb-0 text-white"><i class="fas fa-file-import mr-2"></i>Import Soal CBT</h4>
-                    <p class="mb-0 opacity-80 small">Pastikan format Excel sesuai dengan template yang disediakan.</p>
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <div class="w-100">
+                    <h5 class="modal-title font-weight-bold text-dark d-flex align-items-center">
+                        <i class="fas fa-cloud-upload-alt text-primary mr-3 fa-lg"></i> IMPORT SOAL & MEDIA
+                    </h5>
+                    <ul class="nav nav-tabs nav-tabs-premium border-0 mt-4" id="importTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="excel-tab" data-toggle="tab" href="#excel-panel" role="tab" style="border-radius: 12px 12px 0 0;"><i class="fas fa-file-excel mr-2 text-success"></i>Import Excel</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="media-tab" data-toggle="tab" href="#media-panel" role="tab" style="border-radius: 12px 12px 0 0;"><i class="fas fa-images mr-2 text-primary"></i>Upload Gambar</a>
+                        </li>
+                    </ul>
                 </div>
-                <button type="button" class="close text-white opacity-100" data-dismiss="modal">
-                    <span style="font-size: 1.5rem;">&times;</span>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="font-size: 1.5rem;">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('admin.cbt.bank.importQuestions', $bank->id) }}" method="POST" enctype="multipart/form-data" id="importForm">
-                @csrf
-                <div class="modal-body p-4">
-                    {{-- Step Grid --}}
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="import-step-card p-3 rounded-xl border h-100 bg-light-gradient">
-                                <div class="step-num">1</div>
-                                <h6 class="font-weight-bold mb-1">Unduh Template</h6>
-                                <p class="text-xs text-muted mb-3">Siapkan data soal Anda menggunakan template resmi kami.</p>
-                                <a href="{{ route('admin.cbt.bank.downloadTemplate', $bank->id) }}" class="btn btn-sm btn-white btn-block rounded-pill shadow-sm border">
-                                    <i class="fas fa-download mr-1 text-primary"></i> Download .xlsx
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="import-step-card p-3 rounded-xl border h-100 bg-light-gradient">
-                                <div class="step-num">2</div>
-                                <h6 class="font-weight-bold mb-1">Isi Data Soal</h6>
-                                <p class="text-xs text-muted mb-0">Dukung 5 tipe soal: PG, PGK, Penjodohan, Essay, & Uraian.</p>
-                                <p class="text-xs text-muted mb-0 mt-1">Sertakan gambar langsung di dalam cell Excel.</p>
-                            </div>
-                        </div>
-                    </div>
 
-                    {{-- Upload Area --}}
-                    <div class="row">
-                        <div class="col-md-7">
+            <div class="tab-content" id="importTabContent">
+                {{-- TAB 1: EXCEL IMPORT --}}
+                <div class="tab-pane fade show active" id="excel-panel" role="tabpanel">
+                    <form action="{{ route('admin.cbt.bank.importQuestions', $bank->id) }}" method="POST" enctype="multipart/form-data" id="importForm">
+                        @csrf
+                        <div class="modal-body p-4">
+                            <div class="alert alert-soft-info border-0 rounded-xl mb-4 p-3 d-flex align-items-center">
+                                <i class="fas fa-info-circle mr-3 text-info fa-lg"></i>
+                                <div class="text-xs">Gunakan tab ini untuk mengimport data teks soal. Jika file sangat besar, disarankan mengunggah gambar secara terpisah di tab <b>Upload Gambar</b>.</div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="import-step-card p-3 rounded-xl border h-100 bg-light-gradient">
+                                        <div class="step-num">1</div>
+                                        <h6 class="font-weight-bold mb-1 text-sm">Unduh Template</h6>
+                                        <p class="text-xs text-muted mb-3">Siapkan data soal Anda menggunakan template resmi.</p>
+                                        <a href="{{ route('admin.cbt.bank.downloadTemplate', $bank->id) }}" class="btn btn-sm btn-white btn-block rounded-pill shadow-sm border text-xs font-weight-bold">
+                                            <i class="fas fa-download mr-1 text-primary"></i> DOWNLOAD TEMPLATE
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="import-step-card p-3 rounded-xl border h-100 bg-light-gradient">
+                                        <div class="step-num">2</div>
+                                        <h6 class="font-weight-bold mb-1 text-sm">Upload File Excel</h6>
+                                        <p class="text-xs text-muted mb-0">Pastikan format .xlsx dan tipe soal sudah benar.</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="upload-section mb-4">
-                                <h6 class="form-label-premium mb-2">PILIH FILE EXCEL <span class="text-danger">*</span></h6>
+                                <h6 class="form-label-premium mb-2">FILE EXCEL <span class="text-danger">*</span></h6>
                                 <div class="drop-zone-premium" id="dropZone">
                                     <input type="file" name="file" id="excelFile" accept=".xlsx,.xls" required class="d-none">
                                     <div class="drop-content py-4 text-center">
@@ -430,64 +443,80 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div id="importProgress" class="d-none mt-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-xs font-weight-bold text-primary" id="progressStatus">Mengimport data...</span>
+                                    <span class="text-xs font-weight-bold text-primary" id="progressPercent">0%</span>
+                                </div>
+                                <div class="progress rounded-pill shadow-sm" style="height: 10px;">
+                                    <div class="progress-bar progress-bar-animated bg-primary" id="progressBar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-5">
+                        <div class="modal-footer border-0 p-4 pt-0">
+                            <button type="button" class="btn btn-light rounded-xl px-4" data-dismiss="modal">BATAL</button>
+                            <button type="submit" class="btn btn-primary rounded-xl px-5 font-weight-bold shadow-lg" id="btnImport">
+                                <i class="fas fa-check-circle mr-2"></i> MULAI IMPORT
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {{-- TAB 2: IMAGE UPLOAD --}}
+                <div class="tab-pane fade" id="media-panel" role="tabpanel">
+                    <form action="{{ route('admin.cbt.bank.uploadImages', $bank->id) }}" method="POST" enctype="multipart/form-data" id="imageUploadForm">
+                        @csrf
+                        <div class="modal-body p-4">
+                            <div class="alert alert-soft-primary rounded-xl border-0 mb-4 p-3 d-flex align-items-start">
+                                <i class="fas fa-lightbulb mr-3 mt-1 text-primary fa-lg"></i>
+                                <div>
+                                    <h6 class="font-weight-bold mb-1 text-sm">Sync Gambar (Dukung ZIP)</h6>
+                                    <p class="text-xs mb-0">Unggah file <b>.zip</b> berisi semua gambar atau pilih banyak file sekaligus. Sistem akan otomatis menghubungkannya berdasarkan nama file:</p>
+                                    <div class="row mt-2">
+                                        <div class="col-6"><code class="text-xs">1.jpg</code> <span class="text-xs">-> Soal No 1</span></div>
+                                        <div class="col-6"><code class="text-xs">1_A.jpg</code> <span class="text-xs">-> Opsi A No 1</span></div>
+                                        <div class="col-6"><code class="text-xs">1_P1.jpg</code> <span class="text-xs">-> Kiri (Premis) 1</span></div>
+                                        <div class="col-6"><code class="text-xs">1_R1.jpg</code> <span class="text-xs">-> Kanan (Respon) 1</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="upload-section mb-4">
-                                <h6 class="form-label-premium mb-2">FILE GAMBAR (OPSIONAL)</h6>
-                                <div class="drop-zone-premium" id="dropZoneImages" style="min-height: 125px;">
-                                    <input type="file" name="images[]" id="imageFiles" accept="image/*" multiple class="d-none">
-                                    <div class="drop-content py-4 text-center" id="imageDropContent">
-                                        <div class="mb-2">
-                                            <i class="fas fa-images fa-2x text-primary"></i>
+                                <h6 class="form-label-premium mb-2">PILIH FILE GAMBAR ATAU ZIP <span class="text-danger">*</span></h6>
+                                <div class="drop-zone-premium" id="dropZoneImages" style="min-height: 180px;">
+                                    <input type="file" name="images[]" id="imageFiles" accept="image/*,.zip" multiple required class="d-none">
+                                    <div class="drop-content py-5 text-center" id="imageDropContent">
+                                        <div class="upload-icon-pulse mb-3">
+                                            <i class="fas fa-file-archive fa-3x text-primary"></i>
                                         </div>
-                                        <h6 class="font-weight-bold text-dark mb-1 text-xs">Upload Gambar</h6>
-                                        <p class="text-xs text-muted mb-0">Klik untuk memilih</p>
+                                        <h6 class="font-weight-bold text-dark mb-1">Tarik file ZIP atau Gambar ke sini</h6>
+                                        <p class="text-xs text-muted mb-0">atau <span class="text-primary font-weight-bold cursor-pointer">pilih file</span></p>
                                     </div>
                                     <div class="file-preview-premium d-none" id="imagePreviewContainer">
-                                        <div class="d-flex align-items-center p-2 bg-white rounded-lg border shadow-sm">
-                                            <i class="fas fa-photo-video fa-xl text-primary mr-2"></i>
+                                        <div class="d-flex align-items-center p-3 bg-white rounded-lg border shadow-sm">
+                                            <i class="fas fa-photo-video fa-2x text-primary mr-3"></i>
                                             <div class="flex-grow-1 overflow-hidden">
-                                                <div class="font-weight-bold text-dark text-xs" id="imageCountText">0 Gambar terpilih</div>
+                                                <div class="font-weight-bold text-dark" id="imageCountText">0 Gambar terpilih</div>
+                                                <div class="text-xs text-muted">Siap untuk dihubungkan ke bank soal</div>
                                             </div>
-                                            <button type="button" class="btn btn-xs btn-soft-danger rounded-circle p-1 ml-1" onclick="clearImages()">
+                                            <button type="button" class="btn btn-soft-danger rounded-circle p-2 ml-2" onclick="clearImages()">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                <p class="text-xs text-muted mt-2"><i class="fas fa-info-circle mr-1"></i> Pilih semua file gambar soal & opsi sekaligus.</p>
                             </div>
                         </div>
-                    </div>
-
-                    {{-- Progress Bar (Hidden initially) --}}
-                    <div id="importProgress" class="d-none mb-4">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-xs font-weight-bold text-primary">Sedang memproses...</span>
-                            <span class="text-xs font-weight-bold text-primary" id="progressPercent">0%</span>
+                        <div class="modal-footer border-0 p-4 pt-0">
+                            <button type="button" class="btn btn-light rounded-xl px-4" data-dismiss="modal">BATAL</button>
+                            <button type="submit" class="btn btn-primary rounded-xl px-5 font-weight-bold shadow-lg" id="btnUploadImages">
+                                <i class="fas fa-sync-alt mr-2"></i> HUBUNGKAN GAMBAR
+                            </button>
                         </div>
-                        <div class="progress rounded-pill shadow-sm" style="height: 12px;">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%" id="progressBar"></div>
-                        </div>
-                        <p class="text-xs text-muted mt-2 text-center">Mohon tunggu, jangan tutup jendela ini sampai selesai.</p>
-                    </div>
-
-                    <div class="info-footer p-3 rounded-lg bg-soft-info border-0">
-                        <div class="d-flex align-items-start">
-                            <i class="fas fa-lightbulb text-info mr-3 mt-1"></i>
-                            <div class="small">
-                                <strong class="text-info">Tips:</strong> Namai file gambar Anda sesuai Nomor Soal (misal: <code>1.jpg</code>, <code>1_A.jpg</code>) agar sistem dapat menghubungkannya secara otomatis.
-                            </div>
-                        </div>
-                    </div>
+                    </form>
                 </div>
-                <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="button" class="btn btn-light rounded-xl px-4 py-2" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary rounded-xl px-5 py-2 font-weight-bold shadow-lg" id="btnImport">
-                        <i class="fas fa-check-circle mr-2"></i> MULAI IMPORT
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
@@ -572,7 +601,11 @@
 .drop-zone-premium:hover .upload-icon-pulse { transform: scale(1.1); transition: 0.2s; }
 
 /* UTILS */
-.border-left-success-4 { border-left: 4px solid var(--success); }
+.nav-tabs-premium .nav-link { border: none; font-weight: 700; color: #64748b; padding: 12px 20px; transition: 0.3s; }
+.nav-tabs-premium .nav-link:hover { color: var(--primary); background: #f8fafc; }
+.nav-tabs-premium .nav-link.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: transparent; }
+.alert-soft-primary { background: #eef2ff; color: #4338ca; }
+.alert-soft-info { background: #f0f9ff; color: #0369a1; }
 .cursor-pointer { cursor: pointer; }
 .sticky-top-custom { position: sticky; top: 1rem; z-index: 100; }
 @media (max-width: 991px) { .sticky-top-custom { position: static; } }
@@ -680,6 +713,17 @@ $(function(){
             idc.addClass('d-none');
             ipc.removeClass('d-none');
         }
+    });
+
+    // Image Upload form submit
+    $('#imageUploadForm').on('submit', function() {
+        $('#btnUploadImages').html('<i class="fas fa-spinner fa-spin mr-2"></i>MENGHUBUNGKAN...').prop('disabled', true);
+        Swal.fire({
+            title: 'Sedang Memproses...',
+            text: 'Harap tunggu, sistem sedang menghubungkan gambar ke soal.',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
     });
 });
 

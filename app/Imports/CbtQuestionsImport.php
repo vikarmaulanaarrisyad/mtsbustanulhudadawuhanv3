@@ -143,7 +143,15 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         }
 
         // 3. Check for embedded drawing in the cell
-        return $this->getDrawingFromCell($col . $rowNumber);
+        $drawing = $this->getDrawingFromCell($col . $rowNumber);
+        if ($drawing) return $drawing;
+
+        // FALLBACK: If nothing found but we have a filename in Excel, save it as a placeholder
+        if (!empty($excelValue) && is_string($excelValue) && !is_numeric($excelValue)) {
+            return trim($excelValue);
+        }
+
+        return null;
     }
 
     /**
@@ -253,8 +261,9 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 // Skip completely empty rows
                 $soal = trim($row['soal'] ?? '');
                 $tipe = trim($row['tipe_soal'] ?? '');
+                $gambar = trim($row['gambar_soal'] ?? '');
 
-                if (empty($soal) && empty($tipe)) {
+                if (empty($soal) && empty($tipe) && empty($gambar)) {
                     continue;
                 }
 
@@ -294,7 +303,8 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
                 // Build question data
                 $questionData = [
-                    'cbt_bank_id'   => $this->bank->id,
+                    'cbt_bank_id'    => $this->bank->id,
+                    'no'             => $no,
                     'question_text'  => $soal,
                     'question_type'  => $questionType,
                     'question_image' => $imagePath,
@@ -319,7 +329,28 @@ class CbtQuestionsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             foreach ($pairs as $pair) {
                                 $parts = explode('=', $pair, 2);
                                 if (count($parts) === 2) {
-                                    $matchingPairs[trim($parts[0])] = trim($parts[1]);
+                                    $premise = trim($parts[0]);
+                                    $response = trim($parts[1]);
+
+                                    // Resolve images in matching pairs
+                                    // We allow direct filename reference if it looks like an image
+                                    $imgExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                                    
+                                    // Resolve Premise Image
+                                    $premiseExt = strtolower(pathinfo($premise, PATHINFO_EXTENSION));
+                                    if (in_array($premiseExt, $imgExts)) {
+                                        $resolvedPremise = $this->resolveImage(null, $rowNumber, $premise);
+                                        if ($resolvedPremise) $premise = "[IMG]{$resolvedPremise}[/IMG]";
+                                    }
+
+                                    // Resolve Response Image
+                                    $responseExt = strtolower(pathinfo($response, PATHINFO_EXTENSION));
+                                    if (in_array($responseExt, $imgExts)) {
+                                        $resolvedResponse = $this->resolveImage(null, $rowNumber, $response);
+                                        if ($resolvedResponse) $response = "[IMG]{$resolvedResponse}[/IMG]";
+                                    }
+
+                                    $matchingPairs[$premise] = $response;
                                 }
                             }
                         }

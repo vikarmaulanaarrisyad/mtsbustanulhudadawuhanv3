@@ -335,4 +335,184 @@ class CbtBankController extends Controller
             return redirect()->back()->with('warning', 'Gagal mengosongkan soal: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Bulk upload images (Files or ZIP) and link them to existing questions via naming convention.
+     */
+    public function bulkUploadImages(Request $request, CbtBank $bank)
+    {
+        $request->validate([
+            'images' => 'required|array',
+            'images.*' => 'file|max:20480', // 20MB per file/zip
+        ]);
+
+        $count = 0;
+        $errors = [];
+        $tempDir = storage_path('app/temp_zip_' . uniqid());
+
+        try {
+            foreach ($request->file('images') as $file) {
+                $ext = strtolower($file->getClientOriginalExtension());
+                
+                if ($ext === 'zip') {
+                    // Process ZIP file
+                    $zip = new \ZipArchive();
+                    if ($zip->open($file->getRealPath()) === TRUE) {
+                        if (!file_exists($tempDir)) mkdir($tempDir, 0777, true);
+                        $zip->extractTo($tempDir);
+                        $zip->close();
+
+                        // Get all files from extracted dir (recursive)
+                        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($tempDir));
+                        foreach ($files as $extractedFile) {
+                            if (!$extractedFile->isDir()) {
+                                $this->processImageFile($extractedFile->getPathname(), $extractedFile->getFilename(), $bank, $count, $errors);
+                            }
+                        }
+                    } else {
+                        $errors[] = "Gagal membuka file ZIP: " . $file->getClientOriginalName();
+                    }
+                } else {
+                    // Process single image file
+                    $this->processImageFile($file->getRealPath(), $file->getClientOriginalName(), $bank, $count, $errors);
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error processing bulk images: ' . $e->getMessage());
+            $errors[] = "Sistem Error: " . $e->getMessage();
+        } finally {
+            // Cleanup temp dir
+            if (file_exists($tempDir)) {
+                $it = new \RecursiveDirectoryIterator($tempDir, \RecursiveDirectoryIterator::SKIP_DOTS);
+                $files = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
+                foreach($files as $file) {
+                    if ($file->isDir()) rmdir($file->getRealPath());
+                    else unlink($file->getRealPath());
+                }
+                rmdir($tempDir);
+            }
+        }
+
+        $msg = "Berhasil memproses {$count} gambar.";
+        if (!empty($errors)) {
+            return redirect()->back()->with('warning', $msg)->with('import_errors', array_unique($errors));
+        }
+
+        return redirect()->back()->with('success', $msg);
+    }
+
+    /**
+     * Internal helper to process a single image file (from upload or zip).
+     */
+    private function processImageFile($fullPath, $originalName, $bank, &$count, &$errors)
+    {
+        $nameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            return; // Skip non-image files
+        }
+        
+        $processed = false;
+
+        // 1. Try literal filename match (from Excel "Gambar Soal" or "Gambar Opsi" column)
+        // Check if any question has this filename in its image field
+        $questionLiteral = $bank->questions()->where('question_image', $originalName)->first();
+        if ($questionLiteral) {
+            $newFilename = \Str::uuid() . '.' . $ext;
+            $destination = 'cbt/images/' . $newFilename;
+            Storage::disk('public')->put($destination, file_get_contents($fullPath));
+            $questionLiteral->update(['question_image' => $destination]);
+            $count++;
+            $processed = true;
+        }
+
+        // Check if any option has this filename in its image field
+        $optionsLiteral = \App\Models\CbtOption::whereHas('question', function($q) use ($bank) {
+            $q->where('cbt_bank_id', $bank->id);
+        })->where('option_image', $originalName)->get();
+        
+        foreach ($optionsLiteral as $opt) {
+            $newFilename = \Str::uuid() . '.' . $ext;
+            $destination = 'cbt/images/' . $newFilename;
+            Storage::disk('public')->put($destination, file_get_contents($fullPath));
+            $opt->update(['option_image' => $destination]);
+            if (!$processed) $count++; 
+            $processed = true;
+        }
+
+        if ($processed) return;
+
+        // 2. Fallback to Naming Convention: "1.jpg", "1_A.jpg", "1_P1.jpg", "1_R1.jpg"
+        if (preg_match('/^(?:soal_)?([A-Za-z0-9\-]+)(?:_([A-E]))?$/i', $nameWithoutExt, $matches)) {
+            $questionNo = $matches[1];
+            $optionLetter = isset($matches[2]) ? strtoupper($matches[2]) : null;
+
+            $question = $bank->questions()->where('no', $questionNo)->first();
+            
+            if ($question) {
+                $newFilename = \Str::uuid() . '.' . $ext;
+                $destination = 'cbt/images/' . $newFilename;
+                Storage::disk('public')->put($destination, file_get_contents($fullPath));
+                
+                if ($optionLetter) {
+                    $index = ord($optionLetter) - 65;
+                    $option = $question->options()->get()->values()->get($index);
+                    if ($option) {
+                        if ($option->option_image && \Str::contains($option->option_image, 'cbt/images/')) {
+                            Storage::disk('public')->delete($option->option_image);
+                        }
+                        $option->update(['option_image' => $destination]);
+                        $count++;
+                    } else {
+                        $errors[] = "Soal No {$questionNo}: Opsi {$optionLetter} tidak ditemukan.";
+                    }
+                } else {
+                    if ($question->question_image && \Str::contains($question->question_image, 'cbt/images/')) {
+                        Storage::disk('public')->delete($question->question_image);
+                    }
+                    $question->update(['question_image' => $destination]);
+                    $count++;
+                }
+                $processed = true;
+            }
+        } elseif (preg_match('/^(?:soal_)?([A-Za-z0-9\-]+)_([PR])([0-9]+)$/i', $nameWithoutExt, $matches)) {
+            // Matching Pair Convention: 1_P1.jpg (Premise 1), 1_R1.jpg (Response 1)
+            $questionNo = $matches[1];
+            $type = strtoupper($matches[2]); 
+            $idx = (int)$matches[3] - 1; 
+
+            $question = $bank->questions()->where('no', $questionNo)->first();
+            if ($question && $question->question_type === 'penjodohan') {
+                $pairs = $question->matching_pairs;
+                $keys = array_keys($pairs);
+                $values = array_values($pairs);
+
+                if ($idx < count($keys)) {
+                    $newFilename = \Str::uuid() . '.' . $ext;
+                    $destination = 'cbt/images/' . $newFilename;
+                    Storage::disk('public')->put($destination, file_get_contents($fullPath));
+                    $imgTag = "[IMG]{$destination}[/IMG]";
+
+                    if ($type === 'P') {
+                        $oldValue = $values[$idx];
+                        unset($keys[$idx]); unset($values[$idx]);
+                        $keys = array_values($keys); $values = array_values($values);
+                        array_splice($keys, $idx, 0, [$imgTag]);
+                        array_splice($values, $idx, 0, [$oldValue]);
+                    } else {
+                        $values[$idx] = $imgTag;
+                    }
+
+                    $question->update(['matching_pairs' => array_combine($keys, $values)]);
+                    $count++;
+                    $processed = true;
+                }
+            }
+        }
+
+        if (!$processed) {
+            $errors[] = "File '{$originalName}' tidak cocok dengan No Soal manapun dan tidak ditemukan referensinya di kolom Gambar Excel.";
+        }
+    }
 }

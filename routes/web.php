@@ -186,6 +186,7 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/{bank}/download-template', 'downloadTemplate')->name('downloadTemplate');
                 Route::post('/{bank}/import-questions', 'importQuestions')->name('importQuestions');
                 Route::delete('/{bank}/truncate-questions', 'truncateQuestions')->name('truncateQuestions');
+                Route::post('/{bank}/upload-images', 'bulkUploadImages')->name('uploadImages');
             });
 
             Route::controller(\App\Http\Controllers\Admin\CbtExamController::class)->prefix('exam')->name('exam.')->group(function () {
