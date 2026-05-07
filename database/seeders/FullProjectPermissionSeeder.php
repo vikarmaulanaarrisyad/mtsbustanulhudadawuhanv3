@@ -106,6 +106,12 @@ class FullProjectPermissionSeeder extends Seeder
         $superAdmin = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
         $superAdmin->syncPermissions(Permission::all());
 
+        // Assign most permissions to Admin role (except system sensitive ones)
+        $adminRole = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
+        $adminRole->syncPermissions(Permission::whereNotIn('name', [
+            'role.delete', 'permission.delete', 'backup.manage', 'setting.edit'
+        ])->get());
+
         // Assign specific permissions to Guru role
         $guruRole = Role::firstOrCreate(['name' => 'Guru', 'guard_name' => 'web']);
         $guruRole->syncPermissions([
