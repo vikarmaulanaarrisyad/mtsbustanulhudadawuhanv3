@@ -15,7 +15,7 @@
             processing: false,
             serverSide: true,
             autoWidth: false,
-            responsive: true,
+            responsive: false, // Disable responsive to avoid potential infinite redraw loops
             ajax: {
                 url: '{{ route('users.data') }}',
                 data: function(d) {
@@ -51,9 +51,9 @@
             ]
         });
 
-        // Tab Filtering Logic
+        // Tab Filtering Logic - Disable auto-reload to stop infinite loops
         $('#roleTabs a[data-toggle="pill"]').on('shown.bs.tab', function(e) {
-            table.ajax.reload();
+            // table.ajax.reload(); 
         });
 
         $('#roles').select2({

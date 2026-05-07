@@ -9,14 +9,14 @@
     <title>{{ $setting->company_name }} - @yield('title')</title>
 
     <link rel="icon"
-        href="{{ $setting->pwa_icon ?? Storage::url($setting->path_image ?? '') }}?v={{ $setting->pwa_version ?? time() }}"
+        href="{{ $setting->pwa_icon ?? Storage::url($setting->path_image ?? '') }}?v={{ $setting->pwa_version ?? '1.0.0' }}"
         type="image/*">
-    <link rel="manifest" href="/manifest.json?v={{ $setting->pwa_version ?? time() }}">
+    <link rel="manifest" href="/manifest.json?v={{ $setting->pwa_version ?? '1.0.0' }}">
     <meta name="theme-color" content="{{ $setting->pwa_theme_color ?? '#10b981' }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="{{ $setting->pwa_short_name ?? 'Madrasah' }}">
-    <link rel="apple-touch-icon" href="/storage/pwa/icons/icon-192x192.png?v={{ $setting->pwa_version ?? time() }}">
+    <link rel="apple-touch-icon" href="/storage/pwa/icons/icon-192x192.png?v={{ $setting->pwa_version ?? '1.0.0' }}">
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"

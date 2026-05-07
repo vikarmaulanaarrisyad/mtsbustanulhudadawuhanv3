@@ -36,11 +36,21 @@ class UserController extends Controller
             });
         }
 
-        // Pre-calculate permissions for the current user once to save resources
+        // Bypassing the Gate system entirely for maximum performance
         $me = Auth::user();
-        $canShow = $me->can('user.show');
-        $canEdit = $me->can('user.edit');
-        $canDelete = $me->can('user.delete');
+        if (!$me->relationLoaded('roles')) {
+            $me->load('roles');
+        }
+        
+        $myRoles = $me->roles->pluck('name')->toArray();
+        $isSuperAdmin = in_array('Super Admin', $myRoles);
+        
+        // Get permissions directly from DB to avoid any recursion or Gate overhead
+        $myPermissions = $this->getPermissionNames($me);
+
+        $canShow = $isSuperAdmin || in_array('user.show', $myPermissions);
+        $canEdit = $isSuperAdmin || in_array('user.edit', $myPermissions);
+        $canDelete = $isSuperAdmin || in_array('user.delete', $myPermissions);
 
         return datatables($query)
             ->addIndexColumn()
@@ -139,8 +149,10 @@ class UserController extends Controller
 
     public function detail(Request $request, User $users)
     {
-        $users->load(['roles', 'permissions']);
-        $users->effective_permissions = $users->getAllPermissions()->pluck('id')->toArray();
+        $users->load(['roles']);
+        
+        // High-performance permission ID retrieval without hydrating models
+        $users->effective_permissions = $this->getPermissionIds($users);
         
         return response()->json([
             'data' => $users
@@ -149,12 +161,54 @@ class UserController extends Controller
 
     public function edit(Request $request, User $users)
     {
-        $users->load(['roles', 'permissions']);
-        $users->effective_permissions = $users->getAllPermissions()->pluck('id')->toArray();
+        $users->load(['roles']);
+        
+        // High-performance permission ID retrieval without hydrating models
+        $users->effective_permissions = $this->getPermissionIds($users);
 
         return response()->json([
             'data' => $users
         ]);
+    }
+
+    /**
+     * Get all permission names for a user efficiently.
+     */
+    private function getPermissionNames(User $user)
+    {
+        $roleIds = $user->roles->pluck('id')->toArray();
+        
+        $rolePermissions = DB::table('role_has_permissions')
+            ->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
+            ->whereIn('role_id', $roleIds)
+            ->pluck('permissions.name');
+            
+        $directPermissions = DB::table('model_has_permissions')
+            ->join('permissions', 'model_has_permissions.permission_id', '=', 'permissions.id')
+            ->where('model_id', $user->id)
+            ->where('model_type', get_class($user))
+            ->pluck('permissions.name');
+            
+        return $rolePermissions->merge($directPermissions)->unique()->toArray();
+    }
+
+    /**
+     * Get all permission IDs for a user efficiently.
+     */
+    private function getPermissionIds(User $user)
+    {
+        $roleIds = $user->roles->pluck('id')->toArray();
+        
+        $rolePermissions = DB::table('role_has_permissions')
+            ->whereIn('role_id', $roleIds)
+            ->pluck('permission_id');
+            
+        $directPermissions = DB::table('model_has_permissions')
+            ->where('model_id', $user->id)
+            ->where('model_type', get_class($user))
+            ->pluck('permission_id');
+            
+        return $rolePermissions->merge($directPermissions)->unique()->values()->toArray();
     }
 
     public function show(Request $request)

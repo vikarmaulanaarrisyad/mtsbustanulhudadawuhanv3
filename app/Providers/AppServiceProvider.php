@@ -21,9 +21,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Super Admin bypass
+        // Super Admin bypass with request-level caching
         Gate::before(function ($user, $ability) {
-            return $user->hasRole('Super Admin') ? true : null;
+            static $superAdmins = [];
+            
+            if (!isset($superAdmins[$user->id])) {
+                // Direct check on loaded roles if possible, otherwise use hasRole
+                $superAdmins[$user->id] = $user->relationLoaded('roles') 
+                    ? $user->roles->contains('name', 'Super Admin')
+                    : $user->hasRole('Super Admin');
+            }
+            
+            return $superAdmins[$user->id] ? true : null;
         });
 
         // Registrasi Google Drive Driver
