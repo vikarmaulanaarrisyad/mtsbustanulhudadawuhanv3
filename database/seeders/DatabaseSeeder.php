@@ -37,11 +37,23 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             UserTableSeeder::class,
             SettingSeeder::class,
+            MailSettingSeeder::class,
             SemesterSeeder::class,
+            AcademicYearSeeder::class,
             StudentStatusSeeder::class,
             FeatureTestingSeeder::class,
             GradeManagementSeeder::class,
             PositionSeeder::class,
+            TeacherSeeder::class,
+            ClassGroupSeeder::class,
+            StudentActiveSeeder::class,
+            StudyPeriodSeeder::class,
+            SubjectSeeder::class,
+            MiGradeStructureSeeder::class,
+            ClassScheduleSeeder::class,
+            PpdbSettingSeeder::class,
+            PpdbBulkSeeder::class,
+            ContentSeeder::class,
         ]);
     }
 }

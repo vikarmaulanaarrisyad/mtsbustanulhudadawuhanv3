@@ -174,6 +174,13 @@
                         <div class="kop-text">
                             <h2>{{ $subHeader }}</h2>
                             <h1>{{ $schoolName }}</h1>
+                            @if($generalSetting && $generalSetting->accreditation)
+                                <p style="font-weight: bold; font-size: 11pt; margin-bottom: 2px;">
+                                    TERAKREDITASI {{ $generalSetting->accreditation }} &nbsp;&nbsp; 
+                                    @if($generalSetting->nsm) NSM: {{ $generalSetting->nsm }} &nbsp;&nbsp; @endif
+                                    @if($generalSetting->npsn) NPSN: {{ $generalSetting->npsn }} @endif
+                                </p>
+                            @endif
                             <p>{{ $address }}</p>
                             <p>Telp: {{ $phone }} | Email: {{ $email }}</p>
                             @if ($website)

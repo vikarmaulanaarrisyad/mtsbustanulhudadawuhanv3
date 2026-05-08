@@ -9,15 +9,16 @@ class MailSettingSeeder extends Seeder
 {
     public function run(): void
     {
-        MailSetting::firstOrCreate(
+        MailSetting::updateOrCreate(
             ['id' => 1],
             [
-                'school_name' => 'MTs BUSTANUL HUDA DAWUHAN',
-                'sub_header' => 'YAYASAN PENDIDIKAN ISLAM AL-HUDA',
-                'address' => 'Jl. Dawuhan No. 123, Dawuhan, Kec. Kademangan, Kab. Blitar',
-                'phone' => '(0342) 123456',
-                'email' => 'mtsbustanulhuda@gmail.com',
-                'website' => 'www.mtsbustanulhudadawuhan.sch.id',
+                'school_name' => 'MI BUSTANUL HUDA 01 DAWUHAN',
+                'sub_header' => 'YAYASAN BUSTANUL HUDA DAWUHAN',
+                'address' => 'DESA DAWUHAN KEC. TALANG KAB. TEGAL',
+                'phone' => '0283-123456',
+                'email' => 'mi.bustanulhuda01dawuhan@gmail.com',
+                'website' => '-',
+                'school_code' => 'MI.BHD.01/040/',
                 'header_line_style' => 'double'
             ]
         );

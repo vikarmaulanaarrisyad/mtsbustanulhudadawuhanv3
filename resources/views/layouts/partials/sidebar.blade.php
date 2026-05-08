@@ -44,6 +44,13 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="{{ route('admin.workflow') }}" class="nav-link {{ request()->routeIs('admin.workflow') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-map-marked-alt text-warning"></i>
+                        <p>Peta Jalan Admin</p>
+                    </a>
+                </li>
+
                 {{-- ================= DATA MASTER ================= --}}
                 <li class="nav-header">MANAJEMEN DATA</li>
                 

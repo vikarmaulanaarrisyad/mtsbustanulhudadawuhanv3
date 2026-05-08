@@ -98,6 +98,7 @@ Route::get('/verify/{code}', [\App\Http\Controllers\VerificationController::clas
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.admin|Super Admin|Admin']], function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+        Route::get('/workflow', [\App\Http\Controllers\Admin\WorkflowController::class, 'index'])->name('admin.workflow');
 
         // Behavior Logs (Character Points) - Admin Access
         Route::post('/behavior-logs', [\App\Http\Controllers\BehaviorLogController::class, 'store'])->name('admin.behavior-logs.store');
