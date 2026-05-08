@@ -29,6 +29,13 @@
         </div>
         
         <div class="flex items-center space-x-2 md:space-x-10">
+            <!-- Text Resizer -->
+            <div class="hidden xl:flex items-center bg-slate-50 rounded-xl border border-slate-100 p-1">
+                <button onclick="changeFontSize('small')" class="w-8 h-8 flex items-center justify-center text-xs font-bold text-slate-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all" title="Kecil">A-</button>
+                <button onclick="changeFontSize('normal')" class="w-8 h-8 flex items-center justify-center text-sm font-black text-indigo-600 bg-white shadow-sm rounded-lg transition-all" title="Normal">A</button>
+                <button onclick="changeFontSize('large')" class="w-8 h-8 flex items-center justify-center text-lg font-bold text-slate-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all" title="Besar">A+</button>
+            </div>
+
             <!-- Saved Indicator -->
             <div id="save-indicator" class="hidden md:flex items-center space-x-2 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100 opacity-0 transition-opacity duration-300">
                 <i class="fas fa-cloud-upload-alt text-emerald-500 text-xs"></i>
@@ -62,7 +69,16 @@
     <div class="flex-1 flex overflow-hidden relative">
         <!-- LEFT: QUESTION CONTENT -->
         <div class="flex-1 overflow-y-auto p-4 md:p-16 relative pb-44 custom-scrollbar bg-slate-50/30" id="question-area">
-            <div class="max-w-4xl mx-auto">
+            <!-- Security Watermark -->
+            <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-[0.03] select-none flex flex-wrap content-start justify-center gap-20 p-20 rotate-[-15deg]">
+                @for($i = 0; $i < 20; $i++)
+                    <div class="text-4xl font-black text-slate-900 uppercase tracking-[0.5em] whitespace-nowrap">
+                        {{ $studentExam->student->nama_lengkap }} • {{ $studentExam->student->nis }} • {{ request()->ip() }}
+                    </div>
+                @endfor
+            </div>
+
+            <div class="max-w-4xl mx-auto relative z-10">
                 @foreach($exam->bank->questions as $index => $q)
                     @php
                         $ans = $answers->get($q->id);
@@ -429,6 +445,31 @@
                 </button>
             </div>
         </div>
+
+        <!-- FLOATING CALCULATOR TOGGLE -->
+        <div class="fixed bottom-6 left-6 z-[200]">
+            <button onclick="toggleCalculator()" class="w-14 h-14 bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 flex items-center justify-center text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all group">
+                <i class="fas fa-calculator text-xl group-hover:rotate-12 transition-transform"></i>
+            </button>
+        </div>
+
+        <!-- MINI CALCULATOR MODAL -->
+        <div id="calculator-modal" class="fixed bottom-24 left-6 z-[200] hidden animate-fade-in">
+            <div class="bg-slate-900 rounded-[2.5rem] p-6 shadow-2xl border border-slate-800 w-72">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Kalkulator</span>
+                    <button onclick="toggleCalculator()" class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+                </div>
+                <input type="text" id="calc-display" class="w-full bg-slate-800 border-0 rounded-2xl text-right text-2xl font-black text-white p-4 mb-4 focus:ring-0" readonly value="0">
+                <div class="grid grid-cols-4 gap-2">
+                    @foreach(['7','8','9','/','4','5','6','*','1','2','3','-','C','0','=','+'] as $btn)
+                        <button onclick="handleCalc('{{ $btn }}')" class="h-12 rounded-xl flex items-center justify-center font-black text-sm transition-all {{ in_array($btn, ['/','*','-','+','=']) ? 'bg-indigo-600 text-white hover:bg-indigo-500' : ($btn == 'C' ? 'bg-rose-500 text-white hover:bg-rose-400' : 'bg-slate-800 text-slate-300 hover:bg-slate-700') }}">
+                            {{ $btn }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -490,6 +531,20 @@
     .custom-scrollbar::-webkit-scrollbar { width: 5px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+    /* Security: Anti-Copy & Anti-Select */
+    .cbt-container {
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+    }
+    
+    /* Font Resizer Helpers */
+    .font-small .prose-container .text-lg { font-size: 0.875rem !important; }
+    .font-small .option-label .text-base { font-size: 0.875rem !important; }
+    .font-large .prose-container .text-lg { font-size: 1.5rem !important; }
+    .font-large .option-label .text-base { font-size: 1.25rem !important; }
 </style>
 @endsection
 
@@ -849,6 +904,47 @@
                 setTimeout(() => forceSubmitExam(), 2000);
             }
         });
+    }
+
+    // PROFESSIONAL CBT ENHANCEMENTS JS
+    function changeFontSize(size) {
+        const area = $('#question-area');
+        area.removeClass('font-small font-large');
+        $('.xl\\:flex button').removeClass('bg-white shadow-sm text-indigo-600 font-black').addClass('text-slate-400 font-bold');
+        
+        if (size === 'small') {
+            area.addClass('font-small');
+            $('button[title="Kecil"]').addClass('bg-white shadow-sm text-indigo-600 font-black').removeClass('text-slate-400 font-bold');
+        } else if (size === 'large') {
+            area.addClass('font-large');
+            $('button[title="Besar"]').addClass('bg-white shadow-sm text-indigo-600 font-black').removeClass('text-slate-400 font-bold');
+        } else {
+            $('button[title="Normal"]').addClass('bg-white shadow-sm text-indigo-600 font-black').removeClass('text-slate-400 font-bold');
+        }
+    }
+
+    // Security listeners
+    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('cut', e => e.preventDefault());
+    document.addEventListener('paste', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
+    document.addEventListener('drop', e => e.preventDefault());
+
+    // Calculator logic
+    function toggleCalculator() {
+        $('#calculator-modal').toggleClass('hidden');
+    }
+
+    function handleCalc(val) {
+        const display = $('#calc-display');
+        if (val === '=') {
+            try { display.val(eval(display.val())); } catch(e) { display.val('Error'); }
+        } else if (val === 'C') {
+            display.val('0');
+        } else {
+            if (display.val() === '0' || display.val() === 'Error') display.val(val);
+            else display.val(display.val() + val);
+        }
     }
 </script>
 @endpush
