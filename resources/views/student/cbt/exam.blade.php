@@ -65,6 +65,22 @@
         </div>
     </div>
 
+    <!-- NETWORK GUARD BANNER (FLOATING) -->
+    <div id="network-guard" class="fixed top-24 left-1/2 -translate-x-1/2 z-[300] hidden">
+        <div class="flex items-center space-x-4 px-8 py-4 rounded-[2rem] shadow-2xl backdrop-blur-xl border transition-all duration-500 transform scale-90 opacity-0" id="network-banner">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg" id="network-icon-bg">
+                <i class="fas fa-wifi text-white" id="network-icon"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-[10px] font-black uppercase tracking-widest text-white/50 leading-none mb-1" id="network-status-label">Status Koneksi</span>
+                <span class="text-xs font-black text-white uppercase tracking-wider" id="network-message">Koneksi Terputus</span>
+            </div>
+            <div id="network-spinner" class="hidden">
+                <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN ENGINE AREA -->
     <div class="flex-1 flex overflow-hidden relative">
         <!-- LEFT: QUESTION CONTENT -->
@@ -946,5 +962,56 @@
             else display.val(display.val() + val);
         }
     }
+
+    // NETWORK GUARD LOGIC
+    window.addEventListener('offline', () => updateNetworkStatus(false));
+    window.addEventListener('online', () => updateNetworkStatus(true));
+
+    function updateNetworkStatus(isOnline) {
+        const guard = $('#network-guard');
+        const banner = $('#network-banner');
+        const iconBg = $('#network-icon-bg');
+        const icon = $('#network-icon');
+        const message = $('#network-message');
+        const spinner = $('#network-spinner');
+
+        guard.removeClass('hidden');
+        setTimeout(() => banner.addClass('scale-100 opacity-100'), 10);
+
+        if (isOnline) {
+            banner.removeClass('bg-rose-600/90 border-rose-500/50').addClass('bg-emerald-600/90 border-emerald-500/50');
+            iconBg.removeClass('bg-rose-500').addClass('bg-emerald-500');
+            icon.removeClass('fa-wifi-slash').addClass('fa-wifi');
+            message.text('Koneksi Terhubung Kembali');
+            spinner.addClass('hidden');
+            
+            setTimeout(() => {
+                banner.removeClass('scale-100 opacity-100');
+                setTimeout(() => guard.addClass('hidden'), 500);
+            }, 3000);
+        } else {
+            banner.removeClass('bg-emerald-600/90 border-emerald-500/50').addClass('bg-rose-600/90 border-rose-500/50');
+            iconBg.removeClass('bg-emerald-500').addClass('bg-rose-500');
+            icon.removeClass('fa-wifi').addClass('fa-wifi-slash');
+            message.text('Koneksi Terputus! Jangan Refresh Halaman');
+            spinner.removeClass('hidden');
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Koneksi Terputus!',
+                text: 'Harap periksa jaringan internet Anda. Jangan menutup atau merefresh halaman ini agar jawaban Anda tetap aman.',
+                confirmButtonColor: '#e11d48',
+                confirmButtonText: 'MENGERTI',
+                customClass: { popup: 'rounded-[2.5rem]' }
+            });
+        }
+    }
+
+    // Enhance AJAX to trigger Network Guard on failure
+    $(document).ajaxError(function(event, jqxhr, settings, thrownError) {
+        if (jqxhr.status === 0) {
+            updateNetworkStatus(false);
+        }
+    });
 </script>
 @endpush
