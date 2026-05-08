@@ -44,13 +44,14 @@ class CbtRankingController extends Controller
                     'students.id',
                     'students.nama_lengkap',
                     'students.nisn',
-                    'class_groups.group_name',
+                    'class_groups.class_group',
+                    'class_groups.sub_class_group',
                     DB::raw('SUM(final_score) as total_score'),
                     DB::raw('AVG(final_score) as average_score'),
                     DB::raw('COUNT(cbt_student_exams.id) as exams_count')
                 )
                 ->where('cbt_student_exams.status', 'finished')
-                ->groupBy('students.id', 'students.nama_lengkap', 'students.nisn', 'class_groups.group_name');
+                ->groupBy('students.id', 'students.nama_lengkap', 'students.nisn', 'class_groups.class_group', 'class_groups.sub_class_group');
 
             if ($selectedClass) {
                 $query->where('students.student_class_group_id', $selectedClass);

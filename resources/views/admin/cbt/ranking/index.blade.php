@@ -30,7 +30,7 @@
                                     <option value="">Semua Kelas</option>
                                     @foreach($classGroups as $cg)
                                         <option value="{{ $cg->id }}" {{ $selectedClass == $cg->id ? 'selected' : '' }}>
-                                            {{ $cg->group_name }}
+                                            {{ $cg->class_group }} {{ $cg->sub_class_group }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -110,7 +110,11 @@
                                     </td>
                                     <td class="text-center">
                                         <span class="badge badge-pill badge-light font-weight-bold">
-                                            {{ $rank->group_name ?? ($rank->student->classGroup->group_name ?? '-') }}
+                                            @if(isset($rank->class_group))
+                                                {{ $rank->class_group }} {{ $rank->sub_class_group }}
+                                            @else
+                                                {{ $rank->student->classGroup->class_group ?? '' }} {{ $rank->student->classGroup->sub_class_group ?? '-' }}
+                                            @endif
                                         </span>
                                     </td>
                                     @if(!$selectedExam)
