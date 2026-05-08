@@ -79,12 +79,12 @@
                 </div>
             </div>
             <div class="group">
-                <div class="bg-white p-6 md:p-8 rounded-[3rem] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] border border-slate-50 relative overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_30px_60_rgba(244,63,94,0.2)]">
-                    <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-rose-600 group-hover:text-white transition-all duration-500 shadow-inner">
-                        <i class="fas fa-exclamation-triangle text-xl"></i>
+                <div class="bg-white p-6 md:p-8 rounded-[3rem] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] border border-slate-50 relative overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_30px_60px_-15px_rgba(245,158,11,0.2)]">
+                    <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-inner">
+                        <i class="fas fa-trophy text-xl"></i>
                     </div>
-                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Pelanggaran</span>
-                    <h3 class="text-3xl font-black text-rose-600 tracking-tighter">{{ $stats['total_violations'] }}</h3>
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Ranking Kelas</span>
+                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">{{ $stats['class_rank'] }} <small class="text-xs text-slate-300 font-bold uppercase ml-1">Dari {{ $stats['total_students'] }}</small></h3>
                 </div>
             </div>
         </div>

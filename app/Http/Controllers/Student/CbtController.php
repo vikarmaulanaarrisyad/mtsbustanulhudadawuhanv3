@@ -9,6 +9,7 @@ use App\Models\CbtStudentAnswer;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class CbtController extends Controller
@@ -36,6 +37,23 @@ class CbtController extends Controller
             'average_score' => CbtStudentExam::where('student_id', $student->id)->where('status', 'finished')->avg('final_score') ?? 0,
             'total_violations' => CbtStudentExam::where('student_id', $student->id)->sum('violation_count')
         ];
+
+        // Hitung Ranking Kelas (Berdasarkan Rata-rata Nilai)
+        $classRankings = DB::table('cbt_student_exams')
+            ->join('students', 'cbt_student_exams.student_id', '=', 'students.id')
+            ->select('students.id', DB::raw('AVG(final_score) as avg_score'))
+            ->where('students.student_class_group_id', $student->student_class_group_id)
+            ->where('cbt_student_exams.status', 'finished')
+            ->groupBy('students.id')
+            ->orderBy('avg_score', 'DESC')
+            ->get();
+
+        $myRank = $classRankings->search(function($item) use ($student) {
+            return $item->id == $student->id;
+        });
+
+        $stats['class_rank'] = $myRank !== false ? $myRank + 1 : '-';
+        $stats['total_students'] = Student::where('student_class_group_id', $student->student_class_group_id)->count();
 
         return view('student.cbt.dashboard', compact('activeExams', 'student', 'stats'));
     }
