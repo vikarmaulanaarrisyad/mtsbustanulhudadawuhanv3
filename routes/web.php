@@ -652,7 +652,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/verify-midtrans', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'verifyMidtrans'])->name('ppdb.verify_midtrans');
     });
 
-    Auth::routes();
+
 
     Route::get('/dashboard', function () {
         $user = auth()->user();
