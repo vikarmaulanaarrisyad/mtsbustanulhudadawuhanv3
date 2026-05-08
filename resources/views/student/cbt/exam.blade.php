@@ -7,6 +7,11 @@
 <div class="cbt-container fixed inset-0 z-[150] bg-[#fdfdfd] flex flex-col hidden overflow-hidden select-none" id="cbt-engine">
     <!-- TOP NAVIGATION BAR (GLASSMORPHISM) -->
     <div class="h-16 md:h-20 bg-white/95 backdrop-blur-2xl border-b border-slate-100 flex items-center justify-between px-3 md:px-12 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative z-[70]">
+        <!-- Top Progress Bar -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-slate-50 overflow-hidden">
+            <div id="top-progress-bar" class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 transition-all duration-1000 ease-out" style="width: 0%"></div>
+        </div>
+
         <div class="flex items-center space-x-2 md:space-x-5">
             <div class="relative group">
                 <div class="absolute -inset-1 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg md:rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
@@ -24,6 +29,12 @@
         </div>
         
         <div class="flex items-center space-x-2 md:space-x-10">
+            <!-- Saved Indicator -->
+            <div id="save-indicator" class="hidden md:flex items-center space-x-2 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100 opacity-0 transition-opacity duration-300">
+                <i class="fas fa-cloud-upload-alt text-emerald-500 text-xs"></i>
+                <span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Tersimpan</span>
+            </div>
+
             <div class="hidden sm:flex flex-col items-center md:items-end bg-rose-50 px-3 py-1.5 md:px-6 md:py-2.5 rounded-xl md:rounded-[1.5rem] border border-rose-100">
                 <span class="text-[6px] md:text-[9px] text-rose-400 font-black uppercase tracking-[0.2em] mb-0.5">Pelanggaran</span>
                 <div class="flex items-center space-x-2">
@@ -58,8 +69,8 @@
                         $isDoubtful = $ans && $ans->is_doubtful ? 1 : 0;
                     @endphp
                     <div class="question-panel hidden animate-fade-in" id="q-panel-{{ $index + 1 }}" data-qid="{{ $q->id }}" data-doubtful="{{ $isDoubtful }}">
-                        <div class="mb-12 flex items-center justify-between">
-                            <div class="flex items-center space-x-6">
+                        <div class="mb-8 md:mb-12 flex items-center justify-between">
+                            <div class="flex items-center space-x-4 md:space-x-6">
                                 <div class="relative">
                                     <div class="absolute -inset-2 bg-indigo-500 rounded-full blur opacity-10 animate-pulse"></div>
                                     <span class="relative w-12 h-12 md:w-16 md:h-16 bg-white border border-slate-100 text-indigo-600 flex items-center justify-center rounded-2xl md:rounded-[1.8rem] font-black text-xl md:text-3xl shadow-xl">
@@ -73,6 +84,51 @@
                                     <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] mt-2 block">Butir Soal</span>
                                 </div>
                             </div>
+
+                            @php
+                                $typeColors = [
+                                    'pilihan_ganda' => [
+                                        'bg' => 'bg-indigo-50', 'border' => 'border-indigo-100', 'text' => 'text-indigo-600', 'icon' => 'fa-check-circle',
+                                        'instruction' => 'Pilih salah satu jawaban yang paling tepat.'
+                                    ],
+                                    'ganda_komplek' => [
+                                        'bg' => 'bg-purple-50', 'border' => 'border-purple-100', 'text' => 'text-purple-600', 'icon' => 'fa-tasks',
+                                        'instruction' => 'Anda dapat memilih lebih dari satu jawaban yang benar.'
+                                    ],
+                                    'penjodohan' => [
+                                        'bg' => 'bg-amber-50', 'border' => 'border-amber-100', 'text' => 'text-amber-600', 'icon' => 'fa-link',
+                                        'instruction' => 'Pilihlah pasangan yang sesuai untuk setiap pernyataan.'
+                                    ],
+                                    'essay' => [
+                                        'bg' => 'bg-emerald-50', 'border' => 'border-emerald-100', 'text' => 'text-emerald-600', 'icon' => 'fa-pen-fancy',
+                                        'instruction' => 'Tuliskan jawaban lengkap Anda pada kotak yang tersedia.'
+                                    ],
+                                    'uraian' => [
+                                        'bg' => 'bg-emerald-50', 'border' => 'border-emerald-100', 'text' => 'text-emerald-600', 'icon' => 'fa-pen-fancy',
+                                        'instruction' => 'Tuliskan uraian jawaban Anda dengan jelas.'
+                                    ],
+                                ];
+                                $style = $typeColors[$q->question_type] ?? [
+                                    'bg' => 'bg-slate-50', 'border' => 'border-slate-100', 'text' => 'text-slate-600', 'icon' => 'fa-question-circle',
+                                    'instruction' => 'Kerjakan soal berikut dengan teliti.'
+                                ];
+                            @endphp
+
+                            <div class="flex items-center">
+                                <div class="px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl {{ $style['bg'] }} border {{ $style['border'] }} flex items-center space-x-2 md:space-x-3 shadow-sm transform hover:scale-105 transition-transform duration-300">
+                                    <i class="fas {{ $style['icon'] }} {{ $style['text'] }} text-xs md:text-lg"></i>
+                                    <div class="flex flex-col">
+                                        <span class="text-[6px] md:text-[8px] font-black {{ $style['text'] }} opacity-50 uppercase tracking-[0.2em] leading-none mb-1">Tipe Soal</span>
+                                        <span class="text-[8px] md:text-[10px] font-black {{ $style['text'] }} uppercase tracking-widest leading-none">{{ $q->type_label }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Instruction Alert -->
+                        <div class="mb-8 flex items-center space-x-3 px-6 py-3 {{ $style['bg'] }} border {{ $style['border'] }} rounded-2xl animate-fade-in opacity-80">
+                            <i class="fas fa-info-circle {{ $style['text'] }} text-xs"></i>
+                            <span class="text-[9px] md:text-[11px] font-bold {{ $style['text'] }} uppercase tracking-wider">{{ $style['instruction'] }}</span>
                         </div>
 
                         <!-- QUESTION CARD -->
@@ -96,7 +152,14 @@
                                         @foreach($q->options as $optIndex => $opt)
                                             @php
                                                 $ans = $answers->get($q->id);
-                                                $isChecked = $ans && $ans->cbt_option_id == $opt->id;
+                                                $isChecked = false;
+                                                if ($ans) {
+                                                    if ($q->question_type === 'pilihan_ganda') {
+                                                        $isChecked = $ans->cbt_option_id == $opt->id;
+                                                    } else if ($q->question_type === 'ganda_komplek') {
+                                                        $isChecked = is_array($ans->selected_options) && in_array($opt->id, $ans->selected_options);
+                                                    }
+                                                }
                                                 $letter = chr(65 + $optIndex);
                                             @endphp
                                             <label class="option-label group flex items-start p-4 md:p-8 border-2 {{ $isChecked ? 'border-indigo-600 bg-indigo-50/50 shadow-2xl shadow-indigo-100/50' : 'border-slate-50 bg-slate-50/30 hover:border-indigo-300 hover:bg-white hover:shadow-xl' }} rounded-3xl md:rounded-[2.5rem] cursor-pointer transition-all duration-300">
@@ -481,6 +544,7 @@
             startTimer();
             initAntiCheat();
             initAIProctoring();
+            updateGlobalProgress();
         };
 
         if (document.documentElement.requestFullscreen) {
@@ -588,21 +652,52 @@
 
         btn.removeClass('bg-slate-50 border-transparent text-slate-300').addClass(isDoubt ? 'bg-amber-500 border-amber-500 text-white shadow-amber-200 animate-pulse' : 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-100');
         
-        if(!isMultiple) {
+        let data = { 
+            _token: '{{ csrf_token() }}', 
+            question_id: questionId, 
+            is_doubtful: isDoubt ? 1 : 0 
+        };
+
+        if(isMultiple) {
+            let selected = [];
+            panel.find('input[type="checkbox"]:checked').each(function() {
+                selected.push($(this).val());
+            });
+            data.selected_options = selected;
+        } else {
+            data.option_id = optionId;
             panel.find('.option-label').removeClass('border-indigo-600 bg-indigo-50/50 shadow-2xl shadow-indigo-100/50').addClass('border-slate-50 bg-slate-50/30');
         }
+
         let input = panel.find(`input[value="${optionId}"]`);
         if(input.is(':checked')) {
             input.closest('.option-label').addClass('border-indigo-600 bg-indigo-50/50 shadow-2xl shadow-indigo-100/50').removeClass('border-slate-50 bg-slate-50/30');
         }
-        $.post('{{ route("student.cbt.save-answer", $exam->id) }}', { 
-            _token: '{{ csrf_token() }}', 
-            question_id: questionId, 
-            option_id: optionId, 
-            is_doubtful: isDoubt ? 1 : 0 
+
+        $.post('{{ route("student.cbt.save-answer", $exam->id) }}', data).done(() => {
+            showSaveIndicator();
+            updateGlobalProgress();
         }).fail(function() {
             console.error("Gagal menyimpan jawaban");
         });
+    }
+
+    function showSaveIndicator() {
+        const indicator = $('#save-indicator');
+        indicator.removeClass('hidden opacity-0').addClass('opacity-100');
+        setTimeout(() => {
+            indicator.addClass('opacity-0');
+            setTimeout(() => indicator.addClass('hidden'), 300);
+        }, 2000);
+    }
+
+    function updateGlobalProgress() {
+        let answered = 0;
+        for (let i = 1; i <= totalQuestions; i++) {
+            if (checkHasAnswer($(`#q-panel-${i}`).data('qid'))) answered++;
+        }
+        const percentage = (answered / totalQuestions) * 100;
+        $('#top-progress-bar').css('width', percentage + '%');
     }
 
     function saveMatchingAnswer(questionId, qNo) {
@@ -625,6 +720,9 @@
             question_id: questionId,
             matching_answers: answers,
             is_doubtful: isDoubt ? 1 : 0
+        }).done(() => {
+            showSaveIndicator();
+            updateGlobalProgress();
         });
         
         const btn = $(`#nav-btn-desktop-${qNo}, #nav-btn-mobile-${qNo}`);
@@ -650,6 +748,9 @@
             question_id: questionId,
             answer_text: text,
             is_doubtful: isDoubt ? 1 : 0
+        }).done(() => {
+            showSaveIndicator();
+            updateGlobalProgress();
         });
 
         const btn = $(`#nav-btn-desktop-${qNo}, #nav-btn-mobile-${qNo}`);
