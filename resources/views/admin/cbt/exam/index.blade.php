@@ -353,12 +353,14 @@
             e.preventDefault();
             let id = $('#exam_id').val();
             let url = id ? `/admin/cbt/exam/${id}` : `{{ route('admin.cbt.exam.store') }}`;
-            let type = id ? 'PUT' : 'POST';
+            let type = 'POST';
+            let formData = $(this).serialize();
+            if(id) formData += '&_method=PUT';
 
             $('#btnSubmit').html('<i class="fas fa-spinner fa-spin mr-2"></i> MENYIMPAN...').prop('disabled', true);
 
             $.ajax({
-                url: url, type: type, data: $(this).serialize(),
+                url: url, type: type, data: formData,
                 success: function(res) {
                     resetForm();
                     table.ajax.reload();
@@ -390,7 +392,13 @@
             $('#exam_id').val(data.id);
             $('#name').val(data.name);
             $('#cbt_bank_id').val(data.cbt_bank_id).trigger('change');
-            $('#exam_date').val(data.exam_date);
+            
+            // Format date YYYY-MM-DD for input type="date"
+            if(data.exam_date) {
+                let dateVal = data.exam_date.split('T')[0];
+                $('#exam_date').val(dateVal);
+            }
+            
             $('#start_time').val(data.start_time);
             $('#end_time').val(data.end_time);
             $('#duration_minutes').val(data.duration_minutes);
