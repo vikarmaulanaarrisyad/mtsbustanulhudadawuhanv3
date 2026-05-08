@@ -204,6 +204,10 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::delete('/{exam}', 'destroy')->name('destroy');
                 Route::post('/{exam}/refresh-token', 'refreshToken')->name('refresh-token');
                 Route::get('/{exam}/monitor', 'monitor')->name('monitor');
+                // Exports
+                Route::get('/{exam}/export-excel', 'exportExcel')->name('export-excel');
+                Route::get('/{exam}/export-pdf', 'exportPdf')->name('export-pdf');
+                Route::get('/student-exam/{studentExam}/export-pdf', 'exportStudentPdf')->name('export-student-pdf');
             });
         });
     });

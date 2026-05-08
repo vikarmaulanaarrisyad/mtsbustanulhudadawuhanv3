@@ -24,6 +24,14 @@
                             <small class="text-uppercase font-weight-bold opacity-70">TOKEN UJIAN</small>
                             <h2 class="font-weight-black mb-0 letter-spacing-2">{{ $exam->token }}</h2>
                         </div>
+                        <div class="mt-3 d-flex justify-content-end gap-2">
+                            <a href="{{ route('admin.cbt.exam.export-excel', $exam->id) }}" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm border-0 font-weight-bold">
+                                <i class="fas fa-file-excel mr-1"></i> Excel
+                            </a>
+                            <a href="{{ route('admin.cbt.exam.export-pdf', $exam->id) }}" class="btn btn-sm btn-danger rounded-pill px-3 shadow-sm border-0 font-weight-bold">
+                                <i class="fas fa-file-pdf mr-1"></i> PDF
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -116,7 +124,7 @@
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">Anti-Cheat</th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2 text-center">Nilai</th>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2 text-center">Progress</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 pl-2 pr-4">Mulai</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 pl-2 pr-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -170,8 +178,14 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="text-xs font-weight-bold pr-4">
-                                    <i class="far fa-clock mr-1 text-muted"></i> {{ $se->start_time ? $se->start_time->format('H:i:s') : '-' }}
+                                <td class="text-center pr-4">
+                                    @if($se->status == 'finished')
+                                        <a href="{{ route('admin.cbt.exam.export-student-pdf', $se->id) }}" class="btn btn-xs btn-outline-danger rounded-pill font-weight-bold px-3">
+                                            <i class="fas fa-file-pdf mr-1"></i> Cetak Detail
+                                        </a>
+                                    @else
+                                        <span class="text-xxs text-muted">{{ $se->start_time ? $se->start_time->format('H:i') : '-' }}</span>
+                                    @endif
                                 </td>
                             </tr>
                             @empty

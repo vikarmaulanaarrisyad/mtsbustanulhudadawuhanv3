@@ -9,6 +9,10 @@ use App\Models\ClassGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
+use App\Exports\CbtExamResultExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\CbtStudentExam;
 
 class CbtExamController extends Controller
 {
@@ -114,5 +118,26 @@ class CbtExamController extends Controller
     {
         $exam->load(['bank', 'classes', 'studentExams.student']);
         return view('admin.cbt.exam.monitor', compact('exam'));
+    }
+
+    public function exportExcel(CbtExam $exam)
+    {
+        return Excel::download(new CbtExamResultExport($exam->id), "Hasil_Ujian_{$exam->name}.xlsx");
+    }
+
+    public function exportPdf(CbtExam $exam)
+    {
+        $exam->load(['bank', 'studentExams.student.classGroup']);
+        $pdf = Pdf::loadView('admin.cbt.exam.export.result_pdf', compact('exam'))
+                  ->setPaper('a4', 'portrait');
+        return $pdf->download("Laporan_Ujian_{$exam->name}.pdf");
+    }
+
+    public function exportStudentPdf(CbtStudentExam $studentExam)
+    {
+        $studentExam->load(['student.classGroup', 'exam.bank', 'answers.question.options', 'answers.option']);
+        $pdf = Pdf::loadView('admin.cbt.exam.export.student_result_pdf', compact('studentExam'))
+                  ->setPaper('a4', 'portrait');
+        return $pdf->download("Hasil_Detail_{$studentExam->student->nama_lengkap}.pdf");
     }
 }
