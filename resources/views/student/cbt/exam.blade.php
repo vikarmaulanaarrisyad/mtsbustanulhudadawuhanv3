@@ -284,6 +284,33 @@
 
         <!-- RIGHT: NUMBER GRID SIDEBAR (DESKTOP PERMANENT) -->
         <div class="hidden lg:flex w-96 bg-white border-l border-slate-100 p-10 flex-col z-20 shadow-[-10px_0_40px_-20px_rgba(0,0,0,0.05)] relative">
+            
+            <!-- Student Profile Card -->
+            <div class="bg-indigo-600 rounded-[2.5rem] p-8 mb-8 relative overflow-hidden shadow-2xl shadow-indigo-100 group">
+                <div class="relative z-10 flex flex-col items-center text-center">
+                    <div class="relative mb-4">
+                        <div class="absolute -inset-2 bg-white/20 rounded-full blur opacity-50 group-hover:opacity-80 transition duration-1000"></div>
+                        @if($studentExam->student->profile && $studentExam->student->profile->foto)
+                            <img src="{{ Storage::url($studentExam->student->profile->foto) }}" class="relative w-20 h-20 rounded-full border-4 border-white/30 object-cover shadow-2xl" alt="Foto Siswa">
+                        @else
+                            <div class="relative w-20 h-20 rounded-full border-4 border-white/30 bg-white/20 flex items-center justify-center text-white shadow-2xl">
+                                <i class="fas fa-user-graduate text-3xl"></i>
+                            </div>
+                        @endif
+                        <div class="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 border-4 border-indigo-600 rounded-full animate-pulse"></div>
+                    </div>
+                    <h4 class="text-white font-black text-sm uppercase tracking-tight mb-1 truncate w-full px-2">{{ $studentExam->student->nama_lengkap }}</h4>
+                    <p class="text-indigo-200 text-[10px] font-black uppercase tracking-[0.2em] mb-4">NIS: {{ $studentExam->student->nis }}</p>
+                    
+                    <div class="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10">
+                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                        <span class="text-[8px] font-black text-white uppercase tracking-widest">Siswa Aktif</span>
+                    </div>
+                </div>
+                <!-- Background Decor -->
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
+            </div>
+
             <div class="flex items-center space-x-4 mb-10">
                 <div class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white">
                     <i class="fas fa-layer-group text-sm"></i>
@@ -328,6 +355,25 @@
 
         <!-- RIGHT: NUMBER GRID SIDEBAR (MOBILE DRAWER) -->
         <div class="lg:hidden fixed top-24 bottom-0 right-0 w-80 bg-white border-l border-slate-50 p-8 flex flex-col z-[80] transform translate-x-full transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] shadow-[-20px_0_60px_-15px_rgba(0,0,0,0.1)]" id="sidebar-nav">
+            
+            <!-- Student Profile (Mobile) -->
+            <div class="flex items-center space-x-4 mb-10 p-5 bg-indigo-50 rounded-3xl border border-indigo-100">
+                <div class="relative">
+                    @if($studentExam->student->profile && $studentExam->student->profile->foto)
+                        <img src="{{ Storage::url($studentExam->student->profile->foto) }}" class="w-12 h-12 rounded-2xl object-cover shadow-lg" alt="Foto">
+                    @else
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg">
+                            <i class="fas fa-user-graduate text-lg"></i>
+                        </div>
+                    @endif
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <h4 class="text-xs font-black text-slate-800 uppercase truncate">{{ $studentExam->student->nama_lengkap }}</h4>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">NIS: {{ $studentExam->student->nis }}</p>
+                </div>
+            </div>
+
             <div class="flex items-center justify-between mb-10">
                 <div class="flex items-center space-x-4">
                     <div class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white">
