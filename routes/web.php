@@ -208,9 +208,10 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/{exam}/export-excel', 'exportExcel')->name('export-excel');
                 Route::get('/{exam}/export-pdf', 'exportPdf')->name('export-pdf');
                 Route::get('/student-exam/{studentExam}/export-pdf', 'exportStudentPdf')->name('export-student-pdf');
-                // Ranking & Recap
-                Route::get('/ranking', [\App\Http\Controllers\Admin\CbtRankingController::class, 'index'])->name('ranking.index');
             });
+
+            // Ranking & Recap
+            Route::get('/ranking', [\App\Http\Controllers\Admin\CbtRankingController::class, 'index'])->name('ranking.index');
         });
     });
 
