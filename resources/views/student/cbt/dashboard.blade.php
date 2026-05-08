@@ -153,8 +153,17 @@
                                     <div class="flex flex-col items-center justify-center gap-6 w-full lg:w-auto">
                                         @if($isFinished)
                                             <div class="text-center bg-emerald-50/50 px-10 py-6 rounded-[2.5rem] border border-emerald-100/50 shadow-inner min-w-[180px]">
-                                                <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2 block">SKOR ANDA</span>
-                                                <div class="text-5xl font-black text-emerald-600 tracking-tighter">{{ number_format($studentExam->final_score, 1) }}</div>
+                                                @if($exam->display_result)
+                                                    <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2 block">SKOR ANDA</span>
+                                                    <div class="text-5xl font-black text-emerald-600 tracking-tighter">{{ number_format($studentExam->final_score, 1) }}</div>
+                                                @else
+                                                    <div class="flex flex-col items-center py-2">
+                                                        <div class="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center mb-3 shadow-lg shadow-emerald-200">
+                                                            <i class="fas fa-check"></i>
+                                                        </div>
+                                                        <span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">HASIL TERKIRIM</span>
+                                                    </div>
+                                                @endif
                                             </div>
                                         @elseif($status === 'doing')
                                             <a href="{{ route('student.cbt.exam', $exam->id) }}" class="w-full lg:w-auto bg-slate-900 text-white rounded-[1.8rem] py-5 px-14 font-black text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-2xl active:scale-95 flex items-center justify-center group/btn relative overflow-hidden">

@@ -153,9 +153,14 @@
                         </select>
                     </div>
 
-                    <div class="custom-control custom-switch mb-4">
-                        <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" value="1">
+                    <div class="custom-control custom-switch mb-2">
+                        <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" value="1" checked>
                         <label class="custom-control-label text-xs text-muted font-weight-bold" for="is_active">Status Jadwal Aktif / Buka</label>
+                    </div>
+
+                    <div class="custom-control custom-switch mb-4">
+                        <input type="checkbox" class="custom-control-input" id="display_result" name="display_result" value="1" checked>
+                        <label class="custom-control-label text-xs text-muted font-weight-bold" for="display_result">Tampilkan Hasil Ke Siswa</label>
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-block shadow-lg font-weight-bold py-2 btn-premium" id="btnSubmit">
@@ -332,8 +337,10 @@
                                 <a href="javascript:void(0)" class="text-xs text-info mt-1 d-block font-weight-bold" onclick="refreshToken(${row.id})"><i class="fas fa-sync-alt mr-1"></i> Ganti Token</a>
                             </div>`; 
                 }},
-                {data: 'is_active', className: 'text-center', render: function(data){ 
-                    return data ? '<span class="badge-status bg-success-soft text-success"><span class="dot bg-success mr-2"></span>AKTIF</span>' : '<span class="badge-status bg-danger-soft text-danger"><span class="dot bg-danger mr-2"></span>DITUTUP</span>'; 
+                {data: 'is_active', className: 'text-center', render: function(data, type, row){ 
+                    let activeHtml = data ? '<span class="badge-status bg-success-soft text-success mb-1"><span class="dot bg-success mr-2"></span>AKTIF</span>' : '<span class="badge-status bg-danger-soft text-danger mb-1"><span class="dot bg-danger mr-2"></span>DITUTUP</span>';
+                    let resultHtml = row.display_result ? '<span class="text-[10px] text-info font-weight-bold d-block"><i class="fas fa-eye mr-1"></i> Skor Tampil</span>' : '<span class="text-[10px] text-muted font-weight-bold d-block"><i class="fas fa-eye-slash mr-1"></i> Skor Sembunyi</span>';
+                    return `<div class="d-flex flex-column align-items-center">${activeHtml} ${resultHtml}</div>`; 
                 }},
                 {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'}
             ],
@@ -388,6 +395,7 @@
             $('#end_time').val(data.end_time);
             $('#duration_minutes').val(data.duration_minutes);
             $('#is_active').prop('checked', data.is_active);
+            $('#display_result').prop('checked', data.display_result);
             
             let classes = data.classes.map(c => c.id);
             $('#classes').val(classes).trigger('change');
