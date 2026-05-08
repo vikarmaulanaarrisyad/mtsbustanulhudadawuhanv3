@@ -22,6 +22,10 @@ class PpdbSimulationSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
+        // 0. Seeder Menu Front-End PPDB
+        $this->call(FrontMenuSeeder::class);
+        $this->command->info('Menu Front-End PPDB berhasil diperbarui.');
+
         // 1. Dapatkan atau Buat Tahun Akademik Aktif (Menggunakan current_semester = 1 sebagai penanda aktif)
         $ay = AcademicYear::where('current_semester', 1)->first() ?? AcademicYear::first() ?? AcademicYear::create([
             'academic_year' => date('Y') . '/' . (date('Y') + 1),
