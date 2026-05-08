@@ -7,10 +7,13 @@ use App\Models\PerformanceAssessment;
 use App\Models\PerformanceAssessmentDetail;
 use App\Models\PerformanceIndicator;
 use App\Models\Teacher;
+use App\Models\Setting;
 use App\Imports\PerformanceIndicatorImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Exports\PerformanceRankingExport;
 
 class PerformanceController extends Controller
 {
@@ -220,5 +223,140 @@ class PerformanceController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Gagal menghapus: ' . $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Show breakdown for a teacher's performance.
+     */
+    public function show($teacherId)
+    {
+        $currentAY = AcademicYear::where('current_semester', 1)->first();
+        if (!$currentAY) {
+            return response()->json(['message' => 'Tahun akademik aktif tidak ditemukan.'], 404);
+        }
+
+        $teacher = Teacher::select('id', 'name', 'nip', 'position')->findOrFail($teacherId);
+
+        // Optimization: Use aggregates instead of loading all models to memory
+        $summary = PerformanceAssessment::where('teacher_id', $teacherId)
+            ->where('academic_year_id', $currentAY->id)
+            ->where('status', 'submitted')
+            ->select('assessor_type', DB::raw('COUNT(*) as count'), DB::raw('AVG(total_score) as avg_score'))
+            ->groupBy('assessor_type')
+            ->get()
+            ->keyBy('assessor_type')
+            ->map(function ($item) {
+                return [
+                    'count' => (int) $item->count,
+                    'avg_score' => round((float) $item->avg_score, 1)
+                ];
+            });
+
+        // Detail breakdown by indicator category - optimized join query
+        $detailsByCategory = DB::table('performance_assessment_details')
+            ->join('performance_assessments', 'performance_assessment_details.performance_assessment_id', '=', 'performance_assessments.id')
+            ->join('performance_indicators', 'performance_assessment_details.performance_indicator_id', '=', 'performance_indicators.id')
+            ->where('performance_assessments.teacher_id', $teacherId)
+            ->where('performance_assessments.academic_year_id', $currentAY->id)
+            ->where('performance_assessments.status', 'submitted')
+            ->select('performance_indicators.category', DB::raw('AVG(performance_assessment_details.score) as avg_score'))
+            ->groupBy('performance_indicators.category')
+            ->get();
+
+        return response()->json([
+            'teacher' => $teacher,
+            'summary' => $summary,
+            'details' => $detailsByCategory,
+            'academic_year' => $currentAY->academic_year
+        ]);
+    }
+
+    /**
+     * Export rankings to Excel.
+     */
+    public function exportExcel()
+    {
+        $currentAY = AcademicYear::where('current_semester', 1)->first();
+        $filename = 'Peringkat_Kinerja_Guru_' . str_replace('/', '-', $currentAY->academic_year ?? 'Report') . '.xlsx';
+        
+        return Excel::download(new PerformanceRankingExport(), $filename);
+    }
+
+    /**
+     * Export rankings to PDF.
+     */
+    public function exportPdf()
+    {
+        $currentAY = AcademicYear::where('current_semester', 1)->first();
+        
+        $rankings = PerformanceAssessment::with('teacher')
+            ->where('academic_year_id', $currentAY->id ?? 0)
+            ->where('status', 'submitted')
+            ->select('teacher_id', DB::raw('AVG(total_score) as final_score'))
+            ->groupBy('teacher_id')
+            ->orderByDesc('final_score')
+            ->get();
+
+        $pdf = Pdf::loadView('admin.performance.pdf-report', compact('rankings', 'currentAY'));
+        $pdf->setPaper('a4', 'portrait');
+        
+        return $pdf->download('Laporan_Kinerja_Guru_' . time() . '.pdf');
+    }
+
+    /**
+     * Export individual teacher performance report (PKG Format).
+     */
+    public function exportTeacherPdf($teacherId)
+    {
+        $currentAY = AcademicYear::with('semester')->where('current_semester', 1)->first();
+        if (!$currentAY) {
+            return back()->with('error', 'Tahun akademik aktif tidak ditemukan.');
+        }
+
+        $teacher = Teacher::findOrFail($teacherId);
+        $setting = Setting::first();
+
+        // Aggregate multiple assessments for this teacher in this AY
+        $details = DB::table('performance_assessment_details')
+            ->join('performance_assessments', 'performance_assessment_details.performance_assessment_id', '=', 'performance_assessments.id')
+            ->join('performance_indicators', 'performance_assessment_details.performance_indicator_id', '=', 'performance_indicators.id')
+            ->where('performance_assessments.teacher_id', $teacherId)
+            ->where('performance_assessments.academic_year_id', $currentAY->id)
+            ->where('performance_assessments.status', 'submitted')
+            ->select(
+                'performance_indicators.category',
+                'performance_indicators.indicator_text',
+                DB::raw('AVG(performance_assessment_details.score) as avg_score')
+            )
+            ->groupBy('performance_indicators.id', 'performance_indicators.category', 'performance_indicators.indicator_text')
+            ->get();
+
+        $groupedDetails = $details->groupBy('category');
+
+        // Stats for recap
+        $totalScore = $details->sum('avg_score');
+        $maxScore = $details->count() * 5;
+        $finalPercentage = $maxScore > 0 ? ($totalScore / $maxScore) * 100 : 0;
+
+        // Assessor info (latest assessment)
+        $latestAssessment = PerformanceAssessment::where('teacher_id', $teacherId)
+            ->where('academic_year_id', $currentAY->id)
+            ->where('status', 'submitted')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $assessor = null;
+        if ($latestAssessment) {
+            // Find assessor in users or teachers
+            $assessor = \App\Models\User::find($latestAssessment->assessor_id);
+        }
+
+        $pdf = Pdf::loadView('admin.performance.teacher-report', compact(
+            'teacher', 'setting', 'currentAY', 'groupedDetails', 
+            'totalScore', 'maxScore', 'finalPercentage', 'assessor'
+        ));
+        
+        $pdf->setPaper('a4', 'portrait');
+        return $pdf->download('PKG_' . str_replace(' ', '_', $teacher->name) . '_' . time() . '.pdf');
     }
 }

@@ -114,6 +114,12 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/indicators', [\App\Http\Controllers\Admin\PerformanceController::class, 'manageIndicators'])->name('performance.indicators.manage');
             Route::post('/indicators/store-single', [\App\Http\Controllers\Admin\PerformanceController::class, 'storeSingleIndicator'])->name('performance.indicators.store-single');
             Route::delete('/indicators/{id}', [\App\Http\Controllers\Admin\PerformanceController::class, 'destroyIndicator'])->name('performance.indicators.destroy');
+            
+            // New routes for details and exports
+            Route::get('/{teacher_id}/show', [\App\Http\Controllers\Admin\PerformanceController::class, 'show'])->name('performance.show');
+            Route::get('/{teacher_id}/export-pdf', [\App\Http\Controllers\Admin\PerformanceController::class, 'exportTeacherPdf'])->name('performance.export-teacher-pdf');
+            Route::get('/export/excel', [\App\Http\Controllers\Admin\PerformanceController::class, 'exportExcel'])->name('performance.export-excel');
+            Route::get('/export/pdf', [\App\Http\Controllers\Admin\PerformanceController::class, 'exportPdf'])->name('performance.export-pdf');
         });
 
         // Announcements - Admin View

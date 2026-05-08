@@ -176,6 +176,14 @@
                         </h4>
                         <p class="text-muted text-sm mb-0">TA {{ $currentAY->academic_year ?? '-' }} — {{ $assessedCount }} guru sudah dinilai</p>
                     </div>
+                    <div class="d-flex align-items-center">
+                <a href="{{ route('performance.export-excel') }}" class="btn btn-premium btn-success rounded-pill px-4 font-weight-bold mr-2">
+                    <i class="fas fa-file-excel mr-2"></i> EXCEL
+                </a>
+                <a href="{{ route('performance.export-pdf') }}" class="btn btn-premium btn-danger rounded-pill px-4 font-weight-bold">
+                    <i class="fas fa-file-pdf mr-2"></i> PDF
+                </a>
+            </div>
                 </div>
             </div>
             <div class="card-body p-0">
@@ -183,11 +191,11 @@
                     <table class="table table-hover align-middle mb-0" id="rankingTable">
                         <thead class="bg-light-info text-uppercase">
                             <tr>
-                                <th width="60" class="text-center py-3">#</th>
-                                <th class="py-3">Guru</th>
-                                <th width="120" class="text-center py-3">Skor</th>
-                                <th width="140" class="text-center py-3">Predikat</th>
-                                <th width="100" class="text-center py-3">Opsi</th>
+                                <th class="text-center" width="60">RANK</th>
+                                <th>GURU / TENAGA PENDIDIK</th>
+                                <th class="text-center" width="120">SKOR AKHIR</th>
+                                <th class="text-center" width="150">PREDIKAT</th>
+                                <th class="text-center" width="120">AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -231,9 +239,18 @@
                                     <span class="badge badge-soft-{{ $color }} rounded-pill px-3 py-2 text-uppercase small font-weight-bold">{{ $predikat }}</span>
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-light rounded-circle shadow-xs" title="Detail" style="width:32px;height:32px;">
-                                        <i class="fas fa-eye text-muted"></i>
-                                    </button>
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <button class="btn btn-sm btn-soft-primary rounded-circle shadow-none btn-view-detail mr-2" 
+                                                data-id="{{ $rank->teacher_id }}" 
+                                                title="Lihat Detail Kinerja" style="width:35px;height:35px;">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <a href="{{ route('performance.export-teacher-pdf', $rank->teacher_id) }}" 
+                                           class="btn btn-sm btn-soft-danger rounded-circle shadow-none" 
+                                           title="Download Laporan PDF (PKG)" style="width:35px;height:35px;display:inline-flex;align-items:center;justify-content:center;">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                             @empty
@@ -317,39 +334,33 @@
     </div>
 </div> -->
 
-<!-- MODAL IMPORT INDICATOR -->
-<!-- <div class="modal fade" id="modalImportIndicator" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+<!-- MODAL DETAIL PERFORMANCE -->
+<div class="modal fade" id="modalDetailPerformance" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title font-weight-bold"><i class="fas fa-file-excel text-success mr-2"></i> Import Indikator PKG</h5>
+            <div class="modal-header border-0 bg-light-info">
+                <h5 class="modal-title font-weight-bold text-dark">
+                    <i class="fas fa-chart-pie text-info mr-2"></i> Detail Capaian Kinerja
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body p-4">
-                <div class="alert alert-light border text-sm mb-3" style="border-radius: 10px;">
-                    <i class="fas fa-info-circle text-info mr-1"></i>
-                    Format kolom Excel: <strong>kategori</strong>, <strong>indikator</strong>, <strong>bobot</strong>, <strong>target_role</strong>
-                    <br><small class="text-muted">Data duplikat akan otomatis dilewati.</small>
-                </div>
-                <form id="formImportIndicator" enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-group">
-                        <label class="text-xs font-weight-bold text-muted uppercase">PILIH FILE EXCEL</label>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="importFile" name="file" accept=".xlsx,.xls,.csv" required>
-                            <label class="custom-file-label" for="importFile" style="border-radius: 10px;">Pilih file...</label>
-                        </div>
+            <div class="modal-body p-4" id="detailContent">
+                <!-- Content will be loaded via AJAX -->
+                <div class="text-center py-5">
+                    <div class="spinner-border text-info" role="status">
+                        <span class="sr-only">Loading...</span>
                     </div>
-                    <button type="submit" class="btn btn-success btn-block font-weight-bold py-2 mt-4 btn-premium" id="btnImportSubmit">
-                        <i class="fas fa-upload mr-2"></i> IMPORT SEKARANG
-                    </button>
-                </form>
+                    <p class="mt-2 text-muted">Mengambil data...</p>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light rounded-pill px-4 font-weight-bold" data-dismiss="modal">TUTUP</button>
             </div>
         </div>
     </div>
-</div> -->
+</div>
 
 <style>
     /* Premium Themes & Effects */
@@ -404,6 +415,10 @@
     .bg-soft-info { background: rgba(17, 205, 239, 0.1); }
     .btn-premium { border-radius: 10px; letter-spacing: 0.5px; transition: all 0.3s ease; }
     .btn-premium:hover { transform: scale(1.02); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .btn-soft-primary { background: rgba(94, 114, 228, 0.1); color: #5e72e4; border: none; transition: all 0.2s ease; }
+    .btn-soft-primary:hover { background: #5e72e4; color: #fff; transform: translateY(-2px); }
+    .btn-soft-danger { background: rgba(245, 54, 92, 0.1); color: #f5365c; border: none; transition: all 0.2s ease; }
+    .btn-soft-danger:hover { background: #f5365c; color: #fff; transform: translateY(-2px); }
     .shadow-xs { box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
     /* Soft Badges */
@@ -434,6 +449,7 @@
 
 @push('scripts')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     $(function() {
         // Go to form
@@ -505,6 +521,171 @@
                             Swal.fire('Gagal!', err.responseJSON?.message || 'Error', 'error');
                         }
                     });
+                }
+            });
+        });
+
+        // View detail modal
+        $(document).on('click', '.btn-view-detail', function() {
+            let teacherId = $(this).data('id');
+            let btn = $(this);
+            let originalContent = btn.html();
+            
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin text-primary"></i>');
+            
+            $('#modalDetailPerformance').modal('show');
+            $('#detailContent').html('<div class="text-center py-5"><div class="spinner-border text-info" role="status"></div><p class="mt-2 text-muted">Mengambil data...</p></div>');
+            $.ajax({
+                url: "{{ url('admin/performance') }}/" + teacherId + "/show",
+                type: 'GET',
+                success: function(res) {
+                    let summaryHtml = '';
+                    let detailsHtml = '';
+                    
+                    // Summary cards
+                    Object.keys(res.summary).forEach(key => {
+                        let data = res.summary[key];
+                        let icon = key == 'headmaster' ? 'user-tie' : (key == 'peer' ? 'users' : 'user-graduate');
+                        let color = key == 'headmaster' ? 'primary' : (key == 'peer' ? 'info' : 'warning');
+                        let title = key.charAt(0).toUpperCase() + key.slice(1);
+                        
+                        summaryHtml += `
+                            <div class="col-md-4 mb-3">
+                                <div class="card border-0 bg-soft-${color} h-100" style="border-radius:12px;">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-${icon} text-${color} mr-2"></i>
+                                            <small class="font-weight-bold text-uppercase">${title}</small>
+                                        </div>
+                                        <h4 class="mb-0 font-weight-bold text-${color}">${data.avg_score}%</h4>
+                                        <small class="text-muted">${data.count} Penilaian</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // Details categories
+                    res.details.forEach(item => {
+                        let avgScore = parseFloat(item.avg_score) || 0;
+                        let colorClass = avgScore >= 4 ? 'success' : (avgScore >= 3 ? 'primary' : (avgScore >= 2 ? 'warning' : 'danger'));
+                        let percentage = (avgScore / 5) * 100;
+                        
+                        detailsHtml += `
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-sm font-weight-bold text-dark">${item.category}</span>
+                                    <span class="badge badge-soft-${colorClass}">${avgScore.toFixed(1)} / 5.0</span>
+                                </div>
+                                <div class="progress progress-xs bg-light">
+                                    <div class="progress-bar bg-${colorClass}" style="width: ${percentage}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    let content = `
+                        <div class="row align-items-center mb-4">
+                            <div class="col-auto">
+                                <div class="avatar-lg bg-soft-info rounded-circle d-flex align-items-center justify-content-center text-info font-weight-bold" style="width:60px;height:60px;font-size:20px;">
+                                    ${res.teacher.name.substring(0, 1).toUpperCase()}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h4 class="mb-0 font-weight-bold text-dark">${res.teacher.name}</h4>
+                                <p class="text-muted mb-0">${res.teacher.nip ?? 'NIP: -'} · ${res.teacher.position ?? '-'}</p>
+                                <span class="badge badge-soft-info mt-1">TA ${res.academic_year}</span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 border-right">
+                                <h6 class="text-xs font-weight-bold text-uppercase text-muted mb-3" style="letter-spacing:1px;">Radar Kompetensi</h6>
+                                <div style="height: 250px;">
+                                    <canvas id="radarChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-xs font-weight-bold text-uppercase text-muted mb-3" style="letter-spacing:1px;">Rekomendasi PKB</h6>
+                                <div id="recommendationContent" class="card border-0 shadow-none bg-soft-info p-3" style="border-radius:12px; min-height: 250px;">
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border spinner-border-sm text-info"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h6 class="text-xs font-weight-bold text-uppercase text-muted mb-3 mt-4" style="letter-spacing:1px;">Rangkuman Penilai</h6>
+                        <div class="row mb-4">${summaryHtml}</div>
+                        
+                        <h6 class="text-xs font-weight-bold text-uppercase text-muted mb-3" style="letter-spacing:1px;">Capaian per Kategori Indikator</h6>
+                        <div class="card border-0 shadow-none bg-light p-3" style="border-radius:12px;">
+                            ${detailsHtml || '<p class="text-muted italic mb-0">Belum ada detail penilaian.</p>'}
+                        </div>
+                    `;
+                    
+                    $('#detailContent').html(content);
+
+                    // Initialize Radar Chart
+                    setTimeout(() => {
+                        let labels = res.details.map(d => d.category);
+                        let scores = res.details.map(d => parseFloat(d.avg_score));
+                        
+                        new Chart(document.getElementById('radarChart'), {
+                            type: 'radar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Skor Kompetensi',
+                                    data: scores,
+                                    fill: true,
+                                    backgroundColor: 'rgba(94, 114, 228, 0.2)',
+                                    borderColor: 'rgb(94, 114, 228)',
+                                    pointBackgroundColor: 'rgb(94, 114, 228)',
+                                    pointBorderColor: '#fff',
+                                    pointHoverBackgroundColor: '#fff',
+                                    pointHoverBorderColor: 'rgb(94, 114, 228)'
+                                }]
+                            },
+                            options: {
+                                maintainAspectRatio: false,
+                                elements: { line: { borderWidth: 3 } },
+                                scales: { r: { angleLines: { display: false }, suggestMin: 0, suggestMax: 5 } },
+                                plugins: { legend: { display: false } }
+                            }
+                        });
+
+                        // Generate Recommendations
+                        let lowScores = res.details.filter(d => parseFloat(d.avg_score) < 4);
+                        let recHtml = '<ul class="pl-3 mb-0 text-sm text-info">';
+                        
+                        const recommendations = {
+                            'Pedagogik': 'Direkomendasikan mengikuti Workshop Strategi Pembelajaran Aktif dan Inovatif.',
+                            'Profesional': 'Direkomendasikan mengikuti Pelatihan Penguasaan Materi Bidang Studi dan Literasi Digital.',
+                            'Kepribadian': 'Direkomendasikan mengikuti Seminar Pengembangan Etika dan Kepribadian Pendidik.',
+                            'Sosial': 'Direkomendasikan mengikuti Workshop Komunikasi Efektif dan Pengelolaan Hubungan Masyarakat.',
+                            'Perencanaan': 'Direkomendasikan mengikuti Bimtek Penyusunan Administrasi Pembelajaran (RPP/Modul Ajar).',
+                            'Pelaksanaan': 'Direkomendasikan mengikuti Observasi Pembelajaran Sejawat (Peer Observation).',
+                            'Penilaian': 'Direkomendasikan mengikuti Pelatihan Teknik Evaluasi dan Analisis Hasil Belajar Siswa.'
+                        };
+
+                        if(lowScores.length > 0) {
+                            lowScores.forEach(d => {
+                                let advice = recommendations[d.category] || 'Direkomendasikan mengikuti diklat fungsional atau workshop relevan.';
+                                recHtml += `<li class="mb-2"><b>${d.category}</b>: ${advice}</li>`;
+                            });
+                        } else {
+                            recHtml += '<li>Luar biasa! Seluruh aspek kompetensi telah melampaui standar. Pertahankan kinerja dan teruslah menjadi inspirasi bagi rekan sejawat.</li>';
+                        }
+                        recHtml += '</ul>';
+                        $('#recommendationContent').html(recHtml);
+                    }, 100);
+                },
+                error: function(err) {
+                    $('#detailContent').html('<div class="alert alert-danger">Gagal memuat data. Silakan coba lagi.</div>');
+                },
+                complete: function() {
+                    btn.prop('disabled', false).html(originalContent);
                 }
             });
         });
