@@ -14,6 +14,7 @@ class CbtExam extends Model
     protected $casts = [
         'exam_date' => 'date',
         'is_active' => 'boolean',
+        'display_result' => 'boolean',
     ];
 
     public function bank()

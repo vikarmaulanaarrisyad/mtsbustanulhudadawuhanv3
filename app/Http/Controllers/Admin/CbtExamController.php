@@ -59,8 +59,8 @@ class CbtExamController extends Controller
             'end_time' => $request->end_time,
             'duration_minutes' => $request->duration_minutes,
             'token' => strtoupper(Str::random(6)),
-            'is_active' => $request->has('is_active'),
-            'display_result' => $request->has('display_result')
+            'is_active' => $request->boolean('is_active'),
+            'display_result' => $request->boolean('display_result')
         ]);
 
         $exam->classes()->sync($request->classes);
@@ -93,8 +93,8 @@ class CbtExamController extends Controller
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
             'duration_minutes' => $request->duration_minutes,
-            'is_active' => $request->has('is_active'),
-            'display_result' => $request->has('display_result')
+            'is_active' => $request->boolean('is_active'),
+            'display_result' => $request->boolean('display_result')
         ]);
 
         $exam->classes()->sync($request->classes);

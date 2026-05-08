@@ -31,7 +31,13 @@ class CbtController extends Controller
             }])
             ->get();
 
-        return view('student.cbt.dashboard', compact('activeExams', 'student'));
+        $stats = [
+            'finished_count' => CbtStudentExam::where('student_id', $student->id)->where('status', 'finished')->count(),
+            'average_score' => CbtStudentExam::where('student_id', $student->id)->where('status', 'finished')->avg('final_score') ?? 0,
+            'total_violations' => CbtStudentExam::where('student_id', $student->id)->sum('violation_count')
+        ];
+
+        return view('student.cbt.dashboard', compact('activeExams', 'student', 'stats'));
     }
 
     public function join(Request $request, CbtExam $exam)

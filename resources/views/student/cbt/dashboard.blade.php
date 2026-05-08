@@ -66,7 +66,7 @@
                         <i class="fas fa-check-double text-xl"></i>
                     </div>
                     <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Selesai</span>
-                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">{{ $activeExams->where('status', 'finished')->count() }} <small class="text-xs text-slate-300 font-bold uppercase ml-1">Ujian</small></h3>
+                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">{{ $stats['finished_count'] }} <small class="text-xs text-slate-300 font-bold uppercase ml-1">Ujian</small></h3>
                 </div>
             </div>
             <div class="group">
@@ -75,16 +75,16 @@
                         <i class="fas fa-star text-xl"></i>
                     </div>
                     <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Nilai Rata-rata</span>
-                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">--</h3>
+                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">{{ number_format($stats['average_score'], 1) }}</h3>
                 </div>
             </div>
             <div class="group">
-                <div class="bg-white p-6 md:p-8 rounded-[3rem] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] border border-slate-50 relative overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_30px_60px_-15px_rgba(244,63,94,0.2)]">
+                <div class="bg-white p-6 md:p-8 rounded-[3rem] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] border border-slate-50 relative overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_30px_60_rgba(244,63,94,0.2)]">
                     <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-rose-600 group-hover:text-white transition-all duration-500 shadow-inner">
-                        <i class="fas fa-clock text-xl"></i>
+                        <i class="fas fa-exclamation-triangle text-xl"></i>
                     </div>
-                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Waktu Sisa</span>
-                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">--</h3>
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Pelanggaran</span>
+                    <h3 class="text-3xl font-black text-rose-600 tracking-tighter">{{ $stats['total_violations'] }}</h3>
                 </div>
             </div>
         </div>
