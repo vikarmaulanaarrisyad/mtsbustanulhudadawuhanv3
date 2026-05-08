@@ -51,7 +51,7 @@ return new class extends Migration
             $table->time('end_time');
             $table->integer('duration_minutes');
             $table->string('token', 6)->unique(); // Random 6 digit string
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
 

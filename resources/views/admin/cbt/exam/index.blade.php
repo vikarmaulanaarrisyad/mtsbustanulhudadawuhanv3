@@ -154,7 +154,7 @@
                     </div>
 
                     <div class="custom-control custom-switch mb-4">
-                        <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" value="1" checked>
+                        <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" value="1">
                         <label class="custom-control-label text-xs text-muted font-weight-bold" for="is_active">Status Jadwal Aktif / Buka</label>
                     </div>
 
