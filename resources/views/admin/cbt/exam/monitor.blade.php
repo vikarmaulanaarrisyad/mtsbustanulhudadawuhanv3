@@ -166,26 +166,38 @@
                                         <span class="text-xs text-muted font-italic">In Progress</span>
                                     @endif
                                 </td>
-                                <td class="text-center" style="min-width: 150px;">
+                                <td class="text-center" style="min-width: 180px;">
                                     @php
-                                        // Simple calculation if questions count exists, otherwise 0
-                                        $percent = $se->status == 'finished' ? 100 : ($se->start_time ? 45 : 0);
+                                        $totalQ = $exam->bank->questions_count ?? 0;
+                                        $answeredQ = $se->answers_count ?? 0;
+                                        $percent = ($totalQ > 0) ? round(($answeredQ / $totalQ) * 100) : 0;
+                                        if($se->status == 'finished') $percent = 100;
                                     @endphp
-                                    <div class="d-flex align-items-center justify-content-center">
-                                        <span class="mr-2 text-xs font-weight-bold">{{ $percent }}%</span>
-                                        <div class="progress shadow-none" style="height: 6px; width: 80px; border-radius: 10px;">
-                                            <div class="progress-bar {{ $percent == 100 ? 'bg-success' : 'bg-info' }}" role="progressbar" style="width: {{ $percent }}%;"></div>
+                                    <div class="d-flex flex-column align-items-center">
+                                        <div class="d-flex align-items-center justify-content-between w-100 mb-1 px-2">
+                                            <span class="text-xxs font-weight-bold text-muted">{{ $answeredQ }}/{{ $totalQ }} Soal</span>
+                                            <span class="text-xxs font-weight-black text-{{ $percent == 100 ? 'success' : 'info' }}">{{ $percent }}%</span>
+                                        </div>
+                                        <div class="progress shadow-none w-100" style="height: 6px; border-radius: 10px; background: #f1f5f9;">
+                                            <div class="progress-bar {{ $percent == 100 ? 'bg-success' : ($percent > 70 ? 'bg-info' : 'bg-warning') }}" role="progressbar" style="width: {{ $percent }}%;"></div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="text-center pr-4">
-                                    @if($se->status == 'finished')
-                                        <a href="{{ route('admin.cbt.exam.export-student-pdf', $se->id) }}" class="btn btn-xs btn-outline-danger rounded-pill font-weight-bold px-3">
-                                            <i class="fas fa-file-pdf mr-1"></i> Cetak Detail
-                                        </a>
-                                    @else
-                                        <span class="text-xxs text-muted">{{ $se->start_time ? $se->start_time->format('H:i') : '-' }}</span>
-                                    @endif
+                                    <div class="btn-group">
+                                        @if($se->status == 'finished')
+                                            <a href="{{ route('admin.cbt.exam.export-student-pdf', $se->id) }}" class="btn btn-xs btn-outline-danger rounded-pill font-weight-bold px-3">
+                                                <i class="fas fa-file-pdf mr-1"></i> Cetak
+                                            </a>
+                                        @else
+                                            <button type="button" class="btn btn-xs btn-soft-warning rounded-pill px-3 mr-1" onclick="resetExam({{ $se->id }}, '{{ $se->student->nama_lengkap }}')">
+                                                <i class="fas fa-sync-alt mr-1"></i> Reset
+                                            </button>
+                                            <button type="button" class="btn btn-xs btn-soft-danger rounded-pill px-3" onclick="forceFinish({{ $se->id }}, '{{ $se->student->nama_lengkap }}')">
+                                                <i class="fas fa-stop mr-1"></i> Selesai
+                                            </button>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                             @empty
@@ -244,6 +256,11 @@
 }
 
 /* BADGES SOFT */
+.btn-soft-info { background: #e0f2fe; color: #0369a1; border: none; }
+.btn-soft-warning { background: #fef3c7; color: #92400e; border: none; }
+.btn-soft-danger { background: #fee2e2; color: #b91c1c; border: none; }
+.btn-soft-info:hover, .btn-soft-warning:hover, .btn-soft-danger:hover { filter: brightness(0.95); }
+
 .badge-soft-primary { background: #eef2ff; color: #4f46e5; }
 .badge-soft-success { background: #ecfdf5; color: #10b981; }
 .badge-soft-warning { background: #fffbeb; color: #f59e0b; }

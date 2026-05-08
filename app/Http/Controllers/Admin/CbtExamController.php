@@ -116,8 +116,49 @@ class CbtExamController extends Controller
 
     public function monitor(CbtExam $exam)
     {
-        $exam->load(['bank', 'classes', 'studentExams.student']);
+        $exam->load([
+            'bank' => function($q) { $q->withCount('questions'); },
+            'classes',
+            'studentExams' => function($q) {
+                $q->with(['student.classGroup'])->withCount('answers');
+            }
+        ]);
         return view('admin.cbt.exam.monitor', compact('exam'));
+    }
+
+    public function resetStudentExam(CbtStudentExam $studentExam)
+    {
+        // Delete answers and reset status
+        $studentExam->answers()->delete();
+        $studentExam->update([
+            'status' => 'not_started',
+            'start_time' => null,
+            'end_time' => null,
+            'violation_count' => 0,
+            'final_score' => 0
+        ]);
+
+        return response()->json(['message' => 'Sesi ujian siswa berhasil di-reset']);
+    }
+
+    public function forceFinishStudentExam(CbtStudentExam $studentExam)
+    {
+        if ($studentExam->status == 'finished') {
+            return response()->json(['message' => 'Siswa sudah menyelesaikan ujian'], 400);
+        }
+
+        // Calculate score (simple logic)
+        $totalQuestions = $studentExam->exam->bank->questions->count();
+        $correctAnswers = $studentExam->answers()->where('is_correct', true)->count();
+        $score = ($totalQuestions > 0) ? ($correctAnswers / $totalQuestions) * 100 : 0;
+
+        $studentExam->update([
+            'status' => 'finished',
+            'end_time' => now(),
+            'final_score' => $score
+        ]);
+
+        return response()->json(['message' => 'Ujian siswa berhasil dihentikan paksa']);
     }
 
     public function exportExcel(CbtExam $exam)

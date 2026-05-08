@@ -876,10 +876,46 @@
     function initAntiCheat() {
         document.addEventListener('contextmenu', e => e.preventDefault());
         window.addEventListener('blur', reportViolation);
+
+        // Prevent Refresh & Navigation (Standard Browser Prompt)
+        window.addEventListener('beforeunload', function (e) {
+            e.preventDefault();
+            e.returnValue = 'Yakin ingin merefresh atau meninggalkan halaman? Jawaban yang belum tersimpan mungkin akan hilang.';
+            return e.returnValue;
+        });
+
+        // Block Refresh Shortcuts
+        document.addEventListener('keydown', function(e) {
+            // F5
+            if (e.keyCode === 116) {
+                e.preventDefault();
+                Swal.fire({ icon: 'warning', title: 'REFRESH DIBLOKIR', text: 'Harap gunakan navigasi nomor soal yang tersedia, jangan gunakan tombol F5.', timer: 2000, showConfirmButton: false, customClass: { popup: 'rounded-[2rem]' } });
+                return false;
+            }
+            // Ctrl+R or Ctrl+Shift+R
+            if (e.ctrlKey && (e.keyCode === 82)) {
+                e.preventDefault();
+                Swal.fire({ icon: 'warning', title: 'REFRESH DIBLOKIR', text: 'Shortcut refresh dinonaktifkan demi keamanan data ujian.', timer: 2000, showConfirmButton: false, customClass: { popup: 'rounded-[2rem]' } });
+                return false;
+            }
+            // Block Ctrl+W (Browser might block this override, but good to have)
+            if (e.ctrlKey && (e.keyCode === 87)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 reportViolation();
-                Swal.fire({ icon: 'error', title: 'PELANGGARAN!', text: 'Sistem mendeteksi Anda keluar dari layar penuh.', confirmButtonText: 'KEMBALI UJIAN', allowOutsideClick: false, customClass: { popup: 'rounded-[2.5rem]' } }).then(() => document.documentElement.requestFullscreen());
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'PELANGGARAN!', 
+                    text: 'Sistem mendeteksi Anda keluar dari layar penuh. Pelanggaran dicatat!', 
+                    confirmButtonText: 'KEMBALI UJIAN', 
+                    allowOutsideClick: false, 
+                    customClass: { popup: 'rounded-[2.5rem]' } 
+                }).then(() => document.documentElement.requestFullscreen());
             }
         });
     }
