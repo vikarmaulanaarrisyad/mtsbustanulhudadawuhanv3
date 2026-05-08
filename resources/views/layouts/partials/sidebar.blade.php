@@ -609,6 +609,12 @@
                         <p>Jadwal Ujian CBT</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.cbt.ranking.index') }}" class="nav-link {{ request()->is('cbt/ranking*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-trophy"></i>
+                        <p>Peringkat Ujian</p>
+                    </a>
+                </li>
 
                 <li class="nav-header">PENGATURAN SISTEM</li>
                 @endcan
