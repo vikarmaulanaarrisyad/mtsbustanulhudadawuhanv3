@@ -22,33 +22,37 @@ class PpdbSimulationSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
-        // 1. Dapatkan atau Buat Tahun Akademik Aktif
-        $ay = AcademicYear::where('is_active', true)->first() ?? AcademicYear::create([
-            'year' => date('Y') . '/' . (date('Y') + 1),
-            'is_active' => true
+        // 1. Dapatkan atau Buat Tahun Akademik Aktif (Menggunakan current_semester = 1 sebagai penanda aktif)
+        $ay = AcademicYear::where('current_semester', 1)->first() ?? AcademicYear::first() ?? AcademicYear::create([
+            'academic_year' => date('Y') . '/' . (date('Y') + 1),
+            'semester_id' => 1,
+            'current_semester' => 1
         ]);
 
         // 2. Pastikan ada Data Master Admission
-        $admission = StudentAdmission::first() ?? StudentAdmission::create([
+        $admission = StudentAdmission::where('academic_year_id', $ay->id)->first() ?? StudentAdmission::create([
             'academic_year_id' => $ay->id,
+            'admission_year' => date('Y'),
+            'admission_status' => 'open',
             'admission_start_date' => now()->subMonth(),
             'admission_end_date' => now()->addMonth(),
             'announcement_start_date' => now()->addMonth(),
+            'announcement_end_date' => now()->addMonth()->addDays(7),
         ]);
 
         // 3. Pastikan ada Gelombang (Phase)
-        $phase = AdmissionPhase::where('student_admission_id', $admission->id)->first() ?? AdmissionPhase::create([
-            'student_admission_id' => $admission->id,
-            'name' => 'Gelombang 1 (Simulasi)',
+        $phase = AdmissionPhase::where('academic_year_id', $ay->id)->first() ?? AdmissionPhase::create([
+            'academic_year_id' => $ay->id,
+            'phase_name' => 'Gelombang 1 (Simulasi)',
             'phase_start_date' => now()->subMonth(),
             'phase_end_date' => now()->addMonth(),
             'announcement_date' => now()->addMonth(),
         ]);
 
         // 4. Pastikan ada Jalur (Type)
-        $type = AdmissionType::first() ?? AdmissionType::create([
+        $type = AdmissionType::where('academic_year_id', $ay->id)->first() ?? AdmissionType::create([
+            'academic_year_id' => $ay->id,
             'admission_type_name' => 'Reguler',
-            'is_active' => true
         ]);
 
         $this->command->info('Mulai generate 200 data simulasi PPDB...');
@@ -65,7 +69,7 @@ class PpdbSimulationSeeder extends Seeder
                 'password' => Hash::make('password'),
             ]);
 
-            // Assign role jika ada role pendaftar
+            // Assign role jika ada role Siswa
             try {
                 $user->assignRole('Siswa');
             } catch (\Exception $e) {
