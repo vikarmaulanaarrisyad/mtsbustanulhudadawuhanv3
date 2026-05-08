@@ -10,6 +10,9 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
+// Schedule Otomatis Pembersihan Sistem (Setiap Minggu Malam)
+Schedule::command('sys:cleanup')->weeklyOn(0, '23:55');
+
 // Schedule Otomatis Update Status PPDB & Seleksi Kuota
 Schedule::command('ppdb:update-status')->everyFiveMinutes();
 
