@@ -461,31 +461,6 @@
                 </button>
             </div>
         </div>
-
-        <!-- FLOATING CALCULATOR TOGGLE -->
-        <div class="fixed bottom-6 left-6 z-[200]">
-            <button onclick="toggleCalculator()" class="w-14 h-14 bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 flex items-center justify-center text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all group">
-                <i class="fas fa-calculator text-xl group-hover:rotate-12 transition-transform"></i>
-            </button>
-        </div>
-
-        <!-- MINI CALCULATOR MODAL -->
-        <div id="calculator-modal" class="fixed bottom-24 left-6 z-[200] hidden animate-fade-in">
-            <div class="bg-slate-900 rounded-[2.5rem] p-6 shadow-2xl border border-slate-800 w-72">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Kalkulator</span>
-                    <button onclick="toggleCalculator()" class="text-slate-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
-                </div>
-                <input type="text" id="calc-display" class="w-full bg-slate-800 border-0 rounded-2xl text-right text-2xl font-black text-white p-4 mb-4 focus:ring-0" readonly value="0">
-                <div class="grid grid-cols-4 gap-2">
-                    @foreach(['7','8','9','/','4','5','6','*','1','2','3','-','C','0','=','+'] as $btn)
-                        <button onclick="handleCalc('{{ $btn }}')" class="h-12 rounded-xl flex items-center justify-center font-black text-sm transition-all {{ in_array($btn, ['/','*','-','+','=']) ? 'bg-indigo-600 text-white hover:bg-indigo-500' : ($btn == 'C' ? 'bg-rose-500 text-white hover:bg-rose-400' : 'bg-slate-800 text-slate-300 hover:bg-slate-700') }}">
-                            {{ $btn }}
-                        </button>
-                    @endforeach
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -945,23 +920,6 @@
     document.addEventListener('paste', e => e.preventDefault());
     document.addEventListener('dragstart', e => e.preventDefault());
     document.addEventListener('drop', e => e.preventDefault());
-
-    // Calculator logic
-    function toggleCalculator() {
-        $('#calculator-modal').toggleClass('hidden');
-    }
-
-    function handleCalc(val) {
-        const display = $('#calc-display');
-        if (val === '=') {
-            try { display.val(eval(display.val())); } catch(e) { display.val('Error'); }
-        } else if (val === 'C') {
-            display.val('0');
-        } else {
-            if (display.val() === '0' || display.val() === 'Error') display.val(val);
-            else display.val(display.val() + val);
-        }
-    }
 
     // NETWORK GUARD LOGIC
     window.addEventListener('offline', () => updateNetworkStatus(false));
