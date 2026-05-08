@@ -137,6 +137,22 @@ class ContentSeeder extends Seeder
                     ]);
                 }
             }
+
+            if ($m['title'] === 'PPDB Online') {
+                $subMenus = [
+                    ['title' => 'Form Pendaftaran', 'url' => '/ppdb', 'pos' => 1],
+                    ['title' => 'Monitoring PPDB', 'url' => '/ppdb/monitoring', 'pos' => 2],
+                ];
+                foreach ($subMenus as $sm) {
+                    Menu::updateOrCreate(['menu_slug' => Str::slug($sm['title'])], [
+                        'menu_title' => $sm['title'],
+                        'menu_slug' => Str::slug($sm['title']),
+                        'menu_url' => $sm['url'],
+                        'menu_parent_id' => $menu->id,
+                        'menu_position' => $sm['pos'],
+                    ]);
+                }
+            }
         }
     }
 }

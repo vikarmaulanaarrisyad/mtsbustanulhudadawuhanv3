@@ -48,14 +48,14 @@ class WorkflowController extends Controller
             [
                 'title' => 'Input Penilaian Semester 1',
                 'description' => 'Input nilai harian, PTS, dan PAS Ganjil untuk pengisian rapor.',
-                'route' => 'student-grades.index',
+                'route' => 'student-grades.raport',
                 'icon' => 'fas fa-file-invoice',
                 'color' => 'secondary'
             ],
             [
                 'title' => 'Cetak Rapor Semester 1',
                 'description' => 'Finalisasi nilai dan cetak buku rapor semester ganjil.',
-                'route' => 'student-grades.index',
+                'route' => 'student-grades.raport',
                 'icon' => 'fas fa-print',
                 'color' => 'dark'
             ],
@@ -86,7 +86,7 @@ class WorkflowController extends Controller
             [
                 'title' => 'Persiapan Ujian Madrasah',
                 'description' => 'Input nilai Ujian Madrasah untuk siswa kelas akhir (Kelas 6).',
-                'route' => 'student-grades.index',
+                'route' => 'student-grades.raport',
                 'icon' => 'fas fa-graduation-cap',
                 'color' => 'danger'
             ],
@@ -100,7 +100,7 @@ class WorkflowController extends Controller
             [
                 'title' => 'Cetak Rapor Semester 2',
                 'description' => 'Finalisasi nilai akhir tahun dan cetak rapor semester genap.',
-                'route' => 'student-grades.index',
+                'route' => 'student-grades.raport',
                 'icon' => 'fas fa-file-pdf',
                 'color' => 'secondary'
             ],
