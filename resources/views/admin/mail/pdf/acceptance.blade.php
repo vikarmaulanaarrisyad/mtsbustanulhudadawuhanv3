@@ -28,7 +28,7 @@
                 <td>Tempat, Tgl Lahir</td>
                 <td>:</td>
                 <td>{{ $acceptance->student->tempat_lahir }},
-                    {{ \Carbon\Carbon::parse($acceptance->student->tanggal_lahir)->translatedFormat('d F Y') }}</td>
+                    {{ tanggal_indonesia($acceptance->student->tanggal_lahir) }}</td>
             </tr>
             <tr>
                 <td>Jenis Kelamin</td>

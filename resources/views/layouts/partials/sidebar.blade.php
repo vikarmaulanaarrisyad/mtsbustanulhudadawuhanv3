@@ -60,6 +60,29 @@
                         <p>Data Guru & Staf</p>
                     </a>
                 </li>
+                <li class="nav-item {{ request()->is('admin/performance*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->is('admin/performance*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-user-check"></i>
+                        <p>
+                            Penilaian Kinerja (PKG)
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('performance.index') }}" class="nav-link {{ request()->is('admin/performance') || request()->is('admin/performance/create*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Penilaian Guru</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('performance.indicators.manage') }}" class="nav-link {{ request()->is('admin/performance/indicators*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Indikator PKG</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
                 <li class="nav-item {{ request()->is('academic/students*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('academic/students*') ? 'active' : '' }}">

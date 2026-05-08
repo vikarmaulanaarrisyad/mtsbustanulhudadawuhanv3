@@ -47,6 +47,20 @@
                             <option value="MA">MA</option>
                         </select>
                     </div>
+                    <div class="input-group-premium bg-light" style="width: 180px; height: 38px;">
+                        <i class="fas fa-tags text-muted"></i>
+                        <select id="filter-type" class="form-control border-0 bg-transparent font-weight-bold text-sm">
+                            <option value="">Semua Tipe</option>
+                            <option value="raport">Nilai Raport</option>
+                            <option value="ujian_madrasah">Ujian Madrasah</option>
+                        </select>
+                    </div>
+                    <button onclick="bulkDelete()" class="btn btn-danger rounded-pill font-weight-bold shadow-sm px-3 d-none" id="btn-bulk-delete" style="height: 38px;">
+                        <i class="fas fa-trash-alt mr-1"></i> HAPUS TERPILIH
+                    </button>
+                    <button onclick="resetOrder()" class="btn btn-outline-teal rounded-pill font-weight-bold shadow-sm px-3" style="height: 38px;">
+                        <i class="fas fa-sort-amount-down-alt mr-1"></i> RESET NOMOR
+                    </button>
                     <button onclick="addForm(`{{ route('grade-settings.store') }}`)" class="btn btn-teal rounded-pill font-weight-bold shadow-sm px-4" style="height: 38px;">
                         <i class="fas fa-plus-circle mr-1"></i> TAMBAH
                     </button>
@@ -58,6 +72,12 @@
                     <table class="table table-hover align-middle mb-0" id="setting-table" style="width:100%">
                         <thead class="bg-light-slate text-uppercase">
                             <tr>
+                                <th width="40px" class="text-center py-3">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="select-all">
+                                        <label class="custom-control-label" for="select-all"></label>
+                                    </div>
+                                </th>
                                 <th width="50px" class="text-center py-3">NO</th>
                                 <th>JENJANG</th>
                                 <th>TIPE NILAI</th>
@@ -261,9 +281,20 @@
                 url: '{{ route("grade-settings.data") }}',
                 data: function(d) {
                     d.level = $('#filter-level').val();
+                    d.type = $('#filter-type').val();
                 }
             },
             columns: [
+                { 
+                    data: 'checkbox', searchable: false, sortable: false, className: 'text-center',
+                    render: function(data, type, row) {
+                        return `
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input row-checkbox" id="check-${row.id}" value="${row.id}">
+                                <label class="custom-control-label" for="check-${row.id}"></label>
+                            </div>`;
+                    }
+                },
                 { data: 'DT_RowIndex', searchable: false, sortable: false, className: 'text-center' },
                 { 
                     data: 'level',
@@ -279,7 +310,7 @@
             ]
         });
 
-        $('#filter-level').on('change', function() {
+        $('#filter-level, #filter-type').on('change', function() {
             table.ajax.reload();
         });
 
@@ -334,6 +365,82 @@
                 .done(response => {
                     table.ajax.reload();
                     Swal.fire({ icon: 'success', title: 'Terhapus', text: response.message, timer: 1500, showConfirmButton: false });
+                });
+            }
+        });
+    }
+
+    // NEW BULK ACTIONS
+    $('#select-all').on('click', function() {
+        $('.row-checkbox').prop('checked', this.checked);
+        toggleBulkButton();
+    });
+
+    $(document).on('change', '.row-checkbox', function() {
+        if ($('.row-checkbox:checked').length == $('.row-checkbox').length) {
+            $('#select-all').prop('checked', true);
+        } else {
+            $('#select-all').prop('checked', false);
+        }
+        toggleBulkButton();
+    });
+
+    function toggleBulkButton() {
+        if ($('.row-checkbox:checked').length > 0) {
+            $('#btn-bulk-delete').removeClass('d-none');
+        } else {
+            $('#btn-bulk-delete').addClass('d-none');
+        }
+    }
+
+    function bulkDelete() {
+        let ids = [];
+        $('.row-checkbox:checked').each(function() {
+            ids.push($(this).val());
+        });
+
+        Swal.fire({
+            title: 'Hapus Terpilih?',
+            text: `Yakin ingin menghapus ${ids.length} mata pelajaran terpilih?`,
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#e3342f', confirmButtonText: 'Iya, Hapus Semua!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('{{ route("grade-settings.bulk_delete") }}', { _token: '{{ csrf_token() }}', ids: ids })
+                .done(response => {
+                    table.ajax.reload();
+                    $('#select-all').prop('checked', false);
+                    toggleBulkButton();
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message, timer: 1500, showConfirmButton: false });
+                })
+                .fail(xhr => {
+                    Swal.fire('Gagal', xhr.responseJSON?.message || 'Gagal menghapus data', 'error');
+                });
+            }
+        });
+    }
+
+    function resetOrder() {
+        let level = $('#filter-level').val();
+        let type = $('#filter-type').val();
+
+        if (!level || !type) {
+            Swal.fire('Pilih Filter', 'Mohon pilih Jenjang dan Tipe Nilai terlebih dahulu agar sistem tahu bagian mana yang ingin di-reset nomor urutnya.', 'info');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Reset Nomor Urut?',
+            text: `Sistem akan mengurutkan ulang mapel untuk jenjang ${level} (${type}) berdasarkan daftar saat ini.`,
+            icon: 'question', showCancelButton: true, confirmButtonColor: '#0d9488', confirmButtonText: 'Iya, Reset!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('{{ route("grade-settings.reset_order") }}', { _token: '{{ csrf_token() }}', level: level, type: type })
+                .done(response => {
+                    table.ajax.reload();
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message, timer: 1500, showConfirmButton: false });
+                })
+                .fail(xhr => {
+                    Swal.fire('Gagal', xhr.responseJSON?.message || 'Gagal mereset urutan', 'error');
                 });
             }
         });

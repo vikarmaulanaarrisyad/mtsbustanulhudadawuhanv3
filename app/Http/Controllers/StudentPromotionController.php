@@ -54,12 +54,14 @@ class StudentPromotionController extends Controller
 
         return datatables($query)
             ->addIndexColumn()
-            ->addColumn('checkbox', function ($s) {
-                return '<input type="checkbox" name="student_ids[]" value="' . $s->id . '" class="student-checkbox">';
+            ->addColumn('checkbox', function ($s) use ($academicYearId) {
+                $isProcessed = ($academicYearId && $s->academic_year_id != $academicYearId) ? 'true' : 'false';
+                return '<input type="checkbox" name="student_ids[]" value="' . $s->id . '" class="student-checkbox" data-processed="' . $isProcessed . '">';
             })
             ->addColumn('history_info', function($s) use ($academicYearId) {
                 if ($academicYearId && $s->academic_year_id != $academicYearId) {
-                    return '<span class="badge badge-success">Sudah Diproses ke ' . ($s->academicYear->academic_year ?? '-') . '</span>';
+                    return '<span class="badge badge-success mb-1">Sudah Diproses ke ' . ($s->academicYear->academic_year ?? '-') . '</span>' . 
+                           '<br><button type="button" onclick="undoSinglePromotion(' . $s->id . ')" class="btn btn-xs btn-outline-danger rounded-pill"><i class="fas fa-undo"></i> Batal</button>';
                 }
                 return '<span class="badge badge-warning">Belum Diproses</span>';
             })
@@ -87,7 +89,16 @@ class StudentPromotionController extends Controller
             foreach ($request->student_ids as $id) {
                 $student = Student::findOrFail($id);
                 
-                // 1. Historical continuity (record old state)
+                // VALIDATION: Prevent double promotion to the same academic year
+                $alreadyProcessed = StudentHistory::where('student_id', $student->id)
+                    ->where('academic_year_id', $request->target_academic_year_id)
+                    ->exists();
+                
+                if ($alreadyProcessed) {
+                    continue; // Skip this student
+                }
+                
+                // 1. Historical continuity (record old state if missing)
                 $hasCurrentHistory = StudentHistory::where('student_id', $student->id)
                     ->where('academic_year_id', $student->academic_year_id)
                     ->where('class_group_id', $student->student_class_group_id)

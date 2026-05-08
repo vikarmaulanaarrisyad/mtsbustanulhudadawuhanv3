@@ -34,10 +34,15 @@ class RaportGradesImport implements ToCollection, WithStartRow
             ->get();
 
         foreach ($rows as $row) {
-            $nisn = $row[1]; // Column 1: NISN (ID SISWA)
-            if (!$nisn) continue;
+            $nisn = trim((string) ($row[1] ?? ''));
+            $nis = trim((string) ($row[2] ?? ''));
+            
+            if (!$nisn && !$nis) continue;
 
-            $student = \App\Models\Student::where('nisn', $nisn)->first();
+            $student = \App\Models\Student::where('nisn', $nisn)
+                ->orWhere('nis', $nis)
+                ->first();
+                
             if (!$student) continue;
 
             $studentId = $student->id;
@@ -48,6 +53,9 @@ class RaportGradesImport implements ToCollection, WithStartRow
                     foreach ([1, 2] as $sem) {
                         $scoreCol = $colOffset + $subColIndex;
                         $score = $row[$scoreCol] ?? 0;
+                        
+                        // Sanitize score
+                        $score = is_numeric($score) ? round($score) : 0;
 
                         StudentGrade::updateOrCreate(
                             [
@@ -57,7 +65,7 @@ class RaportGradesImport implements ToCollection, WithStartRow
                                 'class_level' => $cl,
                                 'semester' => $sem,
                             ],
-                            ['score' => (float) $score]
+                            ['score' => $score]
                         );
                         $subColIndex++;
                     }

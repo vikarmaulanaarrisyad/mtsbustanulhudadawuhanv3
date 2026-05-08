@@ -47,7 +47,8 @@ class DocumentVerificationService
     public function generateQrCode(string $code, int $size = 100): string
     {
         $url = $this->getVerificationUrl($code);
-        return QrCode::size($size)->generate($url);
+        $svg = QrCode::size($size)->generate($url);
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 
     /**

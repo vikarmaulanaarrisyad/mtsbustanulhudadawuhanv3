@@ -34,16 +34,24 @@ class ExamGradesImport implements ToCollection, WithStartRow
             ->get();
 
         foreach ($rows as $row) {
-            $nisn = $row[1]; // Column 1: NISN (ID SISWA)
-            if (!$nisn) continue;
+            $nisn = trim((string) ($row[1] ?? ''));
+            $nis = trim((string) ($row[2] ?? ''));
+            
+            if (!$nisn && !$nis) continue;
 
-            $student = \App\Models\Student::where('nisn', $nisn)->first();
+            $student = \App\Models\Student::where('nisn', $nisn)
+                ->orWhere('nis', $nis)
+                ->first();
+                
             if (!$student) continue;
 
             $studentId = $student->id;
             $colOffset = 4; // Scores start at column 4
             foreach ($subjects as $gs) {
                 $score = $row[$colOffset] ?? 0;
+                
+                // Sanitize score
+                $score = is_numeric($score) ? round($score) : 0;
 
                 StudentGrade::updateOrCreate(
                     [
@@ -52,7 +60,7 @@ class ExamGradesImport implements ToCollection, WithStartRow
                         'type' => 'ujian_madrasah',
                         'class_level' => $this->finalClass,
                     ],
-                    ['score' => (float) $score]
+                    ['score' => $score]
                 );
                 $colOffset += 1; // Each subject has 1 score
             }

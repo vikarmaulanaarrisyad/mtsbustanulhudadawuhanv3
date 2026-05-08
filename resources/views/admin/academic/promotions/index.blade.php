@@ -328,10 +328,26 @@
 
     function submitPromotion() {
         let studentIds = [];
-        $('.student-checkbox:checked').each(function() { studentIds.push($(this).val()); });
+        let processedCount = 0;
+        
+        $('.student-checkbox:checked').each(function() { 
+            studentIds.push($(this).val()); 
+            if ($(this).data('processed') === true) {
+                processedCount++;
+            }
+        });
 
         if (studentIds.length === 0) {
             Swal.fire({ icon: 'warning', title: 'Pilih Siswa', text: 'Silakan pilih siswa yang akan diproses.' });
+            return;
+        }
+
+        if (processedCount > 0) {
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'Data Sudah Diproses', 
+                text: 'Terdapat ' + processedCount + ' siswa yang sudah diproses kenaikannya. Silakan hapus centang pada siswa tersebut atau batalkan proses terlebih dahulu.' 
+            });
             return;
         }
 
@@ -363,6 +379,20 @@
         });
     }
 
+    function undoSinglePromotion(studentId) {
+        Swal.fire({
+            title: 'Batalkan Proses?',
+            text: 'Kembalikan status siswa ini ke posisi sebelumnya?',
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya, Batalkan'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('{{ route("promotions.undo") }}', { _token: '{{ csrf_token() }}', student_ids: [studentId] })
+                    .done(res => { Swal.fire({ icon: 'success', title: 'Dibatalkan', text: res.message }); table.ajax.reload(); })
+                    .fail(err => { Swal.fire({ icon: 'error', title: 'Gagal', text: err.responseJSON?.message || 'Error' }); });
+            }
+        });
+    }
+
     function undoPromotion() {
         let studentIds = [];
         $('.student-checkbox:checked').each(function() { studentIds.push($(this).val()); });
@@ -373,8 +403,8 @@
         }
 
         Swal.fire({
-            title: 'Batalkan Proses?',
-            text: 'Kembalikan status siswa ke posisi sebelumnya?',
+            title: 'Batalkan Proses Massal?',
+            text: 'Kembalikan status ' + studentIds.length + ' siswa ke posisi sebelumnya?',
             icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya, Batalkan'
         }).then((result) => {
             if (result.isConfirmed) {

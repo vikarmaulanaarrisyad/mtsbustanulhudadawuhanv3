@@ -110,7 +110,7 @@
                             <tr>
                                 <th width="60px" class="text-center py-3 rounded-left-10">NO</th>
                                 <th>NAMA LENGKAP SISWA</th>
-                                <th width="200px" class="text-center">NILAI FINAL</th>
+                                <th width="200px" class="text-center grade-col {{ request('subject_id') ? '' : 'd-none' }}">NILAI FINAL</th>
                                 <th width="200px" class="text-center rounded-right-10">AKSI TINDAKAN</th>
                             </tr>
                         </thead>
@@ -125,7 +125,7 @@
         <div class="alert alert-soft-fuchsia border-0 rounded-15 shadow-sm p-4 text-center">
             <i class="fas fa-hand-pointer text-fuchsia fa-3x mb-3 d-block"></i>
             <h5 class="font-weight-bold text-fuchsia-dark">Membutuhkan Parameter</h5>
-            <p class="text-muted mb-0">Silahkan pilih Jenjang, Kelas, dan Mata Pelajaran terlebih dahulu pada panel kontrol di atas untuk mulai memasukkan nilai.</p>
+            <p class="text-muted mb-0">Silahkan pilih Jenjang dan Kelas terlebih dahulu pada panel kontrol di atas untuk melihat data siswa.</p>
         </div>
         @endif
     </div>
@@ -252,7 +252,7 @@
         // Initialize simple select2
         $('.select2-no-search').select2({ minimumResultsForSearch: -1, width: '100%' });
         
-        if($('#subject_id').val()) {
+        if($('#filter-class').val()) {
             loadGrades();
         }
 
@@ -306,26 +306,31 @@
         const level = $('select[name=level]').val();
         const subjectId = $('#subject_id').val();
 
-        if (!classId || !level || !subjectId) return;
+        if (!classId || !level) return;
 
         $('#grade-table tbody').html('<tr><td colspan="4" class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-fuchsia mb-3"></i><br>Menganalisis data siswa...</td></tr>');
 
         $.get('{{ route("student-grades.exam_data") }}', { class_id: classId, level: level, subject_id: subjectId })
         .done(response => {
+            if (subjectId) { $('.grade-col').removeClass('d-none'); } else { $('.grade-col').addClass('d-none'); }
+            
             let html = '';
             response.data.forEach((row, index) => {
+                const gradeColClass = subjectId ? '' : 'd-none';
                 html += `<tr>
                     <td class="text-center">${index + 1}</td>
                     <td><div class="font-weight-bold text-dark">${row.nama_lengkap}</div><small class="text-muted">NIS: ${row.nis || '-'}</small></td>
-                    <td>
-                        <input type="number" step="0.01" class="form-control text-center input-score" value="${row.score || 0}" 
-                        onchange="saveGrade(this, ${row.id})" onkeyup="if(event.keyCode===13) saveGrade(this, ${row.id})">
+                    <td class="grade-col ${gradeColClass}">
+                        <input type="number" min="0" max="100" step="1" class="form-control text-center input-score" value="${parseInt(row.score) || 0}" 
+                        onchange="saveGrade(this, ${row.id})" onkeyup="if(event.keyCode===13) saveGrade(this, ${row.id})" placeholder="0">
                     </td>
                     <td class="text-center">
                         <div class="d-flex justify-content-center" style="gap:5px;">
+                            ${subjectId ? `
                             <button type="button" class="btn btn-sm btn-fuchsia rounded-pill shadow-xs btn-save-row" onclick="saveGrade(this, ${row.id})" title="Simpan">
                                 <i class="fas fa-check"></i>
                             </button>
+                            ` : ''}
                             <a href="${'{{ route("student-grades.print_skl", ":id") }}'.replace(':id', row.id)}" target="_blank" class="btn btn-sm btn-light rounded-pill border shadow-xs text-info" title="Cetak SKL">
                                 <i class="fas fa-file-alt"></i> SKL
                             </a>
@@ -344,7 +349,12 @@
         const subjectId = $('#subject_id').val();
         const level = $('select[name=level]').val();
         const inputEl = $(el).is('input') ? $(el) : $(el).closest('tr').find('.input-score');
-        const score = inputEl.val();
+        let score = parseFloat(inputEl.val()) || 0;
+        if (score > 100) {
+            toastr.error('Nilai tidak boleh lebih dari 100. Sistem mereset ke 0.');
+            inputEl.val(0);
+            score = 0;
+        }
         const btn = $(el).is('input') ? $(el).closest('tr').find('.btn-save-row') : el;
 
         inputEl.css('border-color', '#3498db').css('background', '#ebf5fb');

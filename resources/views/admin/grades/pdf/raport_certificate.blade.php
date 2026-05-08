@@ -60,7 +60,7 @@
                             <td style="text-align: center;">{{ $grade['scores']["c{$cl}s1"] }}</td>
                             <td style="text-align: center;">{{ $grade['scores']["c{$cl}s2"] }}</td>
                         @endforeach
-                        <td style="text-align: center; font-weight: bold;">{{ number_format($grade['nr'], 2) }}</td>
+                        <td style="text-align: center; font-weight: bold;">{{ number_format($grade['nr'], 0) }}</td>
                     </tr>
                     @php $totalNR += $grade['nr']; @endphp
                 @endforeach
@@ -68,11 +68,11 @@
             <tfoot>
                 <tr style="font-weight: bold; background-color: #f2f2f2;">
                     <td colspan="{{ (count($classLevels) * 2) + 2 }}" style="text-align: right; padding-right: 10px;">JUMLAH NILAI RAPORT (NR)</td>
-                    <td style="text-align: center;">{{ number_format($totalNR, 2) }}</td>
+                    <td style="text-align: center;">{{ number_format($totalNR, 0) }}</td>
                 </tr>
                 <tr style="font-weight: bold; background-color: #f2f2f2;">
                     <td colspan="{{ (count($classLevels) * 2) + 2 }}" style="text-align: right; padding-right: 10px;">RATA-RATA NILAI RAPORT</td>
-                    <td style="text-align: center;">{{ count($dataGrades) > 0 ? number_format($totalNR / count($dataGrades), 2) : 0 }}</td>
+                    <td style="text-align: center;">{{ count($dataGrades) > 0 ? number_format($totalNR / count($dataGrades), 0) : 0 }}</td>
                 </tr>
             </tfoot>
         </table>

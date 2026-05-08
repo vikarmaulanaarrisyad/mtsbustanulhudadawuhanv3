@@ -20,7 +20,7 @@
                 <td>Tempat, Tanggal Lahir</td>
                 <td>:</td>
                 <td>{{ $student->tempat_lahir }},
-                    {{ \Carbon\Carbon::parse($student->tanggal_lahir)->translatedFormat('d F Y') }}</td>
+                    {{ tanggal_indonesia($student->tanggal_lahir) }}</td>
             </tr>
             <tr>
                 <td>NIS / NISN</td>
@@ -41,7 +41,7 @@
 
         <p style="text-align: justify; line-height: 1.6;">
             Berdasarkan kriteria kelulusan peserta didik yang ditetapkan oleh satuan pendidikan dan hasil rapat pleno dewan
-            guru pada tanggal {{ \Carbon\Carbon::parse($student->tanggal_keluar)->translatedFormat('d F Y') }}, nama yang
+            guru pada tanggal {{ tanggal_indonesia($student->tanggal_keluar) }}, nama yang
             tersebut di atas dinyatakan:
         </p>
 

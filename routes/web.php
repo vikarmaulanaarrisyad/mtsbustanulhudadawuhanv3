@@ -104,6 +104,18 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/behavior-logs', [\App\Http\Controllers\BehaviorLogController::class, 'store'])->name('admin.behavior-logs.store');
         Route::delete('/behavior-logs/{id}', [\App\Http\Controllers\BehaviorLogController::class, 'destroy'])->name('admin.behavior-logs.destroy');
 
+        // Performance Assessment (PKG)
+        Route::prefix('performance')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\PerformanceController::class, 'index'])->name('performance.index');
+            Route::get('/create', [\App\Http\Controllers\Admin\PerformanceController::class, 'create'])->name('performance.create');
+            Route::post('/store', [\App\Http\Controllers\Admin\PerformanceController::class, 'store'])->name('performance.store');
+            Route::post('/indicators/import', [\App\Http\Controllers\Admin\PerformanceController::class, 'importIndicators'])->name('performance.indicators.import');
+            Route::get('/indicators/template', [\App\Http\Controllers\Admin\PerformanceController::class, 'downloadTemplate'])->name('performance.indicators.template');
+            Route::get('/indicators', [\App\Http\Controllers\Admin\PerformanceController::class, 'manageIndicators'])->name('performance.indicators.manage');
+            Route::post('/indicators/store-single', [\App\Http\Controllers\Admin\PerformanceController::class, 'storeSingleIndicator'])->name('performance.indicators.store-single');
+            Route::delete('/indicators/{id}', [\App\Http\Controllers\Admin\PerformanceController::class, 'destroyIndicator'])->name('performance.indicators.destroy');
+        });
+
         // Announcements - Admin View
         Route::get('/announcements/{id}', [AnnouncementController::class, 'show'])->name('admin.announcements.show');
     });
@@ -888,6 +900,8 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/settings/data', 'data')->name('grade-settings.data');
             Route::post('/settings', 'store')->name('grade-settings.store');
             Route::post('/settings/weights', 'updateWeights')->name('grade-settings.update_weights');
+            Route::post('/settings/bulk-delete', 'bulkDelete')->name('grade-settings.bulk_delete');
+            Route::post('/settings/reset-order', 'resetOrder')->name('grade-settings.reset_order');
             Route::delete('/settings/{id}', 'destroy')->name('grade-settings.destroy');
         });
 

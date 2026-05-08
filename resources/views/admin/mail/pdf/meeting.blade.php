@@ -42,7 +42,7 @@
             <tr>
                 <td width="25%">Hari, Tanggal</td>
                 <td width="2%">:</td>
-                <td><strong>{{ \Carbon\Carbon::parse($meeting->meeting_date)->translatedFormat('l, d F Y') }}</strong></td>
+                <td><strong>{{ tanggal_indonesia($meeting->meeting_date, true) }}</strong></td>
             </tr>
             <tr>
                 <td>Waktu</td>

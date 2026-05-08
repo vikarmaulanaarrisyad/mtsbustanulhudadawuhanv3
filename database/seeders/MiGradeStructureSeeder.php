@@ -27,23 +27,24 @@ class MiGradeStructureSeeder extends Seeder
         // Bersihkan pengaturan MI yang lama agar tidak duplikat
         GradeSetting::where('level', 'MI')->delete();
 
-        // Daftar Urutan Penilaian Raport MI
-        $order = 1;
+        // Daftar Urutan Penilaian MI
+        $raportOrder = 1;
+        $ujianOrder = 1;
         foreach ($subjects as $subject) {
-            // A. Konfigurasi untuk Nilai Raport
+            // Konfigurasi untuk Nilai Raport
             GradeSetting::create([
-                'level' => 'MI',
                 'subject_id' => $subject->id,
+                'level' => 'MI',
                 'type' => 'raport',
-                'order' => $order++,
+                'order' => $raportOrder++,
             ]);
 
-            // B. Konfigurasi untuk Nilai Ujian Madrasah (Opsional untuk semua mapel)
+            // Konfigurasi untuk Nilai Ujian Madrasah
             GradeSetting::create([
-                'level' => 'MI',
                 'subject_id' => $subject->id,
+                'level' => 'MI',
                 'type' => 'ujian_madrasah',
-                'order' => $order++,
+                'order' => $ujianOrder++,
             ]);
         }
 

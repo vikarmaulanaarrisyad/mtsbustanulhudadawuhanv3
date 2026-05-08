@@ -358,7 +358,7 @@
                         const key = `c${cl}s${sem}`;
                         const val = row.grades[key] || '';
                         let borderClass = i === 1 ? 'border-right-ocean' : 'border-right'; // s2 gets the bold ocean border
-                        html += `<td class="grade-col ${borderClass} ${gradeColClass}"><input type="number" step="0.01" class="form-control text-center input-score" data-student="${row.id}" data-key="${key}" value="${val}" onchange="saveGrade(this, ${row.id})" onkeyup="if(event.keyCode===13) saveGrade(this, ${row.id})" placeholder="-"></td>`;
+                        html += `<td class="grade-col ${borderClass} ${gradeColClass}"><input type="number" min="0" max="100" step="1" class="form-control text-center input-score" data-student="${row.id}" data-key="${key}" value="${parseInt(val) || 0}" onchange="saveGrade(this, ${row.id})" onkeyup="if(event.keyCode===13) saveGrade(this, ${row.id})" placeholder="0"></td>`;
                     });
                 });
 
@@ -407,7 +407,15 @@
         const btn = $(el).is('input') ? row.find('.btn-save-row') : el;
         let grades = {};
         
-        inputs.each(function() { grades[$(this).data('key')] = $(this).val(); });
+        inputs.each(function() { 
+            let val = parseFloat($(this).val()) || 0;
+            if (val > 100) {
+                toastr.error('Nilai tidak boleh lebih dari 100. Sistem mereset ke 0.');
+                $(this).val(0);
+                val = 0;
+            }
+            grades[$(this).data('key')] = val; 
+        });
 
         if ($(el).is('input')) {
             $(el).css('background', '#fef08a').css('color', '#000');

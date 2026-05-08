@@ -80,7 +80,7 @@ class StudentGradeController extends Controller
                     foreach ($classLevels as $cl) {
                         foreach ([1, 2] as $sem) {
                             $score = $grades->where('class_level', $cl)->where('semester', $sem)->first()->score ?? 0;
-                            $result["c{$cl}s{$sem}"] = $score;
+                            $result["c{$cl}s{$sem}"] = (int) $score;
                         }
                     }
                 } else {
@@ -120,7 +120,7 @@ class StudentGradeController extends Controller
                         'class_level' => $classLevel,
                         'semester' => $semester,
                     ],
-                    ['score' => $score ?? 0]
+                    ['score' => round($score ?? 0)]
                 );
             }
         }
@@ -168,7 +168,7 @@ class StudentGradeController extends Controller
         $level = $request->level;
         $subjectId = $request->subject_id;
 
-        if (!$classId || !$level || !$subjectId) {
+        if (!$classId || !$level) {
             return datatables(collect([]))->make(true);
         }
 
@@ -188,7 +188,7 @@ class StudentGradeController extends Controller
                     ->where('type', 'ujian_madrasah')
                     ->where('class_level', $finalClassLevel)
                     ->first();
-                return $grade->score ?? 0;
+                return (int) ($grade->score ?? 0);
             })
             ->make(true);
     }
@@ -214,7 +214,7 @@ class StudentGradeController extends Controller
                 'type' => 'ujian_madrasah',
                 'class_level' => $finalClassLevel,
             ],
-            ['score' => $request->score]
+            ['score' => round($request->score)]
         );
 
         return response()->json(['message' => 'Nilai Ujian Madrasah berhasil disimpan']);
@@ -304,7 +304,7 @@ class StudentGradeController extends Controller
                 }
             }
 
-            $nr = $count > 0 ? $total / $count : 0;
+            $nr = $count > 0 ? round($total / $count) : 0;
             $dataGrades[] = [
                 'subject' => $gs->subject->name,
                 'scores' => $scores,
@@ -318,7 +318,7 @@ class StudentGradeController extends Controller
         return $pdf->stream('SK_Nilai_Raport_' . $student->nama_lengkap . '.pdf');
     }
 
-    public function printSKL($student_id, DocumentVerificationService $verificationService)
+    public function printSKL(DocumentVerificationService $verificationService, $student_id)
     {
         $student = Student::with(['profile', 'parents', 'classGroup'])->findOrFail($student_id);
         $setting = \App\Models\MailSetting::first();
@@ -352,6 +352,8 @@ class StudentGradeController extends Controller
         $weightExam = $setting->weight_exam ?? 40;
 
         $dataGrades = [];
+        $agamaKeywords = ['quran', 'hadis', 'akidah', 'aqidah', 'fikih', 'fiqih', 'ski', 'bahasa arab', 'agama', 'pai'];
+
         foreach ($examSettings as $es) {
             // NR (Average of Raport semesters)
             $raportGrades = $allGrades->where('type', 'raport')->where('subject_id', $es->subject_id);
@@ -364,21 +366,64 @@ class StudentGradeController extends Controller
                     if ($score > 0) $countRaport++;
                 }
             }
-            $nr = $countRaport > 0 ? $totalRaport / $countRaport : 0;
+            $nr = $countRaport > 0 ? round($totalRaport / $countRaport) : 0;
 
             // UM
             $umScore = $allGrades->where('type', 'ujian_madrasah')->where('subject_id', $es->subject_id)->first()->score ?? 0;
 
             // NS (Final Grade) - Formula using weights
-            $ns = ($nr * ($weightRaport / 100)) + ($umScore * ($weightExam / 100));
+            $ns = round(($nr * ($weightRaport / 100)) + ($umScore * ($weightExam / 100)));
+
+            $subjectNameLower = strtolower($es->subject->name);
+            $isAgama = false;
+            foreach ($agamaKeywords as $keyword) {
+                if (str_contains($subjectNameLower, $keyword)) {
+                    $isAgama = true;
+                    break;
+                }
+            }
 
             $dataGrades[] = [
-                'subject' => $es->subject->name,
-                'nr' => $nr,
-                'um' => $umScore,
-                'ns' => $ns
+                'subject'  => $es->subject->name,
+                'category' => $es->subject->category ?? 'Kelompok A',
+                'nr'       => $nr,
+                'um'       => $umScore,
+                'ns'       => $ns,
+                'is_agama' => $isAgama
             ];
         }
+
+        // Grouping logic for SKL
+        $groupedGrades = [
+            'Kelompok A' => [],
+            'Kelompok B' => [],
+        ];
+
+        foreach ($dataGrades as $grade) {
+            $subjectName = strtolower($grade['subject']);
+            $cat = $grade['category'];
+            
+            // Explicitly move SBdP, Penjas, and Mulok to Kelompok B
+            if (str_contains($subjectName, 'seni budaya') || 
+                str_contains($subjectName, 'prakarya') || 
+                str_contains($subjectName, 'jasmani') || 
+                str_contains($subjectName, 'olahraga') || 
+                str_contains($subjectName, 'lokal') || 
+                str_contains($subjectName, 'jawa') || 
+                str_contains($subjectName, 'tahfidz') ||
+                str_contains(strtolower($cat), 'kelompok b') ||
+                str_contains(strtolower($cat), 'muatan lokal')) {
+                $groupedGrades['Kelompok B'][] = $grade;
+            } else {
+                $groupedGrades['Kelompok A'][] = $grade;
+            }
+        }
+
+        // Ranking placeholder
+        $rankData = [
+            'rank' => 7, 
+            'total_students' => Student::where('student_class_group_id', $student->student_class_group_id)->count()
+        ];
 
         // Generate verification record
         $verification = $verificationService->generate(
@@ -390,7 +435,11 @@ class StudentGradeController extends Controller
 
         $qrCode = $verificationService->generateQrCode($verification->verification_code, 70);
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.grades.pdf.skl_grades', compact('student', 'setting', 'dataGrades', 'level', 'verification', 'qrCode', 'appSetting'));
+        $general = \App\Models\MailSetting::first();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.grades.pdf.skl_grades', compact(
+            'student', 'setting', 'groupedGrades', 'level', 'verification', 'qrCode', 'appSetting', 'rankData', 'general'
+        ));
         $pdf->setPaper('a4', 'portrait');
         return $pdf->stream('Daftar_Nilai_SKL_' . $student->nama_lengkap . '.pdf');
     }
@@ -405,6 +454,7 @@ class StudentGradeController extends Controller
     {
         $student = Student::with(['profile', 'parents', 'classGroup'])->findOrFail($student_id);
         $setting = \App\Models\MailSetting::first();
+        $appSetting = \App\Models\Setting::first();
 
         // Determine current level and class levels
         $level = '';
@@ -474,7 +524,7 @@ class StudentGradeController extends Controller
                 if ($score > 0) $countRow++;
             }
 
-            $nr = $countRow > 0 ? $totalRow / $countRow : 0;
+            $nr = $countRow > 0 ? round($totalRow / $countRow) : 0;
             $subjectNameLower = strtolower($gs->subject->name);
             $isAgama = false;
             foreach ($agamaKeywords as $keyword) {
@@ -498,27 +548,28 @@ class StudentGradeController extends Controller
         $groupedGrades = [
             'Kelompok A' => [],
             'Kelompok B' => [],
-            'Lainnya'    => []
         ];
 
         if ($mergeAgama) {
             $agamaGroup = array_filter($dataGrades, fn($d) => $d['is_agama']);
             if (count($agamaGroup) > 0) {
+                // ... (merged PAI logic)
                 $merged = [
                     'subject' => 'Pendidikan Agama Islam',
                     'category'=> 'Kelompok A',
                     'scores'  => [],
                     'total'   => 0,
                     'nr'      => 0,
+                    'is_agama'=> false,
                 ];
                 $cnt = count($agamaGroup);
                 foreach ($semesterMap as $sem => $info) {
                     $sumSem = 0;
                     foreach ($agamaGroup as $ag) { $sumSem += $ag['scores'][$sem]; }
-                    $merged['scores'][$sem] = $cnt ? round($sumSem / $cnt, 2) : 0;
+                    $merged['scores'][$sem] = $cnt ? round($sumSem / $cnt) : 0;
                     $merged['total'] += $merged['scores'][$sem];
                 }
-                $merged['nr'] = count($semesterMap) ? round($merged['total'] / count($semesterMap), 2) : 0;
+                $merged['nr'] = count($semesterMap) ? round($merged['total'] / count($semesterMap)) : 0;
                 
                 // Add merged PAI to Kelompok A
                 $groupedGrades['Kelompok A'][] = $merged;
@@ -526,21 +577,63 @@ class StudentGradeController extends Controller
                 // Add non-agama subjects to groups
                 foreach ($dataGrades as $grade) {
                     if (!$grade['is_agama']) {
-                        $cat = $grade['category'] ?: 'Lainnya';
-                        $groupedGrades[$cat][] = $grade;
+                        $subjectName = strtolower($grade['subject']);
+                        $cat = $grade['category'];
+
+                        if (str_contains($subjectName, 'seni budaya') || 
+                            str_contains($subjectName, 'prakarya') || 
+                            str_contains($subjectName, 'jasmani') || 
+                            str_contains($subjectName, 'olahraga') || 
+                            str_contains($subjectName, 'lokal') || 
+                            str_contains($subjectName, 'jawa') || 
+                            str_contains($subjectName, 'tahfidz') ||
+                            str_contains(strtolower($cat), 'kelompok b') ||
+                            str_contains(strtolower($cat), 'muatan lokal')) {
+                            $groupedGrades['Kelompok B'][] = $grade;
+                        } else {
+                            $groupedGrades['Kelompok A'][] = $grade;
+                        }
                     }
                 }
             } else {
                  foreach ($dataGrades as $grade) {
-                    $cat = $grade['category'] ?: 'Lainnya';
-                    $groupedGrades[$cat][] = $grade;
+                    $subjectName = strtolower($grade['subject']);
+                    $cat = $grade['category'];
+
+                    if (str_contains($subjectName, 'seni budaya') || 
+                        str_contains($subjectName, 'prakarya') || 
+                        str_contains($subjectName, 'jasmani') || 
+                        str_contains($subjectName, 'olahraga') || 
+                        str_contains($subjectName, 'lokal') || 
+                        str_contains($subjectName, 'jawa') || 
+                        str_contains($subjectName, 'tahfidz') ||
+                        str_contains(strtolower($cat), 'kelompok b') ||
+                        str_contains(strtolower($cat), 'muatan lokal')) {
+                        $groupedGrades['Kelompok B'][] = $grade;
+                    } else {
+                        $groupedGrades['Kelompok A'][] = $grade;
+                    }
                 }
             }
         } else {
             // Keep separate
             foreach ($dataGrades as $grade) {
-                $cat = $grade['category'] ?: 'Lainnya';
-                $groupedGrades[$cat][] = $grade;
+                $subjectName = strtolower($grade['subject']);
+                $cat = $grade['category'];
+
+                if (str_contains($subjectName, 'seni budaya') || 
+                    str_contains($subjectName, 'prakarya') || 
+                    str_contains($subjectName, 'jasmani') || 
+                    str_contains($subjectName, 'olahraga') || 
+                    str_contains($subjectName, 'lokal') || 
+                    str_contains($subjectName, 'jawa') || 
+                    str_contains($subjectName, 'tahfidz') ||
+                    str_contains(strtolower($cat), 'kelompok b') ||
+                    str_contains(strtolower($cat), 'muatan lokal')) {
+                    $groupedGrades['Kelompok B'][] = $grade;
+                } else {
+                    $groupedGrades['Kelompok A'][] = $grade;
+                }
             }
         }
 
@@ -553,17 +646,39 @@ class StudentGradeController extends Controller
             'total_students' => Student::where('student_class_group_id', $student->student_class_group_id)->count()
         ];
 
+        // Calculate totals for verification
+        $totalAvg = 0;
+        $rowCount = 0;
+        foreach ($groupedGrades as $subjects) {
+            foreach ($subjects as $s) {
+                $totalAvg += $s['nr'] ?? 0;
+                $rowCount++;
+            }
+        }
+
+        // Generate verification record
+        $verificationService = app(\App\Services\DocumentVerificationService::class);
+        $verification = $verificationService->generate(
+            $student, 
+            'Surat Keterangan Nilai Raport', 
+            $student->registration_number ?? $student->nis,
+            ['total_avg' => $rowCount > 0 ? $totalAvg / $rowCount : 0]
+        );
+        $qrCode = $verificationService->generateQrCode($verification->verification_code, 70);
+
+        $general = \App\Models\MailSetting::first();
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.grades.pdf.sknr_certificate', compact(
-            'student', 'setting', 'groupedGrades', 'semesterMap', 'level', 'target', 'rankData'
+            'student', 'setting', 'groupedGrades', 'semesterMap', 'level', 'target', 'rankData', 'appSetting', 'qrCode', 'verification', 'general'
         ));
         
         $pdf->setPaper('a4', 'portrait');
         return $pdf->stream('Surat_Keterangan_Raport_' . $student->nama_lengkap . '.pdf');
     }
 
-    public function printPDUM($student_id)
+    public function printPDUM(DocumentVerificationService $verificationService, $student_id)
     {
         // PDUM format is often identical to SKL but maybe with different headers/styles
-        return $this->printSKL($student_id);
+        return $this->printSKL($verificationService, $student_id);
     }
 }

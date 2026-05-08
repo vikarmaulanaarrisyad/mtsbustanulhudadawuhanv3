@@ -17,7 +17,7 @@ class AcademicYearSeeder extends Seeder
                 'academic_year' => '2023/2024',
                 'semester_id' => 2, // Genap
                 'current_semester' => 0,
-                'admission_semester' => 1,
+                'admission_semester' => 0,
             ],
             [
                 'academic_year' => '2024/2025',

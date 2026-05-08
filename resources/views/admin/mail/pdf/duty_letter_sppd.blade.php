@@ -31,8 +31,8 @@
             <tr><td align="center">6</td><td>a. Tempat Berangkat<br>b. Tempat Tujuan</td><td>a. {{ $setting->school_name }}<br>b. {{ $letter->destination }}</td></tr>
             <tr><td align="center">7</td><td>a. Lamanya Perjalanan Dinas<br>b. Tanggal Berangkat<br>c. Tanggal harus kembali/tiba di tempat baru</td><td>
                 a. {{ $letter->return_date ? \Carbon\Carbon::parse($letter->departure_date)->diffInDays(\Carbon\Carbon::parse($letter->return_date)) + 1 : '1' }} Hari<br>
-                b. {{ \Carbon\Carbon::parse($letter->departure_date)->translatedFormat('d F Y') }}<br>
-                c. {{ $letter->return_date ? \Carbon\Carbon::parse($letter->return_date)->translatedFormat('d F Y') : \Carbon\Carbon::parse($letter->departure_date)->translatedFormat('d F Y') }}
+                b. {{ tanggal_indonesia($letter->departure_date) }}<br>
+                c. {{ $letter->return_date ? tanggal_indonesia($letter->return_date) : tanggal_indonesia($letter->departure_date) }}
             </td></tr>
             <tr><td align="center">8</td><td>Pengikut: Nama</td><td>NIP / Jabatan</td></tr>
             <tr><td align="center">9</td><td>Pembebanan Anggaran<br>a. Instansi<br>b. Mata Anggaran</td><td><br>a. {{ $setting->school_name }}<br>b. {{ $letter->budget_source ?? '-' }}</td></tr>
@@ -45,7 +45,7 @@
                 $kepala = get_kepala_madrasah();
             @endphp
             <div class="signature-box">
-                <p>Dikeluarkan di : {{ $general->city ?? 'Dawuhan' }}<br>Tanggal : {{ \Carbon\Carbon::parse($letter->letter_date)->translatedFormat('d F Y') }}</p>
+                <p>Dikeluarkan di : {{ $general->city ?? 'Dawuhan' }}<br>Tanggal : {{ tanggal_indonesia($letter->letter_date) }}</p>
                 <p>{{ $letter->signer_position ?? 'Kepala Madrasah' }},</p>
                 <div class="signature-space" style="height: 60px;"></div>
                 <p><strong><u>{{ $kepala->name ?? ($letter->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH')) }}</u></strong><br>

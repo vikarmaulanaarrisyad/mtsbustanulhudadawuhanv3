@@ -24,7 +24,7 @@
                 <td>Tempat, Tgl Lahir</td>
                 <td>:</td>
                 <td>{{ $cert->student->tempat_lahir }},
-                    {{ \Carbon\Carbon::parse($cert->student->tanggal_lahir)->translatedFormat('d F Y') }}</td>
+                    {{ tanggal_indonesia($cert->student->tanggal_lahir) }}</td>
             </tr>
             <tr>
                 <td>Jenis Kelamin</td>
@@ -60,7 +60,7 @@
             $kepala = get_kepala_madrasah();
         @endphp
         <div class="signature-box">
-            <p>Dawuhan, {{ \Carbon\Carbon::parse($cert->certificate_date)->translatedFormat('d F Y') }}<br>Kepala Madrasah,
+            <p>Dawuhan, {{ tanggal_indonesia($cert->certificate_date) }}<br>Kepala Madrasah,
             </p>
             <div class="signature-space"></div>
             <p><strong><u>{{ $kepala->name ?? ($cert->signer_name ?? '...........................') }}</u></strong><br>

@@ -35,9 +35,9 @@
             <tr><td width="25%" valign="top">Untuk Melaksanakan</td><td width="2%" valign="top">:</td><td>{{ $letter->purpose }}</td></tr>
             <tr><td>Tempat Tujuan</td><td>:</td><td>{{ $letter->destination }}</td></tr>
             <tr><td>Waktu Pelaksanaan</td><td>:</td><td>
-                {{ \Carbon\Carbon::parse($letter->departure_date)->translatedFormat('d F Y') }}
+                {{ tanggal_indonesia($letter->departure_date) }}
                 @if($letter->return_date)
-                    s.d {{ \Carbon\Carbon::parse($letter->return_date)->translatedFormat('d F Y') }}
+                    s.d {{ tanggal_indonesia($letter->return_date) }}
                 @endif
             </td></tr>
             @if($letter->budget_source)
@@ -54,7 +54,7 @@
             $kepala = get_kepala_madrasah();
         @endphp
         <div class="signature-box">
-            <p>{{ $general->city ?? 'Dawuhan' }}, {{ \Carbon\Carbon::parse($letter->letter_date)->translatedFormat('d F Y') }}<br>{{ $letter->signer_position ?? 'Kepala Madrasah' }},</p>
+            <p>{{ $general->city ?? 'Dawuhan' }}, {{ tanggal_indonesia($letter->letter_date) }}<br>{{ $letter->signer_position ?? 'Kepala Madrasah' }},</p>
             <div class="signature-space"></div>
             <p><strong><u>{{ $kepala->name ?? ($letter->signer_name ?? ($general->owner_name ?? 'KEPALA MADRASAH')) }}</u></strong><br>
             NIP. {{ $kepala->nip ?? ($letter->signer_nip ?? '-') }}</p>

@@ -23,6 +23,10 @@ class GradeSettingController extends Controller
             $query->where('level', $request->level);
         }
 
+        if ($request->type) {
+            $query->where('type', $request->type);
+        }
+
         return datatables($query)
             ->addIndexColumn()
             ->addColumn('subject_name', function($r) {
@@ -65,14 +69,37 @@ class GradeSettingController extends Controller
             return response()->json(['message' => 'Mata pelajaran ini sudah ada untuk jenjang dan tipe tersebut'], 422);
         }
 
-        GradeSetting::create($request->all());
+        $data = $request->all();
+        if (!$request->order) {
+            $lastOrder = GradeSetting::where('level', $request->level)
+                ->where('type', $request->type)
+                ->max('order');
+            $data['order'] = ($lastOrder ?? 0) + 1;
+        }
+
+        GradeSetting::create($data);
         return response()->json(['message' => 'Konfigurasi mata pelajaran berhasil ditambahkan']);
     }
 
     public function destroy($id)
     {
-        GradeSetting::findOrFail($id)->delete();
-        return response()->json(['message' => 'Konfigurasi mata pelajaran berhasil dihapus']);
+        $setting = GradeSetting::findOrFail($id);
+        $level = $setting->level;
+        $type = $setting->type;
+        
+        $setting->delete();
+
+        // Reset nomor urut (reordering)
+        $remaining = GradeSetting::where('level', $level)
+            ->where('type', $type)
+            ->orderBy('order')
+            ->get();
+
+        foreach ($remaining as $index => $item) {
+            $item->update(['order' => $index + 1]);
+        }
+
+        return response()->json(['message' => 'Konfigurasi mata pelajaran berhasil dihapus dan nomor urut diperbarui']);
     }
 
     public function updateWeights(Request $request)
@@ -95,5 +122,60 @@ class GradeSettingController extends Controller
         }
 
         return response()->json(['message' => 'Bobot penilaian berhasil diperbarui']);
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->ids;
+        if (!$ids || count($ids) == 0) {
+            return response()->json(['message' => 'Tidak ada data yang dipilih'], 422);
+        }
+
+        $settings = GradeSetting::whereIn('id', $ids)->get();
+        $affectedLevelsTypes = [];
+
+        foreach ($settings as $setting) {
+            $key = $setting->level . '|' . $setting->type;
+            if (!in_array($key, $affectedLevelsTypes)) {
+                $affectedLevelsTypes[] = $key;
+            }
+            $setting->delete();
+        }
+
+        // Reorder for all affected levels and types
+        foreach ($affectedLevelsTypes as $key) {
+            list($level, $type) = explode('|', $key);
+            $remaining = GradeSetting::where('level', $level)
+                ->where('type', $type)
+                ->orderBy('order')
+                ->get();
+
+            foreach ($remaining as $index => $item) {
+                $item->update(['order' => $index + 1]);
+            }
+        }
+
+        return response()->json(['message' => 'Data berhasil dihapus dan nomor urut diperbarui']);
+    }
+
+    public function resetOrder(Request $request)
+    {
+        $level = $request->level;
+        $type = $request->type;
+
+        if (!$level || !$type) {
+            return response()->json(['message' => 'Pilih Jenjang dan Tipe terlebih dahulu untuk mereset urutan'], 422);
+        }
+
+        $items = GradeSetting::where('level', $level)
+            ->where('type', $type)
+            ->orderBy('order')
+            ->get();
+
+        foreach ($items as $index => $item) {
+            $item->update(['order' => $index + 1]);
+        }
+
+        return response()->json(['message' => "Nomor urut untuk $level ($type) berhasil di-reset"]);
     }
 }
