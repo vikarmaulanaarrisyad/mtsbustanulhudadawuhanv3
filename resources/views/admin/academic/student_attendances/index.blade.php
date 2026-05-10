@@ -173,9 +173,146 @@
                                 <button onclick="refreshTable()" class="btn btn-emerald flex-fill rounded-pill font-weight-bold shadow-emerald-light">
                                     <i class="fas fa-search mr-1"></i> TAMPILKAN
                                 </button>
-                                <button onclick="pdfDownload()" class="btn btn-danger rounded-pill px-4 font-weight-bold shadow-sm" title="Cetak PDF">
+                                <button onclick="pdfDownload()" class="btn btn-danger rounded-pill px-3 font-weight-bold shadow-sm" title="Cetak PDF Harian">
                                     <i class="fas fa-file-pdf"></i>
                                 </button>
+                                <button onclick="$('#monthlyModal').modal('show')" class="btn btn-soft-danger rounded-pill px-3 font-weight-bold shadow-sm" title="Cetak Rekap Bulanan">
+                                    <i class="fas fa-calendar-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Rekap Bulanan (PREMIUM VERSION) -->
+            <div class="modal fade" id="monthlyModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered px-4" role="document">
+                    <div class="modal-content border-0 rounded-[2.5rem] shadow-2xl overflow-hidden bg-white/95 backdrop-blur-xl">
+                        <!-- Header Banner inside Modal -->
+                        <div class="bg-gradient-rose p-8 relative overflow-hidden">
+                            <div class="bg-circle-1 opacity-2"></div>
+                            <div class="bg-circle-2 opacity-1"></div>
+                            <div class="relative z-10 flex justify-between items-center text-white">
+                                <div>
+                                    <h3 class="font-black mb-1 flex items-center">
+                                        <i class="fas fa-file-invoice mr-3 animate__animated animate__fadeInLeft"></i> 
+                                        Rekapitulasi Bulanan
+                                    </h3>
+                                    <p class="text-xs font-bold opacity-80 uppercase tracking-[2px]">Generator Laporan Matriks Kehadiran Siswa</p>
+                                </div>
+                                <button type="button" class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-2xl flex items-center justify-center text-white transition-all shadow-sm" data-dismiss="modal">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="modal-body p-0">
+                            <div class="row no-gutters">
+                                <!-- LEFT COLUMN: INFO & PREVIEW -->
+                                <div class="col-md-5 bg-slate-50/50 p-8 border-right border-slate-100">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Pratinjau Format</p>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+                                            <div class="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500">
+                                                <i class="fas fa-th"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="text-xs font-black text-slate-700 mb-0">Format Matriks</h6>
+                                                <p class="text-[9px] font-bold text-slate-400 uppercase">Tabel 31 Kolom Hari</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+                                            <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500">
+                                                <i class="fas fa-calculator"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="text-xs font-black text-slate-700 mb-0">Auto-Sum</h6>
+                                                <p class="text-[9px] font-bold text-slate-400 uppercase">Total H, S, I, A, T per Siswa</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+                                            <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500">
+                                                <i class="fas fa-print"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="text-xs font-black text-slate-700 mb-0">Siap Cetak</h6>
+                                                <p class="text-[9px] font-bold text-slate-400 uppercase">Orientasi Landscape A4</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-8 pt-8 border-top border-slate-100">
+                                        <div class="flex items-center space-x-3 text-rose-600 mb-2">
+                                            <i class="fas fa-shield-alt text-sm"></i>
+                                            <span class="text-[10px] font-black uppercase tracking-wider">Validasi Data</span>
+                                        </div>
+                                        <p class="text-[10px] font-bold text-slate-500 leading-relaxed">
+                                            Laporan akan di-generate berdasarkan data absensi yang sudah diverifikasi oleh sistem. Pastikan filter kelas di halaman utama sudah sesuai sebelum melanjutkan.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- RIGHT COLUMN: FORM -->
+                                <div class="col-md-7 p-8">
+                                    <form id="monthlyForm" action="{{ route('student-attendances.monthly') }}" method="GET" target="_blank">
+                                        <input type="hidden" name="class_group_id" id="monthly_class_id">
+                                        
+                                        <div class="space-y-6">
+                                            <div>
+                                                <h5 class="text-sm font-black text-slate-800 mb-1">Konfigurasi Periode</h5>
+                                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tentukan bulan dan tahun laporan</p>
+                                            </div>
+
+                                            <div class="space-y-2">
+                                                <label class="text-slate-400 text-[10px] font-black uppercase tracking-widest ml-1">Pilih Bulan</label>
+                                                <div class="relative">
+                                                    <select name="month" class="w-full appearance-none bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm font-bold text-slate-700 focus:border-rose-500 focus:bg-white outline-none transition-all">
+                                                        @for($m=1; $m<=12; $m++)
+                                                            <option value="{{ sprintf('%02d', $m) }}" {{ date('m') == $m ? 'selected' : '' }}>
+                                                                {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                                                            </option>
+                                                        @endfor
+                                                    </select>
+                                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                        <i class="fas fa-chevron-down text-xs"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="space-y-2">
+                                                <label class="text-slate-400 text-[10px] font-black uppercase tracking-widest ml-1">Pilih Tahun</label>
+                                                <div class="relative">
+                                                    <select name="year" class="w-full appearance-none bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm font-bold text-slate-700 focus:border-rose-500 focus:bg-white outline-none transition-all">
+                                                        @for($y=date('Y'); $y>=date('Y')-5; $y--)
+                                                            <option value="{{ $y }}">{{ $y }}</option>
+                                                        @endfor
+                                                    </select>
+                                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                        <i class="fas fa-chevron-down text-xs"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="pt-4 space-y-3">
+                                                <button type="button" onclick="submitMonthly('pdf')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-rose-200 active:scale-[0.98] transition-all flex items-center justify-center space-x-3 group">
+                                                    <span class="uppercase text-xs tracking-widest">GENERATE PDF</span>
+                                                    <i class="fas fa-file-pdf transition-transform group-hover:rotate-12"></i>
+                                                </button>
+                                                
+                                                <button type="button" onclick="submitMonthly('excel')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-emerald-200 active:scale-[0.98] transition-all flex items-center justify-center space-x-3 group">
+                                                    <span class="uppercase text-xs tracking-widest">EXPORT EXCEL</span>
+                                                    <i class="fas fa-file-excel transition-transform group-hover:rotate-12"></i>
+                                                </button>
+                                                
+                                                <p class="text-center mt-4 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Mendukung Format PDF & EXCEL XLSX</p>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -340,9 +477,30 @@
             if (classId) url += '?class_group_id=' + classId;
             window.open(url, '_blank');
         }
+
+        function submitMonthly(type = 'pdf') {
+            const classId = $('#admin_filter_class').val();
+            if (!classId) {
+                Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Silakan pilih kelas terlebih dahulu!' });
+                return;
+            }
+            
+            const form = $('#monthlyForm');
+            if (type === 'excel') {
+                form.attr('action', '{{ route("student-attendances.monthly_excel") }}');
+            } else {
+                form.attr('action', '{{ route("student-attendances.monthly") }}');
+            }
+            
+            $('#monthly_class_id').val(classId);
+            form.submit();
+            $('#monthlyModal').modal('hide');
+        }
     @endif
 </script>
 <style>
+    .btn-soft-danger { background: #fee2e2; color: #dc2626; border: none; }
+    .btn-soft-danger:hover { background: #fecaca; color: #b91c1c; }
     .bg-emerald-100 { background-color: #d1fae5; }
     .text-emerald-600 { color: #059669; }
     .bg-amber-100 { background-color: #fef3c7; }
@@ -352,6 +510,9 @@
 
     /* Premium Design System */
     .bg-gradient-emerald { background: linear-gradient(135deg, #059669 0%, #047857 100%) !important; }
+    .bg-gradient-indigo { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important; }
+    .bg-gradient-rose { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important; }
+    
     .bg-light-emerald { background: #ecfdf5; color: #059669; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; }
     .btn-emerald { background: #059669; color: #fff; border: none; }
     .btn-emerald:hover { background: #047857; color: #fff; }
@@ -365,6 +526,7 @@
 
     .opacity-8 { opacity: 0.8; }
     .opacity-2 { opacity: 0.2; }
+    .opacity-1 { opacity: 0.1; }
     .shadow-icon { filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2)); }
     .bg-circle-1, .bg-circle-2 { position: absolute; background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 0; }
     .bg-circle-1 { width: 300px; height: 300px; top: -100px; right: -50px; }

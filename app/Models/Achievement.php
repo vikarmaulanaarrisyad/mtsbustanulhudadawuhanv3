@@ -9,4 +9,14 @@ class Achievement extends Model
 {
     use HasFactory;
     protected $guarded = [];
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class);
+    }
 }

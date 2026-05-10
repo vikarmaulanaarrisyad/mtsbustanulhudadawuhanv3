@@ -460,7 +460,7 @@
     <section class="achievements py-5 bg-white">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
-                <h2 class="font-weight-bold text-success d-inline-block shadow-sm px-4 py-2 rounded bg-light">Prestasi Siswa</h2>
+                <h2 class="font-weight-bold text-success d-inline-block shadow-sm px-4 py-2 rounded bg-light">Prestasi Siswa Terbaru</h2>
                 <p class="text-muted mt-3">Bangga atas pencapaian luar biasa santri-santri kami</p>
             </div>
             <div class="row justify-content-center">
@@ -487,6 +487,11 @@
                         <p>Data prestasi belum tersedia.</p>
                     </div>
                 @endforelse
+            </div>
+            <div class="text-center mt-5" data-aos="fade-up">
+                <a href="{{ route('front.achievements') }}" class="btn btn-success btn-lg rounded-pill px-5 shadow-lg font-weight-bold tracking-wider">
+                    <i class="fas fa-medal mr-2"></i> LIHAT SEMUA PRESTASI
+                </a>
             </div>
         </div>
     </section>

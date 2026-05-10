@@ -103,17 +103,37 @@ class GuruDashboardController extends Controller
         if (!$teacher) {
             return redirect()->route('guru.dashboard')->with('error', 'Profil Guru tidak ditemukan.');
         }
- 
+
         $currentDay = $request->get('day', Carbon::today()->dayOfWeekIso);
         if($currentDay > 6) $currentDay = 1;
- 
+
         $schedules = ClassSchedule::with(['subject', 'classGroup', 'studyPeriod'])
             ->where('teacher_id', $teacher->id)
             ->where('day', $currentDay)
             ->orderBy('study_period_id')
             ->get();
- 
+
         return view('guru.dashboard.schedule', compact('teacher', 'schedules'));
+    }
+
+    public function printSchedule()
+    {
+        $user = auth()->user();
+        $teacher = Teacher::where('user_id', $user->id)->first();
+        
+        if (!$teacher) {
+            return redirect()->route('guru.dashboard')->with('error', 'Profil Guru tidak ditemukan.');
+        }
+
+        $schedules = ClassSchedule::with(['subject', 'classGroup', 'studyPeriod'])
+            ->where('teacher_id', $teacher->id)
+            ->get()
+            ->groupBy('day');
+
+        $setting = \App\Models\Setting::first();
+        $activeYear = \App\Models\AcademicYear::where('current_semester', true)->first();
+
+        return view('guru.dashboard.schedule_print', compact('teacher', 'schedules', 'setting', 'activeYear'));
     }
  
     public function attendanceReport(Request $request)

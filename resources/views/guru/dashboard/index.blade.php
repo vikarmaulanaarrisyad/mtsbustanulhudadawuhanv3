@@ -225,9 +225,24 @@
                             <span class="tool-label">Jurnal KBM</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
-                        <a href="javascript:void(0)" onclick="openPermitModal()" class="tool-btn bg-grad-orange">
+                        <a href="{{ route('guru.grades.index') }}" class="tool-btn bg-grad-teal">
+                            <div class="tool-icon"><i class="fas fa-pen-alt"></i></div>
+                            <span class="tool-label">Input Nilai</span>
+                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        </a>
+                        <a href="{{ route('guru.student-attendances.index') }}" class="tool-btn bg-grad-purple">
+                            <div class="tool-icon"><i class="fas fa-clipboard-user"></i></div>
+                            <span class="tool-label">Rekap Absensi</span>
+                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        </a>
+                        <a href="{{ route('guru.student-permits.index') }}" class="tool-btn bg-grad-orange">
+                            <div class="tool-icon"><i class="fas fa-file-medical-alt"></i></div>
+                            <span class="tool-label">Izin Siswa</span>
+                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        </a>
+                        <a href="javascript:void(0)" onclick="openPermitModal()" class="tool-btn bg-grad-red">
                             <div class="tool-icon"><i class="fas fa-paper-plane"></i></div>
-                            <span class="tool-label">Izin/Cuti</span>
+                            <span class="tool-label">Izin/Cuti Saya</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
                     </div>
@@ -488,6 +503,7 @@
     .bg-grad-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
     .bg-grad-emerald { background: linear-gradient(135deg, #059669 0%, #064e3b 100%); }
     .bg-grad-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .bg-grad-teal   { background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); }
 
     /* Buttons */
     .btn-action.primary {

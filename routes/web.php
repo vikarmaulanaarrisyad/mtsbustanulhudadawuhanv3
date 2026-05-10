@@ -76,6 +76,7 @@ Route::get('/sw.js', [PwaController::class, 'serviceWorker']);
 
 Route::get('/', [FrontController::class, 'index'])->name('front.index');
 Route::get('/berita', [FrontController::class, 'berita'])->name('front.berita');
+Route::get('/prestasi', [FrontController::class, 'achievements'])->name('front.achievements');
 
 // Route untuk postingan detail & komentar
 Route::get('/post/{slug}', [FrontController::class, 'show'])->name('front.post_show');
@@ -124,12 +125,25 @@ Route::group(['middleware' => ['auth']], function () {
 
         // Announcements - Admin View
         Route::get('/announcements/{id}', [AnnouncementController::class, 'show'])->name('admin.announcements.show');
+
+        // Student Achievements (Admin)
+        Route::prefix('achievements')->name('admin.achievements.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\AchievementController::class, 'index'])->name('index');
+            Route::get('/data', [\App\Http\Controllers\Admin\AchievementController::class, 'data'])->name('data');
+            Route::post('/', [\App\Http\Controllers\Admin\AchievementController::class, 'store'])->name('store');
+            Route::get('/print', [\App\Http\Controllers\Admin\AchievementController::class, 'print'])->name('print');
+            Route::get('/{id}', [\App\Http\Controllers\Admin\AchievementController::class, 'show'])->name('show');
+            Route::put('/{id}', [\App\Http\Controllers\Admin\AchievementController::class, 'update'])->name('update');
+            Route::post('/{id}/status', [\App\Http\Controllers\Admin\AchievementController::class, 'updateStatus'])->name('status');
+            Route::delete('/{id}', [\App\Http\Controllers\Admin\AchievementController::class, 'destroy'])->name('destroy');
+        });
     });
 
     // Guru Dashboard & Actions
     Route::group(['prefix' => 'guru', 'middleware' => ['role_or_permission:dashboard.guru|Guru']], function () {
         Route::get('/dashboard', [GuruDashboardController::class, 'index'])->name('guru.dashboard');
-        Route::get('/schedule', [GuruDashboardController::class, 'teacherSchedule'])->name('guru.schedule');
+        Route::get('/schedule', [\App\Http\Controllers\Guru\GuruDashboardController::class, 'teacherSchedule'])->name('guru.schedule');
+        Route::get('/schedule/print', [\App\Http\Controllers\Guru\GuruDashboardController::class, 'printSchedule'])->name('guru.schedule.print');
         Route::get('/class-students/{id}', [GuruDashboardController::class, 'getClassStudents'])->name('guru.class-students');
 
         // Behavior Logs (Guru)
@@ -147,6 +161,30 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/create', [\App\Http\Controllers\Guru\TeachingJournalController::class, 'create'])->name('guru.journal.create');
             Route::post('/store', [\App\Http\Controllers\Guru\TeachingJournalController::class, 'store'])->name('guru.journal.store');
         });
+
+        // Input Nilai Siswa (Guru)
+        Route::prefix('grades')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Guru\GuruGradeController::class, 'index'])->name('guru.grades.index');
+            Route::get('/data', [\App\Http\Controllers\Guru\GuruGradeController::class, 'data'])->name('guru.grades.data');
+            Route::get('/subjects', [\App\Http\Controllers\Guru\GuruGradeController::class, 'getSubjects'])->name('guru.grades.subjects');
+            Route::post('/save', [\App\Http\Controllers\Guru\GuruGradeController::class, 'save'])->name('guru.grades.save');
+            Route::post('/save-bulk', [\App\Http\Controllers\Guru\GuruGradeController::class, 'saveBulk'])->name('guru.grades.save_bulk');
+        });
+
+        // Rekap Kehadiran Siswa (Guru)
+        Route::prefix('student-attendances')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Guru\GuruStudentAttendanceController::class, 'index'])->name('guru.student-attendances.index');
+            Route::get('/summary', [\App\Http\Controllers\Guru\GuruStudentAttendanceController::class, 'summary'])->name('guru.student-attendances.summary');
+            Route::get('/student/{id}', [\App\Http\Controllers\Guru\GuruStudentAttendanceController::class, 'studentDetail'])->name('guru.student-attendances.detail');
+            Route::get('/data', [\App\Http\Controllers\Guru\GuruStudentAttendanceController::class, 'data'])->name('guru.student-attendances.data');
+        });
+
+        // Manajemen Izin Siswa (Guru)
+        Route::prefix('student-permits')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Guru\GuruStudentPermitController::class, 'index'])->name('guru.student-permits.index');
+            Route::get('/data', [\App\Http\Controllers\Guru\GuruStudentPermitController::class, 'data'])->name('guru.student-permits.data');
+            Route::post('/{id}/approve', [\App\Http\Controllers\Guru\GuruStudentPermitController::class, 'approve'])->name('guru.student-permits.approve');
+        });
     });
 
     // Siswa Dashboard & Actions
@@ -155,6 +193,17 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/store-attendance', [SiswaDashboardController::class, 'storeAttendance'])->name('siswa.store_attendance');
         Route::post('/store-permit', [SiswaDashboardController::class, 'storePermit'])->name('siswa.store_permit');
         Route::post('/store-mutabaah', [SiswaDashboardController::class, 'storeMutabaah'])->name('siswa.store_mutabaah');
+
+        // New Student Features
+        Route::get('/raport', [SiswaDashboardController::class, 'raport'])->name('siswa.raport');
+        Route::get('/cbt-results', [SiswaDashboardController::class, 'cbtResults'])->name('siswa.cbt_results');
+        Route::get('/schedule', [SiswaDashboardController::class, 'schedule'])->name('siswa.schedule');
+        Route::get('/announcements', [SiswaDashboardController::class, 'announcements'])->name('siswa.announcements');
+        Route::get('/permits', [SiswaDashboardController::class, 'permits'])->name('siswa.permits');
+
+        // Student Achievements (Siswa)
+        Route::get('/achievements', [\App\Http\Controllers\Siswa\AchievementController::class, 'index'])->name('siswa.achievements');
+        Route::post('/achievements', [\App\Http\Controllers\Siswa\AchievementController::class, 'store'])->name('siswa.achievements.store');
 
         // CBT Student
         Route::controller(\App\Http\Controllers\Student\CbtController::class)->group(function () {
@@ -560,6 +609,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['permission:categories.view']], function () {
         Route::controller(SchoolAgendaController::class)->group(function () {
             Route::get('/academic/agenda/data', 'data')->name('agenda.data');
+            Route::get('/academic/agenda/events', 'calendarEvents')->name('agenda.events');
             Route::get('/academic/agenda', 'index')->name('agenda.index');
             Route::get('/academic/agenda/{id}', 'show')->name('agenda.show');
             Route::put('/academic/agenda/{id}', 'update')->name('agenda.update');
@@ -818,10 +868,19 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Student Graduations (Kelulusan)
     Route::get('/graduations/data', [StudentGraduationController::class, 'data'])->name('graduations.data');
+    Route::get('/graduations/get-classes', [StudentGraduationController::class, 'getClassesByYear'])->name('graduations.get-classes');
     Route::post('/graduations/graduate', [StudentGraduationController::class, 'graduate'])->name('graduations.graduate');
     Route::post('/graduations/undo', [StudentGraduationController::class, 'undo'])->name('graduations.undo');
     Route::get('/graduations/{id}/print-skl', [StudentGraduationController::class, 'printSKL'])->name('graduations.print-skl');
+    Route::post('/graduations/print-skl-mass', [StudentGraduationController::class, 'printSKLMass'])->name('graduations.print-skl-mass');
     Route::resource('/graduations', StudentGraduationController::class);
+
+    // Student Transfers (Mutasi Siswa)
+    Route::get('/transfers/data', [\App\Http\Controllers\StudentTransferController::class, 'data'])->name('transfers.data');
+    Route::post('/transfers/out', [\App\Http\Controllers\StudentTransferController::class, 'storeOut'])->name('transfers.out');
+    Route::post('/transfers/undo', [\App\Http\Controllers\StudentTransferController::class, 'undo'])->name('transfers.undo');
+    Route::get('/transfers/{id}/print', [\App\Http\Controllers\StudentTransferController::class, 'print'])->name('transfers.print');
+    Route::resource('/transfers', \App\Http\Controllers\StudentTransferController::class);
 
     // Alumni Management
     Route::get('/alumni/data', [\App\Http\Controllers\AlumniController::class, 'data'])->name('alumni.data');
@@ -895,6 +954,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/scan', [StudentAttendanceController::class, 'scan'])->name('student-attendances.scan');
         Route::get('/cards', [StudentAttendanceController::class, 'printCards'])->name('student-attendances.cards');
         Route::get('/pdf', [StudentAttendanceController::class, 'pdf'])->name('student-attendances.pdf');
+        Route::get('/monthly', [StudentAttendanceController::class, 'monthlyReport'])->name('student-attendances.monthly');
+        Route::get('/monthly-excel', [StudentAttendanceController::class, 'exportExcel'])->name('student-attendances.monthly_excel');
     });
     Route::resource('/student-attendances', StudentAttendanceController::class);
 

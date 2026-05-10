@@ -30,6 +30,55 @@
     </div>
 </div>
 
+<!-- STATISTICS WIDGETS -->
+<div class="row mb-4 animate__animated animate__fadeInUp">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px; border-left: 5px solid #007bff !important;">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Total Kelas Akhir</p>
+                        <h2 class="font-weight-bold mb-0 text-primary">{{ $stats['total'] }}</h2>
+                    </div>
+                    <div class="icon-shape bg-soft-primary rounded-circle p-3" style="background: #e3f2fd; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-users text-primary fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px; border-left: 5px solid #28a745 !important;">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Sudah Lulus</p>
+                        <h2 class="font-weight-bold mb-0 text-success">{{ $stats['graduated'] }}</h2>
+                    </div>
+                    <div class="icon-shape bg-soft-success rounded-circle p-3" style="background: #e8f5e9; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user-graduate text-success fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px; border-left: 5px solid #ffc107 !important;">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Belum Diproses</p>
+                        <h2 class="font-weight-bold mb-0 text-warning">{{ $stats['remaining'] }}</h2>
+                    </div>
+                    <div class="icon-shape bg-soft-warning rounded-circle p-3" style="background: #fff8e1; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user-clock text-warning fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- STEP GUIDELINE (HORIZONTAL) -->
 <div class="row mb-4">
     <div class="col-12">
@@ -135,7 +184,7 @@
                         <label class="text-xs font-weight-bold text-muted uppercase">CATATAN</label>
                         <textarea name="notes" class="form-control" rows="2" placeholder="Contoh: Lulus TA 2025/2026"></textarea>
                     </div>
-                    <button type="button" onclick="submitGraduation()" class="btn btn-success btn-block shadow-lg font-weight-bold py-3 btn-premium">
+                    <button type="button" id="btnGraduate" onclick="submitGraduation()" class="btn btn-success btn-block shadow-lg font-weight-bold py-3 btn-premium">
                         <i class="fas fa-graduation-cap mr-2"></i> SET LULUS SEKARANG
                     </button>
                 </form>
@@ -178,7 +227,10 @@
                         <h4 class="mb-1 font-weight-bold text-dark">Daftar Siswa Akhir</h4>
                         <p class="text-muted text-sm mb-0">Data siswa tingkat akhir yang siap diproses</p>
                     </div>
-                    <div class="card-tools">
+                    <div class="card-tools d-flex align-items-center" style="gap: 15px;">
+                        <button type="button" onclick="printMassal()" class="btn btn-info btn-sm rounded-pill px-4 font-weight-bold shadow-sm" id="btnPrintMass" style="display:none;">
+                            <i class="fas fa-print mr-2"></i> CETAK SKL TERPILIH
+                        </button>
                         <div class="custom-control custom-checkbox">
                             <input class="custom-control-input" type="checkbox" id="checkAll">
                             <label for="checkAll" class="custom-control-label font-weight-bold text-primary">PILIH SEMUA</label>
@@ -252,12 +304,26 @@
     let table;
 
     function checkSemester(el) {
+        let ayId = $(el).val();
         let semesterId = $(el).find(':selected').data('semester-id');
+        
+        // Show/hide warning & toggle button
         if (semesterId == 1) { // Ganjil
             $('#semesterWarning').removeClass('d-none');
+            $('#btnGraduate').prop('disabled', true).css('opacity', '0.6').css('cursor', 'not-allowed');
         } else {
             $('#semesterWarning').addClass('d-none');
+            $('#btnGraduate').prop('disabled', false).css('opacity', '1').css('cursor', 'pointer');
         }
+
+        // Fetch classes for this year
+        $.get('{{ route("graduations.get-classes") }}', { academic_year_id: ayId }, function(data) {
+            let html = '<option value="">-- Semua Kelas Akhir --</option>';
+            data.forEach(function(cg) {
+                html += `<option value="${cg.id}">${cg.class_group} - ${cg.sub_class_group}</option>`;
+            });
+            $('#filter_class').html(html).trigger('change');
+        });
     }
 
     function toggleBox() {
@@ -294,8 +360,50 @@
             ]
         });
 
-        $('#checkAll').on('click', function() { $('.student-checkbox').prop('checked', this.checked); });
+        $('#checkAll').on('click', function() { $('.student-checkbox').prop('checked', this.checked).trigger('change'); });
+        
+        $(document).on('change', '.student-checkbox', function() {
+            let count = $('.student-checkbox:checked').length;
+            let isGraduated = $('input[name="grad_status"]:checked').val() == '1';
+            
+            if (count > 0 && isGraduated) {
+                $('#btnPrintMass').fadeIn();
+            } else {
+                $('#btnPrintMass').fadeOut();
+            }
+        });
     });
+
+    function printMassal() {
+        let studentIds = [];
+        $('.student-checkbox:checked').each(function() { studentIds.push($(this).val()); });
+
+        if (studentIds.length === 0) return;
+
+        // Create a temporary form to submit POST request in new tab
+        let form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("graduations.print-skl-mass") }}';
+        form.target = '_blank';
+
+        let csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = '_token';
+        csrf.value = '{{ csrf_token() }}';
+        form.appendChild(csrf);
+
+        studentIds.forEach(id => {
+            let input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'student_ids[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
 
     function refreshTable() { table.ajax.reload(); }
 

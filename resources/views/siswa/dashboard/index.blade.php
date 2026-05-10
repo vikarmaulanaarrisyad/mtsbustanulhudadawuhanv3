@@ -7,9 +7,8 @@
 <div class="dashboard-wrapper pb-20">
     @php
         $now = \Carbon\Carbon::now();
-        $currentDay = $now->translatedFormat('l');
         $currentTime = $now->format('H:i:s');
-        $todaySchedule = $schedules[$currentDay] ?? collect();
+        $todaySchedule = $todaySchedules;
         
         $ongoingSubject = null;
         $nextSubject = null;
@@ -215,42 +214,52 @@
                         <span class="w-10 h-1 bg-indigo-100 rounded-full"></span>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <a href="{{ route('student.cbt.dashboard') }}" class="tool-btn bg-grad-indigo">
                             <div class="tool-icon"><i class="fas fa-laptop-code"></i></div>
                             <span class="tool-label">Portal CBT</span>
-                            <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
-                        <a href="javascript:void(0)" data-toggle="modal" data-target="#modalMutabaah" class="tool-btn bg-grad-blue">
-                            <div class="tool-icon"><i class="fas fa-tasks"></i></div>
-                            <span class="tool-label">Ibadah Harian</span>
-                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        <a href="{{ route('siswa.cbt_results') }}" class="tool-btn bg-grad-blue">
+                            <div class="tool-icon"><i class="fas fa-poll"></i></div>
+                            <span class="tool-label">Hasil Ujian</span>
                         </a>
-                        <a href="javascript:void(0)" data-toggle="modal" data-target="#modalTahfidz" class="tool-btn bg-grad-green">
-                            <div class="tool-icon"><i class="fas fa-quran"></i></div>
-                            <span class="tool-label">Tahfidz</span>
-                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        <a href="{{ route('siswa.raport') }}" class="tool-btn bg-grad-rose">
+                            <div class="tool-icon"><i class="fas fa-graduation-cap"></i></div>
+                            <span class="tool-label">Nilai & Rapor</span>
                         </a>
-                        <a href="javascript:void(0)" data-toggle="modal" data-target="#modalPengajuanIzin" class="tool-btn bg-grad-purple">
-                            <div class="tool-icon"><i class="fas fa-envelope-open-text"></i></div>
-                            <span class="tool-label">Izin/Sakit</span>
-                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        <a href="{{ route('siswa.schedule') }}" class="tool-btn bg-grad-emerald">
+                            <div class="tool-icon"><i class="fas fa-calendar-alt"></i></div>
+                            <span class="tool-label">Jadwal</span>
                         </a>
-                        <a href="{{ route('students.card', $student->id) }}" target="_blank" class="tool-btn bg-grad-emerald">
+                        <a href="{{ route('siswa.permits') }}" class="tool-btn bg-grad-purple">
+                            <div class="tool-icon"><i class="fas fa-history"></i></div>
+                            <span class="tool-label">Riwayat Izin</span>
+                        </a>
+                        <a href="{{ route('students.card', $student->id) }}" target="_blank" class="tool-btn bg-grad-orange">
                             <div class="tool-icon"><i class="fas fa-id-card"></i></div>
                             <span class="tool-label">Kartu Siswa</span>
-                            <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
-                        <a href="javascript:void(0)" data-toggle="modal" data-target="#modalPoin" class="tool-btn bg-grad-orange">
-                            <div class="tool-icon"><i class="fas fa-medal"></i></div>
-                            <span class="tool-label">Riwayat Poin</span>
-                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        
+                        <!-- Actions with Modals -->
+                        <a href="javascript:void(0)" data-toggle="modal" data-target="#modalMutabaah" class="tool-btn bg-slate-800">
+                            <div class="tool-icon"><i class="fas fa-tasks text-indigo-400"></i></div>
+                            <span class="tool-label">Jurnal Ibadah</span>
+                        </a>
+                        <a href="javascript:void(0)" data-toggle="modal" data-target="#modalTahfidz" class="tool-btn bg-slate-800">
+                            <div class="tool-icon"><i class="fas fa-quran text-emerald-400"></i></div>
+                            <span class="tool-label">Tahfidz</span>
+                        </a>
+                        <a href="javascript:void(0)" data-toggle="modal" data-target="#modalPengajuanIzin" class="tool-btn bg-slate-800">
+                            <div class="tool-icon"><i class="fas fa-paper-plane text-rose-400"></i></div>
+                            <span class="tool-label">Ajukan Izin</span>
                         </a>
                     </div>
 
-                    <!-- MADING DIGITAL MINI -->
                     <div class="mt-10">
-                        <h6 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Mading Digital</h6>
+                        <div class="flex items-center justify-between mb-6 px-2">
+                            <h6 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0">Mading Digital</h6>
+                            <a href="{{ route('siswa.announcements') }}" class="text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700">Lihat Semua</a>
+                        </div>
                         @forelse($announcements->take(2) as $ann)
                             <div class="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-3 transition-all hover:bg-white hover:shadow-lg cursor-pointer" onclick='showAnnouncement(@json($ann))'>
                                 <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-600 shadow-sm mr-4">

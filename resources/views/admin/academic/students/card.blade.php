@@ -286,7 +286,7 @@
                 <tr>
                     <td class="photo-td">
                         <div class="photo-box">
-                            @if($studentPhotoBase64)
+                            @if(isset($studentPhotoBase64) && $studentPhotoBase64)
                                 <img src="{{ $studentPhotoBase64 }}">
                             @else
                                 <div style="text-align: center; padding-top: 10mm; font-size: 2mm; color: #64748b;">No Photo</div>
@@ -308,7 +308,7 @@
                     </td>
                     <td style="width: 13mm; text-align: right;">
                         <div class="qr-box">
-                            @if($qrCodeBase64)
+                            @if(isset($qrCodeBase64) && $qrCodeBase64)
                                 <img src="{{ $qrCodeBase64 }}" style="width: 100%; height: 100%; display: block;">
                             @else
                                 <div style="font-size: 1.5mm; color: #000; padding-top: 4mm;">!</div>

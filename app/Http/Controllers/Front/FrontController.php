@@ -209,6 +209,18 @@ class FrontController extends Controller
         return view('front.berita.detail', compact('post', 'comments'));
     }
 
+    public function achievements()
+    {
+        $achievements = Achievement::where('status', 'approved')
+            ->with(['student.classGroup', 'academicYear'])
+            ->latest('date')
+            ->paginate(12);
+
+        $academicYears = AcademicYear::orderBy('academic_year', 'desc')->get();
+        
+        return view('front.achievements', compact('achievements', 'academicYears'));
+    }
+
     public function handle($slug)
     {
         $menu = Menu::where('menu_slug', $slug)->firstOrFail();

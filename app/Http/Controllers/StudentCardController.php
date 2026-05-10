@@ -17,10 +17,32 @@ class StudentCardController extends Controller
         $student = Student::with(['classGroup', 'academicYear'])->findOrFail($id);
         $setting = Setting::first();
         
-        // Generate QR Code (Isinya NISN atau ID Siswa)
-        $qrCode = base64_encode(QrCode::format('svg')->size(100)->errorCorrection('H')->generate($student->nisn ?? $student->id));
+        // Generate QR Code via Google Charts for better compatibility
+        $qrData = $student->nisn ?? $student->id;
+        $qrUrl = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" . urlencode($qrData) . "&choe=UTF-8";
+        
+        $qrCodeBase64 = null;
+        try {
+            $qrContent = file_get_contents($qrUrl);
+            if ($qrContent) {
+                $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($qrContent);
+            }
+        } catch (\Exception $e) {
+            $qrCodeBase64 = 'data:image/svg+xml;base64,' . base64_encode(QrCode::size(150)->generate($qrData));
+        }
 
-        return view('admin.academic.students.card', compact('student', 'setting', 'qrCode'));
+        // Student Photo
+        $studentPhotoBase64 = null;
+        if ($student->profile && $student->profile->foto) {
+            $path = public_path('storage/' . $student->profile->foto);
+            if (file_exists($path)) {
+                $type = pathinfo($path, PATHINFO_EXTENSION);
+                $data = file_get_contents($path);
+                $studentPhotoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            }
+        }
+
+        return view('admin.academic.students.card', compact('student', 'setting', 'qrCodeBase64', 'studentPhotoBase64'));
     }
 
     public function downloadPdf($id)

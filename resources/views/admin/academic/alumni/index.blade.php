@@ -40,17 +40,14 @@
                         <p class="text-muted text-sm mb-0">Total siswa yang telah menyelesaikan pendidikan</p>
                     </div>
                     <div class="d-flex align-items-center">
-                        <div class="input-group" style="width: 280px;">
+                        <div class="input-group" style="width: 320px;">
                             <div class="input-group-prepend">
-                                <span class="input-group-text bg-light border-right-0"><i class="fas fa-calendar-alt text-muted"></i></span>
+                                <span class="input-group-text bg-light border-right-0"><i class="fas fa-graduation-cap text-muted"></i></span>
                             </div>
-                            <select id="filter_year" class="form-control select2 border-left-0" onchange="refreshTable()">
-                                <option value="">Semua Tahun Lulus</option>
-                                @php
-                                    $years = range(date('Y'), 2010);
-                                @endphp
-                                @foreach($years as $year)
-                                    <option value="{{ $year }}">{{ $year }}</option>
+                            <select id="filter_academic_year" class="form-control select2 border-left-0" onchange="refreshTable()">
+                                <option value="">Semua Angkatan Lulus</option>
+                                @foreach($academicYears as $ay)
+                                    <option value="{{ $ay->id }}">{{ $ay->academic_year }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -114,7 +111,7 @@
             language: { searchPlaceholder: "Cari alumni...", search: "" },
             ajax: {
                 url: '{{ route("alumni.data") }}',
-                data: function(d) { d.year = $('#filter_year').val(); }
+                data: function(d) { d.academic_year_id = $('#filter_academic_year').val(); }
             },
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
@@ -124,9 +121,9 @@
                 },
                 { data: 'nis' },
                 { 
-                    data: 'exit_date',
+                    data: 'ta_lulus',
                     render: function(data) {
-                        return data ? '<span class="badge badge-dark px-3 py-2 rounded-pill">' + new Date(data).getFullYear() + '</span>' : '-';
+                        return '<span class="badge badge-dark px-3 py-2 rounded-pill">' + data + '</span>';
                     }
                 },
                 { data: 'exit_date' },

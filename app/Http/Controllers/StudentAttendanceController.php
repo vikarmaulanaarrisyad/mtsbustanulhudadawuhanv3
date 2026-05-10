@@ -130,4 +130,70 @@ class StudentAttendanceController extends Controller
         $pdf = Pdf::loadView('admin.academic.student_attendances.pdf', compact('attendances', 'date', 'classGroup', 'setting'));
         return $pdf->stream('Laporan_Presensi_Siswa_' . $date . '.pdf');
     }
+
+    public function monthlyReport(Request $request)
+    {
+        $classGroupId = $request->class_group_id;
+        $month = $request->month ?? date('m');
+        $year = $request->year ?? date('Y');
+        
+        if (!$classGroupId) {
+            return redirect()->back()->with('error', 'Silakan pilih kelas terlebih dahulu.');
+        }
+
+        $data = $this->getMonthlyData($classGroupId, $month, $year);
+        $classGroup = $data['classGroup'];
+
+        $pdf = Pdf::loadView('admin.academic.student_attendances.monthly_pdf', $data);
+        $pdf->setPaper('a4', 'landscape');
+        return $pdf->stream('Rekap_Absensi_Bulanan_' . str_replace(' ', '_', $classGroup->kelas_lengkap) . '_' . $month . '_' . $year . '.pdf');
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $classGroupId = $request->class_group_id;
+        $month = $request->month ?? date('m');
+        $year = $request->year ?? date('Y');
+        
+        if (!$classGroupId) {
+            return redirect()->back()->with('error', 'Silakan pilih kelas terlebih dahulu.');
+        }
+
+        $data = $this->getMonthlyData($classGroupId, $month, $year);
+        $classGroup = $data['classGroup'];
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\MonthlyAttendanceExport($data), 
+            'Rekap_Absensi_Bulanan_' . str_replace(' ', '_', $classGroup->kelas_lengkap) . '_' . $month . '_' . $year . '.xlsx'
+        );
+    }
+
+    private function getMonthlyData($classGroupId, $month, $year)
+    {
+        $classGroup = ClassGroup::findOrFail($classGroupId);
+        $students = Student::where('student_class_group_id', $classGroupId)
+            ->where('is_active', true)
+            ->orderBy('nama_lengkap')
+            ->get();
+            
+        $attendances = StudentAttendance::where('class_group_id', $classGroupId)
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->get()
+            ->groupBy(['student_id', function ($item) {
+                return $item->date->format('j');
+            }]);
+
+        $setting = \App\Models\Setting::first();
+        $daysInMonth = Carbon::createFromDate($year, $month, 1)->daysInMonth;
+        
+        $holidays = \App\Models\Holiday::whereMonth('holiday_date', $month)
+            ->whereYear('holiday_date', $year)
+            ->get()
+            ->keyBy(function($item) {
+                return Carbon::parse($item->holiday_date)->format('j');
+            });
+
+        return compact('classGroup', 'students', 'attendances', 'month', 'year', 'setting', 'daysInMonth', 'holidays');
+    }
 }

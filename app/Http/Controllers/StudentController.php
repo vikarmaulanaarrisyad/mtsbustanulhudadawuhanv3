@@ -37,8 +37,9 @@ class StudentController extends Controller
 
         $totalStudents = Student::count();
         $activeStudents = Student::where('is_active', true)->count();
-        $male = Student::where('jenis_kelamin', 'L')->count();
-        $female = Student::where('jenis_kelamin', 'P')->count();
+        $alumniCount = Student::where('student_status_id', 2)->count();
+        $male = Student::where('is_active', true)->where('jenis_kelamin', 'L')->count();
+        $female = Student::where('is_active', true)->where('jenis_kelamin', 'P')->count();
 
         return view('admin.academic.students.index', compact(
             'academicYears',
@@ -49,6 +50,7 @@ class StudentController extends Controller
             'monthlyIncomes',
             'totalStudents',
             'activeStudents',
+            'alumniCount',
             'male',
             'female'
         ));
@@ -60,6 +62,7 @@ class StudentController extends Controller
     public function data(Request $request)
     {
         $query = Student::with(['classGroup', 'academicYear', 'studentStatus'])
+            ->when(!$request->status_id, fn($q) => $q->where('is_active', true)) // Default only show active students
             ->when($request->academic_year_id, fn($q) => $q->where('academic_year_id', $request->academic_year_id))
             ->when($request->class_group_id, function($q) use ($request) {
                 if ($request->class_group_id == 'none') {

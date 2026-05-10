@@ -40,6 +40,12 @@ class AlumniController extends Controller
             ->addColumn('kelas_terakhir', function($s) {
                 return $s->kelas_lengkap ?? '-';
             })
+            ->addColumn('exit_date', function($s) {
+                return $s->tanggal_keluar ?? '-';
+            })
+            ->addColumn('notes', function($s) {
+                return $s->keterangan ?? '-';
+            })
             ->addColumn('action', function ($s) {
                 return '
                     <a href="' . route('students.show', $s->id) . '" class="btn btn-xs btn-primary" title="Detail"><i class="fas fa-eye"></i></a>

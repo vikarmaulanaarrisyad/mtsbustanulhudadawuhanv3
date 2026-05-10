@@ -30,6 +30,55 @@
     </div>
 </div>
 
+<!-- STATISTICS WIDGETS -->
+<div class="row mb-4 animate__animated animate__fadeInUp">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px; border-left: 5px solid #007bff !important;">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Total Siswa (TA Aktif)</p>
+                        <h2 class="font-weight-bold mb-0 text-primary">{{ $stats['total'] }}</h2>
+                    </div>
+                    <div class="icon-shape bg-soft-primary rounded-circle p-3" style="background: #e3f2fd; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-users text-primary fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px; border-left: 5px solid #28a745 !important;">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Berhasil Diproses</p>
+                        <h2 class="font-weight-bold mb-0 text-success">{{ $stats['processed'] }}</h2>
+                    </div>
+                    <div class="icon-shape bg-soft-success rounded-circle p-3" style="background: #e8f5e9; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-check-circle text-success fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px; border-left: 5px solid #ffc107 !important;">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Menunggu Proses</p>
+                        <h2 class="font-weight-bold mb-0 text-warning">{{ $stats['remaining'] }}</h2>
+                    </div>
+                    <div class="icon-shape bg-soft-warning rounded-circle p-3" style="background: #fff8e1; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-clock text-warning fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- STEP GUIDELINE (HORIZONTAL) -->
 <div class="row mb-4">
     <div class="col-12">

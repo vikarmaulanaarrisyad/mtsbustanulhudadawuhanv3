@@ -22,35 +22,19 @@ class SiswaDashboardController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-        
-        // Cari data siswa berdasarkan user_id atau NISN (asumsi di user ada link ke student atau via ppdb_registrant)
-        $student = Student::where('user_id', $user->id)
-            ->with(['classGroup.homeroomTeacher', 'academicYear'])
-            ->first();
- 
-        // Jika tidak ketemu via user_id, coba cek via PpdbRegistrant (legacy support)
-        if (!$student && $user->ppdbRegistrant) {
-            $student = Student::where('nisn', $user->ppdbRegistrant->nisn)
-                ->with(['classGroup.homeroomTeacher', 'academicYear'])
-                ->first();
-        }
- 
+        $student = $this->getStudent();
         if (!$student) {
             return redirect()->route('dashboard')->with('error', 'Profil Siswa tidak ditemukan. Mohon hubungi Administrator.');
         }
- 
-        // 1. Jadwal Pelajaran
-        $schedules = collect();
-        if ($student->student_class_group_id) {
-            $schedules = ClassSchedule::where('class_group_id', $student->student_class_group_id)
-                ->with(['subject', 'teacher', 'studyPeriod'])
-                ->orderBy('day')
-                ->orderBy('start_time')
-                ->get()
-                ->groupBy('day');
-        }
- 
+
+        // 1. Jadwal Pelajaran (Hari Ini)
+        $today = now()->dayOfWeekIso;
+        $todaySchedules = ClassSchedule::where('class_group_id', $student->student_class_group_id)
+            ->where('day', $today)
+            ->with(['subject', 'teacher', 'studyPeriod'])
+            ->orderBy('start_time')
+            ->get();
+
         // 2. Statistik Presensi
         $attendanceStats = ['H' => 0, 'I' => 0, 'S' => 0, 'A' => 0];
         $attendances = StudentAttendance::where('student_id', $student->id)
@@ -63,59 +47,53 @@ class SiswaDashboardController extends Controller
         $attendanceStats['I'] = $attendances['permit'] ?? 0;
         $attendanceStats['S'] = $attendances['sick'] ?? 0;
         $attendanceStats['A'] = $attendances['absent'] ?? 0;
- 
-        // 3. Kalender Akademik / Agenda
+
+        // 3. Agenda Sekolah
         $agendas = SchoolAgenda::where('start_date', '>=', now()->format('Y-m-d'))
             ->orderBy('start_date', 'asc')
             ->limit(3)
             ->get();
- 
-        // 4. Cek apakah sudah absen hari ini
+
+        // 4. Status Absen Hari Ini
         $todayAttendance = StudentAttendance::where('student_id', $student->id)
             ->where('date', now()->format('Y-m-d'))
             ->first();
         $hasCheckedInToday = $todayAttendance ? true : false;
- 
-        // 5. Riwayat Izin
-        $myPermits = StudentPermit::where('student_id', $student->id)
-            ->orderBy('created_at', 'desc')
-            ->take(3)
-            ->get();
- 
-        // 6. Mutaba'ah & Tahfidz
+
+        // 5. Mutaba'ah & Tahfidz
         $todayMutabaah = MutabaahLog::where('student_id', $student->id)
             ->where('date', now()->format('Y-m-d'))
             ->first();
         $tahfidzLogs = TahfidzLog::where('student_id', $student->id)
             ->orderBy('date', 'desc')
             ->get();
- 
-        // 7. Poin Karakter
+
+        // 6. Poin Karakter
         $behaviorLogs = $student->behaviorLogs()->with('teacher')->orderBy('date', 'desc')->take(5)->get();
         $totalPositivePoints = $student->behaviorLogs()->where('type', 'positive')->sum('points');
         $totalNegativePoints = $student->behaviorLogs()->where('type', 'negative')->sum('points');
         $netPoints = $totalPositivePoints - $totalNegativePoints;
- 
-        // 8. Pengumuman
+
+        // 7. Pengumuman Terbaru
         $announcements = Announcement::where('is_active', true)
             ->whereIn('type', ['Umum', 'Siswa'])
             ->orderBy('created_at', 'desc')
-            ->limit(5)
+            ->limit(3)
             ->get();
- 
-        // 9. Validasi Aturan Absensi
+
+        // 8. Validasi Aturan Absensi
         $attendanceSetting = AttendanceSetting::first();
         $isWorkDay = true;
         $isCheckInTime = true;
         $isHoliday = false;
         $attendanceMessage = "";
- 
+
         if ($attendanceSetting) {
             $now = now();
             $isWorkDay = in_array($now->dayOfWeekIso, (array) $attendanceSetting->work_days);
             $isCheckInTime = $now->between($attendanceSetting->check_in_start, $attendanceSetting->check_in_end);
             $isHoliday = Holiday::where('holiday_date', $now->format('Y-m-d'))->exists();
- 
+
             if (!$isWorkDay) $attendanceMessage = "Hari ini bukan hari sekolah.";
             elseif ($isHoliday) $attendanceMessage = "Hari ini adalah hari libur sekolah.";
             elseif (!$isCheckInTime) {
@@ -126,29 +104,121 @@ class SiswaDashboardController extends Controller
                 }
             }
         }
- 
+
         return view('siswa.dashboard.index', compact(
-            'student', 'schedules', 'attendanceStats', 'agendas', 
-            'hasCheckedInToday', 'myPermits', 'todayMutabaah', 'tahfidzLogs',
-            'behaviorLogs', 'totalPositivePoints', 'totalNegativePoints', 'netPoints',
-            'announcements', 'isWorkDay', 'isCheckInTime', 'isHoliday', 'attendanceMessage', 'todayAttendance'
+            'student', 'todaySchedules', 'attendanceStats', 'agendas', 
+            'hasCheckedInToday', 'announcements', 'isWorkDay', 'isCheckInTime', 
+            'isHoliday', 'attendanceMessage', 'todayAttendance',
+            'todayMutabaah', 'tahfidzLogs', 'behaviorLogs', 'totalPositivePoints', 
+            'totalNegativePoints', 'netPoints'
         ));
     }
+
+    /**
+     * Lihat Nilai / Rapor Siswa.
+     */
+    public function raport()
+    {
+        $student = $this->getStudent();
+        if (!$student) return redirect()->back();
+
+        $grades = \App\Models\StudentGrade::where('student_id', $student->id)
+            ->with(['subject', 'academicYear'])
+            ->get()
+            ->groupBy('academic_year_id');
+
+        return view('siswa.raport.index', compact('student', 'grades'));
+    }
+
+    /**
+     * Lihat Hasil Ujian CBT.
+     */
+    public function cbtResults()
+    {
+        $student = $this->getStudent();
+        if (!$student) return redirect()->back();
+
+        $examResults = \App\Models\CbtStudentExam::where('student_id', $student->id)
+            ->where('status', 'finished')
+            ->with(['exam.bank'])
+            ->orderBy('end_time', 'desc')
+            ->get();
+
+        return view('siswa.cbt.results', compact('student', 'examResults'));
+    }
+
+    /**
+     * Lihat Jadwal Pelajaran Lengkap.
+     */
+    public function schedule()
+    {
+        $student = $this->getStudent();
+        if (!$student) return redirect()->back();
+
+        $schedules = ClassSchedule::where('class_group_id', $student->student_class_group_id)
+            ->with(['subject', 'teacher', 'studyPeriod'])
+            ->orderBy('day')
+            ->orderBy('start_time')
+            ->get()
+            ->groupBy('day');
+
+        return view('siswa.schedule.index', compact('student', 'schedules'));
+    }
+
+    /**
+     * Lihat Semua Pengumuman.
+     */
+    public function announcements()
+    {
+        $student = $this->getStudent();
+        if (!$student) return redirect()->back();
+
+        $announcements = Announcement::where('is_active', true)
+            ->whereIn('type', ['Umum', 'Siswa'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('siswa.announcements.index', compact('student', 'announcements'));
+    }
+
+    /**
+     * Riwayat Izin Siswa.
+     */
+    public function permits()
+    {
+        $student = $this->getStudent();
+        if (!$student) return redirect()->back();
+
+        $permits = StudentPermit::where('student_id', $student->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('siswa.permits.index', compact('student', 'permits'));
+    }
+
+    private function getStudent()
+    {
+        $user = Auth::user();
+        $student = Student::where('user_id', $user->id)
+            ->with(['classGroup.homeroomTeacher', 'academicYear'])
+            ->first();
+
+        if (!$student && $user->ppdbRegistrant) {
+            $student = Student::where('nisn', $user->ppdbRegistrant->nisn)
+                ->with(['classGroup.homeroomTeacher', 'academicYear'])
+                ->first();
+        }
+
+        return $student;
+    }
+
     /**
      * Absensi Mandiri Siswa.
      */
     public function storeAttendance(Request $request)
     {
-        $user = Auth::user();
-        $student = Student::where('user_id', $user->id)->first();
-
-        if (!$student && $user->ppdbRegistrant) {
-            $student = Student::where('nisn', $user->ppdbRegistrant->nisn)->first();
-        }
-
-        if (!$student) {
-            return response()->json(['message' => 'Data siswa tidak ditemukan.'], 404);
-        }
+        $student = $this->getStudent();
+        if (!$student) return response()->json(['message' => 'Data siswa tidak ditemukan.'], 404);
 
         // Cek Aturan Absensi Global
         $setting = AttendanceSetting::first();
@@ -196,16 +266,8 @@ class SiswaDashboardController extends Controller
      */
     public function storePermit(Request $request)
     {
-        $user = Auth::user();
-        $student = Student::where('user_id', $user->id)->first();
-
-        if (!$student && $user->ppdbRegistrant) {
-            $student = Student::where('nisn', $user->ppdbRegistrant->nisn)->first();
-        }
-
-        if (!$student) {
-            return response()->json(['message' => 'Data siswa tidak ditemukan.'], 404);
-        }
+        $student = $this->getStudent();
+        if (!$student) return response()->json(['message' => 'Data siswa tidak ditemukan.'], 404);
 
         $validator = Validator::make($request->all(), [
             'type' => 'required|in:Izin,Sakit',
@@ -279,16 +341,8 @@ class SiswaDashboardController extends Controller
      */
     public function storeMutabaah(Request $request)
     {
-        $user = Auth::user();
-        $student = Student::where('user_id', $user->id)->first();
-
-        if (!$student && $user->ppdbRegistrant) {
-            $student = Student::where('nisn', $user->ppdbRegistrant->nisn)->first();
-        }
-        
-        if (!$student) {
-            return response()->json(['message' => 'Data siswa tidak ditemukan.'], 404);
-        }
+        $student = $this->getStudent();
+        if (!$student) return response()->json(['message' => 'Data siswa tidak ditemukan.'], 404);
 
         $data = $request->only([
             'shubuh', 'zhuhur', 'ashar', 'maghrib', 'isya', 

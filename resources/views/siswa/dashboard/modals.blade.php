@@ -97,7 +97,7 @@
                         @endphp
                         @foreach($prayers_m as $key => $label)
                             <div class="relative">
-                                <input type="checkbox" name="{{ $key }}" id="check{{ $key }}" class="peer hidden" {{ ($todayMutabaah && $todayMutabaah->$key) ? 'checked' : '' }} value="1">
+                                <input type="checkbox" name="{{ $key }}" id="check{{ $key }}" class="peer hidden" {{ (isset($todayMutabaah) && $todayMutabaah && $todayMutabaah->$key) ? 'checked' : '' }} value="1">
                                 <label for="check{{ $key }}" class="flex items-center gap-3 p-4 bg-slate-50 border-2 border-transparent peer-checked:border-indigo-500 peer-checked:bg-indigo-50 rounded-2xl cursor-pointer transition-all">
                                     <div class="w-6 h-6 rounded-lg bg-white border-2 border-slate-200 peer-checked:border-indigo-500 flex items-center justify-center text-indigo-600">
                                         <i class="fas fa-check scale-0 peer-checked:scale-100 transition-transform text-[10px]"></i>
@@ -109,7 +109,7 @@
                     </div>
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Tadarus / Catatan</label>
-                        <input type="text" name="tadarus" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-black text-slate-700 focus:ring-4 focus:ring-indigo-50" placeholder="Contoh: Surah Al-Kahfi ayat 1-10" value="{{ $todayMutabaah->tadarus ?? '' }}">
+                        <input type="text" name="tadarus" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-black text-slate-700 focus:ring-4 focus:ring-indigo-50" placeholder="Contoh: Surah Al-Kahfi ayat 1-10" value="{{ (isset($todayMutabaah) && $todayMutabaah) ? $todayMutabaah->tadarus : '' }}">
                     </div>
                     <div class="pt-4 space-y-3">
                         <button type="submit" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-2xl shadow-indigo-100">Simpan Jurnal</button>
@@ -139,13 +139,14 @@
                 </button>
             </div>
             <div class="p-10 bg-white">
-                @if($tahfidzLogs->isEmpty())
+                @if(!isset($tahfidzLogs) || $tahfidzLogs->isEmpty())
                     <div class="text-center py-20 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
                         <i class="fas fa-book-open text-5xl text-slate-200 mb-6"></i>
                         <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Belum ada catatan hafalan</p>
                     </div>
                 @else
                     <div class="max-h-[500px] overflow-y-auto pr-4 space-y-4 custom-scrollbar">
+                        @if(isset($tahfidzLogs))
                         @foreach($tahfidzLogs as $log)
                             <div class="flex items-center gap-6 p-6 bg-slate-50 rounded-[2.5rem] border border-slate-100 hover:border-indigo-200 hover:bg-white transition-all shadow-sm group">
                                 <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-xl font-black text-2xl border border-slate-50 group-hover:bg-indigo-600 group-hover:text-white transition-all">
@@ -160,6 +161,7 @@
                                 </div>
                             </div>
                         @endforeach
+                        @endif
                     </div>
                 @endif
                 <div class="mt-8">
@@ -190,10 +192,11 @@
             <div class="p-10 bg-white">
                 <div class="bg-indigo-50 p-10 rounded-[3rem] border border-indigo-100 text-center mb-10 shadow-inner">
                     <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-3">Skor Akhlak Terakumulasi</p>
-                    <h2 class="text-7xl font-black text-indigo-600 tracking-tighter">{{ $netPoints }}</h2>
+                    <h2 class="text-7xl font-black text-indigo-600 tracking-tighter">{{ $netPoints ?? 0 }}</h2>
                 </div>
 
                 <div class="max-h-[400px] overflow-y-auto pr-4 space-y-4 custom-scrollbar">
+                    @if(isset($behaviorLogs))
                     @forelse($behaviorLogs as $log)
                         <div class="flex items-center gap-6 p-6 bg-slate-50 rounded-[2.5rem] border border-slate-100 group hover:bg-white transition-all">
                             <div class="w-14 h-14 {{ $log->type == 'positive' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }} rounded-2xl flex items-center justify-center text-xl shadow-sm border border-white">
@@ -212,6 +215,11 @@
                             <p class="text-xs font-black text-slate-300 uppercase tracking-widest">Belum ada riwayat poin</p>
                         </div>
                     @endforelse
+                    @else
+                        <div class="text-center py-12">
+                            <p class="text-xs font-black text-slate-300 uppercase tracking-widest">Data tidak tersedia di halaman ini</p>
+                        </div>
+                    @endif
                 </div>
                 <div class="mt-10">
                     <button type="button" class="w-full bg-slate-100 text-slate-400 p-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all" data-dismiss="modal">Tutup Jendela</button>

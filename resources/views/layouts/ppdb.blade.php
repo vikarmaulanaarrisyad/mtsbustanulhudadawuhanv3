@@ -102,6 +102,9 @@
                         <i class="fas fa-laptop-code mr-2 text-xs"></i> CBT PORTAL
                     </a>
                     @endif
+                    <a href="{{ route('siswa.achievements') }}" class="text-sm font-black text-slate-400 hover:text-indigo-600 transition-colors flex items-center">
+                        <i class="fas fa-award mr-2 text-xs"></i> PRESTASI
+                    </a>
                 </div>
 
                 <!-- User Profile & Logout -->

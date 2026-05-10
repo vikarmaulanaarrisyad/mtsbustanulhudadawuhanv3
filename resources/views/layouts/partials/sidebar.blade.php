@@ -111,6 +111,12 @@
                                 <p>Daftar Alumni</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('transfers.index') }}" class="nav-link {{ request()->is('transfers*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon text-danger"></i>
+                                <p>Mutasi & Pindah</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
@@ -182,6 +188,12 @@
                             </a>
                         </li>
                         @endcanany
+                        <li class="nav-item">
+                            <a href="{{ route('admin.achievements.index') }}" class="nav-link {{ request()->is('admin/achievements*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon text-warning"></i>
+                                <p>Prestasi Siswa</p>
+                            </a>
+                        </li>
                     </ul>
                 {{-- ================= PENGOLAHAN NILAI ================= --}}
                 <li class="nav-header">PENGOLAHAN NILAI</li>
@@ -398,7 +410,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('student-transfers.index') }}" class="nav-link {{ request()->is('student-transfers*') ? 'active' : '' }}">
+                            <a href="{{ route('transfers.index') }}" class="nav-link {{ request()->is('transfers*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Surat Mutasi</p>
                             </a>

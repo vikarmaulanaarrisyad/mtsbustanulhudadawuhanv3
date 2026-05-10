@@ -12,7 +12,7 @@ class DocumentVerificationService
     /**
      * Generate a new verification record and return the code.
      */
-    public function generate(Student $student, string $type, string $number, array $metadata = []): DocumentVerification
+    public function generate(Student $student, string $type, string $number, array $metadata = [], string $signedBy = null): DocumentVerification
     {
         // Check if already exists for this document number
         $existing = DocumentVerification::where('document_type', $type)
@@ -29,7 +29,7 @@ class DocumentVerificationService
             'document_number' => $number,
             'verification_code' => $this->generateUniqueCode(),
             'metadata' => $metadata,
-            'signed_by' => config('app.name'), // Default to app name or specific headmaster name
+            'signed_by' => $signedBy ?? config('app.name'), 
         ]);
     }
 

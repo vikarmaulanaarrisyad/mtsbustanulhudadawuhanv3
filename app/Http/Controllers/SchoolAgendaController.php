@@ -3,11 +3,64 @@
 namespace App\Http\Controllers;
 
 use App\Models\SchoolAgenda;
+use App\Models\Holiday;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class SchoolAgendaController extends Controller
 {
+    /**
+     * Mengambil data agenda dan hari libur untuk FullCalendar.
+     */
+    public function calendarEvents()
+    {
+        $agendas = SchoolAgenda::where('status', '!=', 'draft')->get();
+        $holidays = Holiday::all();
+
+        $events = [];
+
+        // Map Agendas
+        foreach ($agendas as $agenda) {
+            $colors = [
+                'academic' => '#6366f1', // Indigo
+                'non_academic' => '#10b981', // Emerald
+                'holiday' => '#f43f5e' // Rose
+            ];
+
+            $events[] = [
+                'id' => 'agenda_' . $agenda->id,
+                'title' => $agenda->title,
+                'start' => $agenda->start_date . ($agenda->start_time ? 'T' . $agenda->start_time : ''),
+                'end' => $agenda->end_date . ($agenda->end_time ? 'T' . $agenda->end_time : ''),
+                'backgroundColor' => $colors[$agenda->category] ?? '#94a3b8',
+                'borderColor' => $colors[$agenda->category] ?? '#94a3b8',
+                'extendedProps' => [
+                    'category' => $agenda->category,
+                    'location' => $agenda->location,
+                    'description' => $agenda->description
+                ]
+            ];
+        }
+
+        // Map Holidays
+        foreach ($holidays as $holiday) {
+            $events[] = [
+                'id' => 'holiday_' . $holiday->id,
+                'title' => 'Libur: ' . $holiday->name,
+                'start' => $holiday->holiday_date->toDateString(),
+                'allDay' => true,
+                'backgroundColor' => '#f43f5e', // Rose
+                'borderColor' => '#f43f5e',
+                'display' => 'block',
+                'extendedProps' => [
+                    'category' => 'holiday'
+                ]
+            ];
+        }
+
+        return response()->json($events);
+    }
+
     /**
      * Display a listing of the resource.
      */

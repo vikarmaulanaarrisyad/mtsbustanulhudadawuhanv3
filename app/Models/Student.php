@@ -103,4 +103,9 @@ class Student extends Model
         
         return $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

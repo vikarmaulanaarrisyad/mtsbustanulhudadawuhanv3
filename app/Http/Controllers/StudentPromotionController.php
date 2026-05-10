@@ -17,7 +17,7 @@ class StudentPromotionController extends Controller
         $currentAY = AcademicYear::where('current_semester', true)->first();
         
         $sourceClassGroups = ClassGroup::where('academic_year_id', $currentAY->id ?? 0)
-            ->whereNotIn('class_level', [6, 9, 12])
+            ->orderBy('class_level', 'desc')
             ->orderBy('class_group')
             ->orderBy('sub_class_group')
             ->get();
@@ -27,7 +27,24 @@ class StudentPromotionController extends Controller
             ->orderBy('sub_class_group')
             ->get();
 
-        return view('admin.academic.promotions.index', compact('academicYears', 'currentAY', 'sourceClassGroups', 'targetClassGroups'));
+        // Statistics for promotion progress
+        $stats = [
+            'total' => Student::where('academic_year_id', $currentAY->id ?? 0)
+                ->where('is_active', true)
+                ->count(),
+            'processed' => StudentHistory::where('academic_year_id', '!=', $currentAY->id ?? 0)
+                ->whereIn('status', ['promoted', 'retained'])
+                ->whereHas('student', fn($q) => $q->where('is_active', true)) // Simplified check
+                ->count(),
+        ];
+        // Note: The processed count above is a bit simplified, but gives an idea.
+        // Better: count students who have a history in current year but are now in a future year.
+        $stats['processed'] = Student::whereHas('histories', fn($q) => $q->where('academic_year_id', $currentAY->id ?? 0))
+            ->where('academic_year_id', '!=', $currentAY->id ?? 0)
+            ->count();
+        $stats['remaining'] = $stats['total']; // Total currently in this year is what remains
+        
+        return view('admin.academic.promotions.index', compact('academicYears', 'currentAY', 'sourceClassGroups', 'targetClassGroups', 'stats'));
     }
 
     public function data(Request $request)
@@ -89,6 +106,23 @@ class StudentPromotionController extends Controller
             foreach ($request->student_ids as $id) {
                 $student = Student::findOrFail($id);
                 
+                // VALIDATION: Top-Down Workflow enforcement
+                $sourceLevel = $student->current_class_level;
+                if (!$sourceLevel && $student->classGroup) {
+                    $sourceLevel = $student->classGroup->class_level;
+                }
+
+                $higherStudentsCount = Student::where('academic_year_id', $student->academic_year_id)
+                    ->where('is_active', true)
+                    ->whereHas('classGroup', function($q) use ($sourceLevel) {
+                        $q->where('class_level', '>', $sourceLevel);
+                    })
+                    ->count();
+
+                if ($higherStudentsCount > 0) {
+                    throw new \Exception("Alur Salah: Masih terdapat $higherStudentsCount siswa di tingkat yang lebih tinggi. Silakan proses (luluskan/naikkan) tingkat di atasnya terlebih dahulu untuk menjaga konsistensi data.");
+                }
+                
                 // VALIDATION: Prevent double promotion to the same academic year
                 $alreadyProcessed = StudentHistory::where('student_id', $student->id)
                     ->where('academic_year_id', $request->target_academic_year_id)
@@ -115,10 +149,35 @@ class StudentPromotionController extends Controller
                     ]);
                 }
 
+                // Helper to parse level from string if 0
+                $parseLevel = function($cg) {
+                    if (!$cg) return 0;
+                    if ($cg->class_level > 0) return $cg->class_level;
+                    
+                    $val = $cg->class_group;
+                    if (is_numeric($val)) return (int)$val;
+                    
+                    $romanMap = ['I'=>1,'II'=>2,'III'=>3,'IV'=>4,'V'=>5,'VI'=>6,'VII'=>7,'VIII'=>8,'IX'=>9,'X'=>10,'XI'=>11,'XII'=>12];
+                    return $romanMap[strtoupper($val)] ?? 0;
+                };
+
                 // Calculate new level
                 $newLevel = $student->current_class_level;
-                if ($request->status == 'promoted' && $newLevel < 12) {
-                    $newLevel++;
+                
+                // Fallback to current class level if student's record is null
+                if (!$newLevel && $student->classGroup) {
+                    $newLevel = $parseLevel($student->classGroup);
+                }
+
+                if ($targetClass) {
+                    // If target class is selected, use its level directly
+                    $newLevel = $parseLevel($targetClass);
+                } else {
+                    // If no target class (Rolling Mode), calculate based on status
+                    if ($request->status == 'promoted' && $newLevel < 12) {
+                        $newLevel++;
+                    }
+                    // if 'retained', $newLevel stays the same
                 }
 
                 // 2. Create New History Record for Target
@@ -132,11 +191,21 @@ class StudentPromotionController extends Controller
                 ]);
 
                 // 3. Update Student Current State
-                $student->update([
+                $updateData = [
                     'academic_year_id' => $request->target_academic_year_id,
                     'student_class_group_id' => $request->target_class_group_id,
                     'current_class_level' => $newLevel
-                ]);
+                ];
+
+                // Auto-graduation if new level reaches transition points (7, 10, 13)
+                // and no target class is specified (meaning they leave the school)
+                if (in_array($newLevel, [7, 10, 13]) && !$request->target_class_group_id) {
+                    $updateData['student_status_id'] = 2; // Lulus
+                    $updateData['is_active'] = false;
+                    $updateData['tanggal_keluar'] = now();
+                }
+
+                $student->update($updateData);
             }
 
             DB::commit();

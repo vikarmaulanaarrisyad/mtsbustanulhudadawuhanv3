@@ -30,4 +30,19 @@ class CbtStudentExam extends Model
     {
         return $this->hasMany(CbtStudentAnswer::class);
     }
+
+    public function getCorrectAnswersAttribute()
+    {
+        return $this->answers()->where('is_correct', true)->count();
+    }
+
+    public function getWrongAnswersAttribute()
+    {
+        return $this->answers()->where('is_correct', false)->count();
+    }
+
+    public function getScoreAttribute()
+    {
+        return $this->final_score;
+    }
 }

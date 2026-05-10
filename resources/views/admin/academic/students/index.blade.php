@@ -37,10 +37,10 @@
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <p class="text-xs font-weight-bold text-muted text-uppercase mb-1">Total Siswa</p>
-                        <h3 class="font-weight-bold mb-0 text-info">{{ $totalStudents }}</h3>
+                        <p class="text-xs font-weight-bold text-muted text-uppercase mb-1">Siswa Lulus (Alumni)</p>
+                        <h3 class="font-weight-bold mb-0 text-info">{{ $alumniCount }}</h3>
                     </div>
-                    <div class="icon-shape bg-soft-info rounded-circle"><i class="fas fa-users text-info"></i></div>
+                    <div class="icon-shape bg-soft-info rounded-circle"><i class="fas fa-user-graduate text-info"></i></div>
                 </div>
             </div>
         </div>
@@ -122,9 +122,9 @@
 
                 <!-- DYNAMIC FILTERS -->
                 <div class="row mt-4 pt-3 border-top bg-light-soft rounded-pill px-3 py-2 mx-0 align-items-center">
-                    <div class="col-md-3 col-12 mb-2 mb-md-0">
+                    <div class="col-md-2 col-12 mb-2 mb-md-0">
                         <select id="filter_academic_year" class="form-control form-control-sm select2-no-search">
-                            <option value="">-- Tahun Pelajaran --</option>
+                            <option value="">-- Thn Pelajaran --</option>
                             @foreach ($academicYears as $ay)
                                 <option value="{{ $ay->id }}">{{ $ay->academic_year }}</option>
                             @endforeach
@@ -139,7 +139,15 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3 col-12 mb-2 mb-md-0">
+                    <div class="col-md-2 col-12 mb-2 mb-md-0">
+                        <select id="filter_status" class="form-control form-control-sm select2-no-search">
+                            <option value="">-- Status Aktif --</option>
+                            @foreach($studentStatuses as $st)
+                                <option value="{{ $st->id }}">{{ $st->student_status_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 col-12 mb-2 mb-md-0">
                         <select id="filter_jk" class="form-control form-control-sm select2-no-search">
                             <option value="">-- Jenis Kelamin --</option>
                             <option value="L">Laki-laki</option>
@@ -238,6 +246,7 @@
                 data: function(d) {
                     d.academic_year_id = $('#filter_academic_year').val();
                     d.class_group_id = $('#filter_class_group').val();
+                    d.status_id = $('#filter_status').val();
                     d.jenis_kelamin = $('#filter_jk').val();
                 }
             },
@@ -266,7 +275,7 @@
     });
 
     function applyFilter() { table.ajax.reload(); }
-    function resetFilter() { $('#filter_academic_year, #filter_class_group, #filter_jk').val('').trigger('change.select2'); table.ajax.reload(); }
+    function resetFilter() { $('#filter_academic_year, #filter_class_group, #filter_status, #filter_jk').val('').trigger('change.select2'); table.ajax.reload(); }
 
     function addForm(url, title = 'Tambah Siswa Baru') {
         $(modal).modal('show');
