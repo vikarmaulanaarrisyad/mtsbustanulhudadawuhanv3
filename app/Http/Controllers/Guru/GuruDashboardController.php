@@ -13,6 +13,7 @@ use App\Models\ClassSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\AttendanceSetting;
+use App\Models\PpdbRegistrant;
  
 class GuruDashboardController extends Controller
 {
@@ -113,12 +114,18 @@ class GuruDashboardController extends Controller
             ->get();
  
         $setting = AttendanceSetting::first();
+ 
+        // PPDB Pending Count for Verifiers
+        $ppdbPendingCount = 0;
+        if ($user->can('ppdb.verify')) {
+            $ppdbPendingCount = PpdbRegistrant::whereIn('status', ['pending', 'berkas_tidak_lengkap'])->count();
+        }
 
         return view('guru.dashboard.index', compact(
             'teacher', 'schedules', 'myAttendances', 'todayAttendance', 
             'totalSchedules', 'homeroomClass', 'myStudents', 'totalClassSavings', 'greeting',
             'unreadAnnouncementsCount', 'myPermits', 'onLeave', 'announcements', 'setting', 'pendingJournalsCount',
-            'birthdayStudents'
+            'birthdayStudents', 'ppdbPendingCount'
         ));
     }
  

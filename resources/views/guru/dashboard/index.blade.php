@@ -275,6 +275,18 @@
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
                         @endif
+                        @can('ppdb.verify')
+                        <a href="{{ route('ppdb.scanner') }}" class="tool-btn bg-grad-indigo relative">
+                            <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
+                            <span class="tool-label">Verifikasi PPDB</span>
+                            @if($ppdbPendingCount > 0)
+                                <span class="absolute top-4 right-4 w-6 h-6 bg-amber-500 text-white text-[10px] font-black rounded-full flex items-center justify-center animate-pulse shadow-lg border-2 border-white">
+                                    {{ $ppdbPendingCount }}
+                                </span>
+                            @endif
+                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        </a>
+                        @endcan
                         <a href="javascript:void(0)" onclick="openPermitModal()" class="tool-btn bg-grad-red">
                             <div class="tool-icon"><i class="fas fa-paper-plane"></i></div>
                             <span class="tool-label">Izin/Cuti Saya</span>
