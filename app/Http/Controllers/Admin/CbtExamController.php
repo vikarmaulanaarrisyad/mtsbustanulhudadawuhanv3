@@ -248,7 +248,18 @@ class CbtExamController extends Controller
             ->with('classGroup')
             ->get();
 
-        $pdf = Pdf::loadView('admin.cbt.exam.export.exam_cards_pdf', compact('exam', 'students'))
+        $setting = \App\Models\Setting::first();
+        
+        // Fetch headmaster from teachers table
+        $headmaster = \App\Models\Teacher::where('position', 'LIKE', '%Kepala Madrasah%')->first();
+        
+        // Override setting if headmaster found
+        if ($headmaster) {
+            $setting->headmaster_name = $headmaster->name;
+            $setting->headmaster_nip = $headmaster->nip;
+        }
+
+        $pdf = Pdf::loadView('admin.cbt.exam.export.exam_cards_pdf', compact('exam', 'students', 'setting'))
                   ->setPaper('a4', 'portrait');
         
         return $pdf->stream("Kartu_Ujian_{$exam->name}.pdf");
