@@ -186,6 +186,15 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/data', [\App\Http\Controllers\Guru\GuruStudentPermitController::class, 'data'])->name('guru.student-permits.data');
             Route::post('/{id}/approve', [\App\Http\Controllers\Guru\GuruStudentPermitController::class, 'approve'])->name('guru.student-permits.approve');
         });
+
+        // Mutabaah & Tahfidz (Guru)
+        Route::prefix('mutabaah')->name('guru.mutabaah.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Guru\GuruMutabaahController::class, 'index'])->name('index');
+            Route::get('/data', [\App\Http\Controllers\Guru\GuruMutabaahController::class, 'getMutabaahData'])->name('data');
+            Route::post('/mutabaah', [\App\Http\Controllers\Guru\GuruMutabaahController::class, 'storeMutabaah'])->name('store_mutabaah');
+            Route::post('/tahfidz', [\App\Http\Controllers\Guru\GuruMutabaahController::class, 'storeTahfidz'])->name('store_tahfidz');
+            Route::get('/tahfidz-data', [\App\Http\Controllers\Guru\GuruMutabaahController::class, 'tahfidzData'])->name('tahfidz_data');
+        });
     });
 
     // Siswa Dashboard & Actions
@@ -219,6 +228,9 @@ Route::group(['middleware' => ['auth']], function () {
         // Student Savings
         Route::get('/savings', [\App\Http\Controllers\StudentSavingController::class, 'index'])->name('siswa.savings.index');
         Route::get('/savings/history/{id}', [\App\Http\Controllers\StudentSavingController::class, 'history'])->name('siswa.savings.history');
+
+        // Mutabaah & Tahfidz (Siswa)
+        Route::get('/mutabaah', [\App\Http\Controllers\Siswa\SiswaMutabaahController::class, 'index'])->name('siswa.mutabaah.index');
     });
 
     // Admin Announcements
@@ -743,10 +755,16 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/admission/ppdb/dashboard', [PpdbRegistrantController::class, 'dashboard'])->name('ppdb.admin_dashboard');
         Route::get('/admission/ppdb/data', [PpdbRegistrantController::class, 'data'])->name('ppdb.data');
         Route::get('/admission/ppdb', [PpdbRegistrantController::class, 'index'])->name('ppdb.index');
-        
+
         // PPDB Committee Management
         Route::get('/admission/ppdb/committee', [\App\Http\Controllers\Ppdb\PpdbCommitteeController::class, 'index'])->name('admin.ppdb.committee');
         Route::post('/admission/ppdb/committee/update', [\App\Http\Controllers\Ppdb\PpdbCommitteeController::class, 'update'])->name('admin.ppdb.committee.update');
+
+        // PPDB Chat — Admin Inbox (MUST be before {id} wildcard)
+        Route::get('/admission/ppdb/chat', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'adminInbox'])->name('ppdb.chat.inbox');
+        Route::get('/admission/ppdb/chat/{roomId}/messages', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'getMessages'])->name('ppdb.chat.get');
+        Route::post('/admission/ppdb/chat/{roomId}/send', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'sendAdminMessage'])->name('ppdb.chat.send_admin');
+        Route::post('/admission/ppdb/chat/{roomId}/toggle', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'toggleStatus'])->name('ppdb.chat.toggle');
 
         Route::get('/admission/ppdb/selection', [PpdbRegistrantController::class, 'selection'])->name('ppdb.selection');
         Route::get('/admission/ppdb/re-registration', [PpdbRegistrantController::class, 'reRegistration'])->name('ppdb.re_registration');
@@ -754,9 +772,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/admission/ppdb/selection-data', [PpdbRegistrantController::class, 'selectionData'])->name('ppdb.selection_data');
         Route::get('/admission/ppdb/print-berita-acara', [PpdbRegistrantController::class, 'printBeritaAcara'])->name('ppdb.print_berita_acara');
         Route::get('/admission/ppdb/print-collective-sk', [PpdbRegistrantController::class, 'printCollectiveSK'])->name('ppdb.print_collective_sk');
-        Route::get('/admission/ppdb/{id}', [PpdbRegistrantController::class, 'show'])->name('ppdb.show');
         Route::get('/admission/ppdb/document/{id}/download', [PpdbRegistrantController::class, 'downloadBerkas'])->name('ppdb.download_berkas');
         Route::get('/admission/ppdb/{id}/print-letter', [PpdbRegistrantController::class, 'printLetter'])->name('ppdb.print_letter');
+        // Wildcard {id} MUST be last in this group
+        Route::get('/admission/ppdb/{id}', [PpdbRegistrantController::class, 'show'])->name('ppdb.show');
     });
     Route::group(['middleware' => ['permission:ppdb.create']], function () {
         Route::post('/admission/ppdb', [PpdbRegistrantController::class, 'store'])->name('ppdb.store');
@@ -774,14 +793,6 @@ Route::group(['middleware' => ['auth']], function () {
     });
     Route::group(['middleware' => ['permission:ppdb.delete']], function () {
         Route::delete('/admission/ppdb/{id}/destroy', [PpdbRegistrantController::class, 'destroy'])->name('ppdb.destroy');
-    });
-
-    // PPDB Chat — Admin Inbox
-    Route::group(['middleware' => ['permission:ppdb.view']], function () {
-        Route::get('/admission/ppdb/chat', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'adminInbox'])->name('ppdb.chat.inbox');
-        Route::get('/admission/ppdb/chat/{roomId}/messages', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'getMessages'])->name('ppdb.chat.get');
-        Route::post('/admission/ppdb/chat/{roomId}/send', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'sendAdminMessage'])->name('ppdb.chat.send_admin');
-        Route::post('/admission/ppdb/chat/{roomId}/toggle', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'toggleStatus'])->name('ppdb.chat.toggle');
     });
 
     // Teacher Management (Granular Protection)
@@ -829,6 +840,19 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['permission:student.delete']], function () {
         Route::delete('/academic/students/{id}/destroy', [StudentController::class, 'destroy'])->name('students.destroy');
         Route::post('/academic/students/delete-selected', [StudentController::class, 'deleteSelected'])->name('students.deleteSelected');
+    });
+
+    // Mutabaah & Tahfidz (Admin)
+    Route::group(['middleware' => ['role_or_permission:Super Admin|Admin']], function () {
+        Route::prefix('academic/mutabaah-tahfidz')->name('mutabaah-tahfidz.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\MutabaahTahfidzController::class, 'index'])->name('index');
+            Route::get('/mutabaah-data', [\App\Http\Controllers\Admin\MutabaahTahfidzController::class, 'mutabaahData'])->name('mutabaah_data');
+            Route::get('/tahfidz-data', [\App\Http\Controllers\Admin\MutabaahTahfidzController::class, 'tahfidzData'])->name('tahfidz_data');
+            Route::get('/students', [\App\Http\Controllers\Admin\MutabaahTahfidzController::class, 'getStudents'])->name('students');
+            Route::post('/mutabaah', [\App\Http\Controllers\Admin\MutabaahTahfidzController::class, 'storeMutabaah'])->name('store_mutabaah');
+            Route::post('/tahfidz', [\App\Http\Controllers\Admin\MutabaahTahfidzController::class, 'storeTahfidz'])->name('store_tahfidz');
+            Route::delete('/{id}/{type}', [\App\Http\Controllers\Admin\MutabaahTahfidzController::class, 'destroy'])->name('destroy');
+        });
     });
 
     // Student ID Cards
@@ -1149,7 +1173,7 @@ Route::post('/api/midtrans/callback', [\App\Http\Controllers\Ppdb\PaymentCallbac
 |--------------------------------------------------------------------------
 */
 Route::get('/{slug}', [FrontController::class, 'handle'])
-    ->where('slug', '^(?!(admin|users|user|role|permissions|permissiongroups|setting|academic|admission|blog|media|configuration|post|home|dashboard|api)$)[A-Za-z0-9\-]+')
+    ->where('slug', '^(?!(admin|users|user|role|permissions|permissiongroups|setting|academic|admission|blog|media|configuration|post|home|dashboard|api|siswa|guru)$)[A-Za-z0-9\-]+')
     ->name('front.handle');
 
 

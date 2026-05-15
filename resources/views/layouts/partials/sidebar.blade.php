@@ -222,6 +222,13 @@
                                 <p>Prestasi Siswa</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('mutabaah-tahfidz.index') }}"
+                                class="nav-link {{ request()->is('academic/mutabaah-tahfidz*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon text-success"></i>
+                                <p>Mutabaah & Tahfidz</p>
+                            </a>
+                        </li>
                     </ul>
                     {{-- ================= PENGOLAHAN NILAI ================= --}}
                 <li class="nav-header">PENGOLAHAN NILAI</li>
@@ -433,6 +440,13 @@
                                         class="nav-link {{ request()->is('guru/savings*') ? 'active' : '' }}">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Tabungan Siswa</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('guru.mutabaah.index') }}"
+                                        class="nav-link {{ request()->is('guru/mutabaah*') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon text-success"></i>
+                                        <p>Mutabaah & Tahfidz</p>
                                     </a>
                                 </li>
                                 @can('attendance-settings.view')
@@ -946,6 +960,24 @@
                             class="nav-link {{ request()->routeIs('backup.index') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-database"></i>
                             <p>Backup & Restore</p>
+                        </a>
+                    </li>
+                @endcan
+
+                @can('dashboard.siswa')
+                    <li class="nav-header">LAYANAN SISWA</li>
+                    <li class="nav-item">
+                        <a href="{{ route('siswa.mutabaah.index') }}"
+                            class="nav-link {{ request()->is('siswa/mutabaah*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-pray text-success"></i>
+                            <p>Ibadah Saya</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('siswa.savings.index') }}"
+                            class="nav-link {{ request()->is('siswa/savings*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-wallet text-info"></i>
+                            <p>Tabungan Saya</p>
                         </a>
                     </li>
                 @endcan

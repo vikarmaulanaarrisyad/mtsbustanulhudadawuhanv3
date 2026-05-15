@@ -75,6 +75,16 @@ class Student extends Model
         return $this->hasOne(StudentSaving::class);
     }
 
+    public function mutabaahLogs()
+    {
+        return $this->hasMany(MutabaahLog::class);
+    }
+
+    public function tahfidzLogs()
+    {
+        return $this->hasMany(TahfidzLog::class);
+    }
+
     // ==================== ACCESSORS ====================
 
     public function getKelasLengkapAttribute()
