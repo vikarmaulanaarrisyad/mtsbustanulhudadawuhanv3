@@ -34,13 +34,29 @@
         <div class="card shadow-sm border-0 premium-card">
             <div class="card-header bg-white py-4 border-bottom">
                 <div class="d-flex justify-content-between align-items-center flex-wrap">
-                    <div>
-                        <h4 class="mb-1 font-weight-bold text-dark">Daftar Hari Libur</h4>
-                        <p class="text-muted text-sm mb-0">Sistem presensi akan dinonaktifkan pada tanggal berikut</p>
+                    <div class="d-flex align-items-center flex-wrap">
+                        <div class="mr-4">
+                            <h4 class="mb-1 font-weight-bold text-dark">Daftar Hari Libur</h4>
+                            <p class="text-muted text-sm mb-0">Sistem presensi akan dinonaktifkan pada tanggal berikut</p>
+                        </div>
+                        <!-- FILTER YEAR -->
+                        <div class="ml-md-4 mt-3 mt-md-0">
+                            <select id="filter_year" class="form-control select2 shadow-sm border-0" style="min-width: 150px; height: 45px; border-radius: 12px;">
+                                <option value="">Semua Tahun</option>
+                                @for($i = date('Y') + 1; $i >= date('Y') - 5; $i--)
+                                    <option value="{{ $i }}" {{ $i == date('Y') ? 'selected' : '' }}>Tahun {{ $i }}</option>
+                                @endfor
+                            </select>
+                        </div>
                     </div>
-                    <button onclick="addForm(`{{ route('holidays.store') }}`)" class="btn btn-rose shadow-sm font-weight-bold px-4 btn-premium mt-2 mt-md-0">
-                        <i class="fas fa-plus-circle mr-1"></i> TAMBAH HARI LIBUR
-                    </button>
+                    <div class="d-flex flex-wrap mt-3 mt-md-0" style="gap: 10px;">
+                        <button onclick="syncHolidays()" class="btn btn-outline-rose shadow-sm font-weight-bold px-4 btn-premium">
+                            <i class="fas fa-sync-alt mr-1"></i> SYNC LIBUR NASIONAL
+                        </button>
+                        <button onclick="addForm(`{{ route('holidays.store') }}`)" class="btn btn-rose shadow-sm font-weight-bold px-4 btn-premium">
+                            <i class="fas fa-plus-circle mr-1"></i> TAMBAH HARI LIBUR
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="card-body p-4">
@@ -171,7 +187,12 @@
         table = $('#holidayTable').DataTable({
             processing: true, serverSide: true, autoWidth: false,
             language: { searchPlaceholder: "Cari libur...", search: "" },
-            ajax: { url: '{{ route("holidays.data") }}' },
+            ajax: { 
+                url: '{{ route("holidays.data") }}',
+                data: function(d) {
+                    d.year = $('#filter_year').val();
+                }
+            },
             columns: [
                 { data: 'DT_RowIndex', searchable: false, sortable: false, className: 'text-center font-weight-bold' },
                 { 
@@ -188,6 +209,10 @@
                 },
                 { data: 'action', searchable: false, sortable: false, className: 'text-center' },
             ]
+        });
+
+        $('#filter_year').on('change', function() {
+            table.ajax.reload();
         });
     });
 
@@ -208,6 +233,30 @@
             $('#modal-form form').attr('action', url.replace('/show', ''));
             $('#modal-form [name=_method]').val('PUT');
             loopForm(response.data);
+        });
+    }
+
+    function syncHolidays() {
+        Swal.fire({
+            title: 'Sinkronisasi Libur?',
+            text: 'Sistem akan mengambil data hari libur nasional dari API resmi pemerintah untuk tahun ' + new Date().getFullYear(),
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            confirmButtonText: 'Ya, Sinkronkan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({ title: 'Mensinkronkan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                $.post('{{ route("holidays.sync") }}', { _token: '{{ csrf_token() }}' })
+                    .done(response => {
+                        table.ajax.reload();
+                        Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message });
+                    })
+                    .fail(xhr => {
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: xhr.responseJSON?.message || 'Terjadi kesalahan saat sinkronisasi' });
+                    });
+            }
         });
     }
 

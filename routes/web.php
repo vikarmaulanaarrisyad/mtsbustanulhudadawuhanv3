@@ -1027,6 +1027,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/settings', [AttendanceSettingController::class, 'update'])->name('attendance-settings.update');
 
         Route::get('/holidays/data', [HolidayController::class, 'data'])->name('holidays.data');
+        Route::post('/holidays/sync', [HolidayController::class, 'syncHolidays'])->name('holidays.sync');
         Route::resource('/holidays', HolidayController::class);
 
         Route::get('/reports/data', [AttendanceReportController::class, 'data'])->name('attendance-reports.data');

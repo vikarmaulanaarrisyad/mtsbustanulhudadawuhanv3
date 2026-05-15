@@ -12,9 +12,16 @@ class HolidayController extends Controller
         return view('admin.attendance.holidays.index');
     }
 
-    public function data()
+    public function data(Request $request)
     {
-        $query = Holiday::latest();
+        $query = Holiday::query();
+        
+        if ($request->has('year') && $request->year != '') {
+            $query->whereYear('holiday_date', $request->year);
+        }
+
+        $query->latest();
+
         return datatables($query)
             ->addIndexColumn()
             ->addColumn('action', function ($r) {
@@ -63,5 +70,18 @@ class HolidayController extends Controller
     {
         Holiday::findOrFail($id)->delete();
         return response()->json(['message' => 'Hari libur berhasil dihapus']);
+    }
+
+    public function syncHolidays(Request $request)
+    {
+        $year = $request->get('year', date('Y'));
+        $service = new \App\Services\HolidayService();
+        $result = $service->syncHolidays($year);
+
+        if ($result['success']) {
+            return response()->json(['message' => $result['message']]);
+        }
+
+        return response()->json(['message' => $result['message']], 500);
     }
 }
