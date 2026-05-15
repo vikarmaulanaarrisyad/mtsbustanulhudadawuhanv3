@@ -97,6 +97,9 @@ Route::get('/admin/ppdb/scanner', [\App\Http\Controllers\Ppdb\PpdbVerificationCo
 // Document Verification (Public)
 Route::get('/verify/{code}', [\App\Http\Controllers\VerificationController::class, 'verify'])->name('verify.document');
 
+// QR Login for CBT
+Route::get('/cbt/login-qr/{token}', [\App\Http\Controllers\Student\CbtController::class, 'loginViaQr'])->name('student.cbt.login-qr');
+
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.admin|Super Admin|Admin']], function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
@@ -301,11 +304,13 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::delete('/{exam}', 'destroy')->name('destroy');
                 Route::post('/{exam}/refresh-token', 'refreshToken')->name('refresh-token');
                 Route::get('/{exam}/monitor', 'monitor')->name('monitor');
+                Route::post('/{exam}/store-special-session', 'storeSpecialSession')->name('store-special-session');
                 Route::post('/student-exam/{studentExam}/reset', 'resetStudentExam')->name('student-exam.reset');
                 Route::post('/student-exam/{studentExam}/force-finish', 'forceFinishStudentExam')->name('student-exam.force-finish');
                 // Exports
                 Route::get('/{exam}/export-excel', 'exportExcel')->name('export-excel');
                 Route::get('/{exam}/export-pdf', 'exportPdf')->name('export-pdf');
+                Route::get('/{exam}/print-exam-cards', 'printExamCards')->name('print-exam-cards');
                 Route::get('/student-exam/{studentExam}/export-pdf', 'exportStudentPdf')->name('export-student-pdf');
                 
                 // AI Grading & Manual Correction

@@ -32,7 +32,8 @@ class CbtExamController extends Controller
         return DataTables::of($query)
             ->addColumn('action', function ($row) {
                 return '<div class="btn-group">
-                            <a href="'.route('admin.cbt.exam.monitor', $row->id).'" class="btn btn-sm btn-info" title="Live Monitoring"><i class="fas fa-tv"></i> Monitor</a>
+                            <a href="'.route('admin.cbt.exam.monitor', $row->id).'" class="btn btn-sm btn-info" title="Live Monitoring"><i class="fas fa-tv"></i></a>
+                            <a href="'.route('admin.cbt.exam.print-exam-cards', $row->id).'" target="_blank" class="btn btn-sm btn-dark" title="Cetak Kartu"><i class="fas fa-id-card"></i></a>
                             <button onclick="editExam('.$row->id.')" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
                             <button onclick="deleteExam('.$row->id.')" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                         </div>';
@@ -128,7 +129,11 @@ class CbtExamController extends Controller
                 $q->with(['student.classGroup'])->withCount('answers');
             }
         ]);
-        return view('admin.cbt.exam.monitor', compact('exam'));
+        
+        $allClassIds = $exam->classes->pluck('id');
+        $allStudents = \App\Models\Student::whereIn('student_class_group_id', $allClassIds)->get();
+
+        return view('admin.cbt.exam.monitor', compact('exam', 'allStudents'));
     }
 
     public function resetStudentExam(CbtStudentExam $studentExam)
@@ -185,5 +190,66 @@ class CbtExamController extends Controller
         $pdf = Pdf::loadView('admin.cbt.exam.export.student_result_pdf', compact('studentExam'))
                   ->setPaper('a4', 'portrait');
         return $pdf->download("Hasil_Detail_{$studentExam->student->nama_lengkap}.pdf");
+    }
+
+    public function storeSpecialSession(Request $request, CbtExam $exam)
+    {
+        $request->validate([
+            'type' => 'required|in:remedial,susulan',
+            'name' => 'required',
+            'exam_date' => 'required|date',
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'duration_minutes' => 'required|numeric',
+            'student_ids' => 'required|array',
+            'kkm' => 'nullable|numeric'
+        ]);
+
+        $newExam = CbtExam::create([
+            'name' => $request->name,
+            'cbt_bank_id' => $exam->cbt_bank_id,
+            'type' => $request->type,
+            'exam_mode' => 'selected_students',
+            'parent_exam_id' => $exam->id,
+            'exam_date' => $request->exam_date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'duration_minutes' => $request->duration_minutes,
+            'token' => strtoupper(Str::random(6)),
+            'is_active' => true,
+            'display_result' => $exam->display_result
+        ]);
+
+        // Link to the same classes just in case, but participation is limited by pre-created studentExams
+        $newExam->classes()->sync($exam->classes->pluck('id'));
+
+        // Pre-create student exams for selected students
+        foreach ($request->student_ids as $studentId) {
+            CbtStudentExam::create([
+                'cbt_exam_id' => $newExam->id,
+                'student_id' => $studentId,
+                'status' => 'not_started',
+                'final_score' => 0
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Sesi ' . ucfirst($request->type) . ' berhasil dibuat untuk ' . count($request->student_ids) . ' siswa.',
+            'id' => $newExam->id
+        ]);
+    }
+
+    public function printExamCards(CbtExam $exam)
+    {
+        $exam->load('classes');
+        $allClassIds = $exam->classes->pluck('id');
+        $students = \App\Models\Student::whereIn('student_class_group_id', $allClassIds)
+            ->with('classGroup')
+            ->get();
+
+        $pdf = Pdf::loadView('admin.cbt.exam.export.exam_cards_pdf', compact('exam', 'students'))
+                  ->setPaper('a4', 'portrait');
+        
+        return $pdf->stream("Kartu_Ujian_{$exam->name}.pdf");
     }
 }

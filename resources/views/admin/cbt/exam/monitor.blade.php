@@ -110,9 +110,17 @@
                     <h4 class="mb-0 font-weight-bold text-dark">Daftar Real-time Peserta</h4>
                     <p class="text-muted text-sm mb-0 mt-1"><i class="fas fa-sync-alt fa-spin mr-1 text-info"></i> Auto-refresh aktif setiap 30 detik</p>
                 </div>
-                <button class="btn btn-primary rounded-xl px-4 py-2 font-weight-bold shadow-sm" onclick="location.reload()">
-                    <i class="fas fa-sync mr-2"></i> REFRESH SEKARANG
-                </button>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('admin.cbt.exam.print-exam-cards', $exam->id) }}" target="_blank" class="btn btn-dark rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2">
+                        <i class="fas fa-id-card mr-2 text-warning"></i> CETAK KARTU
+                    </a>
+                    <button class="btn btn-glass-dark rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2" onclick="openSpecialSessionModal()">
+                        <i class="fas fa-plus-circle mr-2 text-warning"></i> SESI KHUSUS
+                    </button>
+                    <button class="btn btn-primary rounded-xl px-4 py-2 font-weight-bold shadow-sm" onclick="location.reload()">
+                        <i class="fas fa-sync mr-2"></i> REFRESH
+                    </button>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -312,8 +320,227 @@
 <script>
     // Auto refresh every 30 seconds
     setTimeout(function(){
-        location.reload();
+        // location.reload();
     }, 30000);
+
+    function openSpecialSessionModal() {
+        $('#specialSessionModal').modal('show');
+    }
+
+    function toggleStudentSelectionByKKM() {
+        let kkm = $('#kkm_threshold').val() || 75;
+        $('.student-checkbox').prop('checked', false);
+        
+        // Loop through student results in the table to identify those below KKM
+        @foreach($exam->studentExams as $se)
+            @if($se->status == 'finished')
+                if ({{ $se->final_score }} < kkm) {
+                    $('#student_chk_{{ $se->student_id }}').prop('checked', true);
+                }
+            @endif
+        @endforeach
+    }
+
+    function selectSusulanStudents() {
+        $('.student-checkbox').prop('checked', false);
+        
+        // Select students who are not in studentExams or status is not finished/doing
+        let joinedStudentIds = [@foreach($exam->studentExams as $se) {{ $se->student_id }}, @endforeach];
+        
+        @foreach($allStudents as $student)
+            if (!joinedStudentIds.includes({{ $student->id }})) {
+                $('#student_chk_{{ $student->id }}').prop('checked', true);
+            }
+        @endforeach
+    }
+
+    $('#type').on('change', function() {
+        if ($(this).val() === 'remedial') {
+            $('#kkm_container').removeClass('d-none');
+            $('#session_name').val('Remedial: {{ $exam->name }}');
+            toggleStudentSelectionByKKM();
+        } else {
+            $('#kkm_container').addClass('d-none');
+            $('#session_name').val('Susulan: {{ $exam->name }}');
+            selectSusulanStudents();
+        }
+    });
+
+    $('#specialSessionForm').on('submit', function(e) {
+        e.preventDefault();
+        let formData = $(this).serialize();
+        
+        $('#btnSubmitSpecial').html('<i class="fas fa-spinner fa-spin mr-2"></i> MEMPROSES...').prop('disabled', true);
+
+        $.ajax({
+            url: '{{ route('admin.cbt.exam.store-special-session', $exam->id) }}',
+            type: 'POST',
+            data: formData,
+            success: function(res) {
+                $('#specialSessionModal').modal('hide');
+                Swal.fire({
+                    title: 'Sukses',
+                    text: res.message,
+                    icon: 'success',
+                    confirmButtonText: 'Lihat Jadwal Baru'
+                }).then(() => {
+                    window.location.href = '{{ route('admin.cbt.exam.index') }}';
+                });
+            },
+            error: function(err) {
+                Swal.fire('Gagal', 'Terjadi kesalahan saat membuat sesi.', 'error');
+            },
+            complete: function() {
+                $('#btnSubmitSpecial').html('<i class="fas fa-save mr-2"></i> BUAT SESI KHUSUS').prop('disabled', false);
+            }
+        });
+    });
+
+    function resetExam(id, name) {
+        Swal.fire({
+            title: 'Reset Ujian?',
+            text: `Yakin ingin mereset sesi ujian ${name}? Semua jawaban akan dihapus!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Ya, Reset!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('{{ route('admin.cbt.exam.student-exam.reset', '') }}/' + id, { _token: '{{ csrf_token() }}' }, function(res) {
+                    location.reload();
+                });
+            }
+        });
+    }
+
+    function forceFinish(id, name) {
+        Swal.fire({
+            title: 'Selesaikan Paksa?',
+            text: `Hentikan sesi ujian ${name} sekarang?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Selesaikan!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('{{ route('admin.cbt.exam.student-exam.force-finish', '') }}/' + id, { _token: '{{ csrf_token() }}' }, function(res) {
+                    location.reload();
+                });
+            }
+        });
+    }
 </script>
 @endpush
+
+{{-- MODAL SESI KHUSUS --}}
+<div class="modal fade" id="specialSessionModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header bg-light border-0 py-3">
+                <h5 class="modal-title font-weight-bold text-dark"><i class="fas fa-plus-circle mr-2 text-warning"></i> Buat Sesi Khusus (Remedial/Susulan)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="specialSessionForm">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="text-xs font-weight-bold text-muted">TIPE SESI</label>
+                                <select name="type" id="type" class="form-control" required>
+                                    <option value="">-- Pilih Tipe --</option>
+                                    <option value="susulan">Ujian Susulan (Bagi yang belum ikut)</option>
+                                    <option value="remedial">Ujian Remedial (Bagi yang nilai rendah)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="text-xs font-weight-bold text-muted">NAMA SESI</label>
+                                <input type="text" name="name" id="session_name" class="form-control" required placeholder="Contoh: Remedial Matematika">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="kkm_container" class="d-none animate__animated animate__fadeIn">
+                        <div class="alert alert-info border-0 shadow-sm py-2">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle mr-3 fa-lg"></i>
+                                <div>
+                                    <label class="text-xs font-weight-bold mb-0">AMBANG BATAS NILAI (KKM)</label>
+                                    <div class="input-group input-group-sm mt-1" style="width: 150px;">
+                                        <input type="number" name="kkm" id="kkm_threshold" class="form-control" value="75" onchange="toggleStudentSelectionByKKM()">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">Poin</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="text-xs font-weight-bold text-muted">TANGGAL</label>
+                                <input type="date" name="exam_date" class="form-control" required value="{{ date('Y-m-d') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="text-xs font-weight-bold text-muted">JAM MULAI</label>
+                                <input type="time" name="start_time" class="form-control" required value="{{ date('H:i') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="text-xs font-weight-bold text-muted">JAM SELESAI</label>
+                                <input type="time" name="end_time" class="form-control" required value="{{ date('H:i', strtotime('+2 hours')) }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="text-xs font-weight-bold text-muted">DURASI (MENIT)</label>
+                        <input type="number" name="duration_minutes" class="form-control" required value="{{ $exam->duration_minutes }}">
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="text-xs font-weight-bold text-muted mb-2">DAFTAR PESERTA TERPILIH</label>
+                        <div class="student-list-container border rounded p-3" style="max-height: 250px; overflow-y: auto; background: #f8fafc;">
+                            <div class="row">
+                                @foreach($allStudents as $student)
+                                <div class="col-md-6 mb-2">
+                                    <div class="custom-control custom-checkbox student-item-card">
+                                        <input type="checkbox" name="student_ids[]" class="custom-control-input student-checkbox" id="student_chk_{{ $student->id }}" value="{{ $student->id }}">
+                                        <label class="custom-control-label text-sm d-flex flex-column" for="student_chk_{{ $student->id }}">
+                                            <span class="font-weight-bold">{{ $student->name }}</span>
+                                            <small class="text-muted">{{ $student->nisn }} | {{ $student->classGroup->class_group ?? '-' }}</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-dismiss="modal">BATAL</button>
+                    <button type="submit" class="btn btn-warning rounded-pill px-4 font-weight-bold" id="btnSubmitSpecial">BUAT SESI KHUSUS</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-glass-dark { background: rgba(0,0,0,0.05); color: #334155; border: 1px solid rgba(0,0,0,0.1); transition: 0.3s; }
+.btn-glass-dark:hover { background: rgba(0,0,0,0.1); color: #000; transform: translateY(-2px); }
+.student-list-container::-webkit-scrollbar { width: 6px; }
+.student-list-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.student-item-card { background: white; padding: 8px 12px; border-radius: 10px; border: 1px solid #e2e8f0; transition: 0.2s; }
+.student-item-card:hover { border-color: #3b82f6; background: #eff6ff; }
+.custom-control-input:checked ~ .student-item-card { border-color: #3b82f6; background: #eff6ff; }
+</style>
 @endsection

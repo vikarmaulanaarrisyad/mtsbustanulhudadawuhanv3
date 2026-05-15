@@ -31,4 +31,14 @@ class CbtExam extends Model
     {
         return $this->hasMany(CbtStudentExam::class);
     }
+
+    public function parentExam()
+    {
+        return $this->belongsTo(CbtExam::class, 'parent_exam_id');
+    }
+
+    public function childExams()
+    {
+        return $this->hasMany(CbtExam::class, 'parent_exam_id');
+    }
 }

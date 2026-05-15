@@ -24,8 +24,18 @@ class CbtController extends Controller
 
         $activeExams = CbtExam::where('is_active', true)
             ->where('exam_date', $today)
-            ->whereHas('classes', function($q) use ($student) {
-                $q->where('class_group_id', $student->student_class_group_id);
+            ->where(function($query) use ($student) {
+                $query->where(function($q) use ($student) {
+                    $q->where('exam_mode', 'all_class')
+                      ->whereHas('classes', function($sq) use ($student) {
+                          $sq->where('class_group_id', $student->student_class_group_id);
+                      });
+                })->orWhere(function($q) use ($student) {
+                    $q->where('exam_mode', 'selected_students')
+                      ->whereHas('studentExams', function($sq) use ($student) {
+                          $sq->where('student_id', $student->id);
+                      });
+                });
             })
             ->with(['bank', 'studentExams' => function($q) use ($student) {
                 $q->where('student_id', $student->id);
@@ -203,5 +213,18 @@ class CbtController extends Controller
             'end_time' => Carbon::now(),
             'final_score' => $finalScore
         ]);
+    }
+
+    public function loginViaQr($token)
+    {
+        $student = Student::where('qr_token', $token)->first();
+        
+        if (!$student || !$student->user_id) {
+            return redirect()->route('login')->with('error', 'Token QR tidak valid atau siswa belum memiliki akun.');
+        }
+
+        Auth::loginUsingId($student->user_id);
+        
+        return redirect()->route('student.cbt.dashboard')->with('success', 'Berhasil login via QR Code. Selamat mengerjakan!');
     }
 }
