@@ -3,119 +3,120 @@
 @section('title', 'Riwayat Tabungan')
 
 @section('content')
-<div class="row">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-lg rounded-20 overflow-hidden mb-4">
-            <div class="bg-gradient-info p-5 text-center text-white position-relative">
-                <div class="position-relative z-index-1">
-                    <div class="avatar-xl mx-auto mb-4 bg-white/20 backdrop-blur-md rounded-circle d-flex align-items-center justify-content-center border border-white/30" style="width: 100px; height: 100px;">
-                        <i class="fas fa-user-graduate fa-3x"></i>
-                    </div>
-                    <h4 class="font-weight-black mb-1">{{ $student->nama_lengkap }}</h4>
-                    <span class="badge badge-light px-3 py-2 rounded-pill font-weight-bold shadow-sm">
-                        {{ $student->classGroup->kelas_lengkap ?? '-' }}
-                    </span>
-                </div>
-                <div class="bg-circle-1" style="width: 200px; height: 200px; top: -50px; right: -50px;"></div>
-            </div>
-            <div class="card-body p-4 bg-white">
-                <div class="mb-4">
-                    <span class="text-xs text-muted font-weight-bold uppercase d-block mb-1">Saldo Saat Ini</span>
-                    <h2 class="font-weight-black text-info mb-0">Rp {{ number_format($student->savings->balance ?? 0, 0, ',', '.') }}</h2>
-                </div>
-                <hr class="my-4 border-light">
-                <div class="row g-0">
-                    <div class="col-6 pr-2">
-                        <div class="p-3 bg-light rounded-15 text-center">
-                            <span class="text-[10px] text-muted font-weight-bold uppercase d-block">NISN</span>
-                            <span class="font-weight-bold text-dark">{{ $student->nisn ?? '-' }}</span>
-                        </div>
-                    </div>
-                    <div class="col-6 pl-2">
-                        <div class="p-3 bg-light rounded-15 text-center">
-                            <span class="text-[10px] text-muted font-weight-bold uppercase d-block">Status</span>
-                            <span class="badge badge-success px-2 py-1">AKTIF</span>
-                        </div>
-                    </div>
-                </div>
-                <a href="{{ route('admin.savings.index') }}" class="btn btn-outline-info btn-block rounded-pill mt-4 font-weight-bold">
-                    <i class="fas fa-arrow-left mr-2"></i> KEMBALI
+<div class="savings-history-wrapper pb-20 font-outfit bg-slate-50/30">
+    <!-- TOP HEADER -->
+    <div class="header-banner bg-grad-indigo pt-10 pb-24 px-6 relative overflow-hidden rounded-b-[3rem]">
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="flex items-center justify-between">
+                <a href="{{ $isGuru ? route('guru.savings.index') : route('admin.savings.index') }}" class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-white/20 transition-all">
+                    <i class="fas fa-arrow-left"></i>
                 </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-8">
-        <div class="card border-0 shadow-sm rounded-20 premium-card">
-            <div class="card-header bg-white py-4 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="font-weight-bold mb-0 text-dark">Log Transaksi Tabungan</h5>
-                <button onclick="window.print()" class="btn btn-light btn-sm rounded-pill px-3 font-weight-bold">
-                    <i class="fas fa-print mr-1"></i> CETAK
+                <div class="text-center text-white">
+                    <h1 class="text-2xl font-black tracking-tight">Riwayat Tabungan</h1>
+                    <p class="text-white/60 text-[10px] font-black uppercase tracking-widest mt-1">Detail Transaksi Siswa</p>
+                </div>
+                <button onclick="window.print()" class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-white/20 transition-all">
+                    <i class="fas fa-print"></i>
                 </button>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="bg-light">
-                            <tr>
-                                <th class="pl-4">TANGGAL</th>
-                                <th>REF NO</th>
-                                <th>JENIS</th>
-                                <th class="text-right">JUMLAH</th>
-                                <th class="text-right">SALDO AKHIR</th>
-                                <th class="pr-4 text-center">PETUGAS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($transactions as $t)
-                                <tr>
-                                    <td class="pl-4 py-3">
-                                        <span class="font-weight-bold text-dark d-block">{{ $t->created_at->format('d/m/Y') }}</span>
-                                        <small class="text-muted">{{ $t->created_at->format('H:i') }}</small>
-                                    </td>
-                                    <td><code class="text-xs">{{ $t->reference_no }}</code></td>
-                                    <td>
-                                        @if($t->type == 'debit')
-                                            <span class="badge badge-info-soft text-info font-weight-bold px-3 py-1">
-                                                <i class="fas fa-arrow-down mr-1"></i> SETORAN
-                                            </span>
-                                        @else
-                                            <span class="badge badge-warning-soft text-warning font-weight-bold px-3 py-1">
-                                                <i class="fas fa-arrow-up mr-1"></i> PENARIKAN
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="text-right font-weight-bold {{ $t->type == 'debit' ? 'text-success' : 'text-danger' }}">
-                                        {{ $t->type == 'debit' ? '+' : '-' }} {{ number_format($t->amount, 0, ',', '.') }}
-                                    </td>
-                                    <td class="text-right font-weight-black text-dark">
-                                        {{ number_format($t->current_balance, 0, ',', '.') }}
-                                    </td>
-                                    <td class="pr-4 text-center">
-                                        <span class="badge badge-light border text-muted">{{ $t->creator->name ?? 'System' }}</span>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center py-5 text-muted">Belum ada transaksi</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+        </div>
+        
+        <!-- Decoration -->
+        <div class="absolute right-[-50px] top-[-50px] w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="max-w-4xl mx-auto px-6 -mt-16 relative z-20">
+        <!-- STUDENT MINI PROFILE CARD -->
+        <div class="bg-white rounded-[3rem] p-8 shadow-2xl shadow-slate-200/50 border border-slate-50 mb-8 relative overflow-hidden">
+            <div class="flex items-center space-x-6 relative z-10">
+                <div class="w-20 h-20 rounded-[2rem] bg-indigo-50 text-indigo-500 flex items-center justify-center text-3xl shadow-inner border border-indigo-100">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="flex-grow">
+                    <h2 class="text-2xl font-black text-slate-800 mb-1">{{ $student->nama_lengkap }}</h2>
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-slate-100 text-slate-500 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">{{ $student->nisn ?? '---' }}</span>
+                        <span class="bg-indigo-50 text-indigo-500 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">{{ $student->classGroup->kelas_lengkap ?? '-' }}</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Saldo Saat Ini</span>
+                    <h3 class="text-3xl font-black text-emerald-600 mb-0">Rp {{ number_format($student->savings->balance ?? 0, 0, ',', '.') }}</h3>
                 </div>
             </div>
-            @if($transactions->hasPages())
-                <div class="card-footer bg-white border-top py-3">
-                    {{ $transactions->links() }}
-                </div>
-            @endif
+            <!-- Background Shape -->
+            <div class="absolute right-[-20px] bottom-[-20px] w-32 h-32 bg-slate-50 rounded-full opacity-50"></div>
         </div>
+
+        <!-- TRANSACTION TIMELINE -->
+        <div class="space-y-4">
+            <h5 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 ml-4">Timeline Transaksi</h5>
+            
+            @forelse($transactions as $t)
+                <div class="bg-white rounded-[2rem] p-6 shadow-xl shadow-slate-200/40 border border-slate-50 hover:border-indigo-100 transition-all">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-5">
+                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm {{ $t->type == 'debit' ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500' }}">
+                                <i class="fas fa-{{ $t->type == 'debit' ? 'arrow-down' : 'arrow-up' }} text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center space-x-2 mb-1">
+                                    <h6 class="font-black text-slate-800 mb-0">{{ $t->type == 'debit' ? 'Setoran Tunai' : 'Penarikan Tunai' }}</h6>
+                                    <span class="text-[9px] font-bold text-slate-300">#{{ $t->reference_no }}</span>
+                                </div>
+                                <p class="text-xs text-slate-400 font-medium mb-0">
+                                    {{ $t->created_at->translatedFormat('d F Y, H:i') }} • <span class="text-indigo-400 font-bold">Oleh: {{ $t->creator->name ?? 'System' }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <h5 class="text-lg font-black mb-1 {{ $t->type == 'debit' ? 'text-emerald-600' : 'text-rose-600' }}">
+                                {{ $t->type == 'debit' ? '+' : '-' }} Rp {{ number_format($t->amount, 0, ',', '.') }}
+                            </h5>
+                            <span class="block text-[10px] font-black text-slate-300 uppercase tracking-tighter">Saldo: Rp {{ number_format($t->current_balance, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                    @if($t->description)
+                    <div class="mt-4 pt-3 border-t border-slate-50">
+                        <p class="text-xs text-slate-500 italic mb-0">
+                            <i class="fas fa-quote-left mr-2 opacity-30 text-[10px]"></i> {{ $t->description }}
+                        </p>
+                    </div>
+                    @endif
+                </div>
+            @empty
+                <div class="bg-white rounded-[3rem] p-20 text-center shadow-xl border border-slate-50">
+                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
+                        <i class="fas fa-history fa-2x"></i>
+                    </div>
+                    <p class="font-black text-slate-400">Belum ada riwayat transaksi</p>
+                </div>
+            @endforelse
+        </div>
+
+        @if($transactions->hasPages())
+            <div class="mt-10 mb-20 px-4">
+                {{ $transactions->links() }}
+            </div>
+        @endif
     </div>
 </div>
 
 <style>
-    .badge-info-soft { background: #e0f2fe; }
-    .badge-warning-soft { background: #fffbeb; }
-    .z-index-1 { z-index: 1; }
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;700;900&display=swap');
+    .font-outfit { font-family: 'Outfit', sans-serif; }
+    .bg-grad-indigo { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); }
+    
+    /* Pagination Styling Custom for Mobile App Look */
+    .pagination { justify-content: center; gap: 8px; }
+    .page-item .page-link { border: none; border-radius: 12px; font-weight: 900; font-size: 14px; color: #64748b; background: white; padding: 10px 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    .page-item.active .page-link { background: #6366f1; color: white; box-shadow: 0 10px 15px rgba(99,102,241,0.3); }
+
+    @media print {
+        .header-banner a, .header-banner button, .pagination { display: none !important; }
+        .max-w-4xl { max-width: 100% !important; margin: 0 !important; }
+        .header-banner { border-radius: 0 !important; padding: 20px !important; }
+    }
 </style>
 @endsection

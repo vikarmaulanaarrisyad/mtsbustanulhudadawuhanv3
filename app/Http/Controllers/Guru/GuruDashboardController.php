@@ -21,6 +21,11 @@ class GuruDashboardController extends Controller
         $user = auth()->user();
         $today = Carbon::today()->toDateString();
         $dayOfWeek = Carbon::today()->dayOfWeekIso; // 1 (Senin) - 7 (Minggu)
+        $hour = date('H');
+        $greeting = 'Selamat Malam';
+        if ($hour >= 5 && $hour < 11) $greeting = 'Selamat Pagi';
+        elseif ($hour >= 11 && $hour < 15) $greeting = 'Selamat Siang';
+        elseif ($hour >= 15 && $hour < 18) $greeting = 'Selamat Sore';
  
         $teacher = Teacher::where('user_id', $user->id)->first();
         
@@ -52,11 +57,32 @@ class GuruDashboardController extends Controller
         // Cek apakah Guru adalah Wali Kelas
         $homeroomClass = ClassGroup::where('teacher_id', $teacher->id)->first();
         $myStudents = collect([]);
+        $totalClassSavings = 0;
         if ($homeroomClass) {
             $myStudents = Student::with(['behaviorLogs', 'profile'])
                 ->where('student_class_group_id', $homeroomClass->id)
                 ->where('is_active', true)
                 ->orderBy('nama_lengkap')
+                ->get();
+            
+            $totalClassSavings = \App\Models\StudentSaving::whereIn('student_id', $myStudents->pluck('id'))->sum('balance');
+        }
+
+        // Pending Journals Today
+        $filledJournalIds = \App\Models\TeachingJournal::where('teacher_id', $teacher->id)
+            ->where('date', $today)
+            ->pluck('class_schedule_id')
+            ->toArray();
+        
+        $pendingJournalsCount = $schedules->whereNotIn('id', $filledJournalIds)->count();
+
+        // Students Birthday Today
+        $birthdayStudents = collect([]);
+        if ($homeroomClass) {
+            $birthdayStudents = Student::where('student_class_group_id', $homeroomClass->id)
+                ->where('is_active', true)
+                ->whereMonth('tanggal_lahir', date('m'))
+                ->whereDay('tanggal_lahir', date('d'))
                 ->get();
         }
  
@@ -90,8 +116,9 @@ class GuruDashboardController extends Controller
 
         return view('guru.dashboard.index', compact(
             'teacher', 'schedules', 'myAttendances', 'todayAttendance', 
-            'totalSchedules', 'homeroomClass', 'myStudents', 
-            'unreadAnnouncementsCount', 'myPermits', 'onLeave', 'announcements', 'setting'
+            'totalSchedules', 'homeroomClass', 'myStudents', 'totalClassSavings', 'greeting',
+            'unreadAnnouncementsCount', 'myPermits', 'onLeave', 'announcements', 'setting', 'pendingJournalsCount',
+            'birthdayStudents'
         ));
     }
  

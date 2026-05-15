@@ -50,7 +50,8 @@ class StudentSavingController extends Controller
             $totalDepositsToday = StudentSavingTransaction::whereDate('created_at', date('Y-m-d'))->where('type', 'debit')->sum('amount');
         }
         
-        return view('admin.finance.savings.index', compact('totalSavings', 'totalTransactionsToday', 'totalDepositsToday', 'isGuru', 'homeroomClass'));
+        $view = $isGuru ? 'guru.savings.index' : 'admin.finance.savings.index';
+        return view($view, compact('totalSavings', 'totalTransactionsToday', 'totalDepositsToday', 'isGuru', 'homeroomClass'));
     }
 
     public function data(Request $request)
@@ -81,15 +82,15 @@ class StudentSavingController extends Controller
             ->addColumn('action', function ($s) use ($user) {
                 $historyRoute = $user->hasRole('Guru') ? route('guru.savings.history', $s->id) : route('admin.savings.history', $s->id);
                 return '
-                <div class="btn-group">
-                    <button onclick="transactionForm(' . $s->id . ', `' . addslashes($s->nama_lengkap) . '`, `debit`)" class="btn btn-xs btn-success" title="Setor Tunai">
-                        <i class="fas fa-plus"></i> SETOR
+                <div class="btn-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                    <button onclick="transactionForm(' . $s->id . ', `' . addslashes($s->nama_lengkap) . '`, `debit`)" class="btn btn-xs btn-success border-0 px-2" title="Setor Tunai">
+                        <i class="fas fa-plus mr-1"></i> SETOR
                     </button>
-                    <button onclick="transactionForm(' . $s->id . ', `' . addslashes($s->nama_lengkap) . '`, `credit`)" class="btn btn-xs btn-warning" title="Tarik Tunai">
-                        <i class="fas fa-minus"></i> TARIK
+                    <button onclick="transactionForm(' . $s->id . ', `' . addslashes($s->nama_lengkap) . '`, `credit`)" class="btn btn-xs btn-warning border-0 px-2" title="Tarik Tunai">
+                        <i class="fas fa-minus mr-1"></i> TARIK
                     </button>
-                    <a href="' . $historyRoute . '" class="btn btn-xs btn-info" title="Riwayat">
-                        <i class="fas fa-history"></i> LOG
+                    <a href="' . $historyRoute . '" class="btn btn-xs btn-info border-0 px-2" title="Riwayat">
+                        <i class="fas fa-history mr-1"></i> LOG
                     </a>
                 </div>';
             })
@@ -165,6 +166,8 @@ class StudentSavingController extends Controller
             ->latest()
             ->paginate(15);
             
-        return view('admin.finance.savings.history', compact('student', 'transactions'));
+        $isGuru = auth()->user()->hasRole('Guru');
+        $view = $isGuru ? 'guru.savings.history' : 'admin.finance.savings.history';
+        return view($view, compact('student', 'transactions', 'isGuru'));
     }
 }

@@ -18,7 +18,7 @@
                         @endif
                     </div>
                     <div class="text-white">
-                        <span class="bg-white/20 backdrop-blur-md text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest mb-2 inline-block">Selamat Datang</span>
+                        <span class="bg-white/20 backdrop-blur-md text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest mb-2 inline-block">{{ $greeting }}</span>
                         <h1 class="text-3xl font-black tracking-tight leading-tight">{{ explode(' ', $teacher->name)[0] }} {{ explode(' ', $teacher->name)[1] ?? '' }}</h1>
                         <p class="text-white/70 text-xs font-bold mt-1"><i class="fas fa-id-badge mr-2"></i> {{ $teacher->nip ?? 'ID Belum Terdaftar' }}</p>
                     </div>
@@ -44,6 +44,27 @@
     <!-- MAIN CONTENT AREA -->
     <div class="max-w-7xl mx-auto px-6 -mt-12 relative z-20">
         
+        @if($birthdayStudents->count() > 0)
+        <!-- BIRTHDAY BANNER -->
+        <div class="bg-gradient-to-r from-pink-500 to-rose-500 rounded-[2.5rem] p-6 mb-8 shadow-xl shadow-rose-200/50 flex items-center justify-between overflow-hidden relative group">
+            <div class="flex items-center space-x-6 relative z-10">
+                <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white text-2xl animate-bounce">
+                    <i class="fas fa-birthday-cake"></i>
+                </div>
+                <div class="text-white">
+                    <h5 class="text-lg font-black mb-0">Ada yang Ulang Tahun!</h5>
+                    <p class="text-white/80 text-xs font-bold">
+                        @foreach($birthdayStudents as $bs)
+                            {{ $bs->nama_lengkap }}{{ !$loop->last ? ', ' : '' }}
+                        @endforeach
+                        hari ini merayakan ulang tahun.
+                    </p>
+                </div>
+            </div>
+            <div class="absolute right-[-20px] top-[-20px] w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-all duration-700"></div>
+        </div>
+        @endif
+        
         <!-- KPI SECTION - VIBRANT GRID -->
         <div class="row g-4 mb-10">
             <div class="col-6 col-md-3">
@@ -64,22 +85,24 @@
                     <h3 class="text-2xl font-black text-slate-800 mb-0">{{ count($schedules) }} <small class="text-[10px] text-slate-400">Mapel</small></h3>
                 </div>
             </div>
+            @if($homeroomClass)
+            <div class="col-6 col-md-3">
+                <div class="kpi-card bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-50 relative overflow-hidden group hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Tabungan</span>
+                    <h3 class="text-2xl font-black text-slate-800 mb-0"><small class="text-[10px] text-slate-400">Rp</small> {{ number_format($totalClassSavings, 0, ',', '.') }}</h3>
+                </div>
+            </div>
+            @endif
             <div class="col-6 col-md-3">
                 <div class="kpi-card bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-50 relative overflow-hidden group hover:-translate-y-2 transition-all duration-300">
                     <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-sm">
                         <i class="fas fa-users"></i>
                     </div>
-                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Kelas</span>
-                    <h3 class="text-2xl font-black text-slate-800 mb-0">{{ $homeroomClass->kelas_lengkap ?? '---' }}</h3>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="kpi-card bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-50 relative overflow-hidden group hover:-translate-y-2 transition-all duration-300">
-                    <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-sm">
-                        <i class="fas fa-medal"></i>
-                    </div>
-                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Poin Siswa</span>
-                    <h3 class="text-2xl font-black text-slate-800 mb-0">{{ $myStudents->sum(fn($s) => $s->behaviorLogs->where('type', 'positive')->sum('points')) }} <small class="text-[10px] text-slate-400">PTS</small></h3>
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Siswa</span>
+                    <h3 class="text-2xl font-black text-slate-800 mb-0">{{ $myStudents->count() }} <small class="text-[10px] text-slate-400">Orang</small></h3>
                 </div>
             </div>
         </div>
@@ -220,9 +243,14 @@
                             <span class="tool-label">Statistik</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
-                        <a href="{{ route('guru.journal.index') }}" class="tool-btn bg-grad-emerald">
+                        <a href="{{ route('guru.journal.index') }}" class="tool-btn bg-grad-emerald relative">
                             <div class="tool-icon"><i class="fas fa-file-signature"></i></div>
                             <span class="tool-label">Jurnal KBM</span>
+                            @if($pendingJournalsCount > 0)
+                                <span class="absolute top-4 right-4 w-6 h-6 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center animate-bounce shadow-lg border-2 border-white">
+                                    {{ $pendingJournalsCount }}
+                                </span>
+                            @endif
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
                         <a href="{{ route('guru.grades.index') }}" class="tool-btn bg-grad-teal">
@@ -240,6 +268,13 @@
                             <span class="tool-label">Izin Siswa</span>
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
+                        @if($homeroomClass)
+                        <a href="{{ route('guru.savings.index') }}" class="tool-btn bg-grad-rose">
+                            <div class="tool-icon"><i class="fas fa-piggy-bank"></i></div>
+                            <span class="tool-label">Tabungan</span>
+                            <i class="fas fa-chevron-right tool-arrow"></i>
+                        </a>
+                        @endif
                         <a href="javascript:void(0)" onclick="openPermitModal()" class="tool-btn bg-grad-red">
                             <div class="tool-icon"><i class="fas fa-paper-plane"></i></div>
                             <span class="tool-label">Izin/Cuti Saya</span>
@@ -504,6 +539,7 @@
     .bg-grad-emerald { background: linear-gradient(135deg, #059669 0%, #064e3b 100%); }
     .bg-grad-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
     .bg-grad-teal   { background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); }
+    .bg-grad-rose   { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); }
 
     /* Buttons */
     .btn-action.primary {
