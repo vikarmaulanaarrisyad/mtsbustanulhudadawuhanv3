@@ -224,6 +224,68 @@
                 </div>
             </div>
 
+            {{-- SUCCESS CELEBRATION (CONFETTI) --}}
+            @if(in_array($registrant->status, ['diterima', 'daftar_ulang', 'daftar_ulang_terverifikasi']))
+                @push('scripts')
+                <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+                <script>
+                    $(document).ready(function() {
+                        var duration = 5 * 1000;
+                        var animationEnd = Date.now() + duration;
+                        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+                        function randomInRange(min, max) {
+                            return Math.random() * (max - min) + min;
+                        }
+
+                        var interval = setInterval(function() {
+                            var timeLeft = animationEnd - Date.now();
+
+                            if (timeLeft <= 0) {
+                                return clearInterval(interval);
+                            }
+
+                            var particleCount = 50 * (timeLeft / duration);
+                            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+                        }, 250);
+                    });
+                </script>
+                @endpush
+            @endif
+
+            {{-- PROGRESS COMPLETION BAR (NEW) --}}
+            @php
+                $totalFields = 6;
+                $filledFields = 0;
+                if($registrant->foto) $filledFields++;
+                if($registrant->nisn) $filledFields++;
+                if($registrant->nik) $filledFields++;
+                if($registrant->asal_sekolah) $filledFields++;
+                if($registrant->no_hp_ortu) $filledFields++;
+                if($registrant->documents->count() >= 3) $filledFields++; // Assuming 3 is a good target
+                $progressPercent = round(($filledFields / $totalFields) * 100);
+            @endphp
+
+            @if($progressPercent < 100 && !in_array($registrant->status, ['diterima', 'daftar_ulang']))
+                <div class="glass-card mb-8 p-6 shadow-xl border-0 overflow-hidden" style="border-radius: 2rem; background: #fff;">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h6 class="font-weight-black text-slate-800 mb-1">KELENGKAPAN DATA</h6>
+                            <p class="small text-slate-500 mb-0">Selesaikan data Anda untuk mempermudah verifikasi.</p>
+                        </div>
+                        <div class="text-right">
+                            <h4 class="font-weight-black text-indigo-600 mb-0">{{ $progressPercent }}%</h4>
+                        </div>
+                    </div>
+                    <div class="progress shadow-sm" style="height: 12px; border-radius: 10px; background: #f1f5f9;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-grad-indigo" role="progressbar" 
+                             style="width: {{ $progressPercent }}%; border-radius: 10px;" 
+                             aria-valuenow="{{ $progressPercent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            @endif
+
             {{-- PREMIUM DIGITAL IDENTITY CARD --}}
             <div class="stu-profile-card glass-card mb-8 overflow-hidden border-0 shadow-2xl" style="border-radius: 2.5rem; background: #fff; position: relative;">
                 {{-- Decorative Elements --}}
