@@ -33,6 +33,7 @@ class CbtExamController extends Controller
             ->addColumn('action', function ($row) {
                 return '<div class="btn-group">
                             <a href="'.route('admin.cbt.exam.monitor', $row->id).'" class="btn btn-sm btn-info" title="Live Monitoring"><i class="fas fa-tv"></i></a>
+                            <a href="'.route('admin.cbt.exam.item-analysis', $row->id).'" class="btn btn-sm btn-primary" title="Analisis Soal"><i class="fas fa-chart-bar"></i></a>
                             <a href="'.route('admin.cbt.exam.print-exam-cards', $row->id).'" target="_blank" class="btn btn-sm btn-dark" title="Cetak Kartu"><i class="fas fa-id-card"></i></a>
                             <button onclick="editExam('.$row->id.')" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
                             <button onclick="deleteExam('.$row->id.')" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>

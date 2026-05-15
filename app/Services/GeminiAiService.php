@@ -168,5 +168,27 @@ Instruksi Khusus:
 3. Untuk Pilihan Ganda, pastikan hanya ada satu jawaban yang benar.
 4. Pastikan soal relevan dengan isi teks.
 5. Format JSON harus mengikuti struktur ini: {$format}";
+    public function getCompletion(string $prompt, string $systemRole = "Anda adalah asisten AI pendidikan yang ahli dalam analisis kurikulum dan pedagogi.")
+    {
+        try {
+            $response = Http::post("{$this->apiUrl}?key={$this->apiKey}", [
+                'contents' => [
+                    ['parts' => [['text' => "System Role: {$systemRole}\n\nUser Prompt: {$prompt} "]]]
+                ],
+                'generationConfig' => [
+                    'temperature' => 0.5,
+                ]
+            ]);
+
+            if ($response->failed()) {
+                throw new \Exception('Gemini AI request failed: ' . $response->body());
+            }
+
+            $result = $response->json();
+            return $result['candidates'][0]['content']['parts'][0]['text'] ?? 'No response from AI.';
+        } catch (\Exception $e) {
+            Log::error('Gemini getCompletion error: ' . $e->getMessage());
+            throw $e;
+        }
     }
 }

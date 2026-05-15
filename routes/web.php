@@ -317,6 +317,10 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/student-exam/{studentExam}/grading', [\App\Http\Controllers\Admin\CbtGradingController::class, 'show'])->name('grading.show');
                 Route::post('/answer/{answer}/score', [\App\Http\Controllers\Admin\CbtGradingController::class, 'updateScore'])->name('grading.update');
                 Route::post('/answer/{answer}/ai-grade', [\App\Http\Controllers\Admin\CbtGradingController::class, 'aiGrade'])->name('grading.ai');
+                
+                // Item Analysis
+                Route::get('/{exam}/item-analysis', [\App\Http\Controllers\Admin\CbtItemAnalysisController::class, 'show'])->name('item-analysis');
+                Route::post('/{exam}/question/{question}/ai-analyze', [\App\Http\Controllers\Admin\CbtItemAnalysisController::class, 'aiAnalyze'])->name('item-analysis.ai');
             });
 
             // Ranking & Recap

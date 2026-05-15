@@ -114,6 +114,9 @@
                     <a href="{{ route('admin.cbt.exam.print-exam-cards', $exam->id) }}" target="_blank" class="btn btn-dark rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2">
                         <i class="fas fa-id-card mr-2 text-warning"></i> CETAK KARTU
                     </a>
+                    <a href="{{ route('admin.cbt.exam.item-analysis', $exam->id) }}" class="btn btn-primary rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2">
+                        <i class="fas fa-chart-bar mr-2"></i> ANALISIS SOAL
+                    </a>
                     <button class="btn btn-glass-dark rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2" onclick="openSpecialSessionModal()">
                         <i class="fas fa-plus-circle mr-2 text-warning"></i> SESI KHUSUS
                     </button>

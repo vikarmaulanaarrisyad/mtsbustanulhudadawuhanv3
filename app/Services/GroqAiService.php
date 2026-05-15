@@ -151,5 +151,27 @@ Instruksi:
 1. Gunakan Bahasa Indonesia formal yang sesuai tingkat pemahaman siswa {$jenjang}.
 2. Format output WAJIB JSON murni sesuai struktur ini: {$format}
 3. Masukkan semua soal ke dalam array 'questions'.";
+    public function getCompletion(string $prompt, string $systemRole = "Anda adalah asisten AI pendidikan yang ahli dalam analisis kurikulum dan pedagogi.")
+    {
+        try {
+            $response = Http::withToken($this->apiKey)->post($this->apiUrl, [
+                'model' => $this->model,
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemRole],
+                    ['role' => 'user', 'content' => $prompt]
+                ],
+                'temperature' => 0.5,
+            ]);
+
+            if ($response->failed()) {
+                throw new \Exception('Groq AI request failed: ' . $response->body());
+            }
+
+            $result = $response->json();
+            return $result['choices'][0]['message']['content'] ?? 'No response from AI.';
+        } catch (\Exception $e) {
+            Log::error('Groq getCompletion error: ' . $e->getMessage());
+            throw $e;
+        }
     }
 }

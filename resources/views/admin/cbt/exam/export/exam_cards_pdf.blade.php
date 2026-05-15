@@ -84,7 +84,7 @@
                             
                             <div class="qr-code">
                                 <div style="margin-bottom: 5px;">
-                                    <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(100)->generate(route('student.cbt.login-qr', $student->qr_token))) !!} ">
+                                    {!! QrCode::size(100)->generate(route('student.cbt.login-qr', $student->qr_token)) !!}
                                 </div>
                                 <div style="font-size: 6pt; font-weight: bold; color: #0f172a; text-align: center;">SCAN UNTUK LOGIN</div>
                             </div>
