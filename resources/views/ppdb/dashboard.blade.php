@@ -450,7 +450,25 @@
                 </div>
             </div>
 
-            {{-- REGISTRATION MILESTONE (NEW FEATURE) --}}
+            {{-- TWIBBON GENERATOR (NEW FEATURE - VIRAL) --}}
+            <div class="glass-card mb-8 p-6 shadow-xl border-0 overflow-hidden" style="border-radius: 2rem; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;">
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        <h6 class="font-weight-black mb-1" style="letter-spacing: 0.5px;">BANGGA JADI SISWA</h6>
+                        <p class="small mb-3 text-indigo-100" style="line-height: 1.3;">Ayo pakai Twibbon resmi Madrasah dan bagikan ke media sosial!</p>
+                        <button type="button" class="btn btn-white btn-sm px-4 rounded-pill font-weight-bold shadow-sm" onclick="openTwibbonModal()">
+                            <i class="fas fa-camera-retro mr-2"></i> BUAT TWIBBON
+                        </button>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="twibbon-preview-mini shadow-lg">
+                            <img src="{{ asset('assets/img/ppdb/twibbon-frame.png') }}" class="img-fluid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- REGISTRATION MILESTONE --}}
             <div class="glass-card mb-8 p-6 shadow-xl border-0 overflow-hidden" style="border-radius: 2rem; background: #fff;">
                 <h6 class="font-weight-black text-indigo-900 mb-6" style="letter-spacing: 0.5px;">ALUR PENDAFTARAN</h6>
                 <div class="milestone-track d-flex justify-content-between">
@@ -501,7 +519,34 @@
         </div>
     @endif
 
-    {{-- PREMIUM UNIFIED BOTTOM NAVIGATION (ANDROID STYLE) --}}
+    {{-- TWIBBON MODAL --}}
+    <div class="modal fade" id="twibbonModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-0 shadow-2xl" style="border-radius: 2rem; background: #f8fafc;">
+                <div class="modal-header border-0 pb-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <h6 class="modal-title font-weight-black text-slate-800">TWIBBON GENERATOR</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div class="twibbon-canvas-container shadow-xl mb-4 mx-auto" style="width: 300px; height: 300px; border-radius: 20px; overflow: hidden; background: #fff; position: relative;">
+                        <canvas id="twibbonCanvas" width="1000" height="1000" style="width: 100%; height: 100%;"></canvas>
+                    </div>
+                    
+                    <div class="custom-file mb-3">
+                        <input type="file" class="custom-file-input" id="twibbonPhoto" accept="image/*">
+                        <label class="custom-file-label text-left rounded-pill" for="twibbonPhoto">Ganti Foto...</label>
+                    </div>
+
+                    <button type="button" class="btn btn-indigo-600 btn-block py-3 rounded-pill font-weight-bold shadow-lg" id="downloadTwibbon" style="background: #4f46e5; color: white; border: none;">
+                        <i class="fas fa-download mr-2"></i> DOWNLOAD TWIBBON
+                    </button>
+                    <p class="small text-slate-400 mt-3 mb-0">Bagikan ke Status WhatsApp atau Instagram!</p>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="stu-bottom-nav">
         <a href="{{ route('ppdb.dashboard') }}" class="nav-item {{ request()->routeIs('ppdb.dashboard') ? 'active' : '' }}">
             <i class="fas fa-home-alt"></i>
@@ -1010,6 +1055,14 @@
         .stu-fab { width: 60px; height: 60px; margin-top: -65px; font-size: 1.8rem; border-width: 5px; }
     }
 
+    /* Twibbon Styles */
+    .twibbon-preview-mini {
+        width: 70px; height: 70px; border-radius: 12px; overflow: hidden; border: 2px solid rgba(255,255,255,0.3);
+        transform: rotate(5deg); transition: all 0.3s;
+    }
+    .twibbon-preview-mini:hover { transform: rotate(0deg) scale(1.1); }
+    .twibbon-canvas-container { border: 4px solid #fff; background: #eee; }
+
     /* Standardized Android Theme */
     .bg-grad-indigo { background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%); }
     .glass-card { background: rgba(255, 255, 255, 0.8) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.4) !important; }
@@ -1092,6 +1145,65 @@
         $('.custom-file-input').on('change', function() {
             let fileName = $(this).val().split('\\').pop();
             $(this).next('.custom-file-label').addClass("selected").html(fileName);
+        });
+    });
+    // TWIBBON GENERATOR LOGIC
+    const canvas = document.getElementById('twibbonCanvas');
+    const ctx = canvas.getContext('2d');
+    const frameImg = new Image();
+    const userImg = new Image();
+    frameImg.src = "{{ asset('assets/img/ppdb/twibbon-frame.png') }}";
+
+    function openTwibbonModal() {
+        $('#twibbonModal').modal('show');
+        @if($registrant->foto)
+            userImg.src = "{{ Storage::url($registrant->foto) }}";
+            userImg.onload = () => drawTwibbon();
+        @else
+            frameImg.onload = () => drawTwibbon();
+        @endif
+        drawTwibbon();
+    }
+
+    function drawTwibbon() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // 1. Draw User Photo (Background)
+        if (userImg.src) {
+            let scale = Math.max(canvas.width / userImg.width, canvas.height / userImg.height);
+            let x = (canvas.width / 2) - (userImg.width / 2) * scale;
+            let y = (canvas.height / 2) - (userImg.height / 2) * scale;
+            ctx.drawImage(userImg, x, y, userImg.width * scale, userImg.height * scale);
+        } else {
+            ctx.fillStyle = "#f1f5f9";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // 2. Draw Frame (Foreground)
+        ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
+    }
+
+    $('#twibbonPhoto').on('change', function(e) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            userImg.src = event.target.result;
+            userImg.onload = () => drawTwibbon();
+        }
+        reader.readAsDataURL(e.target.files[0]);
+    });
+
+    $('#downloadTwibbon').on('click', function() {
+        const link = document.createElement('a');
+        link.download = 'Twibbon-PPDB-BustanulHuda.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil diunduh!',
+            text: 'Silakan bagikan ke media sosial Anda.',
+            timer: 3000,
+            showConfirmButton: false
         });
     });
 </script>
