@@ -22,6 +22,18 @@
 
             <div class="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-50">
                 <div class="p-8 space-y-8">
+                    <!-- Curriculum Target -->
+                    <div class="space-y-4">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block"><i class="fas fa-bullseye mr-2 text-indigo-500"></i> Target Kurikulum / Materi</label>
+                        <select name="curriculum_target_id" class="w-full bg-slate-50 border-0 rounded-3xl p-6 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner appearance-none">
+                            <option value="">-- Pilih Target Materi (Opsional) --</option>
+                            @foreach($targets as $target)
+                                <option value="{{ $target->id }}">{{ $target->chapter_number }} - {{ $target->title }}</option>
+                            @endforeach
+                            <option value="">Materi Lainnya / Tidak di List</option>
+                        </select>
+                    </div>
+
                     <!-- Material Summary -->
                     <div class="space-y-4">
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block"><i class="fas fa-book-open mr-2 text-indigo-500"></i> Ringkasan Materi</label>

@@ -14,4 +14,9 @@ class Subject extends Model
     {
         return $this->hasMany(ClassSchedule::class);
     }
+
+    public function curriculumTargets()
+    {
+        return $this->hasMany(CurriculumTarget::class);
+    }
 }

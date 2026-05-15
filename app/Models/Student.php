@@ -65,6 +65,11 @@ class Student extends Model
         return $this->hasMany(BehaviorLog::class);
     }
 
+    public function sppBillings()
+    {
+        return $this->hasMany(SppBilling::class);
+    }
+
     // ==================== ACCESSORS ====================
 
     public function getKelasLengkapAttribute()

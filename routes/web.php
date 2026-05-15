@@ -61,7 +61,8 @@ use App\Http\Controllers\{
     TeacherPermitController,
     StudentPermitController,
     FaceRecognitionController,
-    BackupController
+    BackupController,
+    Admin\SppController
 };
 
 use App\Http\Controllers\Front\FrontController;
@@ -231,6 +232,18 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/teaching-journals/export-pdf', 'exportPdf')->name('admin.teaching-journals.export-pdf');
         });
 
+        // Curriculum Target & Progress (Admin)
+        Route::controller(\App\Http\Controllers\Admin\CurriculumTargetController::class)->group(function () {
+            Route::get('/curriculum-targets', 'index')->name('admin.curriculum-targets.index');
+            Route::get('/curriculum-targets/data', 'data')->name('admin.curriculum-targets.data');
+            Route::post('/curriculum-targets', 'store')->name('admin.curriculum-targets.store');
+            Route::get('/curriculum-targets/{id}/show', 'show')->name('admin.curriculum-targets.show');
+            Route::put('/curriculum-targets/{id}', 'update')->name('admin.curriculum-targets.update');
+            Route::delete('/curriculum-targets/{id}', 'destroy')->name('admin.curriculum-targets.destroy');
+        });
+
+        Route::get('/curriculum-progress', [\App\Http\Controllers\Admin\CurriculumProgressController::class, 'index'])->name('admin.curriculum-progress.index');
+
         // WA Gateway (Admin)
         Route::controller(\App\Http\Controllers\Admin\WaGatewayController::class)->group(function () {
             Route::get('/wa-gateway', 'index')->name('admin.wa-gateway.index');
@@ -282,6 +295,86 @@ Route::group(['middleware' => ['auth']], function () {
 
             // Ranking & Recap
             Route::get('/ranking', [\App\Http\Controllers\Admin\CbtRankingController::class, 'index'])->name('ranking.index');
+        });
+
+        // Student SPP Management
+        Route::prefix('spp')->name('admin.spp.')->group(function () {
+            // Settings
+            Route::get('/settings', [SppController::class, 'settings'])->name('settings');
+            Route::get('/settings/data', [SppController::class, 'settingsData'])->name('settings.data');
+            Route::post('/settings', [SppController::class, 'storeSetting'])->name('settings.store');
+            Route::get('/settings/{id}', [SppController::class, 'showSetting'])->name('settings.show');
+            Route::delete('/settings/{id}', [SppController::class, 'destroySetting'])->name('settings.destroy');
+            
+            // Billing & Payments
+            Route::get('/billing', [SppController::class, 'billing'])->name('billing');
+            Route::get('/billing/data', [SppController::class, 'billingData'])->name('billing.data');
+            Route::post('/billing/generate', [SppController::class, 'generateBills'])->name('billing.generate');
+            Route::put('/billing/{id}', [SppController::class, 'updateBill'])->name('billing.update');
+            Route::post('/payment', [SppController::class, 'storePayment'])->name('payment.store');
+            Route::get('/payment-history/{billing_id}', [SppController::class, 'paymentHistory'])->name('payment.history');
+            
+            // Reports & Print
+            Route::get('/report', [SppController::class, 'report'])->name('report');
+            Route::get('/print-card/{student_id}', [SppController::class, 'printCard'])->name('print_card');
+        });
+
+        // Advanced Analytics & Reports
+        Route::prefix('analytics')->name('admin.analytics.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('index');
+            Route::get('/attendance-trends', [\App\Http\Controllers\Admin\AnalyticsController::class, 'attendanceTrends'])->name('attendance-trends');
+            Route::get('/grade-distribution', [\App\Http\Controllers\Admin\AnalyticsController::class, 'gradeDistribution'])->name('grade-distribution');
+            Route::get('/ranking', [\App\Http\Controllers\Admin\AnalyticsController::class, 'ranking'])->name('ranking');
+            Route::get('/ranking/export', [\App\Http\Controllers\Admin\AnalyticsController::class, 'exportRanking'])->name('ranking.export');
+        });
+
+        // Dana BOS Management
+        Route::prefix('bos')->name('admin.bos.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\BosFundController::class, 'index'])->name('index');
+            
+            // Master Data Pages
+            Route::get('/items', [\App\Http\Controllers\Admin\BosFundController::class, 'items'])->name('items.index');
+            Route::get('/items/data', [\App\Http\Controllers\Admin\BosFundController::class, 'itemsData'])->name('items.data');
+            Route::get('/items/template', [\App\Http\Controllers\Admin\BosFundController::class, 'downloadItemsTemplate'])->name('items.template');
+            Route::get('/activities', [\App\Http\Controllers\Admin\BosFundController::class, 'activities'])->name('activities.index');
+            Route::get('/activities/data', [\App\Http\Controllers\Admin\BosFundController::class, 'activitiesData'])->name('activities.data');
+            Route::get('/activities/template', [\App\Http\Controllers\Admin\BosFundController::class, 'downloadActivitiesTemplate'])->name('activities.template');
+            Route::get('/expense-types', [\App\Http\Controllers\Admin\BosFundController::class, 'expenseTypes'])->name('expense_types.index');
+            Route::get('/expense-types/data', [\App\Http\Controllers\Admin\BosFundController::class, 'expenseTypesData'])->name('expense_types.data');
+            Route::get('/expense-types/template', [\App\Http\Controllers\Admin\BosFundController::class, 'downloadExpenseTypesTemplate'])->name('expense_types.template');
+            Route::get('/rkam', [\App\Http\Controllers\Admin\BosFundController::class, 'rkam'])->name('rkam.index');
+            Route::get('/rkam/data', [\App\Http\Controllers\Admin\BosFundController::class, 'rkamData'])->name('rkam.data');
+            Route::get('/rkam/template', [\App\Http\Controllers\Admin\BosFundController::class, 'downloadRkamTemplate'])->name('rkam.template');
+            Route::delete('/items/truncate', [\App\Http\Controllers\Admin\BosFundController::class, 'truncateItems'])->name('items.truncate');
+            Route::delete('/activities/truncate', [\App\Http\Controllers\Admin\BosFundController::class, 'truncateActivities'])->name('activities.truncate');
+            Route::delete('/expense-types/truncate', [\App\Http\Controllers\Admin\BosFundController::class, 'truncateExpenseTypes'])->name('expense_types.truncate');
+            Route::delete('/rkam/truncate', [\App\Http\Controllers\Admin\BosFundController::class, 'truncateRkam'])->name('rkam.truncate');
+
+            // Income
+            Route::get('/income/data', [\App\Http\Controllers\Admin\BosFundController::class, 'incomeData'])->name('income.data');
+            Route::post('/income/store', [\App\Http\Controllers\Admin\BosFundController::class, 'storeIncome'])->name('income.store');
+            Route::get('/income/{id}', [\App\Http\Controllers\Admin\BosFundController::class, 'showIncome'])->name('income.show');
+            Route::delete('/income/{id}', [\App\Http\Controllers\Admin\BosFundController::class, 'deleteIncome'])->name('income.destroy');
+            
+            // Expenditure
+            Route::get('/expenditure/data', [\App\Http\Controllers\Admin\BosFundController::class, 'expenditureData'])->name('expenditure.data');
+            Route::get('/expenditure/receipt-number', [\App\Http\Controllers\Admin\BosFundController::class, 'generateReceiptNumber'])->name('expenditure.receipt-number');
+            Route::post('/expenditure/store', [\App\Http\Controllers\Admin\BosFundController::class, 'storeExpenditure'])->name('expenditure.store');
+            Route::get('/expenditure/{id}', [\App\Http\Controllers\Admin\BosFundController::class, 'showExpenditure'])->name('expenditure.show');
+            Route::get('/expenditure/{id}/print', [\App\Http\Controllers\Admin\BosFundController::class, 'printReceipt'])->name('expenditure.print');
+            Route::delete('/expenditure/{id}', [\App\Http\Controllers\Admin\BosFundController::class, 'deleteExpenditure'])->name('expenditure.destroy');
+
+            // Master Data Imports & Search
+            Route::post('/import-activity', [\App\Http\Controllers\Admin\BosFundController::class, 'importActivity'])->name('import_activity');
+            Route::post('/import-item', [\App\Http\Controllers\Admin\BosFundController::class, 'importItem'])->name('import_item');
+            Route::post('/import-expense-type', [\App\Http\Controllers\Admin\BosFundController::class, 'importExpenseType'])->name('import_expense_type');
+            Route::post('/import-program', [\App\Http\Controllers\Admin\BosFundController::class, 'importProgram'])->name('import_program');
+            Route::post('/import-rkam', [\App\Http\Controllers\Admin\BosFundController::class, 'importRkam'])->name('import_rkam');
+            Route::get('/search-activity', [\App\Http\Controllers\Admin\BosFundController::class, 'searchActivity'])->name('search_activity');
+            Route::get('/search-item', [\App\Http\Controllers\Admin\BosFundController::class, 'searchItem'])->name('search_item');
+            Route::get('/search-expense-type', [\App\Http\Controllers\Admin\BosFundController::class, 'searchExpenseType'])->name('search_expense_type');
+            Route::get('/search-program', [\App\Http\Controllers\Admin\BosFundController::class, 'searchProgram'])->name('search_program');
+            Route::get('/search-rkam', [\App\Http\Controllers\Admin\BosFundController::class, 'searchRkam'])->name('search_rkam');
         });
     });
 

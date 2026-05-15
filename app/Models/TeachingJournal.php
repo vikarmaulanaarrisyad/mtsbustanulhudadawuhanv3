@@ -39,4 +39,9 @@ class TeachingJournal extends Model
     {
         return $this->belongsTo(StudyPeriod::class);
     }
+
+    public function curriculumTarget()
+    {
+        return $this->belongsTo(CurriculumTarget::class);
+    }
 }

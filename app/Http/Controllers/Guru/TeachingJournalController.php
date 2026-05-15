@@ -52,7 +52,14 @@ class TeachingJournalController extends Controller
             ->orderBy('nama_lengkap')
             ->get();
 
-        return view('guru.journal.create', compact('schedule', 'students', 'teacher'));
+        // Curriculum Targets for this subject
+        $targets = \App\Models\CurriculumTarget::where('subject_id', $schedule->subject_id)
+            ->where('academic_year_id', $schedule->classGroup->academic_year_id)
+            ->where('is_active', true)
+            ->orderBy('chapter_number')
+            ->get();
+
+        return view('guru.journal.create', compact('schedule', 'students', 'teacher', 'targets'));
     }
 
     public function store(Request $request)
@@ -72,6 +79,7 @@ class TeachingJournalController extends Controller
             'class_group_id' => $schedule->class_group_id,
             'subject_id' => $schedule->subject_id,
             'study_period_id' => $schedule->study_period_id,
+            'curriculum_target_id' => $request->curriculum_target_id,
             'date' => $request->date,
             'material_summary' => $request->material_summary,
             'student_notes' => $request->student_notes,
