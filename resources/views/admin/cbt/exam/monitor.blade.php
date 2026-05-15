@@ -186,6 +186,9 @@
                                 <td class="text-center pr-4">
                                     <div class="btn-group">
                                         @if($se->status == 'finished')
+                                            <a href="{{ route('admin.cbt.exam.grading.show', $se->id) }}" class="btn btn-xs btn-primary rounded-pill font-weight-bold px-3 mr-1">
+                                                <i class="fas fa-check-circle mr-1"></i> Koreksi
+                                            </a>
                                             <a href="{{ route('admin.cbt.exam.export-student-pdf', $se->id) }}" class="btn btn-xs btn-outline-danger rounded-pill font-weight-bold px-3">
                                                 <i class="fas fa-file-pdf mr-1"></i> Cetak
                                             </a>

@@ -521,7 +521,7 @@ class CbtBankController extends Controller
     /**
      * Generate questions using AI.
      */
-    public function generateAiQuestions(Request $request)
+    public function generateAiQuestions(Request $request, CbtBank $bank)
     {
         $request->validate([
             'source_text' => 'required|string|min:50',
@@ -542,7 +542,8 @@ class CbtBankController extends Controller
             $questions = $aiService->generateQuestions(
                 $request->source_text,
                 $request->type,
-                $request->count
+                $request->count,
+                $bank->class_level
             );
 
             return response()->json([

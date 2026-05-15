@@ -59,9 +59,24 @@
                             <label class="text-xs font-weight-bold text-muted uppercase">Tingkat Pendidikan <span class="text-danger">*</span></label>
                             <select name="class_level" id="class_level" class="form-control rounded-pill px-3 border-2">
                                 <option disabled selected>-- Pilih Tingkat --</option>
-                                @for($i=1; $i<=12; $i++)
-                                    <option value="{{ $i }}">Tingkat {{ $i }}</option>
-                                @endfor
+                                <optgroup label="Madrasah Ibtidaiyah (MI)">
+                                    <option value="1">Tingkat 1</option>
+                                    <option value="2">Tingkat 2</option>
+                                    <option value="3">Tingkat 3</option>
+                                    <option value="4">Tingkat 4</option>
+                                    <option value="5">Tingkat 5</option>
+                                    <option value="6">Tingkat 6</option>
+                                </optgroup>
+                                <optgroup label="Madrasah Tsanawiyah (MTs)">
+                                    <option value="7">Tingkat 7</option>
+                                    <option value="8">Tingkat 8</option>
+                                    <option value="9">Tingkat 9</option>
+                                </optgroup>
+                                <optgroup label="Madrasah Aliyah (MA)">
+                                    <option value="10">Tingkat 10</option>
+                                    <option value="11">Tingkat 11</option>
+                                    <option value="12">Tingkat 12</option>
+                                </optgroup>
                             </select>
                         </div>
 

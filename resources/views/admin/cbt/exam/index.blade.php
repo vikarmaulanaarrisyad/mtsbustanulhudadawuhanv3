@@ -113,8 +113,8 @@
                         <label class="text-xs font-weight-bold text-muted">BANK SOAL CBT</label>
                         <select name="cbt_bank_id" id="cbt_bank_id" class="form-control select2" style="width: 100%" required>
                             <option value="">-- Pilih Bank Soal --</option>
-                            @foreach(\App\Models\CbtBank::all() as $bank)
-                                <option value="{{ $bank->id }}">{{ $bank->name }} (Kelas {{ $bank->class_level }})</option>
+                            @foreach($banks as $bank)
+                                <option value="{{ $bank->id }}" data-level="{{ $bank->class_level }}">{{ $bank->name }} (Kelas {{ $bank->class_level }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -147,8 +147,8 @@
                     <div class="form-group mb-4">
                         <label class="text-xs font-weight-bold text-muted">KELAS PESERTA</label>
                         <select name="classes[]" id="classes" class="form-control select2" multiple required style="width: 100%" data-placeholder="Pilih rombel yang diizinkan ikut...">
-                            @foreach(\App\Models\ClassGroup::all() as $cls)
-                                <option value="{{ $cls->id }}">{{ $cls->class_group }} - {{ $cls->sub_class_group }}</option>
+                            @foreach($classes as $cls)
+                                <option value="{{ $cls->id }}" data-level="{{ $cls->class_level }}">{{ $cls->class_group }} - {{ $cls->sub_class_group }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -373,6 +373,70 @@
                     $('#btnSubmit').html('<i class="fas fa-save mr-2"></i> SIMPAN JADWAL UJIAN').prop('disabled', false);
                 }
             });
+        });
+
+        // Filter Bank Soal based on Class Level
+        const allBanks = $('#cbt_bank_id option').clone();
+        const allClasses = $('#classes option').clone();
+        
+        $('#classes').on('change', function(e) {
+            if (e.originalEvent === undefined && $(this).data('filtering')) return; // Avoid loops
+            
+            const selectedOptions = $(this).find('option:selected');
+            if (selectedOptions.length === 0) {
+                $('#cbt_bank_id').empty().append(allBanks.clone()).trigger('change.select2');
+                return;
+            }
+
+            const targetLevel = selectedOptions.first().data('level');
+            if (targetLevel === undefined) return;
+            
+            const currentBank = $('#cbt_bank_id').val();
+            $('#cbt_bank_id').data('filtering', true).empty();
+            allBanks.each(function() {
+                const bankLevel = $(this).data('level');
+                if (!$(this).val() || bankLevel == targetLevel) {
+                    $('#cbt_bank_id').append($(this).clone());
+                }
+            });
+
+            if (currentBank) {
+                if ($('#cbt_bank_id option[value="' + currentBank + '"]').length > 0) {
+                    $('#cbt_bank_id').val(currentBank);
+                }
+            }
+            $('#cbt_bank_id').trigger('change.select2').data('filtering', false);
+        });
+
+        $('#cbt_bank_id').on('change', function(e) {
+            if (e.originalEvent === undefined && $(this).data('filtering')) return; // Avoid loops
+            
+            const bankId = $(this).val();
+            if (!bankId) {
+                // Restore all classes if bank cleared
+                $('#classes').empty().append(allClasses.clone()).trigger('change.select2');
+                return;
+            }
+
+            const targetLevel = $(this).find('option:selected').data('level');
+            if (targetLevel === undefined) return;
+
+            const currentClasses = $('#classes').val() || [];
+            $('#classes').data('filtering', true).empty();
+            
+            allClasses.each(function() {
+                const classLevel = $(this).data('level');
+                if (classLevel == targetLevel) {
+                    $('#classes').append($(this).clone());
+                }
+            });
+
+            // Keep only classes that match the level
+            const validClasses = currentClasses.filter(id => {
+                return $('#classes option[value="' + id + '"]').length > 0;
+            });
+            
+            $('#classes').val(validClasses).trigger('change.select2').data('filtering', false);
         });
     });
 

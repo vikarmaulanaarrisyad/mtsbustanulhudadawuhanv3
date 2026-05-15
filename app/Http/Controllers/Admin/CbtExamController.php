@@ -18,7 +18,12 @@ class CbtExamController extends Controller
 {
     public function index()
     {
-        return view('admin.cbt.exam.index');
+        $activeYear = \App\Models\AcademicYear::where('current_semester', 1)->first();
+        
+        $banks = CbtBank::all(); // Banks don't have year, but we could filter if they did
+        $classes = ClassGroup::where('academic_year_id', $activeYear->id ?? 0)->get();
+
+        return view('admin.cbt.exam.index', compact('banks', 'classes'));
     }
 
     public function data(Request $request)

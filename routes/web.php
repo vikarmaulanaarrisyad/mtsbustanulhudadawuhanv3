@@ -307,6 +307,11 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/{exam}/export-excel', 'exportExcel')->name('export-excel');
                 Route::get('/{exam}/export-pdf', 'exportPdf')->name('export-pdf');
                 Route::get('/student-exam/{studentExam}/export-pdf', 'exportStudentPdf')->name('export-student-pdf');
+                
+                // AI Grading & Manual Correction
+                Route::get('/student-exam/{studentExam}/grading', [\App\Http\Controllers\Admin\CbtGradingController::class, 'show'])->name('grading.show');
+                Route::post('/answer/{answer}/score', [\App\Http\Controllers\Admin\CbtGradingController::class, 'updateScore'])->name('grading.update');
+                Route::post('/answer/{answer}/ai-grade', [\App\Http\Controllers\Admin\CbtGradingController::class, 'aiGrade'])->name('grading.ai');
             });
 
             // Ranking & Recap

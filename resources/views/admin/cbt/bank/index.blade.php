@@ -123,9 +123,24 @@
                         <label class="text-xs font-weight-bold text-muted">TINGKAT KELAS</label>
                         <select name="class_level" id="class_level" class="form-control select2" style="width: 100%" required>
                             <option value="">-- Pilih Tingkat Kelas --</option>
-                            <option value="7">Kelas 7</option>
-                            <option value="8">Kelas 8</option>
-                            <option value="9">Kelas 9</option>
+                            <optgroup label="Madrasah Ibtidaiyah (MI)">
+                                <option value="1">Kelas 1</option>
+                                <option value="2">Kelas 2</option>
+                                <option value="3">Kelas 3</option>
+                                <option value="4">Kelas 4</option>
+                                <option value="5">Kelas 5</option>
+                                <option value="6">Kelas 6</option>
+                            </optgroup>
+                            <optgroup label="Madrasah Tsanawiyah (MTs)">
+                                <option value="7">Kelas 7</option>
+                                <option value="8">Kelas 8</option>
+                                <option value="9">Kelas 9</option>
+                            </optgroup>
+                            <optgroup label="Madrasah Aliyah (MA)">
+                                <option value="10">Kelas 10</option>
+                                <option value="11">Kelas 11</option>
+                                <option value="12">Kelas 12</option>
+                            </optgroup>
                         </select>
                     </div>
 
