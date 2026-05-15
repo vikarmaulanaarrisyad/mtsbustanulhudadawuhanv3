@@ -74,12 +74,21 @@ class SiswaDashboardController extends Controller
         $totalNegativePoints = $student->behaviorLogs()->where('type', 'negative')->sum('points');
         $netPoints = $totalPositivePoints - $totalNegativePoints;
 
-        // 7. Pengumuman Terbaru
         $announcements = Announcement::where('is_active', true)
             ->whereIn('type', ['Umum', 'Siswa'])
             ->orderBy('created_at', 'desc')
             ->limit(3)
             ->get();
+
+        // 8. Tabungan Siswa
+        $savings = \App\Models\StudentSaving::where('student_id', $student->id)->first();
+        $recentSavingsTransactions = collect([]);
+        if ($savings) {
+            $recentSavingsTransactions = \App\Models\StudentSavingTransaction::where('student_saving_id', $savings->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+        }
 
         // 8. Validasi Aturan Absensi
         $attendanceSetting = AttendanceSetting::first();
@@ -110,7 +119,7 @@ class SiswaDashboardController extends Controller
             'hasCheckedInToday', 'announcements', 'isWorkDay', 'isCheckInTime', 
             'isHoliday', 'attendanceMessage', 'todayAttendance',
             'todayMutabaah', 'tahfidzLogs', 'behaviorLogs', 'totalPositivePoints', 
-            'totalNegativePoints', 'netPoints'
+            'totalNegativePoints', 'netPoints', 'savings', 'recentSavingsTransactions'
         ));
     }
 

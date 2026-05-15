@@ -15,8 +15,9 @@ class StudentSavingController extends Controller
     {
         $user = auth()->user();
         $isGuru = $user->hasRole('Guru');
-        $teacher = null;
+        $isSiswa = $user->hasRole('Siswa');
         $homeroomClass = null;
+        $transactions = collect([]);
 
         if ($isGuru) {
             $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
@@ -25,33 +26,33 @@ class StudentSavingController extends Controller
             if (!$homeroomClass) {
                 return redirect()->route('guru.dashboard')->with('error', 'Fitur Tabungan Siswa hanya tersedia untuk Wali Kelas.');
             }
-
-            $totalSavings = StudentSaving::whereIn('student_id', function($q) use ($homeroomClass) {
-                $q->select('id')->from('students')->where('student_class_group_id', $homeroomClass->id);
-            })->sum('balance');
-
-            $totalTransactionsToday = StudentSavingTransaction::whereDate('created_at', date('Y-m-d'))
-                ->whereIn('student_saving_id', function($q) use ($homeroomClass) {
-                    $q->select('id')->from('student_savings')->whereIn('student_id', function($sq) use ($homeroomClass) {
-                        $sq->select('id')->from('students')->where('student_class_group_id', $homeroomClass->id);
-                    });
-                })->count();
-
-            $totalDepositsToday = StudentSavingTransaction::whereDate('created_at', date('Y-m-d'))
-                ->where('type', 'debit')
-                ->whereIn('student_saving_id', function($q) use ($homeroomClass) {
-                    $q->select('id')->from('student_savings')->whereIn('student_id', function($sq) use ($homeroomClass) {
-                        $sq->select('id')->from('students')->where('student_class_group_id', $homeroomClass->id);
-                    });
-                })->sum('amount');
+            
+            $studentIds = \App\Models\Student::where('student_class_group_id', $homeroomClass->id)->pluck('id');
+            $totalSavings = StudentSaving::whereIn('student_id', $studentIds)->sum('balance');
+            $totalTransactionsToday = StudentSavingTransaction::whereIn('student_saving_id', StudentSaving::whereIn('student_id', $studentIds)->pluck('id'))
+                ->whereDate('created_at', date('Y-m-d'))->count();
+            $totalDepositsToday = StudentSavingTransaction::whereIn('student_saving_id', StudentSaving::whereIn('student_id', $studentIds)->pluck('id'))
+                ->whereDate('created_at', date('Y-m-d'))->where('type', 'debit')->sum('amount');
+        } elseif ($isSiswa) {
+            $student = \App\Models\Student::where('user_id', $user->id)->first();
+            $saving = StudentSaving::where('student_id', $student->id)->first();
+            
+            $totalSavings = $saving->balance ?? 0;
+            $totalTransactionsToday = $saving ? StudentSavingTransaction::where('student_saving_id', $saving->id)->count() : 0;
+            $totalDepositsToday = $saving ? StudentSavingTransaction::where('student_saving_id', $saving->id)->where('type', 'debit')->sum('amount') : 0;
+            
+            $transactions = $saving ? StudentSavingTransaction::where('student_saving_id', $saving->id)->latest()->paginate(10) : collect([]);
         } else {
             $totalSavings = StudentSaving::sum('balance');
             $totalTransactionsToday = StudentSavingTransaction::whereDate('created_at', date('Y-m-d'))->count();
             $totalDepositsToday = StudentSavingTransaction::whereDate('created_at', date('Y-m-d'))->where('type', 'debit')->sum('amount');
         }
         
-        $view = $isGuru ? 'guru.savings.index' : 'admin.finance.savings.index';
-        return view($view, compact('totalSavings', 'totalTransactionsToday', 'totalDepositsToday', 'isGuru', 'homeroomClass'));
+        $view = 'admin.finance.savings.index';
+        if ($isGuru) $view = 'guru.savings.index';
+        if ($isSiswa) $view = 'siswa.savings.index';
+        
+        return view($view, compact('totalSavings', 'totalTransactionsToday', 'totalDepositsToday', 'isGuru', 'isSiswa', 'homeroomClass', 'transactions'));
     }
 
     public function data(Request $request)

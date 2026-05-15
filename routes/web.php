@@ -215,6 +215,10 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/cbt/{exam}/report-violation', 'reportViolation')->name('student.cbt.report-violation');
             Route::post('/cbt/{exam}/finish', 'finish')->name('student.cbt.finish');
         });
+
+        // Student Savings
+        Route::get('/savings', [\App\Http\Controllers\StudentSavingController::class, 'index'])->name('siswa.savings.index');
+        Route::get('/savings/history/{id}', [\App\Http\Controllers\StudentSavingController::class, 'history'])->name('siswa.savings.history');
     });
 
     // Admin Announcements

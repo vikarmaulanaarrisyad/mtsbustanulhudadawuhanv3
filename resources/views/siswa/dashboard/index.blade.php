@@ -235,6 +235,10 @@
                             <div class="tool-icon"><i class="fas fa-history"></i></div>
                             <span class="tool-label">Riwayat Izin</span>
                         </a>
+                        <a href="{{ route('siswa.savings.index') }}" class="tool-btn bg-grad-rose">
+                            <div class="tool-icon"><i class="fas fa-piggy-bank"></i></div>
+                            <span class="tool-label">Tabungan</span>
+                        </a>
                         <a href="{{ route('students.card', $student->id) }}" target="_blank" class="tool-btn bg-grad-orange">
                             <div class="tool-icon"><i class="fas fa-id-card"></i></div>
                             <span class="tool-label">Kartu Siswa</span>
