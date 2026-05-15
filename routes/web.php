@@ -776,6 +776,14 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('/admission/ppdb/{id}/destroy', [PpdbRegistrantController::class, 'destroy'])->name('ppdb.destroy');
     });
 
+    // PPDB Chat — Admin Inbox
+    Route::group(['middleware' => ['permission:ppdb.view']], function () {
+        Route::get('/admission/ppdb/chat', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'adminInbox'])->name('ppdb.chat.inbox');
+        Route::get('/admission/ppdb/chat/{roomId}/messages', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'getMessages'])->name('ppdb.chat.get');
+        Route::post('/admission/ppdb/chat/{roomId}/send', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'sendAdminMessage'])->name('ppdb.chat.send_admin');
+        Route::post('/admission/ppdb/chat/{roomId}/toggle', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'toggleStatus'])->name('ppdb.chat.toggle');
+    });
+
     // Teacher Management (Granular Protection)
     Route::group(['middleware' => ['permission:teacher.view']], function () {
         Route::get('/teachers/data', [TeacherController::class, 'data'])->name('teachers.data');
@@ -840,6 +848,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/print-payment', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'printPayment'])->name('ppdb.print_payment');
         Route::post('/confirm-re-registration', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'confirmReRegistration'])->name('ppdb.confirm_re_registration');
         Route::post('/verify-midtrans', [\App\Http\Controllers\Ppdb\PpdbDashboardController::class, 'verifyMidtrans'])->name('ppdb.verify_midtrans');
+        // Chat routes (student side)
+        Route::get('/chat/room', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'studentGetRoom'])->name('ppdb.chat.student_room');
+        Route::get('/chat/{roomId}/messages', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'getMessages'])->name('ppdb.chat.student_get');
+        Route::post('/chat/send', [\App\Http\Controllers\Ppdb\PpdbChatController::class, 'sendStudentMessage'])->name('ppdb.chat.send_student');
     });
 
 

@@ -643,6 +643,21 @@
                                     </a>
                                 </li>
                             @endcan
+                            @can('ppdb.view')
+                                <li class="nav-item">
+                                    <a href="{{ route('ppdb.chat.inbox') }}"
+                                        class="nav-link {{ request()->routeIs('ppdb.chat.*') ? 'active' : '' }}">
+                                        <i class="fas fa-comments nav-icon text-success"></i>
+                                        <p>
+                                            Inbox Chat
+                                            @php $unreadChat = \App\Models\PpdbChatRoom::sum('unread_admin'); @endphp
+                                            @if($unreadChat > 0)
+                                                <span class="badge badge-danger right" style="font-size:0.65rem;">{{ $unreadChat }}</span>
+                                            @endif
+                                        </p>
+                                    </a>
+                                </li>
+                            @endcan
                             @can('student-admissions.view')
                                 <li class="nav-item">
                                     <a href="{{ route('student-admissions.index') }}"

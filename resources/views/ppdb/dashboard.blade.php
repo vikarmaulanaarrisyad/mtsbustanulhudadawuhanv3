@@ -629,11 +629,75 @@
             <i class="fas {{ $registrant ? 'fa-folder-open' : 'fa-headset' }}"></i>
             <span>{{ $registrant ? 'Berkas' : 'Bantuan' }}</span>
         </a>
+        @if($registrant)
+        <a href="javascript:void(0)" onclick="toggleChat()" class="nav-item" id="chatNavBtn">
+            <i class="fas fa-comments"></i>
+            <span>Chat <span id="chatNavBadge" class="badge badge-danger d-none" style="font-size:9px;padding:2px 5px;border-radius:8px;vertical-align:top;margin-top:-2px;"></span></span>
+        </a>
+        @else
+        <a href="javascript:void(0)" onclick="confirmLogout()" class="nav-item">
+            <i class="fas fa-power-off"></i>
+            <span>Keluar</span>
+        </a>
+        @endif
         <a href="javascript:void(0)" onclick="confirmLogout()" class="nav-item">
             <i class="fas fa-power-off"></i>
             <span>Keluar</span>
         </a>
     </div>
+
+    @if($registrant)
+    {{-- ===== FLOATING CHAT WIDGET ===== --}}
+    <div id="chatWidget" style="
+        position: fixed; bottom: 90px; right: 16px; left: 16px; z-index: 9999;
+        background: white; border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(79,70,229,0.25);
+        display: none; flex-direction: column; overflow: hidden;
+        max-height: 70vh; height: 500px;
+        transform: translateY(20px); opacity: 0;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    ">
+        {{-- Chat Header --}}
+        <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 16px 20px; display: flex; align-items: center; gap: 12px;">
+            <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;color:white;font-size:1.2rem;">
+                <i class="fas fa-headset"></i>
+            </div>
+            <div class="flex-1">
+                <div style="color:white;font-weight:800;font-size:0.95rem;">Helpdesk PPDB</div>
+                <div style="color:rgba(255,255,255,0.7);font-size:0.72rem;" id="chatStatusText">
+                    <span style="width:8px;height:8px;background:#10b981;border-radius:50%;display:inline-block;margin-right:4px;"></span> Online
+                </div>
+            </div>
+            <button onclick="toggleChat()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:1rem;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        {{-- Messages --}}
+        <div id="widgetMessages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#f8fafc;">
+            <div class="text-center py-4 text-muted" id="widgetLoading">
+                <div class="spinner-border spinner-border-sm text-indigo"></div>
+                <small class="d-block mt-2">Memuat percakapan...</small>
+            </div>
+        </div>
+
+        {{-- Status Closed Banner --}}
+        <div id="chatClosedBanner" style="display:none;background:#fef3c7;padding:10px 20px;text-align:center;">
+            <small class="text-amber-700 font-weight-bold"><i class="fas fa-lock mr-1"></i> Percakapan ini telah ditutup oleh panitia.</small>
+        </div>
+
+        {{-- Input --}}
+        <div id="widgetInputArea" style="padding: 12px 16px; background: white; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; align-items: flex-end;">
+            <textarea id="widgetInput" placeholder="Tulis pesan..." rows="1"
+                style="flex:1;border:2px solid #f1f5f9;border-radius:12px;padding:10px 14px;font-size:0.85rem;resize:none;outline:none;max-height:80px;transition:border-color 0.2s;"
+                onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#f1f5f9'"
+                onkeydown="if(event.ctrlKey && event.key==='Enter') sendStudentMsg()"></textarea>
+            <button onclick="sendStudentMsg()" style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border:none;color:white;cursor:pointer;flex-shrink:0;font-size:1rem;">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+    @endif
 
 
 @push('css')
@@ -1268,6 +1332,136 @@
             showConfirmButton: false
         });
     });
+
+    @if($registrant)
+    // ===== CHAT WIDGET LOGIC =====
+    let chatRoomId = null;
+    let chatOpen = false;
+    let chatPolling = null;
+
+    function toggleChat() {
+        const widget = document.getElementById('chatWidget');
+        chatOpen = !chatOpen;
+
+        if (chatOpen) {
+            widget.style.display = 'flex';
+            setTimeout(() => { widget.style.transform = 'translateY(0)'; widget.style.opacity = '1'; }, 10);
+            if (!chatRoomId) initChatRoom();
+            else loadWidgetMessages();
+            chatPolling = setInterval(loadWidgetMessages, 5000);
+        } else {
+            widget.style.transform = 'translateY(20px)';
+            widget.style.opacity = '0';
+            setTimeout(() => { widget.style.display = 'none'; }, 300);
+            clearInterval(chatPolling);
+        }
+    }
+
+    function initChatRoom() {
+        $.get("{{ route('ppdb.chat.student_room') }}")
+            .done(res => {
+                chatRoomId = res.room_id;
+                const status = res.status;
+                if (status === 'closed') {
+                    document.getElementById('chatClosedBanner').style.display = 'block';
+                    document.getElementById('widgetInputArea').style.display = 'none';
+                }
+                loadWidgetMessages();
+            })
+            .fail(() => {
+                document.getElementById('widgetLoading').innerHTML = '<small class="text-danger">Gagal memuat. Coba lagi.</small>';
+            });
+    }
+
+    function loadWidgetMessages() {
+        if (!chatRoomId) return;
+        $.get(`{{ url('/ppdb/chat') }}/${chatRoomId}/messages`)
+            .done(res => {
+                renderWidgetMessages(res.messages);
+                if (res.room_status === 'closed') {
+                    document.getElementById('chatClosedBanner').style.display = 'block';
+                    document.getElementById('widgetInputArea').style.display = 'none';
+                } else {
+                    document.getElementById('chatClosedBanner').style.display = 'none';
+                    document.getElementById('widgetInputArea').style.display = 'flex';
+                }
+                // Badge counter
+                const unread = res.messages.filter(m => m.sender_type === 'admin' && !m.is_read).length;
+                const badge = document.getElementById('chatNavBadge');
+                if (unread > 0 && !chatOpen) { badge.textContent = unread; badge.classList.remove('d-none'); }
+                else { badge.classList.add('d-none'); }
+            });
+    }
+
+    function renderWidgetMessages(messages) {
+        const container = document.getElementById('widgetMessages');
+        const atBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 80;
+
+        container.innerHTML = messages.map(m => {
+            if (m.sender_type === 'system') {
+                return `<div style="text-align:center;background:#f1f5f9;border-radius:12px;padding:10px 14px;font-size:0.78rem;color:#64748b;font-style:italic;">${m.message}</div>`;
+            }
+            const isAdmin = m.sender_type === 'admin';
+            const align = isAdmin ? 'flex-start' : 'flex-end';
+            const bubbleBg = isAdmin ? 'background:white;color:#1e293b;border:1px solid #f1f5f9;' : 'background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;';
+            const radius = isAdmin ? '18px 18px 18px 4px' : '18px 18px 4px 18px';
+            const senderLabel = isAdmin ? (m.sender_name || 'Panitia') : 'Anda';
+
+            return `
+                <div style="display:flex;justify-content:${align};margin-bottom:2px;">
+                    <div style="max-width:80%;">
+                        <div style="font-size:0.65rem;color:#94a3b8;margin-bottom:3px;${isAdmin?'':'text-align:right;'}">${senderLabel}</div>
+                        <div style="${bubbleBg}padding:10px 14px;border-radius:${radius};font-size:0.85rem;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                            ${m.message}
+                        </div>
+                        <div style="font-size:0.62rem;color:#94a3b8;margin-top:3px;${isAdmin?'':'text-align:right;'}">${m.time}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        if (atBottom) container.scrollTop = container.scrollHeight;
+    }
+
+    function sendStudentMsg() {
+        const input = document.getElementById('widgetInput');
+        const msg = input.value.trim();
+        if (!msg || !chatRoomId) return;
+
+        input.value = '';
+        input.style.height = 'auto';
+
+        $.ajax({
+            url: "{{ route('ppdb.chat.send_student') }}",
+            method: 'POST',
+            data: { message: msg, room_id: chatRoomId, _token: '{{ csrf_token() }}' },
+            success: () => loadWidgetMessages(),
+            error: res => {
+                const msg = res.responseJSON?.error || 'Gagal mengirim pesan.';
+                alert(msg);
+            }
+        });
+    }
+
+    // Auto-resize textarea
+    document.getElementById('widgetInput')?.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+    });
+
+    // Background polling for unread badge (even when chat closed)
+    setInterval(() => {
+        if (!chatRoomId || chatOpen) return;
+        $.get(`{{ url('/ppdb/chat') }}/${chatRoomId}/messages`)
+            .done(res => {
+                const unread = res.messages.filter(m => m.sender_type === 'admin' && !m.is_read).length;
+                const badge = document.getElementById('chatNavBadge');
+                if (unread > 0) { badge.textContent = unread; badge.classList.remove('d-none'); }
+                else { badge.classList.add('d-none'); }
+            });
+    }, 15000);
+    @endif
+
 </script>
 @endpush
 
