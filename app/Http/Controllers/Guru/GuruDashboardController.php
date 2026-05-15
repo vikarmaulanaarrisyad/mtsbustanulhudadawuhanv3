@@ -51,7 +51,7 @@ class GuruDashboardController extends Controller
  
         // Cek apakah Guru adalah Wali Kelas
         $homeroomClass = ClassGroup::where('teacher_id', $teacher->id)->first();
-        $myStudents = [];
+        $myStudents = collect([]);
         if ($homeroomClass) {
             $myStudents = Student::with(['behaviorLogs', 'profile'])
                 ->where('student_class_group_id', $homeroomClass->id)

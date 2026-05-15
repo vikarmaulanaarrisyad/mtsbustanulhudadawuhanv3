@@ -376,6 +376,16 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/search-program', [\App\Http\Controllers\Admin\BosFundController::class, 'searchProgram'])->name('search_program');
             Route::get('/search-rkam', [\App\Http\Controllers\Admin\BosFundController::class, 'searchRkam'])->name('search_rkam');
         });
+
+        // Sinkronisasi EMIS & Dapodik
+        Route::prefix('emis')->name('admin.emis.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\EmisDapodikController::class, 'index'])->name('index');
+            Route::get('/export/student', [\App\Http\Controllers\Admin\EmisDapodikController::class, 'exportStudent'])->name('export.student');
+            Route::get('/export/teacher', [\App\Http\Controllers\Admin\EmisDapodikController::class, 'exportTeacher'])->name('export.teacher');
+            Route::get('/export/rombel', [\App\Http\Controllers\Admin\EmisDapodikController::class, 'exportRombel'])->name('export.rombel');
+            Route::post('/import/student', [\App\Http\Controllers\Admin\EmisDapodikController::class, 'importStudent'])->name('import.student');
+            Route::post('/import/teacher', [\App\Http\Controllers\Admin\EmisDapodikController::class, 'importTeacher'])->name('import.teacher');
+        });
     });
 
     Route::group(['middleware' => ['permission:user.view']], function () {

@@ -875,6 +875,13 @@
 
                 @can('setting.view')
                     <li class="nav-item">
+                        <a href="{{ route('admin.emis.index') }}"
+                            class="nav-link {{ request()->is('emis*') ? 'active bg-gradient-primary text-white' : '' }}">
+                            <i class="nav-icon fas fa-sync-alt text-primary"></i>
+                            <p>Sinkronisasi EMIS</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{{ route('setting.index') }}"
                             class="nav-link {{ request()->is('setting*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-cogs"></i>
