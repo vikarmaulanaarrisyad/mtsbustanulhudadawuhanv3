@@ -8,13 +8,15 @@ use Illuminate\Support\Facades\Log;
 
 class GeminiAiService
 {
-    protected $apiKey;
-    protected $apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    protected $apiUrl;
+    protected $model;
 
     public function __construct()
     {
         $setting = Setting::first();
         $this->apiKey = $setting->gemini_api_key ?? config('services.gemini.key') ?? env('GEMINI_API_KEY');
+        $this->model = $setting->gemini_model ?? 'gemini-1.5-flash';
+        $this->apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent";
     }
 
     /**
@@ -33,6 +35,7 @@ class GeminiAiService
 
         $prompt = $this->buildPrompt($text, $type, $count);
 
+
         try {
             $response = Http::post("{$this->apiUrl}?key={$this->apiKey}", [
                 'contents' => [
@@ -44,6 +47,10 @@ class GeminiAiService
                 ],
                 'generationConfig' => [
                     'response_mime_type' => 'application/json',
+                    'temperature' => 0.7,
+                    'topK' => 40,
+                    'topP' => 0.95,
+                    'maxOutputTokens' => 8192,
                 ]
             ]);
 
@@ -55,7 +62,15 @@ class GeminiAiService
             $result = $response->json();
             $content = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
             
-            return json_decode($content, true);
+            // Clean up JSON if it contains markdown markers
+            $content = preg_replace('/^```json\s*/', '', $content);
+            $content = preg_replace('/\s*```$/', '', $content);
+            $content = trim($content);
+            
+            $data = json_decode($content, true);
+            
+            // Ensure we return a flat array of questions
+            return isset($data['questions']) ? $data['questions'] : $data;
 
         } catch (\Exception $e) {
             Log::error('Gemini Service Error: ' . $e->getMessage());

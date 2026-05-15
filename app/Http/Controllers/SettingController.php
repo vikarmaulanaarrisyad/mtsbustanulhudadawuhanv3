@@ -158,7 +158,11 @@ class SettingController extends Controller
 
         if ($request->has('pills') && $request->pills == 'ai') {
             $rules = [
-                'gemini_api_key' => 'nullable|string|min:20',
+                'ai_provider' => 'required|in:gemini,groq',
+                'gemini_api_key' => 'nullable|string',
+                'gemini_model' => 'nullable|string',
+                'groq_api_key' => 'nullable|string',
+                'groq_model' => 'nullable|string',
             ];
         }
 

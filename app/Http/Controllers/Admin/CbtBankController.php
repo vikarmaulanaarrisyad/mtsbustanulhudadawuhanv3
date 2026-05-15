@@ -9,6 +9,7 @@ use App\Models\CbtOption;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Services\GeminiAiService;
+use App\Services\GroqAiService;
 use App\Exports\CbtTemplateExport;
 use App\Imports\CbtQuestionsImport;
 use Illuminate\Http\Request;
@@ -520,7 +521,7 @@ class CbtBankController extends Controller
     /**
      * Generate questions using AI.
      */
-    public function generateAiQuestions(Request $request, GeminiAiService $aiService)
+    public function generateAiQuestions(Request $request)
     {
         $request->validate([
             'source_text' => 'required|string|min:50',
@@ -529,6 +530,15 @@ class CbtBankController extends Controller
         ]);
 
         try {
+            $setting = \App\Models\Setting::first();
+            $provider = $setting->ai_provider ?? 'gemini';
+
+            if ($provider === 'groq') {
+                $aiService = app(GroqAiService::class);
+            } else {
+                $aiService = app(GeminiAiService::class);
+            }
+
             $questions = $aiService->generateQuestions(
                 $request->source_text,
                 $request->type,
@@ -537,7 +547,8 @@ class CbtBankController extends Controller
 
             return response()->json([
                 'success' => true,
-                'questions' => $questions
+                'questions' => $questions,
+                'provider' => $provider
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -560,6 +571,8 @@ class CbtBankController extends Controller
         \DB::beginTransaction();
         try {
             $type = $request->type;
+            $savedCount = 0;
+
             foreach ($request->questions as $qData) {
                 if (empty($qData['question_text'])) continue;
 
@@ -570,21 +583,28 @@ class CbtBankController extends Controller
                     'answer_key'    => $qData['answer_key'] ?? null,
                 ]);
 
-                if ($type === 'pilihan_ganda' && isset($qData['options'])) {
-                    foreach ($qData['options'] as $opt) {
+                // Handle Options for Multiple Choice
+                $options = $qData['options'] ?? $qData['choices'] ?? null;
+                if ($type === 'pilihan_ganda' && is_array($options)) {
+                    foreach ($options as $opt) {
+                        $text = $opt['text'] ?? $opt['option_text'] ?? $opt['answer'] ?? null;
+                        if (!$text) continue;
+
                         $question->options()->create([
-                            'option_text' => $opt['text'],
-                            'is_correct'  => $opt['is_correct'] ?? false,
+                            'option_text' => $text,
+                            'is_correct'  => filter_var($opt['is_correct'] ?? false, FILTER_VALIDATE_BOOLEAN),
                         ]);
                     }
                 }
+                $savedCount++;
             }
 
             \DB::commit();
-            return response()->json(['success' => true, 'message' => count($request->questions) . ' soal berhasil disimpan ke bank.']);
+            return response()->json(['success' => true, 'message' => $savedCount . ' soal berhasil disimpan ke bank.']);
         } catch (\Exception $e) {
             \DB::rollBack();
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            \Log::error('AI Save Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['success' => false, 'message' => 'Gagal menyimpan: ' . $e->getMessage()], 500);
         }
     }
 }
