@@ -265,6 +265,14 @@
                     </ul>
                 </li>
 
+                <li class="nav-item">
+                    <a href="{{ route('guru.cbt.grading.index') }}"
+                        class="nav-link {{ request()->is('guru/cbt/grading*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-laptop-code text-indigo"></i>
+                        <p>Koreksi Essay CBT</p>
+                    </a>
+                </li>
+
                 {{-- ================= ABSENSI ================= --}}
                 @can('dashboard.admin')
                     <li class="nav-header">ABSENSI & KEPEGAWAIAN</li>

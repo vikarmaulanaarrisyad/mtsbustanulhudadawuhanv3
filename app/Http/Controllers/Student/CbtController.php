@@ -134,18 +134,19 @@ class CbtController extends Controller
             return response()->json(['message' => 'Ujian telah selesai'], 403);
         }
 
+        $data = [];
+        if ($request->has('option_id')) $data['cbt_option_id'] = $request->option_id;
+        if ($request->has('selected_options')) $data['selected_options'] = $request->selected_options;
+        if ($request->has('matching_answers')) $data['matching_answers'] = $request->matching_answers;
+        if ($request->has('answer_text')) $data['answer_text'] = $request->answer_text;
+        if ($request->has('is_doubtful')) $data['is_doubtful'] = $request->is_doubtful;
+
         $answer = CbtStudentAnswer::updateOrCreate(
             [
                 'cbt_student_exam_id' => $studentExam->id,
                 'cbt_question_id' => $request->question_id
             ],
-            [
-                'cbt_option_id' => $request->option_id,
-                'selected_options' => $request->selected_options,
-                'matching_answers' => $request->matching_answers,
-                'answer_text' => $request->answer_text,
-                'is_doubtful' => $request->is_doubtful ?? false
-            ]
+            $data
         );
 
         return response()->json(['message' => 'Jawaban disimpan', 'data' => $answer]);
@@ -202,15 +203,73 @@ class CbtController extends Controller
 
         foreach ($answers as $answer) {
             $question = $exam->bank->questions->where('id', $answer->cbt_question_id)->first();
-            if ($question) {
-                $option = $question->options->where('id', $answer->cbt_option_id)->first();
-                if ($option && $option->is_correct) {
-                    $answer->update(['is_correct' => true]);
-                    $obtainedScore += $question->score_weight;
-                } else {
-                    $answer->update(['is_correct' => false]);
-                }
+            if (!$question) continue;
+
+            $isCorrect = false;
+            $questionScore = 0;
+
+            switch ($question->question_type) {
+                case 'pilihan_ganda':
+                    $option = $question->options->where('id', $answer->cbt_option_id)->first();
+                    if ($option && $option->is_correct) {
+                        $isCorrect = true;
+                        $questionScore = $question->score_weight;
+                    }
+                    break;
+
+                case 'ganda_komplek':
+                    $correctOptionIds = $question->options->where('is_correct', true)->pluck('id')->toArray();
+                    $selectedOptionIds = is_array($answer->selected_options) ? $answer->selected_options : [];
+                    
+                    sort($correctOptionIds);
+                    sort($selectedOptionIds);
+                    
+                    if ($correctOptionIds === $selectedOptionIds) {
+                        $isCorrect = true;
+                        $questionScore = $question->score_weight;
+                    }
+                    break;
+
+                case 'penjodohan':
+                    $correctPairs = is_array($question->matching_pairs) ? $question->matching_pairs : [];
+                    $studentPairs = is_array($answer->matching_answers) ? $answer->matching_answers : [];
+                    
+                    $allMatch = true;
+                    if (count($correctPairs) !== count($studentPairs)) {
+                        $allMatch = false;
+                    } else {
+                        // studentPairs is [{premise: '...', response: '...'}, ...]
+                        foreach ($studentPairs as $pair) {
+                            $premise = $pair['premise'] ?? '';
+                            $response = $pair['response'] ?? '';
+                            if (!isset($correctPairs[$premise]) || $correctPairs[$premise] !== $response) {
+                                $allMatch = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($allMatch) {
+                        $isCorrect = true;
+                        $questionScore = $question->score_weight;
+                    }
+                    break;
+
+                case 'essay':
+                case 'uraian':
+                    // Essay is usually graded manually or by AI. 
+                    // We use the 'score' column which might have been filled by AI/Teacher.
+                    $questionScore = $answer->score ?? 0;
+                    $isCorrect = $questionScore > 0;
+                    break;
             }
+
+            $answer->update([
+                'is_correct' => $isCorrect,
+                'score' => ($question->question_type === 'essay' || $question->question_type === 'uraian') ? $answer->score : $questionScore
+            ]);
+            
+            $obtainedScore += $questionScore;
         }
 
         $finalScore = $totalWeight > 0 ? ($obtainedScore / $totalWeight) * 100 : 0;

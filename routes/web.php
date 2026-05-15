@@ -198,6 +198,15 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/tahfidz', [\App\Http\Controllers\Guru\GuruMutabaahController::class, 'storeTahfidz'])->name('store_tahfidz');
             Route::get('/tahfidz-data', [\App\Http\Controllers\Guru\GuruMutabaahController::class, 'tahfidzData'])->name('tahfidz_data');
         });
+
+        // CBT Grading (Guru)
+        Route::prefix('cbt/grading')->name('guru.cbt.grading.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Guru\CbtGradingController::class, 'index'])->name('index');
+            Route::get('/{exam}', [\App\Http\Controllers\Guru\CbtGradingController::class, 'show'])->name('show');
+            Route::get('/student/{studentExam}', [\App\Http\Controllers\Guru\CbtGradingController::class, 'grade'])->name('grade');
+            Route::post('/answer/{answer}/save', [\App\Http\Controllers\Guru\CbtGradingController::class, 'saveGrade'])->name('save');
+            Route::post('/answer/{answer}/ai', [\App\Http\Controllers\Guru\CbtGradingController::class, 'aiGrade'])->name('ai');
+        });
     });
 
     // Siswa Dashboard & Actions

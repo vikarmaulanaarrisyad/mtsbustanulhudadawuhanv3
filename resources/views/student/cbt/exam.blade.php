@@ -684,14 +684,13 @@
     function saveCurrentQuestion(qNo) {
         const panel = $(`#q-panel-${qNo}`);
         const qid = panel.data('qid');
-        const type = panel.find('.options-grid, .matching-grid, textarea').length > 0; // Simple check for question content
         
         if (panel.find('textarea').length > 0) {
-            saveEssayAnswer(qid, qNo);
+            return saveEssayAnswer(qid, qNo);
         } else if (panel.find('.matching-select').length > 0) {
-            saveMatchingAnswer(qid, qNo);
+            return saveMatchingAnswer(qid, qNo);
         }
-        // Radio/Checkbox already have onchange="saveAnswer" which is reliable
+        return null;
     }
 
     function nextQuestion() { if(currentQ < totalQuestions) jumpTo(currentQ + 1); }
@@ -830,7 +829,7 @@
             });
         });
 
-        $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
+        return $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
             _token: '{{ csrf_token() }}',
             question_id: questionId,
             matching_answers: answers,
@@ -858,7 +857,7 @@
 
         const text = $(`textarea[name="answer_${questionId}"]`).val();
         
-        $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
+        return $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
             _token: '{{ csrf_token() }}',
             question_id: questionId,
             answer_text: text,
@@ -894,7 +893,20 @@
             customClass: { popup: 'rounded-[3rem]' }
         }).then((res) => { 
             if (res.isConfirmed) {
-                $('#finish-form').submit(); 
+                const savePromise = saveCurrentQuestion(currentQ);
+                if (savePromise) {
+                    Swal.fire({
+                        title: 'Menyimpan Jawaban Terakhir...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading(),
+                        customClass: { popup: 'rounded-[3rem]' }
+                    });
+                    savePromise.always(() => {
+                        $('#finish-form').submit();
+                    });
+                } else {
+                    $('#finish-form').submit(); 
+                }
             } else {
                 isFinishing = false;
             }
