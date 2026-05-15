@@ -6,55 +6,146 @@
 
 
     @if(!$ppdbOpen && !$registrant)
-        {{-- PPDB BELUM BUKA --}}
-        <div class="ppdb-card">
-            <div class="card-body text-center py-5">
-                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">Pendaftaran PPDB Belum Dibuka</h5>
-                <p class="text-muted">Silakan tunggu informasi pembukaan pendaftaran dari sekolah.</p>
+        {{-- PPDB BELUM BUKA (PREMIUM MOBILE VIEW) --}}
+        <div class="ppdb-closed-wrapper d-flex flex-column align-items-center justify-content-center px-4" style="min-height: 80vh;">
+            <div class="animate-bounce-slow mb-5">
+                <div class="icon-container-premium">
+                    <i class="fas fa-calendar-alt text-white"></i>
+                </div>
+            </div>
+            
+            <div class="glass-card p-6 text-center shadow-2xl border-0 animate-fade-in" style="border-radius: 2.5rem; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); max-width: 400px;">
+                <h4 class="font-weight-black text-slate-800 mb-3">Pendaftaran Belum Dibuka</h4>
+                <p class="text-slate-500 font-medium mb-6">Sabar ya! Saat ini pendaftaran santri baru belum dibuka. Silakan pantau terus informasi di sosial media kami atau hubungi admin.</p>
+                
+                <div class="d-flex flex-column gap-3 w-100">
+                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $setting->phone ?? '628123456789') }}" target="_blank" class="btn-premium-action py-4 text-white font-bold no-underline">
+                        <i class="fab fa-whatsapp mr-2"></i> TANYA ADMIN
+                    </a>
+                    <button onclick="window.location.reload()" class="btn-premium-outline py-3 text-indigo-600 font-bold bg-transparent">
+                        <i class="fas fa-sync-alt mr-2"></i> CEK BERKALA
+                    </button>
+                </div>
             </div>
         </div>
 
+        <style>
+            .icon-container-premium {
+                width: 120px; height: 120px;
+                background: linear-gradient(135deg, #6366f1, #4338ca);
+                border-radius: 35px;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 3.5rem;
+                box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+                position: relative;
+            }
+            .icon-container-premium::after {
+                content: '';
+                position: absolute;
+                inset: -5px;
+                border: 2px solid #6366f1;
+                border-radius: 40px;
+                opacity: 0.3;
+                animation: pulse-border 2s infinite;
+            }
+            @keyframes pulse-border {
+                0% { transform: scale(1); opacity: 0.3; }
+                50% { transform: scale(1.1); opacity: 0; }
+                100% { transform: scale(1); opacity: 0.3; }
+            }
+            .animate-bounce-slow { animation: bounce-slow 3s infinite ease-in-out; }
+            @keyframes bounce-slow {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-15px); }
+            }
+            .btn-premium-action {
+                background: linear-gradient(135deg, #6366f1, #4338ca);
+                border-radius: 1.2rem;
+                display: block;
+                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+                border: none;
+            }
+            .btn-premium-action:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4); color: white; }
+            .btn-premium-outline {
+                border: 2px solid #e2e8f0;
+                border-radius: 1.2rem;
+                transition: all 0.2s;
+            }
+            .btn-premium-outline:hover { border-color: #6366f1; background: #f5f3ff; }
+            
+            .font-weight-black { font-weight: 900; }
+            .badge-light-indigo { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); }
+            .object-cover { object-fit: cover; }
+            .btn-soft-indigo { background: rgba(99, 102, 241, 0.1); color: #4f46e5; border: none; }
+            .btn-soft-indigo:hover { background: rgba(99, 102, 241, 0.2); }
+            .btn-outline-indigo { border: 2px solid #e2e8f0; color: #4f46e5; }
+            .btn-outline-indigo:hover { border-color: #6366f1; background: #f5f3ff; }
+            .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        </style>
 
-    @elseif($registrant || $ppdbOpen)
-        {{-- PROGRESS STEPPER GLOBAL (HANYA UNTUK PENDAFTAR BELUM JADI SISWA) --}}
-        {{-- PREMIUM STEPPER (REFINED) --}}
-        <div class="glass-card mb-6 overflow-hidden border-0 shadow-lg" style="border-radius: 2.5rem; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px);">
-            <div class="card-body p-0">
-                <div class="p-6 bg-grad-indigo">
-                    <div class="d-flex justify-content-between align-items-center text-white">
-                        <div>
-                            <h4 class="mb-1 font-weight-bold">Halo, {{ $user->name }}!</h4>
-                            <p class="mb-0 opacity-75 small"><i class="fas fa-map-marker-alt mr-1"></i> Selamat datang di portal pendaftaran madrasah digital.</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="badge badge-light px-4 py-2 rounded-pill font-weight-bold text-indigo-600" style="font-size: 11px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                                @if($currentStep == 1) TAHAP 1: BIODATA @elseif($currentStep == 2) TAHAP 2: BERKAS @elseif($currentStep == 3) TAHAP 3: SELEKSI @else TAHAP 4: PENGUMUMAN @endif
+
+    @elseif($registrant)
+        {{-- PREMIUM UNIFIED DASHBOARD HERO --}}
+        <div class="stu-new-header mb-8">
+            {{-- Top Row: Avatar & Greeting --}}
+            <div class="d-flex justify-content-between align-items-center mb-8">
+                <div class="d-flex align-items-center">
+                    <div class="stu-avatar-box mr-4">
+                        <div class="stu-avatar-text">{{ substr($user->name, 0, 2) }}</div>
+                    </div>
+                    <div>
+                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 10px; letter-spacing: 2px;">SELAMAT DATANG</p>
+                        <h3 class="text-white font-weight-black mb-1">{{ $user->name }}</h3>
+                        <div class="d-flex align-items-center">
+                            <span class="stu-dot mr-2" style="background: #10b981; box-shadow: 0 0 12px #10b981;"></span>
+                            <span class="text-white-50 font-weight-bold" style="font-size: 10px; letter-spacing: 0.5px;">
+                                PENDAFTAR TERVERIFIKASI
                             </span>
                         </div>
                     </div>
                 </div>
-                <div class="p-6">
-                    <div class="ppdb-main-stepper d-flex align-items-center justify-content-between">
-                        <div class="step-item {{ $currentStep >= 1 ? 'active' : '' }}">
-                            <div class="step-icon"><i class="fas fa-user-edit"></i></div>
-                            <div class="step-label">Biodata</div>
-                        </div>
-                        <div class="step-line {{ $currentStep > 1 ? 'active' : '' }}"></div>
-                        <div class="step-item {{ $currentStep >= 2 ? 'active' : '' }}">
-                            <div class="step-icon"><i class="fas fa-file-upload"></i></div>
-                            <div class="step-label">Berkas</div>
-                        </div>
-                        <div class="step-line {{ $currentStep > 2 ? 'active' : '' }}"></div>
-                        <div class="step-item {{ $currentStep >= 3 ? 'active' : '' }}">
-                            <div class="step-icon"><i class="fas fa-search"></i></div>
-                            <div class="step-label">Seleksi</div>
-                        </div>
-                        <div class="step-line {{ $currentStep > 3 ? 'active' : '' }}"></div>
-                        <div class="step-item {{ $currentStep >= 4 ? 'active' : '' }}">
-                            <div class="step-icon"><i class="fas fa-award"></i></div>
-                            <div class="step-label">Pengumuman</div>
-                        </div>
+                <div class="stu-header-icon" onclick="confirmLogout()">
+                    <i class="fas fa-power-off"></i>
+                </div>
+            </div>
+
+            {{-- Middle Row: Status Card --}}
+            <div class="glass-card p-5 mb-8" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 2rem;">
+                <div class="d-flex align-items-center">
+                    <div class="mr-4" style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 15px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-id-card text-white font-size-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-white-50 mb-0 font-weight-bold small">NOMOR REGISTRASI</p>
+                        <h4 class="text-white font-weight-black mb-0" style="letter-spacing: 1px;">
+                            {{ $registrant->registration_number ?? 'MENGALOKASI...' }}
+                        </h4>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Bottom Row: Premium Stepper --}}
+            <div class="stu-stepper-container">
+                <div class="ppdb-main-stepper d-flex align-items-center justify-content-between">
+                    <div class="step-item {{ $currentStep >= 1 ? 'active' : '' }}">
+                        <div class="step-icon"><i class="fas fa-user-edit"></i></div>
+                        <div class="step-label">Biodata</div>
+                    </div>
+                    <div class="step-line {{ $currentStep > 1 ? 'active' : '' }}"></div>
+                    <div class="step-item {{ $currentStep >= 2 ? 'active' : '' }}">
+                        <div class="step-icon"><i class="fas fa-file-upload"></i></div>
+                        <div class="step-label">Berkas</div>
+                    </div>
+                    <div class="step-line {{ $currentStep > 2 ? 'active' : '' }}"></div>
+                    <div class="step-item {{ $currentStep >= 3 ? 'active' : '' }}">
+                        <div class="step-icon"><i class="fas fa-search"></i></div>
+                        <div class="step-label">Seleksi</div>
+                    </div>
+                    <div class="step-line {{ $currentStep > 3 ? 'active' : '' }}"></div>
+                    <div class="step-item {{ $currentStep >= 4 ? 'active' : '' }}">
+                        <div class="step-icon"><i class="fas fa-award"></i></div>
+                        <div class="step-label">Lulus</div>
                     </div>
                 </div>
             </div>
@@ -62,66 +153,18 @@
 
         <style>
             .ppdb-main-stepper .step-item { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2; flex: 1; }
-            .ppdb-main-stepper .step-icon { width: 45px; height: 45px; border-radius: 14px; background: #f1f5f9; color: #94a3b8; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 8px; transition: 0.4s; border: 2px solid #e2e8f0; }
-            .ppdb-main-stepper .step-label { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
-            .ppdb-main-stepper .step-line { flex: 1; height: 4px; background: #f1f5f9; margin-top: -30px; border-radius: 10px; position: relative; z-index: 1; }
-            .ppdb-main-stepper .step-item.active .step-icon { background: #6366f1; color: white; border-color: #6366f1; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); transform: scale(1.1); }
-            .ppdb-main-stepper .step-item.active .step-label { color: #6366f1; font-weight: 900; }
-            .ppdb-main-stepper .step-line.active { background: #6366f1; }
+            .ppdb-main-stepper .step-icon { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 1rem; margin-bottom: 8px; transition: 0.4s; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); }
+            .ppdb-main-stepper .step-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
+            .ppdb-main-stepper .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.1); margin-top: -30px; border-radius: 10px; position: relative; z-index: 1; }
+            .ppdb-main-stepper .step-item.active .step-icon { background: white; color: #6366f1; border-color: white; box-shadow: 0 8px 20px rgba(0,0,0,0.15); transform: scale(1.1); }
+            .ppdb-main-stepper .step-item.active .step-label { color: white; font-weight: 900; }
+            .ppdb-main-stepper .step-line.active { background: white; opacity: 0.5; }
         </style>
 
-        @if(!$registrant)
-        {{-- PREMIUM HEADER FOR APPLICANTS --}}
-        {{-- PREMIUM HEADER FOR APPLICANTS --}}
-        <div class="stu-new-header mb-6">
-            <div class="d-flex justify-content-between align-items-center mb-6">
-                <div class="d-flex align-items-center">
-                    <div class="stu-avatar-box mr-4">
-                        <div class="stu-avatar-text">{{ substr($user->name, 0, 2) }}</div>
-                    </div>
-                    <div>
-                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 11px; letter-spacing: 1.5px;">CALON SISWA BARU</p>
-                        <h3 class="text-white font-weight-bold mb-1">{{ $user->name }}</h3>
-                        <div class="d-flex align-items-center">
-                            <span class="stu-dot mr-2" style="background: #fbbf24; box-shadow: 0 0 12px #fbbf24;"></span>
-                            <span class="text-white-50 font-weight-bold text-uppercase" style="font-size: 10px;">PROSES PENDAFTARAN</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center">
-                    <form action="{{ route('logout') }}" method="POST" id="logout-form-main" class="d-inline">
-                        @csrf
-                        <div class="stu-header-icon bg-danger-soft hover-scale" onclick="confirmLogout()">
-                            <i class="fas fa-power-off"></i>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <div class="stu-stat-new glass-card w-100 py-4 px-6">
-                <div class="d-flex align-items-center">
-                    <div class="stu-stat-icon-box bg-white-soft mr-4">
-                        <i class="fas fa-id-card"></i>
-                    </div>
-                    <div>
-                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 10px; letter-spacing: 1px;">ID PENDAFTARAN</p>
-                        <h4 class="text-white font-weight-bold mb-0">BARU / {{ now()->year }}</h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="stu-content-wrapper">
-            {{-- PREMIUM BANNER SLIDER --}}
-            {{-- PREMIUM BANNER SLIDER --}}
+            {{-- BANNER & QUICK LINKS --}}
             <div class="stu-banner-wrapper">
                 <div id="bannerCarouselApp" class="carousel slide stu-banner-card shadow-2xl" data-ride="carousel" style="border-radius: 2.5rem;">
-                    <ol class="carousel-indicators">
-                        @php $totalSlides = $announcements->count(); @endphp
-                        @for($i = 0; $i < ($totalSlides ?: 1); $i++)
-                            <li data-target="#bannerCarouselApp" data-slide-to="{{ $i }}" class="{{ $i == 0 ? 'active' : '' }}"></li>
-                        @endfor
-                    </ol>
                     <div class="carousel-inner h-100">
                         @if($announcements->isNotEmpty())
                             @foreach($announcements as $idx => $ann)
@@ -136,9 +179,8 @@
                         @else
                             <div class="carousel-item h-100 active">
                                 <div class="stu-banner-item h-100 d-flex flex-column justify-content-center bg-grad-indigo">
-                                    <h3 class="stu-banner-title font-bold">Selamat Datang di Madrasah Digital</h3>
-                                    <p class="stu-banner-text opacity-90">Silakan lengkapi pendaftaran Anda untuk bergabung bersama kami.</p>
-                                    <button class="stu-banner-btn hover-glow mt-4">Mulai Pendaftaran</button>
+                                    <h3 class="stu-banner-title font-bold">Status Pendaftaran</h3>
+                                    <p class="stu-banner-text opacity-90">Silakan pantau status dan lengkapi berkas pendaftaran Anda.</p>
                                 </div>
                             </div>
                         @endif
@@ -146,137 +188,269 @@
                 </div>
             </div>
 
-            {{-- FORM BIODATA --}}
-            @include('ppdb.form-biodata', ['action' => route('ppdb.store_biodata'), 'method' => 'POST'])
+            {{-- QUICK LINKS --}}
+            <div class="row mb-8 mt-4 px-2">
+                <div class="col-3 px-1">
+                    <a href="{{ route('front.achievements') }}" class="stu-quick-link">
+                        <div class="stu-quick-icon bg-soft-orange">
+                            <i class="fas fa-award text-amber-500"></i>
+                        </div>
+                        <span class="text-xs font-bold mt-2 text-slate-600">Prestasi</span>
+                    </a>
+                </div>
+                <div class="col-3 px-1">
+                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $setting->phone ?? '628123456789') }}" target="_blank" class="stu-quick-link">
+                        <div class="stu-quick-icon bg-soft-green">
+                            <i class="fab fa-whatsapp text-emerald-500"></i>
+                        </div>
+                        <span class="text-xs font-bold mt-2 text-slate-600">Bantuan</span>
+                    </a>
+                </div>
+                <div class="col-3 px-1">
+                    <a href="#upload-section" class="stu-quick-link">
+                        <div class="stu-quick-icon bg-soft-indigo">
+                            <i class="fas fa-file-invoice text-indigo-500"></i>
+                        </div>
+                        <span class="text-xs font-bold mt-2 text-slate-600">Berkas</span>
+                    </a>
+                </div>
+                <div class="col-3 px-1">
+                    <a href="javascript:void(0)" onclick="confirmLogout()" class="stu-quick-link">
+                        <div class="stu-quick-icon bg-soft-red">
+                            <i class="fas fa-sign-out-alt text-rose-500"></i>
+                        </div>
+                        <span class="text-xs font-bold mt-2 text-slate-600">Keluar</span>
+                    </a>
+                </div>
+            </div>
+
+            {{-- PREMIUM DIGITAL IDENTITY CARD --}}
+            <div class="stu-profile-card glass-card mb-8 overflow-hidden border-0 shadow-2xl" style="border-radius: 2.5rem; background: #fff; position: relative;">
+                {{-- Decorative Elements --}}
+                <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(99, 102, 241, 0.05); border-radius: 50%;"></div>
+                
+                <div class="p-6">
+                    <div class="d-flex align-items-start justify-content-between mb-6">
+                        <div class="d-flex align-items-center">
+                            <div class="stu-id-avatar mr-4 shadow-lg" style="width: 85px; height: 85px; border-radius: 22px; border: 4px solid #fff; overflow: hidden; background: #f8fafc;">
+                                @if($registrant->foto)
+                                    <img src="{{ asset('storage/' . $registrant->foto) }}" class="w-100 h-100 object-cover">
+                                @else
+                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-grad-indigo text-white font-weight-black" style="font-size: 1.8rem;">
+                                        {{ substr($registrant->nama_lengkap, 0, 1) }}
+                                    </div>
+                                @endif
+                            </div>
+                            <div>
+                                <h3 class="font-weight-black mb-1 text-slate-800" style="letter-spacing: -0.8px; font-size: 1.4rem;">{{ $registrant->nama_lengkap }}</h3>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge badge-soft-indigo px-3 py-1 rounded-pill small font-weight-bold mr-2">
+                                        <i class="fas fa-fingerprint mr-1"></i> {{ $registrant->nisn ?? 'TANPA NISN' }}
+                                    </span>
+                                    <span class="badge badge-soft-emerald px-3 py-1 rounded-pill small font-weight-bold">
+                                        <i class="fas fa-check-circle mr-1"></i> DATA VALID
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row no-gutters mb-6 p-4 rounded-3xl" style="background: #f8fafc; border: 1px solid #f1f5f9;">
+                        <div class="col-6 pr-2 mb-4 border-right">
+                            <label class="text-slate-400 small font-bold text-uppercase mb-1" style="font-size: 9px; letter-spacing: 1px;">Asal Sekolah</label>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-school text-indigo-400 mr-2 small"></i>
+                                <span class="font-weight-bold text-slate-700 truncate" style="font-size: 13px;">{{ $registrant->asal_sekolah }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6 pl-4 mb-4">
+                            <label class="text-slate-400 small font-bold text-uppercase mb-1" style="font-size: 9px; letter-spacing: 1px;">Jalur Masuk</label>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-route text-indigo-400 mr-2 small"></i>
+                                <span class="font-weight-bold text-slate-700" style="font-size: 13px;">{{ $registrant->admissionType->admission_type_name ?? 'Reguler' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-12"><div class="border-top my-2" style="border-style: dashed !important; opacity: 0.5;"></div></div>
+                        <div class="col-6 pr-2 mt-2 border-right">
+                            <label class="text-slate-400 small font-bold text-uppercase mb-1" style="font-size: 9px; letter-spacing: 1px;">Nama Wali</label>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user-shield text-indigo-400 mr-2 small"></i>
+                                <span class="font-weight-bold text-slate-700 truncate" style="font-size: 13px;">{{ $registrant->nama_ayah ?? $registrant->nama_ibu ?? '---' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6 pl-4 mt-2">
+                            <label class="text-slate-400 small font-bold text-uppercase mb-1" style="font-size: 9px; letter-spacing: 1px;">Kontak WA</label>
+                            <div class="d-flex align-items-center">
+                                <i class="fab fa-whatsapp text-emerald-500 mr-2 small"></i>
+                                <span class="font-weight-bold text-slate-700" style="font-size: 13px;">{{ $registrant->no_hp_ortu }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between p-4 bg-grad-indigo text-white shadow-lg" style="border-radius: 1.5rem;">
+                        <div>
+                            <p class="mb-0 font-weight-bold small opacity-80">GELOMBANG</p>
+                            <h5 class="mb-0 font-weight-black">{{ $registrant->admissionPhase->phase_name ?? 'I' }}</h5>
+                        </div>
+                        <div class="text-center px-4 border-left border-right border-white-50">
+                            <p class="mb-0 font-weight-bold small opacity-80">TH. AJARAN</p>
+                            <h5 class="mb-0 font-weight-black">{{ $academicYear->academic_year ?? date('Y').'/'.(date('Y')+1) }}</h5>
+                        </div>
+                        <div class="text-right">
+                            <p class="mb-0 font-weight-bold small opacity-80">TGL DAFTAR</p>
+                            <h5 class="mb-0 font-weight-black">{{ $registrant->created_at->format('d/m/Y') }}</h5>
+                        </div>
+                    </div>
+                    <div class="row mt-6">
+                        <div class="col-6 pr-2">
+                            <a href="{{ route('ppdb.print_registration') }}" class="btn btn-outline-indigo btn-block py-3 rounded-xl font-weight-bold shadow-sm" style="font-size: 11px;">
+                                <i class="fas fa-print mr-2"></i> CETAK KARTU
+                            </a>
+                        </div>
+                        <div class="col-6 pl-2">
+                            <button class="btn btn-soft-indigo btn-block py-3 rounded-xl font-weight-bold shadow-sm" style="font-size: 11px;" data-toggle="collapse" data-target="#editBiodataCollapse">
+                                <i class="fas fa-edit mr-2"></i> EDIT PROFIL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- STATUS & BERKAS --}}
+            @include('ppdb.status')
+            
+            {{-- OPTIONAL: BUTTON TO SHOW BIODATA AGAIN FOR EDITING --}}
+            <div class="text-center mt-8 mb-8">
+                <button class="btn btn-light rounded-pill px-6 font-weight-bold text-muted shadow-sm" type="button" data-toggle="collapse" data-target="#editBiodataCollapse">
+                    <i class="fas fa-user-edit mr-2"></i> EDIT BIODATA
+                </button>
+                <div class="collapse mt-6 text-left" id="editBiodataCollapse">
+                    @include('ppdb.form-biodata', ['action' => route('ppdb.update_biodata'), 'method' => 'PUT'])
+                </div>
+            </div>
         </div>
 
-        {{-- PREMIUM BOTTOM NAVIGATION FOR APPLICANTS --}}
-        <div class="stu-bottom-nav">
-            <a href="{{ route('ppdb.dashboard') }}" class="nav-item active">
-                <i class="fas fa-th-large"></i>
-                <span>HOME</span>
-            </a>
-            <a href="#section-berkas" class="nav-item">
-                <i class="fas fa-folder-open"></i>
-                <span>BERKAS</span>
-            </a>
+    @elseif($ppdbOpen)
+        {{-- PREMIUM HEADER FOR NEW APPLICANTS --}}
+        <div class="stu-new-header mb-8">
+            <div class="d-flex justify-content-between align-items-center mb-8">
+                <div class="d-flex align-items-center">
+                    <div class="stu-avatar-box mr-4">
+                        <div class="stu-avatar-text">{{ substr($user->name, 0, 2) }}</div>
+                    </div>
+                    <div>
+                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 10px; letter-spacing: 2px;">SELAMAT DATANG</p>
+                        <h3 class="text-white font-weight-black mb-1">{{ $user->name }}</h3>
+                        <div class="d-flex align-items-center">
+                            <span class="stu-dot mr-2" style="background: #fbbf24;"></span>
+                            <span class="text-white-50 font-weight-bold" style="font-size: 10px;">CALON SISWA BARU</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stu-header-icon" onclick="confirmLogout()">
+                    <i class="fas fa-power-off"></i>
+                </div>
+            </div>
+
+            <div class="glass-card p-5 mb-8" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 2rem;">
+                <div class="d-flex align-items-center">
+                    <div class="mr-4" style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 15px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-edit text-white font-size-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-white-50 mb-0 font-weight-bold small">TAHAP 1</p>
+                        <h4 class="text-white font-weight-black mb-0">ISI BIODATA</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stu-content-wrapper">
+             {{-- WELCOME BANNER --}}
+             <div class="stu-banner-wrapper">
+                <div class="stu-banner-card bg-grad-indigo p-8 text-white d-flex align-items-center" style="border-radius: 2.5rem; min-height: 200px; position: relative; overflow: hidden;">
+                    <div style="position: absolute; right: -20px; bottom: -20px; font-size: 8rem; opacity: 0.1; transform: rotate(-15deg);">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="position-relative z-index-2">
+                        <h2 class="font-weight-black mb-3" style="letter-spacing: -1px;">Mulai Masa Depanmu!</h2>
+                        <p class="opacity-90 mb-4" style="max-width: 80%; line-height: 1.6;">Silakan lengkapi formulir biodata di bawah ini untuk memulai proses pendaftaran santri baru.</p>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white px-4 py-2 rounded-pill text-indigo-600 font-weight-bold shadow-sm" style="font-size: 12px;">
+                                <i class="fas fa-clock mr-2"></i> Estimasi 5 Menit
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- QUICK LINKS --}}
+            <div class="row mb-8 mt-4 px-2">
+                <div class="col-3 px-1">
+                    <a href="{{ route('front.achievements') }}" class="stu-quick-link">
+                        <div class="stu-quick-icon bg-soft-orange">
+                            <i class="fas fa-award text-amber-500"></i>
+                        </div>
+                        <span class="text-xs font-bold mt-2 text-slate-600">Prestasi</span>
+                    </a>
+                </div>
+                <div class="col-3 px-1">
+                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $setting->phone ?? '628123456789') }}" target="_blank" class="stu-quick-link">
+                        <div class="stu-quick-icon bg-soft-green">
+                            <i class="fab fa-whatsapp text-emerald-500"></i>
+                        </div>
+                        <span class="text-xs font-bold mt-2 text-slate-600">Bantuan</span>
+                    </a>
+                </div>
+                <div class="col-3 px-1">
+                    <a href="javascript:void(0)" class="stu-quick-link" onclick="Swal.fire({icon: 'info', title: 'Isi Biodata', text: 'Silakan lengkapi biodata terlebih dahulu.', confirmButtonColor: '#6366f1'})">
+                        <div class="stu-quick-icon bg-soft-indigo">
+                            <i class="fas fa-file-invoice text-indigo-500"></i>
+                        </div>
+                        <span class="text-xs font-bold mt-2 text-slate-600">Berkas</span>
+                    </a>
+                </div>
+                <div class="col-3 px-1">
+                    <a href="javascript:void(0)" onclick="confirmLogout()" class="stu-quick-link">
+                        <div class="stu-quick-icon bg-soft-red">
+                            <i class="fas fa-sign-out-alt text-rose-500"></i>
+                        </div>
+                        <span class="text-xs font-bold mt-2 text-slate-600">Keluar</span>
+                    </a>
+                </div>
+            </div>
+
+            {{-- FORM --}}
+            @include('ppdb.form-biodata', ['action' => route('ppdb.store_biodata'), 'method' => 'POST'])
+        </div>
+    @endif
+
+    {{-- PREMIUM UNIFIED BOTTOM NAVIGATION (ANDROID STYLE) --}}
+    <div class="stu-bottom-nav">
+        <a href="{{ route('ppdb.dashboard') }}" class="nav-item {{ request()->routeIs('ppdb.dashboard') ? 'active' : '' }}">
+            <i class="fas fa-home-alt"></i>
+            <span>Beranda</span>
+        </a>
+        <a href="{{ route('front.achievements') }}" class="nav-item">
+            <i class="fas fa-award"></i>
+            <span>Prestasi</span>
+        </a>
+        
+        <div class="stu-fab-container">
             <div class="stu-fab" onclick="window.location.reload()">
                 <i class="fas fa-sync-alt"></i>
             </div>
-            <a href="https://wa.me/628123456789" target="_blank" class="nav-item">
-                <i class="fas fa-question-circle"></i>
-                <span>BANTUAN</span>
-            </a>
-            <a href="javascript:void(0)" onclick="confirmLogout()" class="nav-item">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>KELUAR</span>
-            </a>
         </div>
 
-    @else
-        {{-- PREMIUM HEADER FOR REGISTERED APPLICANTS --}}
-        {{-- PREMIUM HEADER FOR REGISTERED APPLICANTS --}}
-        <div class="stu-new-header mb-6">
-            <div class="d-flex justify-content-between align-items-center mb-6">
-                <div class="d-flex align-items-center">
-                    <div class="stu-avatar-box mr-4">
-                        <div class="stu-avatar-text">{{ substr($user->name, 0, 2) }}</div>
-                    </div>
-                    <div>
-                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 11px; letter-spacing: 1.5px;">PENDAFTAR TERVERIFIKASI</p>
-                        <h3 class="text-white font-weight-bold mb-1">{{ $user->name }}</h3>
-                        <div class="d-flex align-items-center">
-                            <span class="stu-dot mr-2" style="background: #10b981; box-shadow: 0 0 12px #10b981;"></span>
-                            <span class="text-white-50 font-weight-bold text-uppercase" style="font-size: 10px;">{{ $registrant->public_status_label }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center">
-                    <form action="{{ route('logout') }}" method="POST" id="logout-form-main" class="d-inline">
-                        @csrf
-                        <div class="stu-header-icon bg-danger-soft hover-scale" onclick="confirmLogout()">
-                            <i class="fas fa-power-off"></i>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <div class="stu-stat-new glass-card w-100 py-4 px-6">
-                <div class="d-flex align-items-center">
-                    <div class="stu-stat-icon-box bg-white-soft mr-4">
-                        <i class="fas fa-id-badge"></i>
-                    </div>
-                    <div>
-                        <p class="text-white-50 mb-0 font-weight-bold" style="font-size: 10px; letter-spacing: 1px;">NOMOR REGISTRASI</p>
-                        <h4 class="text-white font-weight-bold mb-0">{{ $registrant->registration_number ?? 'MENGALOKASI...' }}</h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="stu-content-wrapper">
-            {{-- PREMIUM BANNER SLIDER --}}
-            {{-- PREMIUM BANNER SLIDER --}}
-            <div class="stu-banner-wrapper">
-                <div id="bannerCarouselReg" class="carousel slide stu-banner-card shadow-2xl" data-ride="carousel" style="border-radius: 2.5rem;">
-                    <ol class="carousel-indicators">
-                        @php $totalSlides = $announcements->count(); @endphp
-                        @for($i = 0; $i < ($totalSlides ?: 1); $i++)
-                            <li data-target="#bannerCarouselReg" data-slide-to="{{ $i }}" class="{{ $i == 0 ? 'active' : '' }}"></li>
-                        @endfor
-                    </ol>
-                    <div class="carousel-inner h-100">
-                        @if($announcements->isNotEmpty())
-                            @foreach($announcements as $idx => $ann)
-                                <div class="carousel-item h-100 {{ $idx == 0 ? 'active' : '' }}">
-                                    <div class="stu-banner-item h-100 d-flex flex-column justify-content-center" style="background: linear-gradient(135deg, {{ $idx % 2 == 0 ? '#4338ca, #6366f1' : '#1e1b4b, #3730a3' }});">
-                                        <h3 class="stu-banner-title font-bold">{{ $ann->title }}</h3>
-                                        <p class="stu-banner-text opacity-90">{{ strip_tags($ann->content) }}</p>
-                                        <button class="stu-banner-btn hover-glow mt-4" onclick='showAnnouncement(@json($ann))'>Lihat Detail</button>
-                                    </div>
-                                </div>
-                            @endforeach
-                        @else
-                            <div class="carousel-item h-100 active">
-                                <div class="stu-banner-item h-100 d-flex flex-column justify-content-center bg-grad-indigo">
-                                    <h3 class="stu-banner-title font-bold">Selamat Datang di Madrasah Digital</h3>
-                                    <p class="stu-banner-text opacity-90">Pantau status pendaftaran Anda secara berkala di sini.</p>
-                                    <button class="stu-banner-btn hover-glow mt-4">Lihat Status</button>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            {{-- STATUS PENDAFTARAN --}}
-            @include('ppdb.status')
-        </div>
-
-        {{-- PREMIUM BOTTOM NAVIGATION FOR REGISTERED APPLICANTS --}}
-        <div class="stu-bottom-nav">
-            <a href="{{ route('ppdb.dashboard') }}" class="nav-item active">
-                <i class="fas fa-th-large"></i>
-                <span>HOME</span>
-            </a>
-            <a href="#section-berkas" class="nav-item">
-                <i class="fas fa-folder-open"></i>
-                <span>BERKAS</span>
-            </a>
-            <div class="stu-fab" onclick="window.location.reload()">
-                <i class="fas fa-redo"></i>
-            </div>
-            <a href="https://wa.me/628123456789" target="_blank" class="nav-item">
-                <i class="fas fa-question-circle"></i>
-                <span>BANTUAN</span>
-            </a>
-            <a href="javascript:void(0)" onclick="confirmLogout()" class="nav-item">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>KELUAR</span>
-            </a>
-        </div>
-    @endif
-    @endif
+        <a href="{{ $registrant ? '#upload-section' : 'https://wa.me/' . preg_replace('/[^0-9]/', '', $setting->phone ?? '628123456789') }}" class="nav-item">
+            <i class="fas {{ $registrant ? 'fa-folder-open' : 'fa-headset' }}"></i>
+            <span>{{ $registrant ? 'Berkas' : 'Bantuan' }}</span>
+        </a>
+        <a href="javascript:void(0)" onclick="confirmLogout()" class="nav-item">
+            <i class="fas fa-power-off"></i>
+            <span>Keluar</span>
+        </a>
+    </div>
 
 
 @push('css')
@@ -286,37 +460,46 @@
     /* New Premium Header */
     /* New Premium Header (Indigo) */
     .stu-new-header {
-        background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
-        margin: -20px -15px 30px -15px;
-        padding: 50px 30px 120px 30px;
-        border-bottom-left-radius: 3rem;
-        border-bottom-right-radius: 3rem;
-        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.2);
+        background: linear-gradient(135deg, #3730a3 0%, #6366f1 100%);
+        margin: -25px -20px 30px -20px;
+        padding: 60px 30px 140px 30px;
+        border-bottom-left-radius: 4rem;
+        border-bottom-right-radius: 4rem;
+        box-shadow: 0 25px 50px rgba(79, 70, 229, 0.25);
         position: relative;
-    }
-    .stu-avatar-box {
-        width: 60px; height: 60px;
-        border-radius: 18px;
-        background: rgba(255,255,255,0.2);
-        display: flex; align-items: center; justify-content: center;
-        border: 2px solid rgba(255,255,255,0.3);
         overflow: hidden;
     }
+    .stu-new-header::before {
+        content: ''; position: absolute; top: -50px; right: -50px;
+        width: 200px; height: 200px; background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+    .stu-avatar-box {
+        width: 65px; height: 65px;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.15);
+        display: flex; align-items: center; justify-content: center;
+        border: 2px solid rgba(255,255,255,0.25);
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
     .stu-avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-    .stu-avatar-text { color: white; font-weight: 800; font-size: 1.5rem; }
+    .stu-avatar-text { color: white; font-weight: 900; font-size: 1.6rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     
     .stu-nip-box {
-        background: rgba(0,0,0,0.1);
-        border-radius: 10px;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(5px);
+        border-radius: 12px;
         border: 1px solid rgba(255,255,255,0.1);
-        min-width: 100px;
+        padding: 4px 12px;
     }
     .stu-dot {
-        width: 6px; height: 6px;
+        width: 8px; height: 8px;
         background: #34d399;
         border-radius: 50%;
         display: inline-block;
-        box-shadow: 0 0 10px #34d399;
+        box-shadow: 0 0 12px #34d399;
     }
     .stu-header-icon {
         width: 45px; height: 45px;
@@ -388,81 +571,74 @@
     }
     .stu-btn-absen:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(16, 185, 129, 0.4); color: white; }
 
-    /* Bottom Navigation Bar (Dark Style) */
+    /* Bottom Navigation Bar (Android Style) */
     .stu-bottom-nav {
         position: fixed; bottom: 0; left: 0; right: 0;
-        background: #1e293b;
-        height: 85px;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        height: 75px;
         display: flex; justify-content: space-around; align-items: center;
-        padding: 0 10px 20px 10px;
+        padding: 0 10px 15px 10px;
         z-index: 1000;
-        border-top-left-radius: 35px;
-        border-top-right-radius: 35px;
-        box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
     }
     .stu-bottom-nav .nav-item {
         display: flex; flex-direction: column; align-items: center;
-        color: #94a3b8; text-decoration: none; font-size: 10px;
-        font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-        transition: all 0.2s;
+        color: #94a3b8; text-decoration: none; font-size: 11px;
+        font-weight: 800; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         flex: 1;
     }
-    .stu-bottom-nav .nav-item.active { color: #6366f1; }
-    .stu-bottom-nav .nav-item i { font-size: 1.4rem; margin-bottom: 5px; transition: transform 0.2s; }
-    .stu-bottom-nav .nav-item:hover i { transform: translateY(-5px); color: #818cf8; }
+    .stu-bottom-nav .nav-item.active { color: #6366f1; transform: translateY(-2px); }
+    .stu-bottom-nav .nav-item i { font-size: 1.4rem; margin-bottom: 4px; }
     
+    .stu-fab-container { position: relative; width: 65px; height: 65px; flex-shrink: 0; }
     .stu-fab {
-        width: 72px; height: 72px;
+        width: 60px; height: 60px;
         background: linear-gradient(135deg, #6366f1, #4338ca);
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        color: white; font-size: 2.2rem;
-        margin-top: -75px;
-        border: 8px solid #1e293b;
-        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.5);
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        color: white; font-size: 1.6rem;
+        position: absolute; top: -30px; left: 2px;
+        border: 5px solid #fff;
+        box-shadow: 0 12px 25px rgba(99, 102, 241, 0.4);
         cursor: pointer;
+        z-index: 1001;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .stu-fab:hover { transform: scale(1.15) rotate(15deg); color: white; box-shadow: 0 15px 35px rgba(99, 102, 241, 0.6); }
-
-    /* Standard Cards Enhancement */
-    .stu-card {
-        background: white;
-        border-radius: 25px;
-        border: 1px solid #f1f5f9;
-        overflow: hidden;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    .stu-fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 15px 35px rgba(99, 102, 241, 0.5); }
+    .stu-fab::after {
+        content: ''; position: absolute; inset: -5px; border-radius: 50%;
+        border: 2px solid #6366f1; opacity: 0;
+        animation: fab-pulse 2s infinite;
     }
-    .stu-card-header {
-        padding: 22px 25px;
-        display: flex; align-items: center; gap: 15px;
+    @keyframes fab-pulse {
+        0% { transform: scale(1); opacity: 0.5; }
+        100% { transform: scale(1.5); opacity: 0; }
     }
-    .stu-card-icon {
-        width: 45px; height: 45px;
-        border-radius: 15px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.2rem;
-    }
-    .stu-card-title { font-weight: 800; font-size: 1.05rem; color: #1e293b; margin: 0; }
-    .stu-card-sub { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
+    
+    body { padding-bottom: 110px !important; }
 
     /* Quick Links Grid */
     .stu-quick-link {
         display: flex; flex-direction: column; align-items: center;
-        text-decoration: none !important; transition: all 0.2s;
+        text-decoration: none !important; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .stu-quick-link:hover { transform: translateY(-3px); }
+    .stu-quick-link:hover { transform: translateY(-5px); }
+    .stu-quick-link:hover .stu-quick-icon { box-shadow: 0 12px 25px rgba(0,0,0,0.08); transform: scale(1.05); }
     .stu-quick-link span { 
-        font-size: 11px; font-weight: 700; color: #475569; 
-        margin-top: 8px; text-transform: uppercase; letter-spacing: 0.3px;
+        font-size: 12px; font-weight: 800; color: #334155; 
+        margin-top: 10px; letter-spacing: 0.2px;
     }
     .stu-quick-icon {
-        width: 55px; height: 55px;
-        border-radius: 18px;
+        width: 65px; height: 65px;
+        border-radius: 22px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 1.4rem;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        font-size: 1.6rem;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.02);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.8);
     }
     
     .bg-soft-purple { background: #f5f3ff; color: #8b5cf6; }
@@ -706,9 +882,12 @@
     body { background: #f8fafc; }
 
     @media (max-width: 768px) {
-        .stu-new-header { border-radius: 0 0 40px 40px; margin-top: 0; padding-top: 40px; }
-        .stu-main-card { margin-top: -70px; border-radius: 35px; }
-        .stu-card-title { font-size: 0.95rem; }
+        .glass-nav, footer { display: none !important; }
+        .pt-24 { padding-top: 0 !important; }
+        .stu-new-header { border-radius: 0 0 35px 35px; margin-top: 0; padding-top: 30px; padding-bottom: 110px; }
+        .stu-content-wrapper { padding-left: 12px; padding-right: 12px; }
+        .stu-bottom-nav { height: 65px; padding-bottom: 15px; }
+        .stu-fab { width: 52px; height: 52px; top: -30px; font-size: 1.4rem; }
     }
 
     @media (min-width: 769px) {
@@ -724,21 +903,25 @@
         position: relative;
     }
     
-    .stu-content-wrapper {
-        padding-left: 20px;
-        padding-right: 20px;
-        max-width: 1200px;
-        margin: 0 auto;
+    @media (max-width: 768px) {
+        .stu-new-header { border-radius: 0 0 40px 40px; margin-top: -25px; padding-top: 40px; }
+        .stu-content-wrapper { padding-left: 15px; padding-right: 15px; }
+        .stu-bottom-nav { border-radius: 25px 25px 0 0; height: 75px; }
+        .stu-fab { width: 60px; height: 60px; margin-top: -65px; font-size: 1.8rem; border-width: 5px; }
     }
-    .bg-grad-green { background: linear-gradient(135deg, #4338ca, #6366f1); }
-    .bg-success-soft { background-color: rgba(16, 185, 129, 0.1); }
-    .bg-danger-soft { background-color: rgba(239, 68, 68, 0.1); }
-    .text-indigo-600 { color: #4f46e5 !important; }
-    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-    .hover-scale { transition: transform 0.2s; }
-    .hover-scale:hover { transform: scale(1.1); }
-    .hover-glow { transition: all 0.3s; }
-    .hover-glow:hover { box-shadow: 0 0 20px rgba(255,255,255,0.4); transform: translateY(-2px); }
+
+    /* Standardized Android Theme */
+    .bg-grad-indigo { background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%); }
+    .glass-card { background: rgba(255, 255, 255, 0.8) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.4) !important; }
+    
+    /* Center the closed state */
+    .ppdb-closed-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 200px);
+    }
 </style>
 @endpush
 
@@ -761,34 +944,27 @@
 
     function confirmLogout() {
         Swal.fire({
-            title: 'Keluar Aplikasi?',
-            text: 'Apakah Anda yakin ingin keluar dari akun ini?',
+            title: 'Keluar Sesi?',
+            text: "Anda akan keluar dari portal pendaftaran.",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="fas fa-sign-out-alt mr-1"></i> Ya, Keluar',
-            cancelButtonText: 'Batal'
+            confirmButtonColor: '#6366f1',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Ya, Keluar',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            background: '#ffffff',
+            customClass: {
+                popup: 'premium-rounded-modal',
+                title: 'font-weight-black',
+                confirmButton: 'btn-premium-action px-4 py-2',
+                cancelButton: 'btn-premium-outline px-4 py-2'
+            }
         }).then((result) => {
             if (result.isConfirmed) {
-                const logoutForm = document.getElementById('logout-form-main');
-                if (logoutForm) {
-                    logoutForm.submit();
-                } else {
-                    // Fallback if form not found
-                    const genericForm = document.createElement('form');
-                    genericForm.method = 'POST';
-                    genericForm.action = '{{ route("logout") }}';
-                    const csrfToken = document.createElement('input');
-                    csrfToken.type = 'hidden';
-                    csrfToken.name = '_token';
-                    csrfToken.value = '{{ csrf_token() }}';
-                    genericForm.appendChild(csrfToken);
-                    document.body.appendChild(genericForm);
-                    genericForm.submit();
-                }
+                document.getElementById('logout-form').submit();
             }
-        });
+        })
     }
 
     $(document).ready(function() {
@@ -820,3 +996,7 @@
     });
 </script>
 @endpush
+
+<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+    @csrf
+</form>

@@ -334,4 +334,12 @@ class PpdbRegistrant extends Model
     {
         return $this->confirmed_at ? $this->confirmed_at->format('d M Y, H:i') : '-';
     }
+
+    /**
+     * Cek apakah ada dokumen yang ditolak oleh verifikator.
+     */
+    public function hasRejectedDocuments()
+    {
+        return $this->documents()->where('is_verified', false)->whereNotNull('verification_note')->exists();
+    }
 }

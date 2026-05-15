@@ -14,6 +14,24 @@
             <h6 class="font-weight-bold text-indigo-900 mb-0" style="font-size: 14px; letter-spacing: 0.5px;">ALUR PENDAFTARAN</h6>
             <span class="badge bg-indigo-soft text-indigo-600 px-4 py-2" style="border-radius: 10px; font-size: 11px; font-weight: 800; background: rgba(99, 102, 241, 0.1);">{{ round(($uploadedRequired/$requiredCount)*100) }}% LENGKAP</span>
         </div>
+
+        {{-- ALERT PERBAIKAN BERKAS (PREMIUM) --}}
+        @if($registrant->hasRejectedDocuments())
+            <div class="alert animate__animated animate__pulse animate__infinite alert-danger-premium mb-6 d-flex align-items-center" style="border-radius: 1.5rem; padding: 1.5rem; border: none; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.15);">
+                <div class="alert-icon-box bg-white shadow-sm mr-4" style="width: 55px; height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #ef4444; font-size: 1.5rem;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="font-weight-bold mb-1">PEMBERITAHUAN: BERKAS PERLU PERBAIKAN</h6>
+                    <p class="small mb-0 opacity-80">Beberapa berkas yang Anda unggah ditolak oleh verifikator. Silakan cek detail alasan di bagian dokumen dan unggah ulang segera.</p>
+                </div>
+                <div class="ml-3">
+                    <a href="#upload-section" class="btn btn-danger btn-sm rounded-pill px-4 font-weight-bold shadow-sm">
+                        PERBAIKI SEKARANG
+                    </a>
+                </div>
+            </div>
+        @endif
         
         <div class="registration-stepper">
             {{-- STEP 1: IDENTITAS --}}
@@ -133,59 +151,58 @@
 
 {{-- STATUS CARD & TOMBOL CETAK HANYA MUNCUL JIKA BERKAS LENGKAP --}}
 @if($isAllUploaded)
-    {{-- STATUS CARD --}}
-    <div class="status-card {{ $registrant->status }} mb-6 shadow-xl border-0" style="border-radius: 2rem;">
-        @if($registrant->status === 'pending')
-            <i class="fas fa-history fa-3x mb-4 opacity-50"></i>
-        @elseif($registrant->status === 'berkas_lengkap')
-            <i class="fas fa-folder-open fa-3x mb-4 opacity-50"></i>
-        @elseif($registrant->status === 'berkas_tidak_lengkap')
-            <i class="fas fa-exclamation-circle fa-3x mb-4 opacity-50"></i>
-        @elseif($registrant->status === 'diterima')
-            <i class="fas fa-check-double fa-3x mb-4 opacity-50"></i>
-        @elseif($registrant->status === 'daftar_ulang' || $registrant->status === 'daftar_ulang_terverifikasi')
-            <i class="fas fa-user-check fa-3x mb-4 opacity-50"></i>
-        @elseif($registrant->status === 'cadangan')
-            <i class="fas fa-clock fa-3x mb-4 opacity-50"></i>
-        @elseif($registrant->status === 'ditolak')
-            <i class="fas fa-times-circle fa-3x mb-4 opacity-50"></i>
-        @endif
-        <h2 class="mb-2 font-bold">{{ $registrant->public_status_label }}</h2>
-        <p class="mb-0 font-weight-normal opacity-80">Nomor Registrasi: <span class="font-weight-bold" style="letter-spacing: 1px;">{{ $registrant->registration_number }}</span></p>
-    </div>
+    {{-- PREMIUM STATUS HEADER --}}
+    <div class="stu-status-banner mb-8">
+        <div class="glass-card p-8 text-center shadow-2xl border-0 overflow-hidden" style="border-radius: 2.5rem; background: #fff; position: relative;">
+            {{-- Background Decoration --}}
+            <div style="position: absolute; top: -20px; left: -20px; width: 100px; height: 100px; background: rgba(99, 102, 241, 0.05); border-radius: 50%;"></div>
+            
+            <div class="mb-4 d-inline-flex align-items-center justify-content-center shadow-lg" style="width: 80px; height: 80px; border-radius: 24px; background: #f8fafc; border: 1px solid #f1f5f9;">
+                @if($registrant->status === 'pending')
+                    <i class="fas fa-history text-amber-500 fa-2x"></i>
+                @elseif($registrant->status === 'berkas_lengkap' || $registrant->status === 'diterima')
+                    <i class="fas fa-check-double text-emerald-500 fa-2x"></i>
+                @elseif($registrant->status === 'ditolak')
+                    <i class="fas fa-times-circle text-rose-500 fa-2x"></i>
+                @else
+                    <i class="fas fa-file-invoice text-indigo-500 fa-2x"></i>
+                @endif
+            </div>
 
-    {{-- TOMBOL CETAK --}}
-    <div class="row mb-4">
-        <div class="col-md-6 mb-3 mb-md-0">
-            <div class="ppdb-card h-100 mb-0 border-left-success">
-                <div class="card-body d-flex align-items-center">
-                    <div class="bg-success-light p-3 rounded-circle mr-3">
-                        <i class="fas fa-id-card fa-2x text-success"></i>
-                    </div>
-                    <div>
-                        <h6 class="font-weight-bold mb-1">Bukti Pendaftaran</h6>
-                        <p class="small text-muted mb-2">Gunakan sebagai kartu tanda pengenal pendaftar.</p>
-                        <a href="{{ route('ppdb.print_registration') }}" class="btn btn-sm btn-success px-3 shadow-sm">
-                            <i class="fas fa-download mr-1"></i> Unduh Kartu
-                        </a>
-                    </div>
+            <h2 class="font-weight-black text-slate-800 mb-2" style="letter-spacing: -1px;">{{ $registrant->public_status_label }}</h2>
+            <div class="d-flex align-items-center justify-content-center mb-0">
+                <div class="bg-slate-50 px-4 py-2 rounded-pill border shadow-sm">
+                    <span class="text-slate-400 font-bold small mr-2">NO. REGISTRASI:</span>
+                    <span class="text-indigo-600 font-weight-black" style="letter-spacing: 1px;">{{ $registrant->registration_number }}</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="ppdb-card h-100 mb-0 border-left-primary">
-                <div class="card-body d-flex align-items-center">
-                    <div class="bg-primary-light p-3 rounded-circle mr-3">
-                        <i class="fas fa-file-signature fa-2x text-primary"></i>
-                    </div>
-                    <div>
-                        <h6 class="font-weight-bold mb-1">Lembar Verifikasi</h6>
-                        <p class="small text-muted mb-2">Bawa saat verifikasi berkas fisik di sekolah.</p>
-                        <a href="{{ route('ppdb.print_verification') }}" class="btn btn-sm btn-primary px-3 shadow-sm">
-                            <i class="fas fa-print mr-1"></i> Cetak Lembar
-                        </a>
-                    </div>
+    </div>
+
+    {{-- PREMIUM ACTION CARDS --}}
+    <div class="row mb-8">
+        <div class="col-6 pr-2">
+            <div class="glass-card h-100 p-5 text-center border-0 shadow-xl" style="border-radius: 2rem; background: #fff;">
+                <div class="mb-3 d-inline-flex align-items-center justify-content-center bg-emerald-50 text-emerald-500" style="width: 50px; height: 50px; border-radius: 15px;">
+                    <i class="fas fa-id-card fa-lg"></i>
                 </div>
+                <h6 class="font-weight-black text-slate-800 mb-1" style="font-size: 13px;">Bukti Daftar</h6>
+                <p class="text-slate-400 small mb-4" style="line-height: 1.3; font-size: 10px;">Kartu tanda pengenal resmi pendaftar.</p>
+                <a href="{{ route('ppdb.print_registration') }}" class="btn btn-emerald-soft btn-block py-2 rounded-pill font-weight-bold shadow-sm" style="font-size: 11px; background: #ecfdf5; color: #059669; border: none;">
+                    <i class="fas fa-download mr-1"></i> UNDUH
+                </a>
+            </div>
+        </div>
+        <div class="col-6 pl-2">
+            <div class="glass-card h-100 p-5 text-center border-0 shadow-xl" style="border-radius: 2rem; background: #fff;">
+                <div class="mb-3 d-inline-flex align-items-center justify-content-center bg-indigo-50 text-indigo-500" style="width: 50px; height: 50px; border-radius: 15px;">
+                    <i class="fas fa-file-signature fa-lg"></i>
+                </div>
+                <h6 class="font-weight-black text-slate-800 mb-1" style="font-size: 13px;">Lembar Verif</h6>
+                <p class="text-slate-400 small mb-4" style="line-height: 1.3; font-size: 10px;">Bawa saat verifikasi fisik di sekolah.</p>
+                <a href="{{ route('ppdb.print_verification') }}" class="btn btn-indigo-soft btn-block py-2 rounded-pill font-weight-bold shadow-sm" style="font-size: 11px; background: #eef2ff; color: #4f46e5; border: none;">
+                    <i class="fas fa-print mr-1"></i> CETAK
+                </a>
             </div>
         </div>
     </div>
@@ -789,7 +806,11 @@
                     $isUploaded = isset($existingDocs[$type]);
                 @endphp
                 <div class="col-md-6 mb-3">
-                    <div class="doc-upload-card {{ $isUploaded ? 'uploaded' : '' }}">
+                    @php
+                        $docObj = $registrant->documents->where('document_type', $type)->first();
+                        $isRejected = $docObj && !$docObj->is_verified && $docObj->verification_note;
+                    @endphp
+                    <div class="doc-upload-card {{ $isUploaded ? 'uploaded' : '' }} {{ $isRejected ? 'rejected' : '' }}">
                         {{-- Header --}}
                         <div class="d-flex align-items-start mb-2">
                             <div class="doc-icon" style="background: {{ $isUploaded ? '#10b981' : $meta['color'] }};">
@@ -804,14 +825,29 @@
                             </div>
                         </div>
 
-                        {{-- Status --}}
+                        {{-- Status & Note --}}
                         @if($isUploaded)
-                            <div class="d-flex align-items-center justify-content-between mb-2 p-2 rounded" style="background: rgba(16,185,129,0.08);">
-                                <small class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> Terunggah</small>
-                                <a href="{{ Storage::url($existingDocs[$type]) }}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size:0.75rem;">
-                                    <i class="fas fa-eye mr-1"></i>Lihat
-                                </a>
-                            </div>
+                            @if($isRejected)
+                                <div class="rejected-note-box mb-3 p-3 rounded-12 animate__animated animate__shakeX" style="background: #fef2f2; border: 1px solid #fee2e2;">
+                                    <div class="d-flex align-items-center mb-1 text-danger">
+                                        <i class="fas fa-times-circle mr-2"></i>
+                                        <span class="font-weight-bold text-xs">BERKAS DITOLAK</span>
+                                    </div>
+                                    <p class="small text-danger mb-2 font-weight-bold" style="line-height: 1.4;">"{{ $docObj->verification_note }}"</p>
+                                    <div class="text-right">
+                                        <label for="file_{{ $type }}" class="btn btn-xs btn-danger rounded-pill px-3 m-0 cursor-pointer">
+                                            <i class="fas fa-sync-alt mr-1"></i> Upload Ulang
+                                        </label>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="d-flex align-items-center justify-content-between mb-2 p-2 rounded" style="background: rgba(16,185,129,0.08);">
+                                    <small class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> Terunggah</small>
+                                    <a href="{{ Storage::url($existingDocs[$type]) }}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size:0.75rem;">
+                                        <i class="fas fa-eye mr-1"></i>Lihat
+                                    </a>
+                                </div>
+                            @endif
                         @endif
 
                         {{-- Upload Form --}}
@@ -850,6 +886,15 @@
         height: 100%;
         position: relative;
         overflow: hidden;
+    }
+    .doc-upload-card.uploaded {
+        border: 2px solid #10b981;
+        background: #fff;
+    }
+    .doc-upload-card.uploaded.rejected {
+        border: 2px solid #ef4444;
+        background: #fff5f5;
+        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.1);
     }
     .doc-upload-card::before {
         content: '';
@@ -965,115 +1010,139 @@
     });
 </script>
 
-{{-- DATA RINGKASAN --}}
-<div class="ppdb-card">
-    <div class="card-header">
-        <i class="fas fa-user-shield mr-2"></i> Ringkasan Profil Pendaftar
+@if($isAllUploaded)
+    {{-- DATA RINGKASAN (HIDDEN BY DEFAULT) --}}
+    <div class="text-center mb-6">
+        <button class="btn btn-light rounded-pill px-6 font-weight-bold text-muted shadow-sm" type="button" data-toggle="collapse" data-target="#fullProfileCollapse">
+            <i class="fas fa-user-circle mr-2"></i> LIHAT DETAIL PROFIL
+        </button>
     </div>
-    <div class="card-body">
-        <div class="row align-items-center">
-            <div class="col-md-3 text-center mb-4 mb-md-0">
-                <div class="position-relative d-inline-block">
-                    @if($registrant->foto)
-                        <img src="{{ Storage::url($registrant->foto) }}" class="img-fluid rounded shadow"
-                            style="width:140px;height:180px;object-fit:cover;border:4px solid #fff;">
-                    @else
-                        <div class="rounded bg-light d-flex align-items-center justify-content-center shadow-sm"
-                            style="width:140px;height:180px;border:2px dashed #cbd5e0;">
-                            <i class="fas fa-user-tie fa-4x text-light"></i>
-                        </div>
-                    @endif
-                    <div class="mt-2">
-                        <span class="badge badge-success px-3 py-2 rounded-pill shadow-sm">Pendaftar Aktif</span>
-                    </div>
-                </div>
+
+    <div class="collapse" id="fullProfileCollapse">
+        <div class="glass-card mb-8 shadow-xl border-0 overflow-hidden" style="border-radius: 2.5rem; background: #fff;">
+            <div class="card-header bg-light/50 py-4 px-6 border-bottom text-center">
+                <h6 class="font-weight-black text-indigo-900 mb-0" style="letter-spacing: 0.5px;">DETAIL DATA PENDAFTAR</h6>
             </div>
-            <div class="col-md-9">
-                <div class="row">
-                    <div class="col-sm-6 mb-3">
-                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">Nama Lengkap</small>
-                        <p class="mb-0 font-weight-bold text-dark">{{ $registrant->nama_lengkap }}</p>
+            <div class="card-body p-6">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center mb-4 mb-md-0">
+                        <div class="position-relative d-inline-block">
+                            @if($registrant->foto)
+                                <img src="{{ Storage::url($registrant->foto) }}" class="img-fluid rounded shadow-lg"
+                                    style="width:140px;height:180px;object-fit:cover;border:4px solid #fff;">
+                            @else
+                                <div class="rounded bg-slate-50 d-flex align-items-center justify-content-center shadow-sm"
+                                    style="width:140px;height:180px;border:2px dashed #cbd5e0;">
+                                    <i class="fas fa-user-tie fa-4x text-slate-200"></i>
+                                </div>
+                            @endif
+                        </div>
                     </div>
-                    <div class="col-sm-6 mb-3">
-                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">NISN / NIK</small>
-                        <p class="mb-0 text-dark">{{ $registrant->nisn ?? '-' }} / {{ $registrant->nik ?? '-' }}</p>
-                    </div>
-                    <div class="col-sm-6 mb-3">
-                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">Tempat, Tgl Lahir</small>
-                        <p class="mb-0 text-dark">{{ $registrant->tempat_lahir }}, {{ $registrant->tanggal_lahir->format('d M Y') }}</p>
-                    </div>
-                    <div class="col-sm-6 mb-3">
-                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">Asal Sekolah</small>
-                        <p class="mb-0 text-dark">{{ $registrant->asal_sekolah ?? '-' }}</p>
-                    </div>
-                    <div class="col-sm-6 mb-3">
-                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">Gelombang / Jalur</small>
-                        <p class="mb-0 text-dark">{{ $registrant->admissionPhase->phase_name ?? '-' }} ({{ $registrant->admissionType->admission_type_name ?? '-' }})</p>
-                    </div>
-                    <div class="col-sm-6 mb-3">
-                        <small class="text-muted text-uppercase font-weight-bold letter-spacing-1">Kontak Orang Tua</small>
-                        <p class="mb-0 text-dark"><i class="fab fa-whatsapp text-success mr-1"></i> {{ $registrant->no_hp_ortu ?? '-' }}</p>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-6 mb-4">
+                                <label class="text-slate-400 text-uppercase font-weight-black mb-1" style="font-size: 9px; letter-spacing: 1px;">Nama</label>
+                                <p class="mb-0 font-weight-bold text-slate-800">{{ $registrant->nama_lengkap }}</p>
+                            </div>
+                            <div class="col-6 mb-4">
+                                <label class="text-slate-400 text-uppercase font-weight-black mb-1" style="font-size: 9px; letter-spacing: 1px;">NISN</label>
+                                <p class="mb-0 text-slate-700 font-weight-bold">{{ $registrant->nisn ?? '-' }}</p>
+                            </div>
+                            <div class="col-12 mb-4">
+                                <label class="text-slate-400 text-uppercase font-weight-black mb-1" style="font-size: 9px; letter-spacing: 1px;">Sekolah</label>
+                                <p class="mb-0 text-slate-700 font-weight-bold">{{ $registrant->asal_sekolah ?? '-' }}</p>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-slate-400 text-uppercase font-weight-black mb-1" style="font-size: 9px; letter-spacing: 1px;">Wali</label>
+                                <p class="mb-0 text-slate-700 font-weight-bold">{{ $registrant->nama_ayah ?? $registrant->nama_ibu ?? '-' }}</p>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-slate-400 text-uppercase font-weight-black mb-1" style="font-size: 9px; letter-spacing: 1px;">Kontak</label>
+                                <p class="mb-0 text-emerald-600 font-weight-bold">{{ $registrant->no_hp_ortu ?? '-' }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-{{-- BERKAS --}}
-<div class="ppdb-card">
-    <div class="card-header">
-        <i class="fas fa-file-invoice mr-2"></i> Verifikasi Berkas Persyaratan
+    {{-- BERKAS --}}
+    <div class="glass-card mb-8 shadow-xl border-0 overflow-hidden" style="border-radius: 2.5rem; background: #fff;">
+        <div class="card-header bg-light/30 py-5 px-8 border-bottom">
+            <h6 class="font-weight-black text-indigo-900 mb-0 d-flex align-items-center" style="letter-spacing: 0.8px; font-size: 14px;">
+                <i class="fas fa-file-invoice mr-3 text-indigo-600"></i> VERIFIKASI BERKAS PERSYARATAN
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                @foreach($registrant->documents as $doc)
+                    @php
+                        $isVerified = $doc->is_verified;
+                        $hasNote = !empty($doc->verification_note);
+                    @endphp
+                    <div class="list-group-item py-4 px-8 border-0 mb-1" style="transition: all 0.2s;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-4 d-flex align-items-center justify-content-center" style="width: 58px; height: 58px; border-radius: 18px; background: {{ $isVerified ? '#ecfdf5' : '#fff7ed' }};">
+                                    <i class="fas {{ $isVerified ? 'fa-file-circle-check text-emerald-500' : 'fa-file-circle-info text-amber-500' }}" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <h6 class="font-weight-black mb-1 text-slate-800" style="font-size: 1.05rem; letter-spacing: -0.2px;">{{ $doc->document_name }}</h6>
+                                    <div class="d-flex align-items-center">
+                                        @if($isVerified)
+                                            <span class="text-emerald-600 font-weight-bold small d-flex align-items-center">
+                                                <i class="fas fa-check-circle mr-2"></i> TERVERIFIKASI
+                                            </span>
+                                        @else
+                                            <span class="text-slate-500 font-weight-black small d-flex align-items-center" style="letter-spacing: 0.5px;">
+                                                <i class="fas fa-clock mr-2"></i> SEDANG DITINJAU
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ Storage::url($doc->file_path) }}" target="_blank" class="btn btn-white shadow-sm border rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; color: #6366f1; transition: all 0.3s;">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                        
+                        @if($hasNote && !$isVerified)
+                            <div class="mt-4 p-4 rounded-2xl border-left-danger shadow-sm" style="background: #fff5f5; border-left: 5px solid #ef4444 !important;">
+                                <div class="d-flex align-items-center mb-1 text-danger font-weight-black" style="font-size: 10px; letter-spacing: 1px;">
+                                    <i class="fas fa-exclamation-circle mr-2"></i> CATATAN PERBAIKAN:
+                                </div>
+                                <p class="small text-danger mb-0 font-weight-bold" style="line-height: 1.5;">"{{ $doc->verification_note }}"</p>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
     </div>
-    <div class="card-body p-0">
-        @if($registrant->documents->count() > 0)
-            @foreach($registrant->documents as $doc)
-                <div class="doc-item">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-light p-2 rounded mr-3">
-                            <i class="fas fa-file-alt text-primary"></i>
-                        </div>
-                        <div>
-                            <span class="doc-name">{{ $doc->document_name }}</span>
-                            @if($doc->verification_note)
-                                <br><small class="text-danger font-italic"><i class="fas fa-exclamation-circle mr-1"></i> {{ $doc->verification_note }}</small>
-                            @endif
-                        </div>
+@endif
+
+{{-- TOMBOL EDIT (PREMIUM) --}}
+@if(in_array($registrant->status, ['pending', 'berkas_tidak_lengkap']))
+    <div class="glass-card border-0 shadow-xl mb-8 overflow-hidden" style="border-radius: 2rem; background: #fff; border-left: 6px solid #fbbf24 !important;">
+        <div class="card-body p-6">
+            <div class="d-md-flex align-items-center justify-content-between">
+                <div class="mb-4 mb-md-0 d-flex align-items-center">
+                    <div class="mr-4 d-flex align-items-center justify-content-center bg-amber-50 text-amber-500 shadow-sm" style="width: 55px; height: 55px; border-radius: 18px;">
+                        <i class="fas fa-user-pen fa-lg"></i>
                     </div>
                     <div>
-                        @if($doc->is_verified)
-                            <span class="badge badge-success px-3 py-2 rounded-pill"><i class="fas fa-check-circle mr-1"></i> Terverifikasi</span>
-                        @else
-                            <span class="badge badge-warning px-3 py-2 rounded-pill text-dark"><i class="fas fa-clock mr-1"></i> Sedang Ditinjau</span>
-                        @endif
+                        <h5 class="font-weight-black text-slate-800 mb-1">Perlu Perbaikan Data?</h5>
+                        <p class="mb-0 text-slate-500 font-medium small">
+                            @if($registrant->status === 'berkas_tidak_lengkap')
+                                <span class="text-danger font-bold"><i class="fas fa-exclamation-triangle mr-1"></i> Mohon segera lengkapi berkas sesuai catatan admin.</span>
+                            @else
+                                <i class="fas fa-info-circle text-indigo-500 mr-1"></i> Data masih dapat diubah selama status pendaftaran dalam peninjauan.
+                            @endif
+                        </p>
                     </div>
                 </div>
-            @endforeach
-        @else
-            <div class="text-center py-5 text-muted">
-                <i class="fas fa-folder-open fa-3x mb-3 opacity-25"></i>
-                <p class="mb-0">Belum ada dokumen yang diunggah ke sistem.</p>
-            </div>
-        @endif
-    </div>
-</div>
-
-{{-- TOMBOL EDIT --}}
-@if(in_array($registrant->status, ['pending', 'berkas_tidak_lengkap']))
-    <div class="ppdb-card border-top border-warning" style="border-top-width: 4px !important;">
-        <div class="card-body">
-            <div class="d-md-flex align-items-center justify-content-between">
-                <div class="mb-3 mb-md-0">
-                    <h6 class="font-weight-bold text-dark mb-1">Perlu melakukan perubahan data?</h6>
-                    <p class="mb-0 text-muted small">
-                        @if($registrant->status === 'berkas_tidak_lengkap')
-                            <i class="fas fa-exclamation-triangle text-warning mr-1"></i> Mohon segera lengkapi berkas Anda sesuai catatan verifikator.
-                        @else
-                            <i class="fas fa-info-circle text-info mr-1"></i> Data masih dapat diubah selama status pendaftaran masih dalam peninjauan.
-                        @endif
-                    </p>
-                </div>
-                <button type="button" class="btn btn-ppdb shadow-sm" id="btnShowEdit">
+                <button type="button" class="btn btn-premium-action px-6 py-3 font-weight-bold shadow-lg" id="btnShowEdit" style="border-radius: 1rem; background: linear-gradient(135deg, #6366f1, #4338ca); color: white; border: none;">
                     <i class="fas fa-pencil-alt mr-2"></i> Perbarui Data Sekarang
                 </button>
             </div>

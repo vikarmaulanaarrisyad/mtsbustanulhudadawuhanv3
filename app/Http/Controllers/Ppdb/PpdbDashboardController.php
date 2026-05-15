@@ -171,7 +171,7 @@ class PpdbDashboardController extends Controller
 
             DB::commit();
 
-            return redirect()->route('ppdb.dashboard')->with('success', 'Data identitas berhasil disimpan! Silakan lengkapi berkas persyaratan di bawah.');
+            return redirect()->to(route('ppdb.dashboard') . '#upload-section')->with('success', 'Data identitas berhasil disimpan! Silakan lengkapi berkas persyaratan di bawah.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
@@ -302,7 +302,7 @@ class PpdbDashboardController extends Controller
 
             DB::commit();
 
-            return redirect()->route('ppdb.dashboard')->with('success', 'Data berhasil diperbaharui.');
+            return redirect()->to(route('ppdb.dashboard') . '#upload-section')->with('success', 'Data berhasil diperbaharui.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();

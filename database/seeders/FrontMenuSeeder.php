@@ -59,7 +59,7 @@ class FrontMenuSeeder extends Seeder
                 'sub' => [
                     ['title' => 'Ekstrakurikuler', 'url' => '/page/ekstrakurikuler'],
                     ['title' => 'Organisasi Siswa (OSIS)', 'url' => '/page/osis'],
-                    ['title' => 'Prestasi Siswa', 'url' => '/page/prestasi'],
+                    ['title' => 'Prestasi Siswa', 'url' => '/prestasi'],
                 ]
             ],
             [
@@ -71,10 +71,18 @@ class FrontMenuSeeder extends Seeder
                 'sub' => []
             ],
             [
+                'menu_title' => 'Prestasi',
+                'menu_url' => '/prestasi',
+                'menu_parent_id' => 0,
+                'menu_position' => 6,
+                'menu_type' => 'link',
+                'sub' => []
+            ],
+            [
                 'menu_title' => 'Galeri',
                 'menu_url' => '/galeri',
                 'menu_parent_id' => 0,
-                'menu_position' => 6,
+                'menu_position' => 7,
                 'menu_type' => 'link',
                 'sub' => []
             ],
@@ -82,7 +90,7 @@ class FrontMenuSeeder extends Seeder
                 'menu_title' => 'Kontak',
                 'menu_url' => '/kontak',
                 'menu_parent_id' => 0,
-                'menu_position' => 7,
+                'menu_position' => 8,
                 'menu_type' => 'link',
                 'sub' => []
             ],
@@ -90,7 +98,7 @@ class FrontMenuSeeder extends Seeder
                 'menu_title' => 'PPDB',
                 'menu_url' => '#',
                 'menu_parent_id' => 0,
-                'menu_position' => 8,
+                'menu_position' => 9,
                 'menu_type' => 'link',
                 'sub' => [
                     ['title' => 'Informasi & Daftar', 'url' => '/register'],
@@ -102,7 +110,7 @@ class FrontMenuSeeder extends Seeder
                 'menu_title' => 'Login',
                 'menu_url' => '/login',
                 'menu_parent_id' => 0,
-                'menu_position' => 9,
+                'menu_position' => 10,
                 'menu_type' => 'link',
                 'sub' => []
             ],

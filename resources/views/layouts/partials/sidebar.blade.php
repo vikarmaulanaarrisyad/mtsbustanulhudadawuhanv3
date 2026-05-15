@@ -712,6 +712,12 @@
                                 </a>
                             </li>
                         @endcan
+                        <li class="nav-item">
+                            <a href="{{ url('/prestasi') }}" target="_blank" class="nav-link text-warning">
+                                <i class="fas fa-external-link-alt nav-icon"></i>
+                                <p>Lihat Halaman Prestasi</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 

@@ -131,3 +131,134 @@
     }
     .input-group-premium:focus-within { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.1); }
 </style>
+
+<script>
+    function openVerify(id) {
+        Swal.fire({ title: "Memuat data...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+        
+        $.get(`{{ url('/admission/ppdb') }}/${id}`).done(res => {
+            Swal.close();
+            let d = res.data;
+            
+            $('#verify_nama').text(d.nama_lengkap);
+            $('#verify_reg_no').text(d.registration_number);
+            $('#verify_score').val(d.average_score);
+            $('#verify_distance').val(d.distance_km);
+            $('#verify_status').val(d.status).trigger('change');
+            $('#verify_catatan').val(d.catatan_verifikasi);
+            
+            // Populate Documents
+            let html = '';
+            if (d.documents && d.documents.length > 0) {
+                d.documents.forEach(doc => {
+                    let isVerified = doc.is_verified ? 'checked' : '';
+                    let note = doc.verification_note || '';
+                    let fileUrl = `{{ Storage::url('') }}${doc.file_path}`;
+                    
+                    html += `
+                        <tr class="${!doc.is_verified && note ? 'table-danger-soft' : ''}">
+                            <td class="px-4 py-3">
+                                <div class="font-weight-bold text-dark">${doc.document_name}</div>
+                                <small class="text-muted">${doc.document_type_label}</small>
+                            </td>
+                            <td class="text-center">
+                                <a href="${fileUrl}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="fas fa-eye mr-1"></i> Buka
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input doc-verify-switch" id="doc_check_${doc.id}" name="doc_verified[${doc.id}]" value="1" ${isVerified} onchange="toggleRowStatus(this)">
+                                    <label class="custom-control-label" for="doc_check_${doc.id}"></label>
+                                </div>
+                            </td>
+                            <td class="py-2 pr-3">
+                                <div class="d-flex align-items-center">
+                                    <textarea name="doc_notes[${doc.id}]" class="form-control form-control-sm border-2 rounded-12 doc-note-input" rows="1" placeholder="Catatan perbaikan...">${note}</textarea>
+                                    <div class="ml-2 dropdown">
+                                        <button class="btn btn-xs btn-outline-danger rounded-circle" type="button" data-toggle="dropdown" title="Quick Reject">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right shadow-sm border-0 rounded-12">
+                                            <a class="dropdown-item py-1 small" href="javascript:void(0)" onclick="quickReject(${doc.id}, 'Dokumen buram/tidak terbaca')">Buram</a>
+                                            <a class="dropdown-item py-1 small" href="javascript:void(0)" onclick="quickReject(${doc.id}, 'Dokumen tidak sesuai/salah upload')">Salah File</a>
+                                            <a class="dropdown-item py-1 small" href="javascript:void(0)" onclick="quickReject(${doc.id}, 'Scan tidak lengkap/terpotong')">Terpotong</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html = '<tr><td colspan="4" class="text-center py-5 text-muted"><i class="fas fa-folder-open fa-2x d-block mb-2 opacity-25"></i> Belum ada berkas yang diunggah.</td></tr>';
+            }
+            $('#verify_docs_tbody').html(html);
+            
+            $('#modal-verify form').attr('action', `{{ url('/admission/ppdb') }}/${id}/verify`);
+            $('#modal-verify').modal('show');
+        }).fail(xhr => {
+            Swal.fire('Gagal', 'Tidak dapat mengambil data pendaftar.', 'error');
+        });
+    }
+
+    function toggleRowStatus(checkbox) {
+        let row = $(checkbox).closest('tr');
+        if (checkbox.checked) {
+            row.removeClass('table-danger-soft');
+        } else {
+            // Optional: Auto-focus note if unchecked
+            row.find('.doc-note-input').focus();
+        }
+    }
+
+    function quickReject(docId, reason) {
+        let checkbox = $(`#doc_check_${docId}`);
+        let noteInput = $(`textarea[name="doc_notes[${docId}]"]`);
+        
+        checkbox.prop('checked', false).trigger('change');
+        noteInput.val(reason);
+        $(checkbox).closest('tr').addClass('table-danger-soft');
+        
+        // Auto set status final to 'berkas_tidak_lengkap'
+        $('#verify_status').val('berkas_tidak_lengkap').trigger('change');
+        
+        // Visual feedback
+        noteInput.addClass('animate__animated animate__headShake');
+        setTimeout(() => noteInput.removeClass('animate__animated animate__headShake'), 1000);
+    }
+
+    function submitVerify(form) {
+        const url = $(form).attr('action');
+        const data = new FormData(form);
+        const btn = $('#submitVerifyBtn');
+        
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> MENYIMPAN...');
+        
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                $('#modal-verify').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false });
+                if (typeof table !== 'undefined') table.ajax.reload();
+            },
+            error: function(xhr) {
+                btn.prop('disabled', false).html('<i class="fas fa-check-circle mr-2"></i> SIMPAN HASIL VERIFIKASI');
+                let msg = 'Gagal menyimpan verifikasi.';
+                if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                Swal.fire('Gagal', msg, 'error');
+            }
+        });
+    }
+</script>
+
+<style>
+    .table-danger-soft { background-color: rgba(239, 68, 68, 0.05) !important; }
+    .rounded-12 { border-radius: 12px; }
+    .doc-note-input { transition: all 0.3s; font-size: 0.8rem; height: 38px !important; }
+    .doc-note-input:focus { border-color: #ef4444 !important; background: #fff; }
+</style>
