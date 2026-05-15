@@ -16,6 +16,7 @@ class CbtStudentAnswer extends Model
         'is_correct' => 'boolean',
         'selected_options' => 'array',
         'matching_answers' => 'array',
+        'score' => 'float',
     ];
 
     public function studentExam()

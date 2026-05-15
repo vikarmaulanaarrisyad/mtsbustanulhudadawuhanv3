@@ -19,6 +19,10 @@ class CbtItemAnalysisController extends Controller
     {
         $exam->load(['bank.questions.options', 'classes']);
         
+        if (!$exam->bank) {
+            return back()->with('error', 'Bank soal tidak ditemukan untuk ujian ini.');
+        }
+
         // 1. Get all students who finished the exam
         $studentExams = CbtStudentExam::where('cbt_exam_id', $exam->id)
             ->where('status', 'finished')
@@ -27,45 +31,43 @@ class CbtItemAnalysisController extends Controller
             
         $totalStudents = $studentExams->count();
         if ($totalStudents < 1) {
-            return back()->with('error', 'Belum ada data nilai untuk dianalisis.');
+            return back()->with('error', 'Belum ada data nilai untuk dianalisis. Pastikan sudah ada siswa yang menyelesaikan ujian.');
         }
 
         // 2. Identify Upper 27% and Lower 27% for Discrimination Power
         $groupSize = max(1, round($totalStudents * 0.27));
-        $upperGroupIds = $studentExams->take($groupSize)->pluck('id');
-        $lowerGroupIds = $studentExams->take(-$groupSize)->pluck('id');
+        $upperGroupIds = $studentExams->take($groupSize)->pluck('id')->toArray();
+        $lowerGroupIds = $studentExams->take(-$groupSize)->pluck('id')->toArray();
 
         $questions = $exam->bank->questions;
         $analysisData = [];
 
+        // Pre-fetch all stats in one query to avoid N+1
+        $upperIdsStr = implode(',', $upperGroupIds) ?: '0';
+        $lowerIdsStr = implode(',', $lowerGroupIds) ?: '0';
+
+        $stats = CbtStudentAnswer::whereHas('studentExam', function($sq) use ($exam) {
+                $sq->where('cbt_exam_id', $exam->id)->where('status', 'finished');
+            })
+            ->select('cbt_question_id', 
+                DB::raw('COUNT(*) as total_answered'),
+                DB::raw('SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct_count'),
+                DB::raw("SUM(CASE WHEN cbt_student_exam_id IN ($upperIdsStr) AND is_correct = 1 THEN 1 ELSE 0 END) as upper_correct"),
+                DB::raw("SUM(CASE WHEN cbt_student_exam_id IN ($lowerIdsStr) AND is_correct = 1 THEN 1 ELSE 0 END) as lower_correct")
+            )
+            ->groupBy('cbt_question_id')
+            ->get()
+            ->keyBy('cbt_question_id');
+
         foreach ($questions as $q) {
-            // Difficulty (P)
-            $correctCount = CbtStudentAnswer::whereHas('studentExam', function($sq) use ($exam) {
-                    $sq->where('cbt_exam_id', $exam->id)->where('status', 'finished');
-                })
-                ->where('cbt_question_id', $q->id)
-                ->where('is_correct', true)
-                ->count();
+            $qStats = $stats->get($q->id);
             
-            $totalAnswered = CbtStudentAnswer::whereHas('studentExam', function($sq) use ($exam) {
-                    $sq->where('cbt_exam_id', $exam->id)->where('status', 'finished');
-                })
-                ->where('cbt_question_id', $q->id)
-                ->count();
+            $correctCount = $qStats->correct_count ?? 0;
+            $totalAnswered = $qStats->total_answered ?? 0;
+            $upperCorrect = $qStats->upper_correct ?? 0;
+            $lowerCorrect = $qStats->lower_correct ?? 0;
 
             $difficulty = $totalAnswered > 0 ? $correctCount / $totalAnswered : 0;
-
-            // Discrimination (D)
-            $upperCorrect = CbtStudentAnswer::whereIn('cbt_student_exam_id', $upperGroupIds)
-                ->where('cbt_question_id', $q->id)
-                ->where('is_correct', true)
-                ->count();
-                
-            $lowerCorrect = CbtStudentAnswer::whereIn('cbt_student_exam_id', $lowerGroupIds)
-                ->where('cbt_question_id', $q->id)
-                ->where('is_correct', true)
-                ->count();
-
             $discrimination = ($upperCorrect - $lowerCorrect) / $groupSize;
 
             $analysisData[] = [

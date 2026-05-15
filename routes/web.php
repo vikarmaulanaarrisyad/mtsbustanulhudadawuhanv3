@@ -310,6 +310,7 @@ Route::group(['middleware' => ['auth']], function () {
                 // Exports
                 Route::get('/{exam}/export-excel', 'exportExcel')->name('export-excel');
                 Route::get('/{exam}/export-pdf', 'exportPdf')->name('export-pdf');
+                Route::get('/{exam}/export-rdm', 'exportRdm')->name('export-rdm');
                 Route::get('/{exam}/print-exam-cards', 'printExamCards')->name('print-exam-cards');
                 Route::get('/student-exam/{studentExam}/export-pdf', 'exportStudentPdf')->name('export-student-pdf');
                 

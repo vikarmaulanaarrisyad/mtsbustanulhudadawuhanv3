@@ -67,7 +67,10 @@ class CbtExamController extends Controller
             'duration_minutes' => $request->duration_minutes,
             'token' => strtoupper(Str::random(6)),
             'is_active' => $request->boolean('is_active'),
-            'display_result' => $request->boolean('display_result')
+            'display_result' => $request->boolean('display_result'),
+            'detect_tab_switch' => $request->boolean('detect_tab_switch'),
+            'max_violations' => $request->max_violations ?? 5,
+            'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit')
         ]);
 
         $exam->classes()->sync($request->classes);
@@ -101,7 +104,10 @@ class CbtExamController extends Controller
             'end_time' => $request->end_time,
             'duration_minutes' => $request->duration_minutes,
             'is_active' => $request->boolean('is_active'),
-            'display_result' => $request->boolean('display_result')
+            'display_result' => $request->boolean('display_result'),
+            'detect_tab_switch' => $request->boolean('detect_tab_switch'),
+            'max_violations' => $request->max_violations ?? 5,
+            'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit')
         ]);
 
         $exam->classes()->sync($request->classes);
@@ -263,5 +269,22 @@ class CbtExamController extends Controller
                   ->setPaper('a4', 'portrait');
         
         return $pdf->stream("Kartu_Ujian_{$exam->name}.pdf");
+    }
+
+    public function exportRdm(CbtExam $exam)
+    {
+        $studentExams = \App\Models\CbtStudentExam::where('cbt_exam_id', $exam->id)
+            ->where('status', 'finished')
+            ->with('student')
+            ->get();
+
+        if ($studentExams->isEmpty()) {
+            return back()->with('error', 'Belum ada data nilai untuk diekspor.');
+        }
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\CbtRdmExport($studentExams), 
+            "Format_RDM_{$exam->name}.xlsx"
+        );
     }
 }

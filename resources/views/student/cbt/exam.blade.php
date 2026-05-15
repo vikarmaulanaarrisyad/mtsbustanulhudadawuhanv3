@@ -494,8 +494,12 @@
                 </h4>
                 <ul class="text-xs text-rose-600 space-y-3 list-none font-black uppercase tracking-widest">
                     <li class="flex items-center"><i class="fas fa-lock mr-2"></i> Mode Layar Penuh</li>
-                    <li class="flex items-center"><i class="fas fa-eye mr-2"></i> Deteksi Perpindahan Tab</li>
-                    <li class="flex items-center"><i class="fas fa-ban mr-2"></i> Maksimal 3 Pelanggaran</li>
+                    @if($exam->detect_tab_switch)
+                        <li class="flex items-center"><i class="fas fa-eye mr-2"></i> Deteksi Perpindahan Tab</li>
+                        @if($exam->auto_finish_on_limit)
+                            <li class="flex items-center"><i class="fas fa-ban mr-2"></i> Maksimal {{ $exam->max_violations }} Pelanggaran</li>
+                        @endif
+                    @endif
                 </ul>
             </div>
         </div>
@@ -545,6 +549,7 @@
     const examId = {{ $exam->id }};
     const totalQuestions = {{ $exam->bank->questions->count() }};
     let currentQ = 1;
+    let isFinishing = false;
     let endTime = new Date("{{ \Carbon\Carbon::parse($exam->exam_date)->format('Y-m-d') }}T{{ $exam->end_time }}").getTime();
     let durationSeconds = {{ $exam->duration_minutes * 60 }};
     let studentStartTime = new Date("{{ \Carbon\Carbon::parse($studentExam->start_time)->format('Y-m-d\TH:i:s') }}").getTime();
@@ -659,6 +664,11 @@
     }
 
     function jumpTo(qNo) {
+        // Save current question before jumping
+        if (typeof currentQ !== 'undefined') {
+            saveCurrentQuestion(currentQ);
+        }
+
         $('.question-panel').addClass('hidden');
         $(`#q-panel-${qNo}`).removeClass('hidden');
         currentQ = qNo;
@@ -669,6 +679,19 @@
         $('.q-nav-btn').removeClass('ring-8 ring-indigo-50 border-indigo-600 scale-110');
         $(`#nav-btn-desktop-${qNo}, #nav-btn-mobile-${qNo}`).addClass('ring-8 ring-indigo-50 border-indigo-600 scale-110');
         if (window.innerWidth < 1024 && !$('#sidebar-nav').hasClass('translate-x-full')) toggleNav();
+    }
+
+    function saveCurrentQuestion(qNo) {
+        const panel = $(`#q-panel-${qNo}`);
+        const qid = panel.data('qid');
+        const type = panel.find('.options-grid, .matching-grid, textarea').length > 0; // Simple check for question content
+        
+        if (panel.find('textarea').length > 0) {
+            saveEssayAnswer(qid, qNo);
+        } else if (panel.find('.matching-select').length > 0) {
+            saveMatchingAnswer(qid, qNo);
+        }
+        // Radio/Checkbox already have onchange="saveAnswer" which is reliable
     }
 
     function nextQuestion() { if(currentQ < totalQuestions) jumpTo(currentQ + 1); }
@@ -859,6 +882,7 @@
     }
 
     function finishExam() {
+        isFinishing = true;
         Swal.fire({
             title: 'Selesai Ujian?',
             text: "Data yang sudah dikirim tidak dapat diubah kembali.",
@@ -868,14 +892,25 @@
             confirmButtonText: 'YA, SELESAI',
             cancelButtonText: 'BATAL',
             customClass: { popup: 'rounded-[3rem]' }
-        }).then((res) => { if (res.isConfirmed) $('#finish-form').submit(); });
+        }).then((res) => { 
+            if (res.isConfirmed) {
+                $('#finish-form').submit(); 
+            } else {
+                isFinishing = false;
+            }
+        });
     }
 
     function forceSubmitExam() { $('#finish-form').submit(); }
 
     function initAntiCheat() {
         document.addEventListener('contextmenu', e => e.preventDefault());
-        window.addEventListener('blur', reportViolation);
+        
+        @if($exam->detect_tab_switch)
+            window.addEventListener('blur', () => {
+                if (!isFinishing) reportViolation();
+            });
+        @endif
 
         // Prevent Refresh & Navigation (Standard Browser Prompt)
         window.addEventListener('beforeunload', function (e) {
@@ -906,8 +941,10 @@
         });
 
         document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                reportViolation();
+            if (!document.fullscreenElement && !isFinishing) {
+                @if($exam->detect_tab_switch)
+                    reportViolation();
+                @endif
                 Swal.fire({ 
                     icon: 'error', 
                     title: 'PELANGGARAN!', 

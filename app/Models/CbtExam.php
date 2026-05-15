@@ -15,6 +15,9 @@ class CbtExam extends Model
         'exam_date' => 'date',
         'is_active' => 'boolean',
         'display_result' => 'boolean',
+        'detect_tab_switch' => 'boolean',
+        'auto_finish_on_limit' => 'boolean',
+        'max_violations' => 'integer',
     ];
 
     public function bank()

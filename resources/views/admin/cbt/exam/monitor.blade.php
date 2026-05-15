@@ -117,6 +117,9 @@
                     <a href="{{ route('admin.cbt.exam.item-analysis', $exam->id) }}" class="btn btn-primary rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2">
                         <i class="fas fa-chart-bar mr-2"></i> ANALISIS SOAL
                     </a>
+                    <a href="{{ route('admin.cbt.exam.export-rdm', $exam->id) }}" class="btn btn-warning rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2">
+                        <i class="fas fa-file-excel mr-2 text-dark"></i> EKSPOR RDM
+                    </a>
                     <button class="btn btn-glass-dark rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2" onclick="openSpecialSessionModal()">
                         <i class="fas fa-plus-circle mr-2 text-warning"></i> SESI KHUSUS
                     </button>

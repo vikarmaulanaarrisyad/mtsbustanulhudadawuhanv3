@@ -163,6 +163,32 @@
                         <label class="custom-control-label text-xs text-muted font-weight-bold" for="display_result">Tampilkan Hasil Ke Siswa</label>
                     </div>
 
+                    <div class="p-3 bg-light rounded-lg mb-4">
+                        <h6 class="text-xs font-weight-bold text-primary mb-3"><i class="fas fa-shield-alt mr-1"></i> PENGATURAN KEAMANAN</h6>
+                        
+                        <div class="custom-control custom-switch mb-2">
+                            <input type="checkbox" class="custom-control-input" id="detect_tab_switch" name="detect_tab_switch" value="1" checked>
+                            <label class="custom-control-label text-xs text-muted font-weight-bold" for="detect_tab_switch">Deteksi Pindah Tab/Aplikasi</label>
+                        </div>
+
+                        <div id="violation_settings">
+                            <div class="form-group mb-2">
+                                <label class="text-[10px] font-weight-bold text-muted mb-1">BATAS PELANGGARAN</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" name="max_violations" id="max_violations" class="form-control" value="5" min="1">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">Kali</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="auto_finish_on_limit" name="auto_finish_on_limit" value="1">
+                                <label class="custom-control-label text-[10px] text-danger font-weight-bold" for="auto_finish_on_limit">Selesaikan Ujian Jika Melewati Batas</label>
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-primary btn-block shadow-lg font-weight-bold py-2 btn-premium" id="btnSubmit">
                         <i class="fas fa-save mr-2"></i> SIMPAN JADWAL UJIAN
                     </button>
@@ -438,6 +464,14 @@
             
             $('#classes').val(validClasses).trigger('change.select2').data('filtering', false);
         });
+
+        $('#detect_tab_switch').on('change', function() {
+            if($(this).is(':checked')) {
+                $('#violation_settings').slideDown();
+            } else {
+                $('#violation_settings').slideUp();
+            }
+        });
     });
 
     function resetForm() {
@@ -468,6 +502,9 @@
             $('#duration_minutes').val(data.duration_minutes);
             $('#is_active').prop('checked', data.is_active);
             $('#display_result').prop('checked', data.display_result);
+            $('#detect_tab_switch').prop('checked', data.detect_tab_switch).trigger('change');
+            $('#max_violations').val(data.max_violations);
+            $('#auto_finish_on_limit').prop('checked', data.auto_finish_on_limit);
             
             let classes = data.classes.map(c => c.id);
             $('#classes').val(classes).trigger('change');

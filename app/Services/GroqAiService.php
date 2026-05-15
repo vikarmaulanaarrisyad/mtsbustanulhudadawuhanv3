@@ -151,6 +151,7 @@ Instruksi:
 1. Gunakan Bahasa Indonesia formal yang sesuai tingkat pemahaman siswa {$jenjang}.
 2. Format output WAJIB JSON murni sesuai struktur ini: {$format}
 3. Masukkan semua soal ke dalam array 'questions'.";
+    }
     public function getCompletion(string $prompt, string $systemRole = "Anda adalah asisten AI pendidikan yang ahli dalam analisis kurikulum dan pedagogi.")
     {
         try {

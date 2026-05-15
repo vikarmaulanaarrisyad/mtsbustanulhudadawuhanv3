@@ -168,6 +168,7 @@ Instruksi Khusus:
 3. Untuk Pilihan Ganda, pastikan hanya ada satu jawaban yang benar.
 4. Pastikan soal relevan dengan isi teks.
 5. Format JSON harus mengikuti struktur ini: {$format}";
+    }
     public function getCompletion(string $prompt, string $systemRole = "Anda adalah asisten AI pendidikan yang ahli dalam analisis kurikulum dan pedagogi.")
     {
         try {

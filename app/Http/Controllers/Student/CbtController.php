@@ -161,14 +161,21 @@ class CbtController extends Controller
         if ($studentExam->status !== 'finished') {
             $studentExam->increment('violation_count');
             
-            // Force submit jika pelanggaran > 3
-            if ($studentExam->violation_count >= 3) {
+            // Check settings for auto-finish
+            if ($exam->auto_finish_on_limit && $studentExam->violation_count >= $exam->max_violations) {
                 $this->calculateScore($studentExam);
-                return response()->json(['action' => 'force_submit', 'message' => 'Ujian dihentikan paksa karena pelanggaran sistem!']);
+                return response()->json([
+                    'action' => 'force_submit', 
+                    'message' => 'Ujian dihentikan paksa karena telah mencapai batas maksimal pelanggaran (' . $exam->max_violations . ' kali)!',
+                    'violation_count' => $studentExam->violation_count
+                ]);
             }
         }
 
-        return response()->json(['message' => 'Pelanggaran dicatat']);
+        return response()->json([
+            'message' => 'Pelanggaran dicatat',
+            'violation_count' => $studentExam->violation_count
+        ]);
     }
 
     public function finish(Request $request, CbtExam $exam)

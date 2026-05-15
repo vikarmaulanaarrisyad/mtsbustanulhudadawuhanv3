@@ -17,6 +17,11 @@
                             Evaluasi kualitas soal berdasarkan data statistik nyata dari <strong>{{ $totalStudents }}</strong> peserta ujian.
                         </p>
                     </div>
+                    <div class="col-md-4 text-right">
+                        <a href="{{ route('admin.cbt.exam.export-rdm', $exam->id) }}" class="btn btn-warning rounded-pill px-4 font-weight-bold shadow-sm">
+                            <i class="fas fa-file-excel mr-2"></i> EKSPOR RDM (EXCEL)
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="header-shape-1"></div>
@@ -135,8 +140,9 @@
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-soft-primary rounded-pill px-3 font-weight-bold" 
-                                            onclick="aiAnalyze({{ $item['question']->id }}, {{ json_encode($item) }})">
+                                    <button class="btn btn-sm btn-soft-primary rounded-pill px-3 font-weight-bold btn-ai-analyze" 
+                                            data-question-id="{{ $item['question']->id }}"
+                                            data-stats="{{ json_encode($item) }}">
                                         <i class="fas fa-robot mr-1"></i> Saran AI
                                     </button>
                                 </td>
@@ -215,6 +221,12 @@
 
 @push('scripts')
 <script>
+    $(document).on('click', '.btn-ai-analyze', function() {
+        const questionId = $(this).data('question-id');
+        const stats = $(this).data('stats');
+        aiAnalyze(questionId, stats);
+    });
+
     function aiAnalyze(questionId, stats) {
         $('#selected_question_text').html(stats.question.question_text);
         $('#stat_p_label').text(stats.difficulty_label).removeClass().addClass('badge badge-pill badge-soft-' + (stats.difficulty < 0.3 ? 'danger' : (stats.difficulty > 0.7 ? 'success' : 'info')));
