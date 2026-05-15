@@ -743,6 +743,11 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/admission/ppdb/dashboard', [PpdbRegistrantController::class, 'dashboard'])->name('ppdb.admin_dashboard');
         Route::get('/admission/ppdb/data', [PpdbRegistrantController::class, 'data'])->name('ppdb.data');
         Route::get('/admission/ppdb', [PpdbRegistrantController::class, 'index'])->name('ppdb.index');
+        
+        // PPDB Committee Management
+        Route::get('/admission/ppdb/committee', [\App\Http\Controllers\Ppdb\PpdbCommitteeController::class, 'index'])->name('admin.ppdb.committee');
+        Route::post('/admission/ppdb/committee/update', [\App\Http\Controllers\Ppdb\PpdbCommitteeController::class, 'update'])->name('admin.ppdb.committee.update');
+
         Route::get('/admission/ppdb/selection', [PpdbRegistrantController::class, 'selection'])->name('ppdb.selection');
         Route::get('/admission/ppdb/re-registration', [PpdbRegistrantController::class, 'reRegistration'])->name('ppdb.re_registration');
         Route::get('/admission/ppdb/re-registration-data', [PpdbRegistrantController::class, 'reRegistrationData'])->name('ppdb.re_registration_data');

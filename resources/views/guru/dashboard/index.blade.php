@@ -275,7 +275,7 @@
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
                         @endif
-                        @can('ppdb.verify')
+                        @if(auth()->user()->can('ppdb.verify') || auth()->user()->can('ppdb.verify.berkas') || auth()->user()->can('ppdb.verify.daftar_ulang'))
                         <a href="{{ route('ppdb.scanner') }}" class="tool-btn bg-grad-indigo relative">
                             <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
                             <span class="tool-label">Verifikasi PPDB</span>
@@ -286,7 +286,7 @@
                             @endif
                             <i class="fas fa-chevron-right tool-arrow"></i>
                         </a>
-                        @endcan
+                        @endif
                         <a href="javascript:void(0)" onclick="openPermitModal()" class="tool-btn bg-grad-red">
                             <div class="tool-icon"><i class="fas fa-paper-plane"></i></div>
                             <span class="tool-label">Izin/Cuti Saya</span>

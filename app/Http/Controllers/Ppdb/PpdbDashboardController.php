@@ -9,6 +9,7 @@ use App\Models\StudentAdmission;
 use App\Models\AdmissionPhase;
 use App\Models\AdmissionType;
 use App\Models\AcademicYear;
+use App\Traits\LogsPpdbActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,8 @@ use App\Models\PpdbPaymentItem;
 
 class PpdbDashboardController extends Controller
 {
+    use LogsPpdbActivity;
+
     /**
      * Dashboard PPDB siswa.
      */
@@ -169,6 +172,13 @@ class PpdbDashboardController extends Controller
                 $registrant->save();
             }
 
+            $this->logPpdbActivity(
+                $registrant->id, 
+                'registration', 
+                'Calon siswa mendaftar melalui Portal Mandiri.',
+                'pending'
+            );
+
             DB::commit();
 
             return redirect()->to(route('ppdb.dashboard') . '#upload-section')->with('success', 'Data identitas berhasil disimpan! Silakan lengkapi berkas persyaratan di bawah.');
@@ -232,6 +242,13 @@ class PpdbDashboardController extends Controller
             if ($registrant->status === 'berkas_tidak_lengkap') {
                 $registrant->update(['status' => 'pending']);
             }
+
+            $this->logPpdbActivity(
+                $registrant->id, 
+                'upload_berkas', 
+                'Unggah berkas: ' . ($registrant::DOCUMENT_TYPES[$request->type] ?? $request->type),
+                $registrant->status
+            );
 
             return response()->json([
                 'message' => $name . ' berhasil diunggah.',
@@ -371,12 +388,19 @@ class PpdbDashboardController extends Controller
                     $path = $request->file('payment_proof')->store('ppdb/payments', 'public');
                     $registrant->update([
                         'payment_method' => 'transfer',
-                        'payment_proof' => $path,
+                        'payment_proof'  => $path,
                         'payment_amount' => $totalAmount,
                         'payment_status' => 'pending',
-                        'confirmed_at' => now(),
-                        'status' => 'daftar_ulang'
+                        'confirmed_at'   => now(),
+                        'status'         => 'daftar_ulang'
                     ]);
+
+                    $this->logPpdbActivity(
+                        $registrant->id,
+                        'submit_daftar_ulang',
+                        'Siswa mengkonfirmasi daftar ulang via Transfer Bank. Bukti pembayaran telah diunggah. Menunggu verifikasi admin.',
+                        'daftar_ulang'
+                    );
                 }
                 return redirect()->route('ppdb.dashboard')->with('success', 'Konfirmasi daftar ulang berhasil terkirim. Admin akan memverifikasi pembayaran Anda.');
             } 
@@ -385,9 +409,17 @@ class PpdbDashboardController extends Controller
                     'payment_method' => 'tunai',
                     'payment_amount' => $totalAmount,
                     'payment_status' => 'pending',
-                    'confirmed_at' => now(),
-                    'status' => 'daftar_ulang'
+                    'confirmed_at'   => now(),
+                    'status'         => 'daftar_ulang'
                 ]);
+
+                $this->logPpdbActivity(
+                    $registrant->id,
+                    'submit_daftar_ulang',
+                    'Siswa mengkonfirmasi daftar ulang via Pembayaran Tunai di sekolah. Menunggu konfirmasi dari panitia.',
+                    'daftar_ulang'
+                );
+
                 return redirect()->route('ppdb.dashboard')->with('success', 'Berhasil! Silakan lakukan pembayaran tunai di sekolah untuk menyelesaikan verifikasi.');
             }
             elseif ($request->payment_method === 'midtrans') {
@@ -405,27 +437,34 @@ class PpdbDashboardController extends Controller
                 
                 $params = [
                     'transaction_details' => [
-                        'order_id' => $orderId,
+                        'order_id'    => $orderId,
                         'gross_amount' => $totalAmount,
                     ],
                     'customer_details' => [
                         'first_name' => $registrant->nama_lengkap,
-                        'email' => $user->email,
-                        'phone' => $registrant->no_hp_ortu,
+                        'email'      => $user->email,
+                        'phone'      => $registrant->no_hp_ortu,
                     ],
                 ];
 
                 $snapToken = \Midtrans\Snap::getSnapToken($params);
 
                 $registrant->update([
-                    'payment_method' => 'midtrans',
-                    'payment_amount' => $totalAmount,
-                    'midtrans_order_id' => $orderId,
-                    'midtrans_snap_token' => $snapToken,
-                    'payment_status' => 'unpaid',
-                    'status' => 'daftar_ulang',
-                    'confirmed_at' => now(),
+                    'payment_method'     => 'midtrans',
+                    'payment_amount'     => $totalAmount,
+                    'midtrans_order_id'  => $orderId,
+                    'midtrans_snap_token'=> $snapToken,
+                    'payment_status'     => 'unpaid',
+                    'status'             => 'daftar_ulang',
+                    'confirmed_at'       => now(),
                 ]);
+
+                $this->logPpdbActivity(
+                    $registrant->id,
+                    'submit_daftar_ulang',
+                    'Siswa memulai proses daftar ulang via Midtrans (Order ID: ' . $orderId . '). Menunggu penyelesaian pembayaran.',
+                    'daftar_ulang'
+                );
 
                 return redirect()->route('ppdb.dashboard')->with('success', 'Silakan selesaikan pembayaran melalui popup Midtrans.');
             }

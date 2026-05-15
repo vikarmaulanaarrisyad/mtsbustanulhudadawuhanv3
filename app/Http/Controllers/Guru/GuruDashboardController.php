@@ -117,8 +117,11 @@ class GuruDashboardController extends Controller
  
         // PPDB Pending Count for Verifiers
         $ppdbPendingCount = 0;
-        if ($user->can('ppdb.verify')) {
-            $ppdbPendingCount = PpdbRegistrant::whereIn('status', ['pending', 'berkas_tidak_lengkap'])->count();
+        if ($user->can('ppdb.verify.berkas') || $user->can('ppdb.verify')) {
+            $ppdbPendingCount += PpdbRegistrant::whereIn('status', ['pending', 'berkas_tidak_lengkap'])->count();
+        }
+        if ($user->can('ppdb.verify.daftar_ulang')) {
+            $ppdbPendingCount += PpdbRegistrant::where('status', 'daftar_ulang')->count();
         }
 
         return view('guru.dashboard.index', compact(

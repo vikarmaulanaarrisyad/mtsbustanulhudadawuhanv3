@@ -101,6 +101,11 @@ class PpdbRegistrant extends Model
         return $this->belongsTo(AdmissionType::class);
     }
 
+    public function logs()
+    {
+        return $this->hasMany(PpdbLog::class, 'ppdb_registrant_id')->latest();
+    }
+
     public function verifier()
     {
         return $this->belongsTo(\App\Models\User::class, 'verified_by');

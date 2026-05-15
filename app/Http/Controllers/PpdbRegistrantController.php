@@ -9,6 +9,7 @@ use App\Models\AdmissionPhase;
 use App\Models\AdmissionType;
 use App\Models\AcademicYear;
 use App\Models\ClassGroup;
+use App\Traits\LogsPpdbActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 
 class PpdbRegistrantController extends Controller
 {
+    use LogsPpdbActivity;
     /**
      * Display PPDB dashboard with statistics and DataTable.
      */
@@ -217,7 +219,7 @@ class PpdbRegistrantController extends Controller
      */
     public function show($id)
     {
-        $registrant = PpdbRegistrant::with(['documents', 'admissionPhase', 'admissionType', 'verifier'])
+        $registrant = PpdbRegistrant::with(['documents', 'admissionPhase', 'admissionType', 'verifier', 'logs.user'])
             ->findOrFail($id);
 
         return response()->json(['data' => $registrant]);
@@ -249,7 +251,7 @@ class PpdbRegistrantController extends Controller
             DB::beginTransaction();
 
             $registrant = PpdbRegistrant::findOrFail($id);
-
+            
             $registrant->update([
                 'admission_phase_id' => $request->admission_phase_id,
                 'admission_type_id' => $request->admission_type_id,
@@ -264,7 +266,15 @@ class PpdbRegistrantController extends Controller
                 'nama_ibu' => $request->nama_ibu,
                 'no_hp_ortu' => $request->no_hp_ortu,
                 'alamat' => $request->alamat,
+                'catatan_verifikasi' => $request->catatan_verifikasi,
             ]);
+
+            $this->logPpdbActivity(
+                $registrant->id, 
+                'update_data', 
+                'Data pendaftar diperbarui oleh Admin.',
+                $registrant->status
+            );
 
             // Update foto
             if ($request->hasFile('foto')) {
@@ -366,6 +376,13 @@ class PpdbRegistrantController extends Controller
                 }
             }
 
+            $this->logPpdbActivity(
+                $registrant->id, 
+                'verify_admin', 
+                'Verifikasi data & status dilakukan oleh Admin: ' . strtoupper($request->status),
+                $request->status
+            );
+
             DB::commit();
 
             return response()->json([
@@ -399,6 +416,13 @@ class PpdbRegistrantController extends Controller
             $registrant->update([
                 'status' => PpdbRegistrant::STATUS_DAFTAR_ULANG_VERIFIED
             ]);
+
+            $this->logPpdbActivity(
+                $registrant->id, 
+                'verify_payment_admin', 
+                'Pembayaran daftar ulang diverifikasi oleh Admin.',
+                PpdbRegistrant::STATUS_DAFTAR_ULANG_VERIFIED
+            );
 
             return response()->json([
                 'status' => true,
@@ -791,7 +815,16 @@ class PpdbRegistrantController extends Controller
                 ]
             );
 
-            $registrant->update(['status' => PpdbRegistrant::STATUS_MOVED]);
+            $registrant->update([
+                'status' => PpdbRegistrant::STATUS_MOVED
+            ]);
+
+            $this->logPpdbActivity(
+                $registrant->id, 
+                'move_to_student', 
+                'Data pendaftar resmi dipindahkan ke Data Induk Siswa Aktif.',
+                PpdbRegistrant::STATUS_MOVED
+            );
 
             DB::commit();
 

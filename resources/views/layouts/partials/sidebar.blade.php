@@ -583,18 +583,29 @@
 
 
                 {{-- ================= PPDB ================= --}}
-                @canany(['ppdb.view', 'student-admissions.view'])
+                @canany(['ppdb.view', 'student-admissions.view', 'ppdb.verify.berkas', 'ppdb.verify.daftar_ulang'])
                     <li class="nav-header">PENERIMAAN SISWA</li>
                     <li class="nav-item {{ request()->is('ppdb*') || request()->is('admission*') ? 'menu-open' : '' }}">
                         <a href="#"
                             class="nav-link {{ request()->is('ppdb*') || request()->is('admission*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-user-plus"></i>
+                            <i class="nav-icon fas fa-user-shield text-indigo"></i>
                             <p>
                                 PPDB Online
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
+                            {{-- MENU KHUSUS VERIFIKATOR (GURU/PANITIA) --}}
+                            @canany(['ppdb.verify.berkas', 'ppdb.verify.daftar_ulang'])
+                                <li class="nav-item">
+                                    <a href="{{ route('ppdb.scanner') }}"
+                                        class="nav-link {{ request()->routeIs('ppdb.scanner') ? 'active' : '' }}">
+                                        <i class="fas fa-qrcode nav-icon text-warning"></i>
+                                        <p>Verifikasi (Panitia)</p>
+                                    </a>
+                                </li>
+                            @endcanany
+
                             @can('ppdb.view')
                                 <li class="nav-item">
                                     <a href="{{ route('ppdb.admin_dashboard') }}"
@@ -608,6 +619,13 @@
                                         class="nav-link {{ request()->is('admission/ppdb') ? 'active' : '' }}">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Data Pendaftar</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.ppdb.committee') }}"
+                                        class="nav-link {{ request()->routeIs('admin.ppdb.committee') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon text-indigo"></i>
+                                        <p>Panitia & Verifikator</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">

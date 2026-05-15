@@ -471,7 +471,7 @@
 
         {{-- PANEL VERIFIKATOR --}}
         @auth
-            @if(auth()->user()->can('ppdb.verify'))
+            @if(auth()->user()->can('ppdb.verify.berkas') || auth()->user()->can('ppdb.verify.daftar_ulang') || auth()->user()->can('ppdb.verify'))
                 <div class="verifier-panel animate-in delay-5">
                     <div class="panel-header">
                         <div class="panel-icon"><i class="fas fa-user-shield"></i></div>
@@ -482,7 +482,7 @@
                     </div>
 
                     {{-- TOMBOL KONTEKSTUAL BERDASARKAN STATUS --}}
-                    @if(in_array($registrant->status, ['pending', 'berkas_tidak_lengkap']))
+                    @if(in_array($registrant->status, ['pending', 'berkas_tidak_lengkap']) && auth()->user()->can('ppdb.verify.berkas'))
                         {{-- STATUS: PERLU VERIFIKASI BERKAS --}}
                         <label class="catatan-label"><i class="fas fa-pen-nib mr-1"></i> Catatan untuk Pendaftar:</label>
                         <textarea id="catatanVerifikasi" class="catatan-box" rows="2" placeholder="Contoh: KK tidak jelas, foto buram, dll..."></textarea>
@@ -497,7 +497,7 @@
                             <i class="fas fa-ban"></i> Tolak Pendaftaran
                         </button>
 
-                    @elseif($registrant->status === 'daftar_ulang')
+                    @elseif($registrant->status === 'daftar_ulang' && auth()->user()->can('ppdb.verify.daftar_ulang'))
                         {{-- STATUS: PERLU VERIFIKASI PEMBAYARAN --}}
                         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px;margin-bottom:12px;text-align:center;">
                             <i class="fas fa-receipt" style="font-size:1.5rem;color:#3b82f6;display:block;margin-bottom:8px;"></i>

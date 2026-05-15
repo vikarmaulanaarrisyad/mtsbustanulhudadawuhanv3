@@ -31,33 +31,52 @@
                     <div class="banner-overlay"></div>
                 </div>
 
-                {{-- STATUS STEPPER PREMIUM --}}
-                <div class="px-4 py-4 bg-white shadow-sm mb-4">
-                    <div class="ppdb-modern-stepper" id="det_stepper">
-                        <div class="step-item" id="step_1">
-                            <div class="step-circle"><i class="fas fa-edit"></i></div>
-                            <span class="step-text">Daftar</span>
-                        </div>
-                        <div class="step-connector" id="line_1"></div>
-                        <div class="step-item" id="step_2">
-                            <div class="step-circle"><i class="fas fa-user-check"></i></div>
-                            <span class="step-text">Verifikasi</span>
-                        </div>
-                        <div class="step-connector" id="line_2"></div>
-                        <div class="step-item" id="step_3">
-                            <div class="step-circle"><i class="fas fa-tasks"></i></div>
-                            <span class="step-text">Seleksi</span>
-                        </div>
-                        <div class="step-connector" id="line_3"></div>
-                        <div class="step-item" id="step_4">
-                            <div class="step-circle"><i class="fas fa-trophy"></i></div>
-                            <span class="step-text">Hasil</span>
-                        </div>
-                    </div>
+                {{-- TABS NAVIGATION --}}
+                <div class="px-4 bg-white border-bottom">
+                    <ul class="nav nav-pills nav-fill ppdb-detail-tabs py-2" id="detailTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active font-weight-bold" id="profil-tab" data-toggle="tab" href="#profil" role="tab">
+                                <i class="fas fa-user-circle mr-2"></i> PROFIL LENGKAP
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" id="riwayat-tab" data-toggle="tab" href="#riwayat" role="tab">
+                                <i class="fas fa-history mr-2"></i> RIWAYAT AKTIVITAS
+                            </a>
+                        </li>
+                    </ul>
                 </div>
 
-                <div class="px-4 pb-4">
-                    <div class="row">
+                <div class="tab-content" id="detailTabContent">
+                    {{-- TAB PROFIL --}}
+                    <div class="tab-pane fade show active" id="profil" role="tabpanel">
+                        {{-- STATUS STEPPER PREMIUM --}}
+                        <div class="px-4 py-4 bg-white shadow-sm mb-4">
+                            <div class="ppdb-modern-stepper" id="det_stepper">
+                                <div class="step-item" id="step_1">
+                                    <div class="step-circle"><i class="fas fa-edit"></i></div>
+                                    <span class="step-text">Daftar</span>
+                                </div>
+                                <div class="step-connector" id="line_1"></div>
+                                <div class="step-item" id="step_2">
+                                    <div class="step-circle"><i class="fas fa-user-check"></i></div>
+                                    <span class="step-text">Verifikasi</span>
+                                </div>
+                                <div class="step-connector" id="line_2"></div>
+                                <div class="step-item" id="step_3">
+                                    <div class="step-circle"><i class="fas fa-tasks"></i></div>
+                                    <span class="step-text">Seleksi</span>
+                                </div>
+                                <div class="step-connector" id="line_3"></div>
+                                <div class="step-item" id="step_4">
+                                    <div class="step-circle"><i class="fas fa-trophy"></i></div>
+                                    <span class="step-text">Hasil</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="px-4 pb-4">
+                            <div class="row">
                         {{-- DATA PRIBADI --}}
                         <div class="col-md-6 mb-4">
                             <div class="card border-0 shadow-sm rounded-20 overflow-hidden h-100">
@@ -173,9 +192,31 @@
                                 {{-- Berkas via JS --}}
                             </div>
                         </div>
+
+                    </div>{{-- end .row --}}
+                    </div>{{-- end .px-4.pb-4 --}}
+                    </div>{{-- end tab-pane#profil --}}
+
+                    {{-- TAB RIWAYAT --}}
+                    <div class="tab-pane fade" id="riwayat" role="tabpanel">
+                        <div class="p-4" style="max-height: 520px; overflow-y: auto;">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="font-weight-bold text-dark mb-0">
+                                    <i class="fas fa-history mr-2 text-indigo"></i> Log Aktivitas Pendaftar
+                                </h6>
+                                <span class="badge badge-pill badge-light text-muted" id="det_timeline_count">0 catatan</span>
+                            </div>
+                            <div class="ppdb-timeline" id="det_timeline">
+                                <div class="text-center py-5">
+                                    <div class="spinner-border text-indigo" style="width:2rem;height:2rem;" role="status"></div>
+                                    <p class="mt-3 text-muted small">Memuat riwayat aktivitas...</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+
+                </div>{{-- end .tab-content --}}
+            </div>{{-- end .modal-body --}}
 
             <div class="modal-footer bg-white border-0 py-4 px-4">
                 <a id="btn-print-letter" href="#" target="_blank" class="btn btn-indigo rounded-pill px-4 font-weight-bold shadow-indigo-light d-none">
@@ -225,9 +266,34 @@
     .p-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
     .p-value { font-weight: 700; color: #1e293b; font-size: 0.9rem; }
 
-    .zoom-overlay { 
-        position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); 
-        display: none; align-items: center; justify-content: center; color: #fff; border-radius: 4px;
-    }
     .ppdb-glass-card:hover .zoom-overlay { display: flex; }
+
+    /* Timeline Styling */
+    .ppdb-timeline { position: relative; padding-left: 50px; }
+    .ppdb-timeline::before { 
+        content: ''; position: absolute; left: 24px; top: 0; bottom: 0; 
+        width: 2px; background: #e2e8f0; z-index: 1;
+    }
+    .timeline-item { position: relative; margin-bottom: 30px; z-index: 2; }
+    .timeline-icon { 
+        position: absolute; left: -40px; width: 32px; height: 32px; border-radius: 50%; 
+        display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+        background: #fff; border: 2px solid #e2e8f0; color: #64748b; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .timeline-content { 
+        background: #fff; padding: 15px 20px; border-radius: 15px; 
+        border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+    .timeline-date { font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px; }
+    .timeline-title { font-size: 0.9rem; font-weight: 700; color: #1e293b; margin-bottom: 5px; }
+    .timeline-desc { font-size: 0.8rem; color: #64748b; line-height: 1.5; }
+    .timeline-user { font-size: 0.7rem; color: #4f46e5; font-weight: 700; margin-top: 10px; }
+
+    .nav-pills.ppdb-detail-tabs .nav-link { 
+        border-radius: 0; border-bottom: 3px solid transparent; color: #94a3b8; font-size: 0.8rem; letter-spacing: 0.5px;
+        padding: 12px;
+    }
+    .nav-pills.ppdb-detail-tabs .nav-link.active { 
+        background: transparent; color: #4f46e5; border-bottom-color: #4f46e5;
+    }
 </style>
