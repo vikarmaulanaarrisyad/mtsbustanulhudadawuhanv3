@@ -428,6 +428,13 @@
                                         <p>Hari Libur</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('guru.savings.index') }}"
+                                        class="nav-link {{ request()->is('guru/savings*') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Tabungan Siswa</p>
+                                    </a>
+                                </li>
                                 @can('attendance-settings.view')
                                     <li class="nav-item">
                                         <a href="{{ route('attendance-settings.index') }}"
@@ -519,6 +526,13 @@
                                 class="nav-link {{ request()->is('admin/spp/billing*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon text-success"></i>
                                 <p>Tagihan & Bayar</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.savings.index') }}"
+                                class="nav-link {{ request()->is('admin/savings*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon text-info"></i>
+                                <p>Tabungan Siswa</p>
                             </a>
                         </li>
                         <li class="nav-item">

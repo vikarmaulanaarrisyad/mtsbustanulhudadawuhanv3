@@ -70,6 +70,11 @@ class Student extends Model
         return $this->hasMany(SppBilling::class);
     }
 
+    public function savings()
+    {
+        return $this->hasOne(StudentSaving::class);
+    }
+
     // ==================== ACCESSORS ====================
 
     public function getKelasLengkapAttribute()

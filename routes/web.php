@@ -1031,7 +1031,15 @@ Route::group(['middleware' => ['auth']], function () {
         Route::resource('/holidays', HolidayController::class);
 
         Route::get('/reports/data', [AttendanceReportController::class, 'data'])->name('attendance-reports.data');
-        Route::get('/reports/print', [AttendanceReportController::class, 'print'])->name('attendance-reports.print');
+        Route::get('/reports', [AttendanceReportController::class, 'index'])->name('attendance-reports.index');
+
+        // Student Savings
+        Route::prefix('savings')->name('admin.savings.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\StudentSavingController::class, 'index'])->name('index');
+            Route::get('/data', [\App\Http\Controllers\StudentSavingController::class, 'data'])->name('data');
+            Route::post('/store', [\App\Http\Controllers\StudentSavingController::class, 'store'])->name('store');
+            Route::get('/history/{id}', [\App\Http\Controllers\StudentSavingController::class, 'history'])->name('history');
+        });
         Route::get('/live', [TeacherAttendanceController::class, 'liveMonitoring'])->name('admin.attendance.live');
         Route::resource('/reports', AttendanceReportController::class)->names('attendance-reports');
     });
@@ -1096,6 +1104,14 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/{student_id}/certificate/pdum', 'printPDUM')->name('student-grades.print_pdum');
             Route::get('/{student_id}/certificate/sknr/{target}', 'certificate')->name('student-grades.certificate');
         });
+    });
+
+    // Guru Student Savings (Wali Kelas)
+    Route::middleware(['role:Guru'])->prefix('guru/savings')->name('guru.savings.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\StudentSavingController::class, 'index'])->name('index');
+        Route::get('/data', [\App\Http\Controllers\StudentSavingController::class, 'data'])->name('data');
+        Route::post('/store', [\App\Http\Controllers\StudentSavingController::class, 'store'])->name('store');
+        Route::get('/history/{id}', [\App\Http\Controllers\StudentSavingController::class, 'history'])->name('history');
     });
 });
 
