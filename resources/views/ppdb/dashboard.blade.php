@@ -317,6 +317,72 @@
             </div>
 
             {{-- STATUS & BERKAS --}}
+            {{-- LIVE COUNTDOWN (NEW FEATURE) --}}
+            @php
+                $announcementDate = $registrant->admissionPhase->announcement_date ?? null;
+                $isFuture = $announcementDate ? $announcementDate->isFuture() : false;
+            @endphp
+
+            @if($isFuture && !in_array($registrant->status, ['diterima', 'ditolak', 'daftar_ulang', 'daftar_ulang_terverifikasi']))
+                <div class="glass-card mb-8 p-6 text-center shadow-2xl border-0 overflow-hidden" style="border-radius: 2.5rem; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: white;">
+                    <div style="position: absolute; top: -10px; right: -10px; opacity: 0.1; font-size: 5rem;"><i class="fas fa-clock"></i></div>
+                    
+                    <h6 class="font-weight-black mb-4 text-indigo-200" style="letter-spacing: 1px; font-size: 11px;">PENGUMUMAN HASIL SELEKSI</h6>
+                    
+                    <div class="d-flex justify-content-center align-items-center mb-4">
+                        <div class="countdown-unit mx-2">
+                            <div class="unit-box shadow-lg" id="days">00</div>
+                            <span class="unit-label">Hari</span>
+                        </div>
+                        <div class="countdown-unit mx-2">
+                            <div class="unit-box shadow-lg" id="hours">00</div>
+                            <span class="unit-label">Jam</span>
+                        </div>
+                        <div class="countdown-unit mx-2">
+                            <div class="unit-box shadow-lg" id="minutes">00</div>
+                            <span class="unit-label">Menit</span>
+                        </div>
+                        <div class="countdown-unit mx-2">
+                            <div class="unit-box shadow-lg" id="seconds">00</div>
+                            <span class="unit-label">Detik</span>
+                        </div>
+                    </div>
+                    
+                    <p class="small mb-0 text-indigo-300 font-weight-bold">
+                        <i class="fas fa-calendar-alt mr-1"></i> {{ $announcementDate->format('d F Y') }}
+                    </p>
+                </div>
+
+                @push('scripts')
+                <script>
+                    function updateCountdown() {
+                        const targetDate = new Date("{{ $announcementDate->format('Y-m-d H:i:s') }}").getTime();
+                        const now = new Date().getTime();
+                        const distance = targetDate - now;
+
+                        if (distance < 0) {
+                            clearInterval(countdownInterval);
+                            window.location.reload();
+                            return;
+                        }
+
+                        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                        document.getElementById("days").innerText = days.toString().padStart(2, '0');
+                        document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
+                        document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
+                        document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
+                    }
+
+                    const countdownInterval = setInterval(updateCountdown, 1000);
+                    updateCountdown();
+                </script>
+                @endpush
+            @endif
+
             @include('ppdb.status')
             
             {{-- OPTIONAL: BUTTON TO SHOW BIODATA AGAIN FOR EDITING --}}
@@ -384,38 +450,48 @@
                 </div>
             </div>
 
-            {{-- QUICK LINKS --}}
-            <div class="row mb-8 mt-4 px-2">
-                <div class="col-3 px-1">
-                    <a href="{{ route('front.achievements') }}" class="stu-quick-link">
-                        <div class="stu-quick-icon bg-soft-orange">
-                            <i class="fas fa-award text-amber-500"></i>
-                        </div>
-                        <span class="text-xs font-bold mt-2 text-slate-600">Prestasi</span>
-                    </a>
+            {{-- REGISTRATION MILESTONE (NEW FEATURE) --}}
+            <div class="glass-card mb-8 p-6 shadow-xl border-0 overflow-hidden" style="border-radius: 2rem; background: #fff;">
+                <h6 class="font-weight-black text-indigo-900 mb-6" style="letter-spacing: 0.5px;">ALUR PENDAFTARAN</h6>
+                <div class="milestone-track d-flex justify-content-between">
+                    <div class="milestone-item active">
+                        <div class="milestone-icon bg-indigo-600 text-white"><i class="fas fa-edit"></i></div>
+                        <span class="milestone-label">BIODATA</span>
+                    </div>
+                    <div class="milestone-line"></div>
+                    <div class="milestone-item">
+                        <div class="milestone-icon"><i class="fas fa-file-upload"></i></div>
+                        <span class="milestone-label">BERKAS</span>
+                    </div>
+                    <div class="milestone-line"></div>
+                    <div class="milestone-item">
+                        <div class="milestone-icon"><i class="fas fa-user-check"></i></div>
+                        <span class="milestone-label">VERIFIKASI</span>
+                    </div>
+                    <div class="milestone-line"></div>
+                    <div class="milestone-item">
+                        <div class="milestone-icon"><i class="fas fa-bullhorn"></i></div>
+                        <span class="milestone-label">HASIL</span>
+                    </div>
                 </div>
-                <div class="col-3 px-1">
-                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $setting->phone ?? '628123456789') }}" target="_blank" class="stu-quick-link">
-                        <div class="stu-quick-icon bg-soft-green">
-                            <i class="fab fa-whatsapp text-emerald-500"></i>
-                        </div>
-                        <span class="text-xs font-bold mt-2 text-slate-600">Bantuan</span>
-                    </a>
+            </div>
+
+            {{-- SUPPORT & FAQ (NEW FEATURE) --}}
+            <div class="row mb-8">
+                <div class="col-6 pr-2">
+                    <div class="glass-card p-5 h-100 shadow-lg border-0" style="border-radius: 2rem; background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);">
+                        <div class="mb-3 text-pink-500 font-size-lg"><i class="fas fa-question-circle"></i></div>
+                        <h6 class="font-weight-black text-slate-800 mb-1" style="font-size: 13px;">PANDUAN</h6>
+                        <p class="text-slate-500 small mb-0" style="font-size: 10px;">Lihat FAQ & cara daftar yang benar.</p>
+                    </div>
                 </div>
-                <div class="col-3 px-1">
-                    <a href="javascript:void(0)" class="stu-quick-link" onclick="Swal.fire({icon: 'info', title: 'Isi Biodata', text: 'Silakan lengkapi biodata terlebih dahulu.', confirmButtonColor: '#6366f1'})">
-                        <div class="stu-quick-icon bg-soft-indigo">
-                            <i class="fas fa-file-invoice text-indigo-500"></i>
+                <div class="col-6 pl-2">
+                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $setting->phone ?? '628123456789') }}" target="_blank" style="text-decoration: none;">
+                        <div class="glass-card p-5 h-100 shadow-lg border-0" style="border-radius: 2rem; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);">
+                            <div class="mb-3 text-emerald-500 font-size-lg"><i class="fab fa-whatsapp"></i></div>
+                            <h6 class="font-weight-black text-slate-800 mb-1" style="font-size: 13px;">CS PPDB</h6>
+                            <p class="text-slate-500 small mb-0" style="font-size: 10px;">Chat panitia jika ada kendala.</p>
                         </div>
-                        <span class="text-xs font-bold mt-2 text-slate-600">Berkas</span>
-                    </a>
-                </div>
-                <div class="col-3 px-1">
-                    <a href="javascript:void(0)" onclick="confirmLogout()" class="stu-quick-link">
-                        <div class="stu-quick-icon bg-soft-red">
-                            <i class="fas fa-sign-out-alt text-rose-500"></i>
-                        </div>
-                        <span class="text-xs font-bold mt-2 text-slate-600">Keluar</span>
                     </a>
                 </div>
             </div>
@@ -902,7 +978,31 @@
         padding-bottom: 140px;
         position: relative;
     }
+
+    /* Milestone Timeline */
+    .milestone-track { position: relative; padding: 10px 0; }
+    .milestone-item { display: flex; flex-direction: column; align-items: center; z-index: 2; flex: 1; }
+    .milestone-icon { 
+        width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; color: #94a3b8; 
+        display: flex; align-items: center; justify-content: center; font-size: 12px;
+        border: 2px solid #e2e8f0; transition: all 0.3s;
+    }
+    .milestone-item.active .milestone-icon { background: #6366f1; color: white; border-color: #4338ca; box-shadow: 0 5px 15px rgba(99,102,241,0.3); }
+    .milestone-label { font-size: 8px; font-weight: 900; margin-top: 8px; color: #94a3b8; letter-spacing: 0.5px; }
+    .milestone-item.active .milestone-label { color: #4338ca; }
+    .milestone-line { flex-grow: 1; height: 2px; background: #f1f5f9; align-self: flex-start; margin-top: 18px; margin-left: -15px; margin-right: -15px; }
     
+    /* Countdown Styles */
+    .countdown-unit { display: flex; flex-direction: column; align-items: center; }
+    .unit-box { 
+        width: 55px; height: 55px; background: rgba(255,255,255,0.1); 
+        border: 1px solid rgba(255,255,255,0.2); border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem; font-weight: 900; color: white;
+        backdrop-filter: blur(5px);
+    }
+    .unit-label { font-size: 8px; font-weight: 700; text-transform: uppercase; margin-top: 8px; color: #a5b4fc; letter-spacing: 1px; }
+
     @media (max-width: 768px) {
         .stu-new-header { border-radius: 0 0 40px 40px; margin-top: -25px; padding-top: 40px; }
         .stu-content-wrapper { padding-left: 15px; padding-right: 15px; }
