@@ -899,35 +899,37 @@
     }
 
     function finishExam() {
+        Swal.fire({
+            title: 'AKHIRI UJIAN?',
+            text: 'Pastikan semua jawaban telah terisi dengan benar. Anda tidak dapat kembali setelah ini.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'YA, SELESAI',
+            cancelButtonText: 'BELUM',
+            confirmButtonColor: '#e11d48',
+            customClass: {
+                popup: 'rounded-[3rem] p-10',
+                confirmButton: 'rounded-2xl px-8 py-4 font-black',
+                cancelButton: 'rounded-2xl px-8 py-4 font-black'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                isFinishing = true;
+                $('#finish-form').submit();
+            }
+        });
+    }
+
+    function forceSubmitExam() {
         isFinishing = true;
         Swal.fire({
-            title: 'Selesai Ujian?',
-            text: "Data yang sudah dikirim tidak dapat diubah kembali.",
+            title: 'UJIAN BERAKHIR',
+            text: 'Waktu habis atau terjadi pelanggaran berat. Jawaban Anda akan dikirimkan otomatis.',
             icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#4f46e5',
-            confirmButtonText: 'YA, SELESAI',
-            cancelButtonText: 'BATAL',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            timer: 3000,
             customClass: { popup: 'rounded-[3rem]' }
-        }).then((res) => { 
-            if (res.isConfirmed) {
-                const savePromise = saveCurrentQuestion(currentQ);
-                if (savePromise) {
-                    Swal.fire({
-                        title: 'Menyimpan Jawaban Terakhir...',
-                        allowOutsideClick: false,
-                        didOpen: () => Swal.showLoading(),
-                        customClass: { popup: 'rounded-[3rem]' }
-                    });
-                    savePromise.always(() => {
-                        $('#finish-form').submit();
-                    });
-                } else {
-                    $('#finish-form').submit(); 
-                }
-            } else {
-                isFinishing = false;
-            }
         });
     }
 

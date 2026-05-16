@@ -349,4 +349,29 @@ class CbtController extends Controller
 
         return $pdf->download("Sertifikat_{$exam->name}_{$student->nama_lengkap}.pdf");
     }
+
+    public function checkStatus(CbtExam $exam)
+    {
+        $student = Student::where('user_id', Auth::id())->first();
+        $studentExam = CbtStudentExam::where('cbt_exam_id', $exam->id)
+            ->where('student_id', $student->id)
+            ->first();
+
+        if (!$studentExam) {
+            return response()->json(['error' => 'No active session'], 404);
+        }
+
+        // Update presence & heartbeat
+        $studentExam->update([
+            'is_logged_in' => true,
+            'updated_at' => now()
+        ]);
+
+        return response()->json([
+            'admin_message' => $studentExam->admin_message,
+            'force_finish' => $studentExam->status === 'finished',
+            'violation_count' => $studentExam->violation_count,
+            'status' => $studentExam->status
+        ]);
+    }
 }

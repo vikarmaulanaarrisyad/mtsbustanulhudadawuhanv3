@@ -116,7 +116,7 @@
         <div class="card shadow-sm border-0 mb-4 premium-card border-left-indigo-thick">
             <div class="card-header bg-white py-3 border-bottom-0">
                 <h5 class="card-title font-weight-bold text-indigo mb-0">
-                    <span class="step-badge bg-indigo mr-2">1</span> Plotting Otomatis
+                    <i class="fas fa-magic mr-2"></i> Plotting Otomatis
                 </h5>
             </div>
             <div class="card-body pt-0">
@@ -150,29 +150,54 @@
                             <div class="form-group mb-3">
                                 <label class="text-xs font-weight-bold text-uppercase text-muted">Sesi / Hari</label>
                                 <select name="session_count" id="session_count" class="form-control rounded-pill px-3">
-                                    @for($i=1; $i<=4; $i++) <option value="{{ $i }}" {{ $i==3?'selected':'' }}>{{ $i }} Sesi</option> @endfor
+                                    @for($i=1; $i<=5; $i++) <option value="{{ $i }}" {{ $i==3?'selected':'' }}>{{ $i }} Sesi</option> @endfor
                                 </select>
                             </div>
                         </div>
                     </div>
 
+                    <div class="form-group mb-3">
+                        <label class="text-xs font-weight-bold text-uppercase text-muted">Durasi Per Sesi (Menit)</label>
+                        <input type="number" id="plotting_duration" value="90" class="form-control rounded-pill px-3" placeholder="Menit">
+                    </div>
+
                     <div id="session_times_container" class="bg-light p-3 rounded-15 mb-3">
-                        <!-- Dynamic times -->
+                        <!-- Dynamic times will show here -->
                     </div>
 
                     <div class="row mb-4">
                         <div class="col-6">
                             <label class="text-xs font-weight-bold text-muted uppercase">Jumlah Ruang</label>
-                            <input type="number" name="room_count" value="1" min="1" class="form-control form-control-sm rounded-pill px-3">
+                            <input type="number" name="room_count" value="1" min="1" class="form-control rounded-pill px-3">
                         </div>
                         <div class="col-6">
                             <label class="text-xs font-weight-bold text-muted uppercase">PC / Ruang</label>
-                            <input type="number" name="pc_per_room" value="20" min="1" class="form-control form-control-sm rounded-pill px-3">
+                            <input type="number" name="pc_per_room" value="20" min="1" class="form-control rounded-pill px-3">
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-indigo btn-block shadow-lg font-weight-bold py-2 btn-premium">
-                        <i class="fas fa-bolt mr-2"></i> JALANKAN SINKRONISASI
+                    <button type="submit" class="btn btn-indigo btn-block shadow-lg font-weight-bold py-3 btn-premium">
+                        <i class="fas fa-bolt mr-2"></i> JALANKAN PLOTTING
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- NEW: SESSION TIME CONFIGURATION (KEEP FOR INDEPENDENT UPDATE) -->
+        <div class="card shadow-sm border-0 mb-4 premium-card border-left-warning-thick">
+            <div class="card-header bg-white py-2 border-bottom-0">
+                <h6 class="card-title font-weight-bold text-warning mb-0 text-xs">
+                    <i class="fas fa-clock mr-2"></i> Update Cepat Jam Sesi
+                </h6>
+            </div>
+            <div class="card-body pt-0">
+                <form id="updateSessionTimesForm" action="{{ route('admin.cbt.session-sync.update-session-times') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="session_count" id="session_count_sync">
+                    <div id="sync_container_hidden" style="display:none"></div>
+                    <p class="text-[10px] text-muted mb-2">Jam sesi akan diperbarui otomatis saat Anda menekan tombol Simpan di bawah atau saat menjalankan Plotting.</p>
+                    <button type="submit" class="btn btn-warning btn-sm btn-block font-weight-bold py-2 btn-premium text-dark shadow-sm">
+                        <i class="fas fa-save mr-1"></i> UPDATE JAM SAJA
                     </button>
                 </form>
             </div>
@@ -311,67 +336,72 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <script>
     $(function() {
+        // 1. Inisialisasi Select2
         $('.select2').select2({ theme: 'bootstrap4' });
 
-        // AUTO DISTRIBUTE FORM
-        $('#autoDistributeForm').on('submit', function(e) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Plotting Otomatis',
-                text: "Sistem akan membagi siswa ke dalam sesi secara merata. Lanjutkan?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Jalankan!',
-                confirmButtonColor: '#6610f2'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                    $.ajax({
-                        url: $(this).attr('action'),
-                        type: 'POST',
-                        data: $(this).serialize(),
-                        success: function(res) {
-                            Swal.close();
-                            if (res.status) {
-                                Swal.fire('Berhasil!', res.message, 'success');
-                                refreshTable();
-                                setTimeout(() => location.reload(), 1500);
-                            } else {
-                                Swal.fire('Gagal', res.message, 'error');
-                            }
-                        }
-                    });
-                }
-            });
-        });
+        // 2. Fungsi Kalkulasi Waktu Berakhir
+        window.calculateEndTime = function(idx) {
+            const startVal = $(`#s_${idx}_start`).val();
+            const duration = parseInt($('#plotting_duration').val()) || 0;
+            if(startVal && duration > 0) {
+                try {
+                    const [h, m] = startVal.split(':');
+                    const date = new Date();
+                    date.setHours(parseInt(h), parseInt(m), 0);
+                    const newDate = new Date(date.getTime() + duration * 60000);
+                    const hours = String(newDate.getHours()).padStart(2, '0');
+                    const minutes = String(newDate.getMinutes()).padStart(2, '0');
+                    $(`#s_${idx}_end`).val(`${hours}:${minutes}`);
+                } catch(e) { console.error("Error calc time:", e); }
+            }
+        }
 
-        // RESET FORM
-        $('#resetForm').on('submit', function(e) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Konfirmasi Reset',
-                text: "Data penempatan siswa akan dihapus!",
-                icon: 'danger',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Reset!',
-                confirmButtonColor: '#dc3545'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: $(this).attr('action'),
-                        type: 'POST',
-                        data: $(this).serialize(),
-                        success: function(res) {
-                            Swal.fire('Berhasil!', res.message, 'success');
-                            refreshTable();
-                            setTimeout(() => location.reload(), 1000);
-                        }
-                    });
-                }
-            });
-        });
+        // 3. Fungsi Generate Input Sesi
+        window.generateSessionInputs = function() {
+            const count = parseInt($('#session_count').val()) || 0;
+            const container = $('#session_times_container');
+            const existingTimes = @json($sessionTimes);
+            
+            container.empty();
+            if (count > 0) {
+                container.append('<h6 class="text-[10px] font-weight-bold text-muted uppercase mb-3"><i class="far fa-clock mr-1"></i> Atur Jam Per Sesi</h6>');
+                
+                for (let i = 1; i <= count; i++) {
+                    let defaultStart = (i == 1 ? '07:30' : (i == 2 ? '09:30' : (i == 3 ? '13:00' : (i == 4 ? '15:00' : '07:00'))));
+                    let defaultEnd = '';
 
-        // DATATABLE
+                    if(existingTimes && Array.isArray(existingTimes)) {
+                        const found = existingTimes.find(t => t.session_number == i);
+                        if(found) {
+                            defaultStart = found.start_time.substring(0, 5);
+                            defaultEnd = found.end_time.substring(0, 5);
+                        }
+                    }
+
+                    container.append(`
+                        <div class="row g-2 mb-2 align-items-center">
+                            <div class="col-3"><span class="text-xs font-weight-bold">Sesi ${i}</span></div>
+                            <div class="col-9">
+                                <div class="input-group input-group-sm">
+                                    <input type="time" name="session_${i}_start" id="s_${i}_start" value="${defaultStart}" class="form-control rounded-left-10 time-input" data-index="${i}">
+                                    <div class="input-group-append"><span class="input-group-text bg-white border-left-0 border-right-0 text-muted px-1"><i class="fas fa-arrow-right fa-xs"></i></span></div>
+                                    <input type="time" name="session_${i}_end" id="s_${i}_end" value="${defaultEnd}" class="form-control rounded-right-10 time-input">
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                    
+                    if(!defaultEnd) window.calculateEndTime(i);
+                }
+
+                $('.time-input').on('change', function() {
+                    const idx = $(this).data('index');
+                    if(idx) window.calculateEndTime(idx);
+                });
+            }
+        }
+
+        // 4. Inisialisasi DataTable
         window.assignTable = $('#assignTable').DataTable({
             processing: true, serverSide: true, autoWidth: false,
             language: { searchPlaceholder: "Cari nama...", search: "" },
@@ -404,37 +434,109 @@
             ]
         });
 
-        $('#filter_level, #filter_class, #filter_status').on('change', refreshTable);
-        window.refreshTable = function() { window.assignTable.ajax.reload(); }
+        // 5. Event Listeners
+        $('#filter_level, #filter_class, #filter_status').on('change', function() {
+            window.assignTable.ajax.reload();
+        });
 
-        // DYNAMIC SESSION TIMES
-        function generateSessionInputs() {
+        $('#session_count').on('change', function() {
+            window.generateSessionInputs();
+        });
+
+        $('#plotting_duration').on('input change', function() {
             const count = $('#session_count').val();
-            const container = $('#session_times_container');
-            const existingTimes = @json($sessionTimes);
-            container.empty();
-            container.append('<h6 class="text-[10px] font-weight-bold text-muted uppercase mb-3"><i class="far fa-clock mr-1"></i> Jam Ujian Per Sesi</h6>');
-
-            for (let i = 1; i <= count; i++) {
-                const existing = existingTimes.find(t => t.session_number == i);
-                let defaultStart = existing ? existing.start_time.substring(0, 5) : (i == 1 ? '07:30' : (i == 2 ? '09:30' : (i == 3 ? '13:00' : '15:00')));
-                let defaultEnd = existing ? existing.end_time.substring(0, 5) : (i == 1 ? '09:00' : (i == 2 ? '11:00' : (i == 3 ? '14:30' : '16:30')));
-                
-                container.append(`
-                    <div class="row g-2 mb-2">
-                        <div class="col-4 d-flex align-items-center"><span class="text-xs font-weight-bold">Sesi ${i}</span></div>
-                        <div class="col-8">
-                            <div class="input-group input-group-sm">
-                                <input type="time" name="session_${i}_start" value="${defaultStart}" class="form-control rounded-left-10">
-                                <input type="time" name="session_${i}_end" value="${defaultEnd}" class="form-control rounded-right-10">
-                            </div>
-                        </div>
-                    </div>
-                `);
+            for(let i=1; i<=count; i++) {
+                window.calculateEndTime(i);
             }
-        }
-        $('#session_count').on('input change', generateSessionInputs);
-        generateSessionInputs();
+        });
+
+        // 6. Form Submissions
+        $('#autoDistributeForm').on('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Plotting Otomatis',
+                text: "Sistem akan membagi siswa ke dalam sesi secara merata. Lanjutkan?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Jalankan!',
+                confirmButtonColor: '#6610f2'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        success: function(res) {
+                            Swal.close();
+                            if (res.status) {
+                                Swal.fire('Berhasil!', res.message, 'success');
+                                window.assignTable.ajax.reload();
+                                setTimeout(() => location.reload(), 1500);
+                            } else {
+                                Swal.fire('Gagal', res.message, 'error');
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        $('#updateSessionTimesForm').on('submit', function(e) {
+            e.preventDefault();
+            const count = $('#session_count').val();
+            $('#session_count_sync').val(count);
+            const hidden = $('#sync_container_hidden');
+            hidden.empty();
+            for(let i=1; i<=count; i++) {
+                hidden.append(`<input type="hidden" name="session_${i}_start" value="${$(`#s_${i}_start`).val()}">`);
+                hidden.append(`<input type="hidden" name="session_${i}_end" value="${$(`#s_${i}_end`).val()}">`);
+            }
+
+            Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(res) {
+                    Swal.close();
+                    if (res.status) {
+                        Swal.fire({ icon: 'success', title: 'Berhasil', text: res.message, toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+                        window.assignTable.ajax.reload();
+                    } else {
+                        Swal.fire('Gagal', res.message, 'error');
+                    }
+                }
+            });
+        });
+
+        $('#resetForm').on('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Konfirmasi Reset',
+                text: "Data penempatan siswa akan dihapus!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Reset!',
+                confirmButtonColor: '#dc3545'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        success: function(res) {
+                            Swal.fire('Berhasil!', res.message, 'success');
+                            window.assignTable.ajax.reload();
+                            setTimeout(() => location.reload(), 1000);
+                        }
+                    });
+                }
+            });
+        });
+
+        // 7. Jalankan Inisialisasi Awal
+        window.generateSessionInputs();
     });
 </script>
 @endpush

@@ -97,6 +97,11 @@ class Student extends Model
         return $this->hasMany(TahfidzLog::class);
     }
 
+    public function cbtStudentExams()
+    {
+        return $this->hasMany(CbtStudentExam::class);
+    }
+
     // ==================== ACCESSORS ====================
 
     public function getKelasLengkapAttribute()

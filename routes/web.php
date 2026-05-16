@@ -235,6 +235,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/cbt/{exam}/save-answer', 'saveAnswer')->name('student.cbt.save-answer');
             Route::post('/cbt/{exam}/report-violation', 'reportViolation')->name('student.cbt.report-violation');
             Route::post('/cbt/{exam}/finish', 'finish')->name('student.cbt.finish');
+            Route::get('/cbt/{exam}/status', 'checkStatus')->name('student.cbt.check-status');
             Route::get('/cbt/{exam}/certificate', 'downloadCertificate')->name('student.cbt.certificate');
         });
 
@@ -315,6 +316,8 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::delete('/{exam}', 'destroy')->name('destroy');
                 Route::post('/{exam}/refresh-token', 'refreshToken')->name('refresh-token');
                 Route::get('/{exam}/monitor', 'monitor')->name('monitor');
+                Route::get('/{exam}/monitor-data', 'monitorData')->name('monitor-data');
+                Route::post('/{exam}/send-message/{studentExam}', 'sendMessage')->name('send-message');
                 Route::post('/{exam}/store-special-session', 'storeSpecialSession')->name('store-special-session');
                 Route::post('/student-exam/{studentExam}/reset', 'resetStudentExam')->name('student-exam.reset');
                 Route::post('/student-exam/{studentExam}/force-finish', 'forceFinishStudentExam')->name('student-exam.force-finish');
@@ -323,6 +326,10 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/{exam}/export-pdf', 'exportPdf')->name('export-pdf');
                 Route::get('/{exam}/export-rdm', 'exportRdm')->name('export-rdm');
                 Route::get('/{exam}/print-exam-cards', 'printExamCards')->name('print-exam-cards');
+                Route::get('/{exam}/print-attendance', 'printAttendance')->name('print-attendance');
+                Route::get('/{exam}/print-berita-acara', 'printBeritaAcara')->name('print-berita-acara');
+                Route::get('/{exam}/duty-data', 'getDutyData')->name('duty-data');
+                Route::post('/{exam}/duty-schedule', 'storeDutySchedule')->name('duty-schedule.store');
                 Route::get('/student-exam/{studentExam}/export-pdf', 'exportStudentPdf')->name('export-student-pdf');
                 
                 // AI Grading & Manual Correction
@@ -335,13 +342,15 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::post('/{exam}/question/{question}/ai-analyze', [\App\Http\Controllers\Admin\CbtItemAnalysisController::class, 'aiAnalyze'])->name('item-analysis.ai');
             });
 
-            Route::controller(\App\Http\Controllers\Admin\CbtSessionSyncController::class)->prefix('session-sync')->name('session-sync.')->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('/list-data', 'listData')->name('list-data');
-                Route::post('/sync', 'sync')->name('sync');
-                Route::post('/auto-distribute', 'autoDistribute')->name('auto-distribute');
-                Route::post('/reset', 'reset')->name('reset');
-            });
+                // Session Sync
+                Route::controller(\App\Http\Controllers\Admin\CbtSessionSyncController::class)->prefix('session-sync')->name('session-sync.')->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/data', 'listData')->name('list-data');
+                    Route::post('/sync', 'sync')->name('sync');
+                    Route::post('/auto-distribute', 'autoDistribute')->name('auto-distribute');
+                    Route::post('/reset', 'reset')->name('reset');
+                    Route::post('/update-session-times', 'updateSessionTimes')->name('update-session-times');
+                });
 
             // Ranking & Recap
             Route::get('/ranking', [\App\Http\Controllers\Admin\CbtRankingController::class, 'index'])->name('ranking.index');

@@ -55,9 +55,9 @@ class CbtSessionSyncController extends Controller
             $query->where('student_class_group_id', $request->class_group_id);
         }
         if ($request->status === 'assigned') {
-            $query->whereNotNull('cbt_session');
+            $query->whereNotNull('students.cbt_session');
         } elseif ($request->status === 'unassigned') {
-            $query->whereNull('cbt_session');
+            $query->whereNull('students.cbt_session');
         }
 
         $query->select(
@@ -78,7 +78,7 @@ class CbtSessionSyncController extends Controller
             })
             ->addColumn('waktu_sesi', function($student) {
                 if ($student->start_time && $student->end_time) {
-                    return substr($student->start_time, 0, 5) . ' - ' . substr($student->end_time, 0, 5);
+                    return \Carbon\Carbon::parse($student->start_time)->format('H:i') . ' - ' . \Carbon\Carbon::parse($student->end_time)->format('H:i');
                 }
                 return '-';
             })
@@ -244,6 +244,40 @@ class CbtSessionSyncController extends Controller
                 'message' => "Berhasil mereset penempatan untuk {$count} siswa."
             ]);
         } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateSessionTimes(Request $request)
+    {
+        $request->validate([
+            'session_count' => 'required|integer|min:1|max:10',
+        ]);
+
+        try {
+            DB::beginTransaction();
+            \App\Models\CbtSessionTime::query()->delete();
+            
+            for ($i = 1; $i <= $request->session_count; $i++) {
+                if ($request->has("session_{$i}_start") && $request->has("session_{$i}_end")) {
+                    \App\Models\CbtSessionTime::create([
+                        'session_number' => $i,
+                        'start_time' => $request->input("session_{$i}_start"),
+                        'end_time' => $request->input("session_{$i}_end"),
+                    ]);
+                }
+            }
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Konfigurasi waktu sesi berhasil diperbarui.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => 'Gagal: ' . $e->getMessage()
