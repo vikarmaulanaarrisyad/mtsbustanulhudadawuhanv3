@@ -20,6 +20,8 @@ class CbtExam extends Model
         'max_violations' => 'integer',
         'passing_grade' => 'integer',
         'generate_certificate' => 'boolean',
+        'wave' => 'integer',
+        'session' => 'integer',
     ];
 
     public function bank()

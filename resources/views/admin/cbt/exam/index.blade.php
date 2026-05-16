@@ -139,6 +139,37 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-group mb-3">
+                                <label class="text-[10px] font-weight-bold text-muted uppercase">Gelombang</label>
+                                <select name="wave" id="wave" class="form-control form-control-sm">
+                                    <option value="1">G1</option>
+                                    <option value="2">G2</option>
+                                    <option value="3">G3</option>
+                                    <option value="4">G4</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3">
+                                <label class="text-[10px] font-weight-bold text-muted uppercase">Sesi</label>
+                                <select name="session" id="session" class="form-control form-control-sm">
+                                    <option value="1">Sesi 1</option>
+                                    <option value="2">Sesi 2</option>
+                                    <option value="3">Sesi 3</option>
+                                    <option value="4">Sesi 4</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group mb-3">
+                                <label class="text-[10px] font-weight-bold text-muted uppercase">Ruang</label>
+                                <input type="text" name="room" id="room" class="form-control form-control-sm" placeholder="R1">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group mb-3">
                         <label class="text-xs font-weight-bold text-muted">DURASI (MENIT)</label>
                         <input type="number" name="duration_minutes" id="duration_minutes" class="form-control form-control-sm rounded-pill px-3" required min="10" max="300" value="90">
@@ -369,6 +400,11 @@
                     return `<div class="d-flex flex-column">
                                 <span class="badge badge-soft-info px-2 py-1 rounded mb-1" style="width: fit-content;"><i class="far fa-calendar-alt mr-1"></i> ${formattedDate}</span>
                                 <small class="text-muted font-weight-bold"><i class="far fa-clock mr-1"></i> ${row.start_time} - ${row.end_time}</small>
+                                <div class="mt-1">
+                                    <span class="badge badge-light text-xs">G${row.wave || 1}</span>
+                                    <span class="badge badge-light text-xs">S${row.session || 1}</span>
+                                    ${row.room ? `<span class="badge badge-light text-xs">${row.room}</span>` : ''}
+                                </div>
                                 <small class="text-info mt-1" style="font-size: 0.7rem;"><i class="fas fa-hourglass-half mr-1"></i> ${row.duration_minutes} Menit</small>
                             </div>`; 
                 }},
@@ -515,6 +551,9 @@
             $('#start_time').val(data.start_time);
             $('#end_time').val(data.end_time);
             $('#duration_minutes').val(data.duration_minutes);
+            $('#wave').val(data.wave || 1);
+            $('#session').val(data.session || 1);
+            $('#room').val(data.room);
             $('#is_active').prop('checked', data.is_active);
             $('#display_result').prop('checked', data.display_result);
             $('#generate_certificate').prop('checked', data.generate_certificate);

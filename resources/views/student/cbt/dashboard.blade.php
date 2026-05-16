@@ -34,8 +34,16 @@
 
                 <div class="flex items-center space-x-4">
                     <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-[2rem] border border-white/10 text-center shadow-2xl">
+                        <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Gelombang</span>
+                        <span class="text-sm font-black text-white">G{{ $student->cbt_wave ?? 1 }}</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-[2rem] border border-white/10 text-center shadow-2xl">
+                        <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Sesi Ujian</span>
+                        <span class="text-sm font-black text-white">Sesi {{ $student->cbt_session ?? 1 }}</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-[2rem] border border-white/10 text-center shadow-2xl">
                         <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Tahun Pelajaran</span>
-                        <span class="text-sm font-black text-white">{{ $student->academicYear->year ?? '-' }}</span>
+                        <span class="text-sm font-black text-white">{{ $student->academicYear->academic_year ?? '-' }}</span>
                     </div>
                 </div>
             </div>

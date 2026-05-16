@@ -26,6 +26,8 @@ class Student extends Model
         'tanggal_masuk' => 'date',
         'tanggal_keluar' => 'date',
         'is_active' => 'boolean',
+        'cbt_wave' => 'integer',
+        'cbt_session' => 'integer',
     ];
 
     // ==================== RELATIONSHIPS ====================
