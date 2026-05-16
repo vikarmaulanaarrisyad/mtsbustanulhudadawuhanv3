@@ -28,8 +28,12 @@ class CbtController extends Controller
 
         $activeExams = CbtExam::where('is_active', true)
             ->where('exam_date', $today)
-            ->where('wave', $student->cbt_wave)
-            ->where('session', $student->cbt_session)
+            ->where(function($q) use ($student) {
+                $q->whereNull('wave')->orWhere('wave', 0)->orWhere('wave', $student->cbt_wave);
+            })
+            ->where(function($q) use ($student) {
+                $q->whereNull('session')->orWhere('session', 0)->orWhere('session', $student->cbt_session);
+            })
             ->where(function($query) use ($student) {
                 $query->where(function($q) use ($student) {
                     $q->where('exam_mode', 'all_class')

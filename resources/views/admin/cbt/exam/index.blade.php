@@ -32,13 +32,13 @@
 
 <!-- STATISTICS WIDGETS -->
 <div class="row mb-4 animate__animated animate__fadeInUp">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm info-card overflow-hidden" style="border-radius: 12px; border-left: 5px solid #007bff !important;">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm info-card overflow-hidden h-100" style="border-radius: 12px; border-left: 5px solid #007bff !important;">
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Total Jadwal</p>
-                        <h2 class="font-weight-bold mb-0 text-primary counter-value" id="stat_total">{{\App\Models\CbtExam::count()}}</h2>
+                        <h2 class="font-weight-bold mb-0 text-primary">{{\App\Models\CbtExam::count()}}</h2>
                     </div>
                     <div class="icon-shape bg-soft-primary rounded-circle p-3">
                         <i class="fas fa-list text-primary fa-lg"></i>
@@ -50,13 +50,13 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm info-card overflow-hidden" style="border-radius: 12px; border-left: 5px solid #28a745 !important;">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm info-card overflow-hidden h-100" style="border-radius: 12px; border-left: 5px solid #28a745 !important;">
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Jadwal Aktif</p>
-                        <h2 class="font-weight-bold mb-0 text-success counter-value" id="stat_active">{{\App\Models\CbtExam::where('is_active', true)->count()}}</h2>
+                        <h2 class="font-weight-bold mb-0 text-success">{{\App\Models\CbtExam::where('is_active', true)->count()}}</h2>
                     </div>
                     <div class="icon-shape bg-soft-success rounded-circle p-3">
                         <i class="fas fa-check-circle text-success fa-lg"></i>
@@ -68,23 +68,38 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm info-card overflow-hidden" style="border-radius: 12px; border-left: 5px solid #dc3545 !important;">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm info-card overflow-hidden h-100" style="border-radius: 12px; border-left: 5px solid #6610f2 !important;">
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Jadwal Ditutup</p>
-                        <h2 class="font-weight-bold mb-0 text-danger counter-value" id="stat_inactive">{{\App\Models\CbtExam::where('is_active', false)->count()}}</h2>
+                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Tanpa Sesi</p>
+                        @php
+                            $activeYearId = \App\Models\AcademicYear::where('current_semester', 1)->first()->id ?? 0;
+                            $unassigned = \App\Models\Student::where('academic_year_id', $activeYearId)->whereNull('cbt_session')->count();
+                        @endphp
+                        <h2 class="font-weight-bold mb-0 text-indigo">{{ number_format($unassigned) }}</h2>
                     </div>
-                    <div class="icon-shape bg-soft-danger rounded-circle p-3">
-                        <i class="fas fa-times-circle text-danger fa-lg"></i>
+                    <div class="icon-shape bg-soft-indigo rounded-circle p-3">
+                        <i class="fas fa-user-clock text-indigo fa-lg"></i>
                     </div>
                 </div>
                 <div class="progress progress-xs mt-3 bg-light">
-                    <div class="progress-bar bg-danger" style="width: 100%"></div>
+                    <div class="progress-bar bg-indigo" style="width: 100%"></div>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="col-md-3 text-center">
+        <a href="{{ route('admin.cbt.session-sync.index') }}" class="card border-0 shadow-sm info-card overflow-hidden h-100 bg-slate-900 text-white text-decoration-none group" style="border-radius: 12px;">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center p-3">
+                <div class="icon-shape bg-white/10 rounded-circle mb-2 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-sync-alt text-warning fa-lg"></i>
+                </div>
+                <h6 class="font-weight-black mb-1 uppercase tracking-wider text-xs">Sinkron Sesi</h6>
+                <p class="text-[10px] opacity-70 mb-0">Klik untuk Atur Sesi Otomatis</p>
+            </div>
+        </a>
     </div>
 </div>
 
@@ -144,6 +159,7 @@
                             <div class="form-group mb-3">
                                 <label class="text-[10px] font-weight-bold text-muted uppercase">Gelombang</label>
                                 <select name="wave" id="wave" class="form-control form-control-sm">
+                                    <option value="">Semua Gel</option>
                                     <option value="1">G1</option>
                                     <option value="2">G2</option>
                                     <option value="3">G3</option>
@@ -155,6 +171,7 @@
                             <div class="form-group mb-3">
                                 <label class="text-[10px] font-weight-bold text-muted uppercase">Sesi</label>
                                 <select name="session" id="session" class="form-control form-control-sm">
+                                    <option value="">Semua Sesi</option>
                                     <option value="1">Sesi 1</option>
                                     <option value="2">Sesi 2</option>
                                     <option value="3">Sesi 3</option>
@@ -165,7 +182,8 @@
                         <div class="col-4">
                             <div class="form-group mb-3">
                                 <label class="text-[10px] font-weight-bold text-muted uppercase">Ruang</label>
-                                <input type="text" name="room" id="room" class="form-control form-control-sm" placeholder="R1">
+                                <input type="text" name="room" id="room" class="form-control form-control-sm" placeholder="Semua Ruang">
+                                <small class="text-[9px] text-muted">Kosongkan jika semua ruang</small>
                             </div>
                         </div>
                     </div>
@@ -401,9 +419,9 @@
                                 <span class="badge badge-soft-info px-2 py-1 rounded mb-1" style="width: fit-content;"><i class="far fa-calendar-alt mr-1"></i> ${formattedDate}</span>
                                 <small class="text-muted font-weight-bold"><i class="far fa-clock mr-1"></i> ${row.start_time} - ${row.end_time}</small>
                                 <div class="mt-1">
-                                    <span class="badge badge-light text-xs">G${row.wave || 1}</span>
-                                    <span class="badge badge-light text-xs">S${row.session || 1}</span>
-                                    ${row.room ? `<span class="badge badge-light text-xs">${row.room}</span>` : ''}
+                                    <span class="badge badge-light text-xs">${row.wave ? 'G'+row.wave : 'Semua Gel'}</span>
+                                    <span class="badge badge-light text-xs">${row.session ? 'S'+row.session : 'Semua Sesi'}</span>
+                                    <span class="badge badge-light text-xs">${row.room ? row.room : 'Semua Ruang'}</span>
                                 </div>
                                 <small class="text-info mt-1" style="font-size: 0.7rem;"><i class="fas fa-hourglass-half mr-1"></i> ${row.duration_minutes} Menit</small>
                             </div>`; 
@@ -551,8 +569,8 @@
             $('#start_time').val(data.start_time);
             $('#end_time').val(data.end_time);
             $('#duration_minutes').val(data.duration_minutes);
-            $('#wave').val(data.wave || 1);
-            $('#session').val(data.session || 1);
+            $('#wave').val(data.wave || '');
+            $('#session').val(data.session || '');
             $('#room').val(data.room);
             $('#is_active').prop('checked', data.is_active);
             $('#display_result').prop('checked', data.display_result);
