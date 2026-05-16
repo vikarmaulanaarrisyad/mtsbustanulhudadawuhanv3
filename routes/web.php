@@ -335,6 +335,14 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::post('/{exam}/question/{question}/ai-analyze', [\App\Http\Controllers\Admin\CbtItemAnalysisController::class, 'aiAnalyze'])->name('item-analysis.ai');
             });
 
+            Route::controller(\App\Http\Controllers\Admin\CbtSessionSyncController::class)->prefix('session-sync')->name('session-sync.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/list-data', 'listData')->name('list-data');
+                Route::post('/sync', 'sync')->name('sync');
+                Route::post('/auto-distribute', 'autoDistribute')->name('auto-distribute');
+                Route::post('/reset', 'reset')->name('reset');
+            });
+
             // Ranking & Recap
             Route::get('/ranking', [\App\Http\Controllers\Admin\CbtRankingController::class, 'index'])->name('ranking.index');
         });

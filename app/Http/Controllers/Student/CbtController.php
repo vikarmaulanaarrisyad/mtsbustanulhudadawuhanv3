@@ -23,6 +23,8 @@ class CbtController extends Controller
         // Ambil ujian yang sedang aktif untuk kelas siswa ini pada hari ini
         $today = Carbon::today()->toDateString();
         $now = Carbon::now()->toTimeString();
+        
+        $sessionTime = \App\Models\CbtSessionTime::where('session_number', $student->cbt_session)->first();
 
         $activeExams = CbtExam::where('is_active', true)
             ->where('exam_date', $today)
@@ -69,7 +71,7 @@ class CbtController extends Controller
         $stats['class_rank'] = $myRank !== false ? $myRank + 1 : '-';
         $stats['total_students'] = Student::where('student_class_group_id', $student->student_class_group_id)->count();
 
-        return view('student.cbt.dashboard', compact('activeExams', 'student', 'stats'));
+        return view('student.cbt.dashboard', compact('activeExams', 'student', 'stats', 'sessionTime'));
     }
 
     public function join(Request $request, CbtExam $exam)
@@ -82,13 +84,26 @@ class CbtController extends Controller
             return back()->with('error', 'Token Ujian tidak valid!');
         }
 
-        // Validasi Waktu
+        // Validasi Waktu berdasarkan Sesi Siswa
+        $sessionTime = \App\Models\CbtSessionTime::where('session_number', $student->cbt_session)->first();
         $now = Carbon::now();
-        if ($now->toTimeString() < $exam->start_time) {
-            return back()->with('error', 'Ujian belum dimulai.');
-        }
-        if ($now->toTimeString() > $exam->end_time) {
-            return back()->with('error', 'Waktu ujian sudah berakhir.');
+        $currentTime = $now->toTimeString();
+
+        if ($sessionTime) {
+            if ($currentTime < $sessionTime->start_time) {
+                return back()->with('error', "Ujian untuk Sesi {$student->cbt_session} belum dimulai. Dimulai pukul {$sessionTime->start_time}.");
+            }
+            if ($currentTime > $sessionTime->end_time) {
+                return back()->with('error', "Waktu untuk Sesi {$student->cbt_session} sudah berakhir.");
+            }
+        } else {
+            // Fallback ke waktu ujian jika tidak ada setting sesi khusus
+            if ($currentTime < $exam->start_time) {
+                return back()->with('error', 'Ujian belum dimulai.');
+            }
+            if ($currentTime > $exam->end_time) {
+                return back()->with('error', 'Waktu ujian sudah berakhir.');
+            }
         }
 
         // Cek apakah sudah pernah mulai

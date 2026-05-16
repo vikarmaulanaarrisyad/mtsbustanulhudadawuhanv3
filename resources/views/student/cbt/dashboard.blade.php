@@ -38,12 +38,15 @@
                         <span class="text-sm font-black text-white">G{{ $student->cbt_wave ?? 1 }}</span>
                     </div>
                     <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-[2rem] border border-white/10 text-center shadow-2xl">
-                        <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Sesi Ujian</span>
+                        <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Sesi & Waktu</span>
                         <span class="text-sm font-black text-white">Sesi {{ $student->cbt_session ?? 1 }}</span>
+                        @if(isset($sessionTime))
+                            <span class="block text-[8px] font-bold text-white/70 mt-1">({{ substr($sessionTime->start_time, 0, 5) }} - {{ substr($sessionTime->end_time, 0, 5) }})</span>
+                        @endif
                     </div>
                     <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-[2rem] border border-white/10 text-center shadow-2xl">
-                        <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Tahun Pelajaran</span>
-                        <span class="text-sm font-black text-white">{{ $student->academicYear->academic_year ?? '-' }}</span>
+                        <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Ruang</span>
+                        <span class="text-sm font-black text-white">{{ $student->cbt_room ?? '-' }}</span>
                     </div>
                 </div>
             </div>

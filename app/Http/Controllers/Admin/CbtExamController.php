@@ -275,7 +275,9 @@ class CbtExamController extends Controller
             $setting->headmaster_nip = $headmaster->nip;
         }
 
-        $pdf = Pdf::loadView('admin.cbt.exam.export.exam_cards_pdf', compact('exam', 'students', 'setting'))
+        $sessionTimes = \App\Models\CbtSessionTime::all()->keyBy('session_number');
+        
+        $pdf = Pdf::loadView('admin.cbt.exam.export.exam_cards_pdf', compact('exam', 'students', 'setting', 'sessionTimes'))
                   ->setPaper('a4', 'portrait');
         
         return $pdf->stream("Kartu_Ujian_{$exam->name}.pdf");

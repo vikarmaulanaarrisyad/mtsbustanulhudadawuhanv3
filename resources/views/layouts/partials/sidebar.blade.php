@@ -850,6 +850,13 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="{{ route('admin.cbt.session-sync.index') }}"
+                            class="nav-link {{ request()->is('cbt/session-sync*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-sync-alt text-warning"></i>
+                            <p>Sinkron Sesi & Gel</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{{ route('admin.cbt.ranking.index') }}"
                             class="nav-link {{ request()->is('cbt/ranking*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-trophy"></i>
