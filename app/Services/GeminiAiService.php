@@ -20,34 +20,46 @@ class GeminiAiService
     }
 
     /**
-     * Generate questions from provided text.
+     * Generate questions from provided text and/or image.
      *
-     * @param string $text The source material
-     * @param string $type Question type (pilihan_ganda or essay)
+     * @param string|null $text The source material
+     * @param string $type Question type (pilihan_ganda, ganda_komplek, penjodohan, essay, uraian)
      * @param int $count Number of questions to generate
+     * @param string|null $imagePath Path to uploaded image (optional)
      * @return array
      */
-    public function generateQuestions(string $text, string $type = 'pilihan_ganda', int $count = 5, $classLevel = null)
+    public function generateQuestions(string $text = null, string $type = 'pilihan_ganda', int $count = 5, $classLevel = null, string $imagePath = null)
     {
         if (!$this->apiKey) {
-            throw new \Exception('Gemini API Key not configured. Please add GEMINI_API_KEY to your .env file.');
+            throw new \Exception('Gemini API Key not configured.');
         }
 
-        $prompt = $this->buildPrompt($text, $type, $count, $classLevel);
+        $prompt = $this->buildPrompt($text ?? 'Analisis gambar yang dilampirkan.', $type, $count, $classLevel);
 
+        $parts = [['text' => $prompt]];
+
+        // Add image part if provided
+        if ($imagePath && file_exists($imagePath)) {
+            $imageData = base64_encode(file_get_contents($imagePath));
+            $mimeType = mime_content_type($imagePath);
+            $parts[] = [
+                'inline_data' => [
+                    'mime_type' => $mimeType,
+                    'data' => $imageData
+                ]
+            ];
+        }
 
         try {
             $response = Http::post("{$this->apiUrl}?key={$this->apiKey}", [
                 'contents' => [
                     [
-                        'parts' => [
-                            ['text' => $prompt]
-                        ]
+                        'parts' => $parts
                     ]
                 ],
                 'generationConfig' => [
                     'response_mime_type' => 'application/json',
-                    'temperature' => 0.7,
+                    'temperature' => 0.8,
                     'topK' => 40,
                     'topP' => 0.95,
                     'maxOutputTokens' => 8192,
@@ -62,14 +74,13 @@ class GeminiAiService
             $result = $response->json();
             $content = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
             
-            // Clean up JSON if it contains markdown markers
+            // Clean up JSON
             $content = preg_replace('/^```json\s*/', '', $content);
             $content = preg_replace('/\s*```$/', '', $content);
             $content = trim($content);
             
             $data = json_decode($content, true);
             
-            // Ensure we return a flat array of questions
             return isset($data['questions']) ? $data['questions'] : $data;
 
         } catch (\Exception $e) {
@@ -191,5 +202,19 @@ Instruksi Khusus:
             Log::error('Gemini getCompletion error: ' . $e->getMessage());
             throw $e;
         }
+    }
+    /**
+     * Generate an image prompt based on the question text.
+     */
+    public function generateImagePrompt(string $questionText): string
+    {
+        $prompt = "Berdasarkan pertanyaan ujian berikut, buatkan 1 baris prompt gambar dalam Bahasa Inggris yang sangat deskriptif untuk diinputkan ke AI Image Generator (seperti DALL-E atau Stable Diffusion). 
+        Fokus pada objek utama, gaya ilustrasi pendidikan yang bersih, dan latar belakang putih/netral.
+        
+        Pertanyaan: {$questionText}
+        
+        Kembalikan HANYA teks prompt dalam Bahasa Inggris.";
+
+        return $this->getCompletion($prompt, "Anda adalah ahli desain instruksional yang mahir membuat prompt gambar untuk materi edukasi.");
     }
 }

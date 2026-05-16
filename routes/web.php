@@ -301,6 +301,7 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::post('/{bank}/upload-images', 'bulkUploadImages')->name('uploadImages');
                 // AI Generator
                 Route::post('/{bank}/ai-generate', 'generateAiQuestions')->name('ai_generate');
+                Route::post('/{bank}/ai-generate-image', 'generateQuestionImage')->name('ai_generate_image');
                 Route::post('/{bank}/ai-save', 'saveAiQuestions')->name('ai_save');
             });
 

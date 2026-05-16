@@ -265,7 +265,7 @@
                                                   class="w-full p-10 text-xl font-bold text-slate-800 focus:ring-0 border-0 placeholder:text-slate-300" 
                                                   placeholder="Tuliskan jawaban lengkap Anda di sini..." 
                                                   rows="10"
-                                                  oninput="updateNavColorLocal({{ $index + 1 }})"
+                                                  oninput="updateNavColorLocal({{ $index + 1 }}); debouncedSaveEssay({{ $q->id }}, {{ $index + 1 }})"
                                                   onblur="saveEssayAnswer({{ $q->id }}, {{ $index + 1 }})">{{ $answers->get($q->id)->answer_text ?? '' }}</textarea>
                                     </div>
                                 @endif
@@ -637,7 +637,7 @@
         const enterExam = () => {
             $('#pre-exam-screen').addClass('hidden');
             $('#cbt-engine').removeClass('hidden');
-            jumpTo(1);
+            jumpTo({{ $studentExam->last_question_index ?? 1 }});
             startTimer();
             initAntiCheat();
             initAIProctoring();
@@ -667,6 +667,12 @@
         // Save current question before jumping
         if (typeof currentQ !== 'undefined') {
             saveCurrentQuestion(currentQ);
+        } else {
+            // If it's the first jump (resume), we should still notify the server of current index
+            $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
+                _token: '{{ csrf_token() }}',
+                last_question_index: qNo
+            });
         }
 
         $('.question-panel').addClass('hidden');
@@ -724,7 +730,8 @@
         $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
             _token: '{{ csrf_token() }}',
             question_id: qid,
-            is_doubtful: isChecked ? 1 : 0
+            is_doubtful: isChecked ? 1 : 0,
+            last_question_index: qNo
         }).done(() => {
             const btn = $(`#nav-btn-desktop-${qNo}, #nav-btn-mobile-${qNo}`);
             if (isChecked) {
@@ -769,7 +776,8 @@
         let data = { 
             _token: '{{ csrf_token() }}', 
             question_id: questionId, 
-            is_doubtful: isDoubt ? 1 : 0 
+            is_doubtful: isDoubt ? 1 : 0,
+            last_question_index: qNo
         };
 
         if(isMultiple) {
@@ -833,7 +841,8 @@
             _token: '{{ csrf_token() }}',
             question_id: questionId,
             matching_answers: answers,
-            is_doubtful: isDoubt ? 1 : 0
+            is_doubtful: isDoubt ? 1 : 0,
+            last_question_index: qNo
         }).done(() => {
             showSaveIndicator();
             updateGlobalProgress();
@@ -848,6 +857,14 @@
         }
     }
 
+    let essayTimer;
+    function debouncedSaveEssay(questionId, qNo) {
+        clearTimeout(essayTimer);
+        essayTimer = setTimeout(() => {
+            saveEssayAnswer(questionId, qNo);
+        }, 2000); // Auto save after 2 seconds of inactivity
+    }
+
     function saveEssayAnswer(questionId, qNo) {
         const panel = $(`#q-panel-${qNo}`);
         const isDoubt = panel.find('.doubt-checkbox').is(':checked');
@@ -857,16 +874,6 @@
 
         const text = $(`textarea[name="answer_${questionId}"]`).val();
         
-        return $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
-            _token: '{{ csrf_token() }}',
-            question_id: questionId,
-            answer_text: text,
-            is_doubtful: isDoubt ? 1 : 0
-        }).done(() => {
-            showSaveIndicator();
-            updateGlobalProgress();
-        });
-
         const btn = $(`#nav-btn-desktop-${qNo}, #nav-btn-mobile-${qNo}`);
         if (text.trim() !== '') {
             btn.removeClass('bg-slate-50 border-transparent text-slate-300');
@@ -878,6 +885,17 @@
         } else {
             btn.removeClass('bg-indigo-600 bg-amber-500 shadow-amber-200 animate-pulse text-white').addClass('bg-slate-50 border-slate-100 text-slate-300');
         }
+
+        return $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
+            _token: '{{ csrf_token() }}',
+            question_id: questionId,
+            answer_text: text,
+            is_doubtful: isDoubt ? 1 : 0,
+            last_question_index: qNo
+        }).done(() => {
+            showSaveIndicator();
+            updateGlobalProgress();
+        });
     }
 
     function finishExam() {

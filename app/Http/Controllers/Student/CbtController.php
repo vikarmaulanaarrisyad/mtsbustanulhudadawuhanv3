@@ -141,15 +141,22 @@ class CbtController extends Controller
         if ($request->has('answer_text')) $data['answer_text'] = $request->answer_text;
         if ($request->has('is_doubtful')) $data['is_doubtful'] = $request->is_doubtful;
 
-        $answer = CbtStudentAnswer::updateOrCreate(
-            [
-                'cbt_student_exam_id' => $studentExam->id,
-                'cbt_question_id' => $request->question_id
-            ],
-            $data
-        );
+        if ($request->has('last_question_index')) {
+            $studentExam->update(['last_question_index' => $request->last_question_index]);
+        }
 
-        return response()->json(['message' => 'Jawaban disimpan', 'data' => $answer]);
+        if ($request->has('question_id')) {
+            $answer = CbtStudentAnswer::updateOrCreate(
+                [
+                    'cbt_student_exam_id' => $studentExam->id,
+                    'cbt_question_id' => $request->question_id
+                ],
+                $data
+            );
+            return response()->json(['message' => 'Jawaban disimpan', 'data' => $answer]);
+        }
+
+        return response()->json(['message' => 'Progress diperbarui']);
     }
 
     public function reportViolation(Request $request, CbtExam $exam)

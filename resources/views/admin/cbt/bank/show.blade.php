@@ -558,8 +558,18 @@
                     </div>
                     
                     <div class="form-group mb-4">
-                        <label class="form-label-premium">MATERI / SUMBER TEKS (MIN. 50 KARAKTER)</label>
-                        <textarea id="aiSourceText" class="form-control premium-input" rows="8" placeholder="Contoh: Ekosistem adalah suatu sistem ekologi yang terbentuk oleh hubungan timbal balik tak terpisahkan antara makhluk hidup dengan lingkungannya..."></textarea>
+                        <label class="form-label-premium">MATERI / SUMBER TEKS</label>
+                        <textarea id="aiSourceText" class="form-control premium-input" rows="5" placeholder="Tempelkan materi teks di sini..."></textarea>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label-premium">ATAU UNGGAH GAMBAR (FOTO BUKU/SOAL)</label>
+                        <div class="custom-file-premium">
+                            <input type="file" id="aiSourceImage" class="d-none" accept="image/*">
+                            <label for="aiSourceImage" class="file-label-box" id="aiSourceImageLabel">
+                                <i class="fas fa-camera mr-2 text-muted"></i> <span>Ambil Foto atau Pilih Gambar...</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div class="row">
@@ -567,8 +577,11 @@
                             <div class="form-group mb-4">
                                 <label class="form-label-premium">TIPE SOAL</label>
                                 <select id="aiQuestionType" class="form-control premium-select">
-                                    <option value="pilihan_ganda">Pilihan Ganda (4 Opsi)</option>
-                                    <option value="essay">Essay / Uraian</option>
+                                    <option value="pilihan_ganda">Pilihan Ganda (1 Jawaban)</option>
+                                    <option value="ganda_komplek">Ganda Kompleks (Multiple)</option>
+                                    <option value="penjodohan">Penjodohan (Matching)</option>
+                                    <option value="essay">Essay Singkat</option>
+                                    <option value="uraian">Uraian Panjang</option>
                                 </select>
                             </div>
                         </div>
@@ -986,33 +999,50 @@ function generateQuestions() {
     const text = $('#aiSourceText').val();
     const type = $('#aiQuestionType').val();
     const count = $('#aiQuestionCount').val();
+    const imageFile = $('#aiSourceImage')[0].files[0];
 
-    if (text.length < 50) {
-        Swal.fire({ icon: 'warning', title: 'Teks Terlalu Pendek', text: 'Harap masukkan materi minimal 50 karakter agar AI bisa menganalisis dengan baik.', customClass: { popup: 'rounded-2xl' } });
+    if (!text && !imageFile) {
+        Swal.fire({ icon: 'warning', title: 'Input Kosong', text: 'Harap masukkan teks materi atau unggah gambar agar AI bisa bekerja.', customClass: { popup: 'rounded-2xl' } });
         return;
     }
 
     $('#aiInputSection').addClass('d-none');
     $('#aiLoadingSection').removeClass('d-none');
 
-    $.post('{{ route("admin.cbt.bank.ai_generate", $bank->id) }}', {
-        _token: '{{ csrf_token() }}',
-        source_text: text,
-        type: type,
-        count: count
-    }).done(res => {
-        if (res.success) {
-            generatedQuestions = res.questions;
-            renderAiPreview();
-            $('#aiLoadingSection').addClass('d-none');
-            $('#aiPreviewSection').removeClass('d-none');
-        } else {
-            handleAiError(res.message);
+    let formData = new FormData();
+    formData.append('_token', '{{ csrf_token() }}');
+    formData.append('source_text', text);
+    formData.append('type', type);
+    formData.append('count', count);
+    if (imageFile) formData.append('source_image', imageFile);
+
+    $.ajax({
+        url: '{{ route("admin.cbt.bank.ai_generate", $bank->id) }}',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(res) {
+            if (res.success) {
+                generatedQuestions = res.questions;
+                renderAiPreview();
+                $('#aiLoadingSection').addClass('d-none');
+                $('#aiPreviewSection').removeClass('d-none');
+            } else {
+                handleAiError(res.message);
+            }
+        },
+        error: function(err) {
+            handleAiError(err.responseJSON?.message || 'Terjadi kesalahan sistem saat menghubungi AI.');
         }
-    }).fail(err => {
-        handleAiError(err.responseJSON?.message || 'Terjadi kesalahan sistem saat menghubungi AI.');
     });
 }
+
+// Add image label listener
+$(document).on('change', '#aiSourceImage', function(){
+    var fileName = $(this).val().split('\\').pop();
+    if(fileName) $('#aiSourceImageLabel span').text(fileName).addClass('text-primary font-weight-bold');
+});
 
 function handleAiError(msg) {
     $('#aiLoadingSection').addClass('d-none');
@@ -1029,24 +1059,51 @@ function renderAiPreview() {
             <div class="card border mb-3 shadow-sm rounded-xl overflow-hidden">
                 <div class="card-header bg-light-gradient py-2 d-flex justify-content-between align-items-center">
                     <span class="font-weight-bold text-sm text-primary">Soal #${idx + 1}</span>
-                    <button class="btn btn-xs btn-link text-danger p-0" onclick="removeAiQuestion(${idx})"><i class="fas fa-times"></i></button>
+                    <div>
+                        <button class="btn btn-xs btn-soft-info mr-1" onclick="generateAiImage(${idx})" title="Generate Ilustrasi AI">
+                            <i class="fas fa-magic"></i> Ilustrasi
+                        </button>
+                        <button class="btn btn-xs btn-link text-danger p-0" onclick="removeAiQuestion(${idx})"><i class="fas fa-times"></i></button>
+                    </div>
                 </div>
                 <div class="card-body p-3">
                     <textarea class="form-control text-sm font-weight-bold mb-3 border-0 bg-transparent p-0" rows="2" onchange="updateAiQuestion(${idx}, 'question_text', this.value)">${q.question_text}</textarea>
+                    
+                    <div id="aiImagePreview-${idx}" class="mb-3 ${q.image_url ? '' : 'd-none'}">
+                        <div class="position-relative rounded overflow-hidden shadow-sm" style="max-width: 200px;">
+                            <img src="${q.image_url || ''}" class="img-fluid border rounded">
+                            <button class="btn btn-xs btn-danger position-absolute" style="top:5px; right:5px;" onclick="removeAiImage(${idx})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
         `;
 
         if (q.options) {
             html += `<div class="row no-gutters">`;
             q.options.forEach((opt, oIdx) => {
                 const letter = String.fromCharCode(65 + oIdx);
+                const isCorrect = opt.is_correct === true || opt.is_correct === "true" || opt.is_correct === 1;
                 html += `
                     <div class="col-md-6 mb-2 pr-2">
                         <div class="input-group input-group-sm">
                             <div class="input-group-prepend">
-                                <span class="input-group-text ${opt.is_correct ? 'bg-success text-white border-success' : 'bg-light'} font-weight-bold">${letter}</span>
+                                <span class="input-group-text ${isCorrect ? 'bg-success text-white border-success' : 'bg-light'} font-weight-bold cursor-pointer" onclick="toggleAiOptionCorrect(${idx}, ${oIdx})">${letter}</span>
                             </div>
-                            <input type="text" class="form-control" value="${opt.text}" onchange="updateAiOption(${idx}, ${oIdx}, this.value)">
+                            <input type="text" class="form-control" value="${opt.text || opt.option_text}" onchange="updateAiOption(${idx}, ${oIdx}, this.value)">
                         </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+        } else if (q.matching_pairs) {
+            html += `<div class="bg-light p-2 rounded border">
+                <h6 class="text-xs font-weight-bold text-muted mb-2 uppercase tracking-widest"><i class="fas fa-link mr-1"></i> Pasangan Penjodohan:</h6>`;
+            Object.keys(q.matching_pairs).forEach((premise, pIdx) => {
+                html += `
+                    <div class="d-flex mb-1">
+                        <div class="bg-white px-2 py-1 border rounded-left text-xs font-weight-bold text-muted d-flex align-items-center">${pIdx+1}</div>
+                        <input type="text" class="form-control form-control-sm border-left-0 rounded-0" value="${premise}" readonly>
+                        <div class="px-2 bg-white border-top border-bottom d-flex align-items-center"><i class="fas fa-arrow-right text-xs text-muted"></i></div>
+                        <input type="text" class="form-control form-control-sm rounded-right" value="${q.matching_pairs[premise]}" onchange="updateAiMatching(${idx}, '${premise.replace(/'/g, "\\'")}', this.value)">
                     </div>
                 `;
             });
@@ -1063,6 +1120,54 @@ function renderAiPreview() {
         html += `</div></div>`;
         container.append(html);
     });
+}
+
+function toggleAiOptionCorrect(qIdx, oIdx) {
+    const type = $('#aiQuestionType').val();
+    if (type === 'pilihan_ganda') {
+        generatedQuestions[qIdx].options.forEach((opt, i) => {
+            opt.is_correct = (i === oIdx);
+        });
+    } else {
+        generatedQuestions[qIdx].options[oIdx].is_correct = !generatedQuestions[qIdx].options[oIdx].is_correct;
+    }
+    renderAiPreview();
+}
+
+function updateAiMatching(qIdx, premise, newVal) {
+    generatedQuestions[qIdx].matching_pairs[premise] = newVal;
+}
+
+function generateAiImage(idx) {
+    const qText = generatedQuestions[idx].question_text;
+    const btn = event.currentTarget;
+    const originalHtml = $(btn).html();
+
+    $(btn).html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
+
+    $.post('{{ route("admin.cbt.bank.ai_generate_image", $bank->id) }}', {
+        _token: '{{ csrf_token() }}',
+        question_text: qText
+    }).done(res => {
+        if (res.success) {
+            generatedQuestions[idx].image_url = res.image_url;
+            generatedQuestions[idx].image_path = res.image_path;
+            renderAiPreview();
+        } else {
+            Swal.fire({ icon: 'error', title: 'Gagal', text: res.message });
+        }
+    }).fail((err) => {
+        const msg = err.responseJSON?.message || 'Gagal menghubungi AI Image Generator.';
+        Swal.fire({ icon: 'error', title: 'Error', text: msg });
+    }).always(() => {
+        $(btn).html(originalHtml).prop('disabled', false);
+    });
+}
+
+function removeAiImage(idx) {
+    delete generatedQuestions[idx].image_url;
+    delete generatedQuestions[idx].image_path;
+    renderAiPreview();
 }
 
 function removeAiQuestion(idx) {
