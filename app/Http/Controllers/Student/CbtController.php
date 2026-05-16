@@ -135,9 +135,48 @@ class CbtController extends Controller
             return redirect()->route('student.cbt.dashboard')->with('error', 'Ujian sudah selesai.');
         }
 
-        // Load bank and questions with randomized options (if needed)
-        // For simplicity in V1, we just load them.
-        $exam->load('bank.questions.options');
+        $exam->load(['bank.questions.options']);
+        $questions = $exam->bank->questions;
+
+        // 1. Randomize Questions
+        if ($exam->randomize_questions) {
+            if (!$studentExam->question_order) {
+                $order = $questions->pluck('id')->shuffle()->toArray();
+                $studentExam->update(['question_order' => $order]);
+            }
+            $order = $studentExam->question_order;
+            $questions = $questions->sortBy(function($q) use ($order) {
+                return array_search($q->id, $order);
+            })->values();
+        }
+
+        // 2. Randomize Options
+        if ($exam->randomize_options) {
+            $optionOrders = $studentExam->option_order ?? [];
+            $newOptionOrders = $optionOrders;
+            $hasNewOrder = false;
+
+            foreach ($questions as $question) {
+                if (in_array($question->question_type, ['pilihan_ganda', 'ganda_komplek'])) {
+                    if (!isset($optionOrders[$question->id])) {
+                        $newOptionOrders[$question->id] = $question->options->pluck('id')->shuffle()->toArray();
+                        $hasNewOrder = true;
+                    }
+                    
+                    $qOrder = $newOptionOrders[$question->id];
+                    $question->setRelation('options', $question->options->sortBy(function($opt) use ($qOrder) {
+                        return array_search($opt->id, $qOrder);
+                    })->values());
+                }
+            }
+
+            if ($hasNewOrder) {
+                $studentExam->update(['option_order' => $newOptionOrders]);
+            }
+        }
+
+        // Override the collection in the bank relation
+        $exam->bank->setRelation('questions', $questions);
 
         // Load existing answers
         $answers = CbtStudentAnswer::where('cbt_student_exam_id', $studentExam->id)

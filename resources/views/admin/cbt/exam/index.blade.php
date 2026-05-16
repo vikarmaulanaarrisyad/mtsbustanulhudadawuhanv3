@@ -227,6 +227,20 @@
                         </div>
                     </div>
 
+                    <div class="p-3 bg-light rounded-lg mb-3">
+                        <h6 class="text-xs font-weight-bold text-primary mb-3"><i class="fas fa-random mr-1"></i> PENGATURAN ACAK</h6>
+                        
+                        <div class="custom-control custom-switch mb-2">
+                            <input type="checkbox" class="custom-control-input" id="randomize_questions" name="randomize_questions" value="1">
+                            <label class="custom-control-label text-xs text-muted font-weight-bold" for="randomize_questions">Acak Urutan Soal</label>
+                        </div>
+
+                        <div class="custom-control custom-switch mb-2">
+                            <input type="checkbox" class="custom-control-input" id="randomize_options" name="randomize_options" value="1">
+                            <label class="custom-control-label text-xs text-muted font-weight-bold" for="randomize_options">Acak Urutan Pilihan Jawaban</label>
+                        </div>
+                    </div>
+
                     <div class="p-3 bg-light rounded-lg mb-4">
                         <h6 class="text-xs font-weight-bold text-primary mb-3"><i class="fas fa-shield-alt mr-1"></i> PENGATURAN KEAMANAN</h6>
                         
@@ -579,6 +593,8 @@
             $('#detect_tab_switch').prop('checked', data.detect_tab_switch).trigger('change');
             $('#max_violations').val(data.max_violations);
             $('#auto_finish_on_limit').prop('checked', data.auto_finish_on_limit);
+            $('#randomize_questions').prop('checked', data.randomize_questions);
+            $('#randomize_options').prop('checked', data.randomize_options);
             
             let classes = data.classes.map(c => c.id);
             $('#classes').val(classes).trigger('change');

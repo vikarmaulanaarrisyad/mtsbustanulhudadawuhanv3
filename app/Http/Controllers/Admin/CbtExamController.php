@@ -75,7 +75,9 @@ class CbtExamController extends Controller
             'passing_grade' => $request->passing_grade ?? 75,
             'detect_tab_switch' => $request->boolean('detect_tab_switch'),
             'max_violations' => $request->max_violations ?? 5,
-            'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit')
+            'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit'),
+            'randomize_questions' => $request->boolean('randomize_questions'),
+            'randomize_options' => $request->boolean('randomize_options'),
         ]);
 
         $exam->classes()->sync($request->classes);
@@ -117,7 +119,9 @@ class CbtExamController extends Controller
             'passing_grade' => $request->passing_grade ?? 75,
             'detect_tab_switch' => $request->boolean('detect_tab_switch'),
             'max_violations' => $request->max_violations ?? 5,
-            'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit')
+            'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit'),
+            'randomize_questions' => $request->boolean('randomize_questions'),
+            'randomize_options' => $request->boolean('randomize_options'),
         ]);
 
         $exam->classes()->sync($request->classes);

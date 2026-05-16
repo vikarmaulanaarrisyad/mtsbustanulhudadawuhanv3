@@ -14,6 +14,8 @@ class CbtStudentExam extends Model
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
+        'question_order' => 'array',
+        'option_order' => 'array',
     ];
 
     public function exam()

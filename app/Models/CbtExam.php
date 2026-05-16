@@ -22,6 +22,8 @@ class CbtExam extends Model
         'generate_certificate' => 'boolean',
         'wave' => 'integer',
         'session' => 'integer',
+        'randomize_questions' => 'boolean',
+        'randomize_options' => 'boolean',
     ];
 
     public function bank()
