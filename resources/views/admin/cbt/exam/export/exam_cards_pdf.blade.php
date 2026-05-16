@@ -158,7 +158,11 @@
                                 
                                 <div class="qr-col">
                                     <div class="qr-wrapper">
-                                        <img class="qr-image" src="data:image/svg+xml;base64,{{ base64_encode(QrCode::size(150)->margin(1)->generate(route('student.cbt.login-qr', $student->qr_token))) }}">
+                                        @if($student->qr_token)
+                                            <img class="qr-image" src="data:image/svg+xml;base64,{{ base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::size(150)->margin(1)->generate(route('student.cbt.login-qr', $student->qr_token))) }}">
+                                        @else
+                                            <div style="width: 85px; height: 85px; display: flex; align-items: center; justify-content: center; font-size: 6pt; color: #ccc;">Token Kosong</div>
+                                        @endif
                                     </div>
                                     <div class="qr-help">Scan to Login</div>
 

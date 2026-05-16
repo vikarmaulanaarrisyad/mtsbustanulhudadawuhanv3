@@ -10,6 +10,16 @@ use App\Traits\AutoNumberTrait;
 class Student extends Model
 {
     use HasFactory, SoftDeletes, AutoNumberTrait;
+    
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($student) {
+            if (empty($student->qr_token)) {
+                $student->qr_token = \Illuminate\Support\Str::random(40);
+            }
+        });
+    }
 
     protected $casts = [
         'tanggal_lahir' => 'date',

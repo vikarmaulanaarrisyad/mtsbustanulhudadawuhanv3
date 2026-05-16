@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Setting;
 
 class CbtController extends Controller
 {
@@ -299,5 +301,31 @@ class CbtController extends Controller
         Auth::loginUsingId($student->user_id);
         
         return redirect()->route('student.cbt.dashboard')->with('success', 'Berhasil login via QR Code. Selamat mengerjakan!');
+    }
+
+    public function downloadCertificate(CbtExam $exam)
+    {
+        $student = Student::where('user_id', Auth::id())->firstOrFail();
+        $studentExam = CbtStudentExam::where('cbt_exam_id', $exam->id)
+            ->where('student_id', $student->id)
+            ->where('status', 'finished')
+            ->firstOrFail();
+
+        // Security check
+        if (!$exam->generate_certificate) {
+            return back()->with('error', 'Sertifikat tidak diaktifkan untuk ujian ini.');
+        }
+
+        if ($studentExam->final_score < $exam->passing_grade) {
+            return back()->with('error', 'Maaf, nilai Anda belum mencapai batas KKM untuk mendapatkan sertifikat.');
+        }
+
+        $setting = Setting::first();
+        $exam->load('bank.subject');
+
+        $pdf = Pdf::loadView('pdf.cbt.certificate', compact('student', 'exam', 'studentExam', 'setting'))
+                  ->setPaper('a4', 'landscape');
+
+        return $pdf->download("Sertifikat_{$exam->name}_{$student->nama_lengkap}.pdf");
     }
 }

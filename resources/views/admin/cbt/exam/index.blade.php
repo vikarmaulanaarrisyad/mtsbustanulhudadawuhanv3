@@ -158,9 +158,24 @@
                         <label class="custom-control-label text-xs text-muted font-weight-bold" for="is_active">Status Jadwal Aktif / Buka</label>
                     </div>
 
-                    <div class="custom-control custom-switch mb-4">
+                    <div class="custom-control custom-switch mb-2">
                         <input type="checkbox" class="custom-control-input" id="display_result" name="display_result" value="1" checked>
                         <label class="custom-control-label text-xs text-muted font-weight-bold" for="display_result">Tampilkan Hasil Ke Siswa</label>
+                    </div>
+
+                    <div class="custom-control custom-switch mb-2">
+                        <input type="checkbox" class="custom-control-input" id="generate_certificate" name="generate_certificate" value="1" checked>
+                        <label class="custom-control-label text-xs text-muted font-weight-bold" for="generate_certificate">Aktifkan Sertifikat Otomatis</label>
+                    </div>
+
+                    <div class="form-group mb-4 mt-3">
+                        <label class="text-xs font-weight-bold text-muted">KKM (BATAS KELULUSAN)</label>
+                        <div class="input-group input-group-sm">
+                            <input type="number" name="passing_grade" id="passing_grade" class="form-control" value="75" min="0" max="100">
+                            <div class="input-group-append">
+                                <span class="input-group-text">Skor</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="p-3 bg-light rounded-lg mb-4">
@@ -502,6 +517,8 @@
             $('#duration_minutes').val(data.duration_minutes);
             $('#is_active').prop('checked', data.is_active);
             $('#display_result').prop('checked', data.display_result);
+            $('#generate_certificate').prop('checked', data.generate_certificate);
+            $('#passing_grade').val(data.passing_grade);
             $('#detect_tab_switch').prop('checked', data.detect_tab_switch).trigger('change');
             $('#max_violations').val(data.max_violations);
             $('#auto_finish_on_limit').prop('checked', data.auto_finish_on_limit);

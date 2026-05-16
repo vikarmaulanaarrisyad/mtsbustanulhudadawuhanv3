@@ -235,6 +235,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/cbt/{exam}/save-answer', 'saveAnswer')->name('student.cbt.save-answer');
             Route::post('/cbt/{exam}/report-violation', 'reportViolation')->name('student.cbt.report-violation');
             Route::post('/cbt/{exam}/finish', 'finish')->name('student.cbt.finish');
+            Route::get('/cbt/{exam}/certificate', 'downloadCertificate')->name('student.cbt.certificate');
         });
 
         // Student Savings

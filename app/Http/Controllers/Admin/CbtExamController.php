@@ -68,6 +68,8 @@ class CbtExamController extends Controller
             'token' => strtoupper(Str::random(6)),
             'is_active' => $request->boolean('is_active'),
             'display_result' => $request->boolean('display_result'),
+            'generate_certificate' => $request->boolean('generate_certificate'),
+            'passing_grade' => $request->passing_grade ?? 75,
             'detect_tab_switch' => $request->boolean('detect_tab_switch'),
             'max_violations' => $request->max_violations ?? 5,
             'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit')
@@ -105,6 +107,8 @@ class CbtExamController extends Controller
             'duration_minutes' => $request->duration_minutes,
             'is_active' => $request->boolean('is_active'),
             'display_result' => $request->boolean('display_result'),
+            'generate_certificate' => $request->boolean('generate_certificate'),
+            'passing_grade' => $request->passing_grade ?? 75,
             'detect_tab_switch' => $request->boolean('detect_tab_switch'),
             'max_violations' => $request->max_violations ?? 5,
             'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit')
