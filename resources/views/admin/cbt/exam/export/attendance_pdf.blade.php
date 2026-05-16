@@ -125,19 +125,26 @@
     </table>
 
     <div class="footer">
-        <table class="footer-table">
+        <table class="footer-table" style="width: 100%; border: none;">
             <tr>
-                <td>
-                    Mengetahui,<br>Kepala Madrasah
-                    <div class="signature-box"></div>
-                    <strong>{{ $setting->headmaster_name ?? '................................' }}</strong><br>
-                    NIP. {{ $setting->headmaster_nip ?? '-' }}
+                <td style="width: 33%; text-align: center; border: none; vertical-align: top;">
+                    Pengawas
+                    <div class="signature-box" style="height: 60px;"></div>
+                    <strong>( {{ $duty->supervisor->name ?? '................................' }} )</strong><br>
+                    NIP. {{ $duty->supervisor->nip ?? '................................' }}
                 </td>
-                <td>
-                    {{ $setting->city ?? 'Jember' }}, {{ date('d F Y') }}<br>Proktor/Pengawas
-                    <div class="signature-box"></div>
-                    <strong>................................</strong><br>
-                    NIP. ............................
+                <td style="width: 33%; text-align: center; border: none; vertical-align: top;">
+                    Proktor
+                    <div class="signature-box" style="height: 60px;"></div>
+                    <strong>( {{ $duty->proctor->name ?? '................................' }} )</strong><br>
+                    NIP. {{ $duty->proctor->nip ?? '................................' }}
+                </td>
+                <td style="width: 33%; text-align: center; border: none; vertical-align: top;">
+                    {{ $setting->city ?? 'Jember' }}, {{ date('d F Y') }}<br>
+                    Mengetahui, Kepala Madrasah
+                    <div class="signature-box" style="height: 60px;"></div>
+                    <strong><u>{{ $headmaster->name ?? ($setting->headmaster_name ?? '................................') }}</u></strong><br>
+                    NIP. {{ $headmaster->nip ?? ($setting->headmaster_nip ?? '-') }}
                 </td>
             </tr>
         </table>

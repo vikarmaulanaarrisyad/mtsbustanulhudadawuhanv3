@@ -109,13 +109,13 @@
                         Saksi I (Pengawas)<br>
                         <div class="sig-box"></div>
                         ( <strong>{{ $stats['supervisor'] }}</strong> )<br>
-                        NIP. ........................................
+                        NIP. {{ $stats['supervisor_nip'] }}
                     </td>
                     <td>
                         Proktor<br>
                         <div class="sig-box"></div>
                         ( <strong>{{ $stats['proctor'] }}</strong> )<br>
-                        NIP. ........................................
+                        NIP. {{ $stats['proctor_nip'] }}
                     </td>
                 </tr>
                 <tr>
@@ -123,8 +123,8 @@
                         Mengetahui,<br>
                         Kepala Madrasah
                         <div class="sig-box"></div>
-                        <strong><u>{{ $setting->headmaster_name ?? '................................' }}</u></strong><br>
-                        NIP. {{ $setting->headmaster_nip ?? '-' }}
+                        <strong><u>{{ $headmaster->name ?? ($setting->headmaster_name ?? '................................') }}</u></strong><br>
+                        NIP. {{ $headmaster->nip ?? ($setting->headmaster_nip ?? '-') }}
                     </td>
                 </tr>
             </table>

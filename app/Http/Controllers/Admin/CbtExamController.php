@@ -211,7 +211,29 @@ class CbtExamController extends Controller
         $mailSetting = \App\Models\MailSetting::first();
         $sessionTimes = \App\Models\CbtSessionTime::all()->keyBy('session_number');
         
-        $pdf = Pdf::loadView('admin.cbt.exam.export.attendance_pdf', compact('exam', 'students', 'setting', 'mailSetting', 'request', 'sessionTimes'))
+        // Fetch Duty Personnel with robust matching (Flexible for "Sesi 1", "R1", etc)
+        $session = $request->session;
+        $room = trim($request->room);
+        
+        $duty = \App\Models\CbtDutySchedule::where('cbt_exam_id', $exam->id)
+            ->where(function($q) use ($session) {
+                $q->where('session_number', $session)
+                  ->orWhere('session_number', "Sesi $session");
+            })
+            ->where(function($q) use ($room) {
+                $q->where('room_name', $room)
+                  ->orWhere('room_name', "R$room")
+                  ->orWhere('room_name', "Ruang $room")
+                  ->orWhere('room_name', str_replace(['R', 'Ruang', ' '], '', $room));
+            })
+            ->with(['proctor', 'supervisor'])
+            ->first();
+
+        // Fallback headmaster search
+        $headmaster = \App\Models\Teacher::where('position', 'LIKE', '%Kepala%')->where('position', 'LIKE', '%Madrasah%')->first() 
+                      ?? \App\Models\Teacher::where('position', 'LIKE', '%Kepala%')->first();
+
+        $pdf = Pdf::loadView('admin.cbt.exam.export.attendance_pdf', compact('exam', 'students', 'setting', 'mailSetting', 'request', 'sessionTimes', 'duty', 'headmaster'))
                   ->setPaper('a4', 'portrait');
 
         return $pdf->stream("Daftar_Hadir_{$exam->name}.pdf");
@@ -249,15 +271,25 @@ class CbtExamController extends Controller
             $q->where('cbt_exam_id', $exam->id);
         })->pluck('nama_lengkap')->toArray();
 
-        // Fetch Duty Personnel
+        // Fetch Duty Personnel with flexible matching
         $duty = \App\Models\CbtDutySchedule::where('cbt_exam_id', $exam->id)
-            ->where('session_number', $session)
-            ->where('room_name', $room)
+            ->where(function($q) use ($session) {
+                $q->where('session_number', $session)
+                  ->orWhere('session_number', "Sesi $session");
+            })
+            ->where(function($q) use ($room) {
+                $q->where('room_name', $room)
+                  ->orWhere('room_name', "R$room")
+                  ->orWhere('room_name', "Ruang $room")
+                  ->orWhere('room_name', str_replace(['R', 'Ruang', ' '], '', $room));
+            })
             ->with(['proctor', 'supervisor'])
             ->first();
 
-        // Fetch Session Time
-        $sessionTime = \App\Models\CbtSessionTime::where('session_number', $session)->first();
+        // Fetch Session Time with flexible matching
+        $sessionTime = \App\Models\CbtSessionTime::where('session_number', $session)
+            ->orWhere('session_number', str_replace(['Sesi', ' '], '', $session))
+            ->first();
 
         $stats = [
             'total' => $total,
@@ -270,14 +302,17 @@ class CbtExamController extends Controller
             'room' => $room,
             'absent_manual' => $request->absent_manual,
             'proctor' => $duty->proctor->name ?? '................................',
+            'proctor_nip' => $duty->proctor->nip ?? '................................',
             'supervisor' => $duty->supervisor->name ?? '................................',
+            'supervisor_nip' => $duty->supervisor->nip ?? '................................',
             'start_time' => $sessionTime->start_time ?? $exam->start_time,
             'end_time' => $sessionTime->end_time ?? $exam->end_time
         ];
 
         $setting = \App\Models\Setting::first();
         $mailSetting = \App\Models\MailSetting::first();
-        $headmaster = \App\Models\Teacher::where('position', 'LIKE', '%Kepala Madrasah%')->first();
+        $headmaster = \App\Models\Teacher::where('position', 'LIKE', '%Kepala%')->where('position', 'LIKE', '%Madrasah%')->first() 
+                      ?? \App\Models\Teacher::where('position', 'LIKE', '%Kepala%')->first();
         
         $pdf = Pdf::loadView('admin.cbt.exam.export.berita_acara_pdf', compact('exam', 'stats', 'setting', 'mailSetting', 'headmaster', 'request'))
                   ->setPaper('a4', 'portrait');
