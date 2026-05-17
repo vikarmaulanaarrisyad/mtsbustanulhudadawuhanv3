@@ -524,26 +524,40 @@ class CbtBankController extends Controller
     public function generateAiQuestions(Request $request, CbtBank $bank)
     {
         $request->validate([
-            'source_text' => 'required|string|min:50',
-            'type' => 'required|in:pilihan_ganda,essay',
+            'source_text' => 'nullable|string',
+            'source_image' => 'nullable|image|max:5120',
+            'type' => 'required|in:pilihan_ganda,ganda_komplek,penjodohan,essay,uraian',
             'count' => 'required|integer|min:1|max:20',
         ]);
+
+        if (!$request->source_text && !$request->hasFile('source_image')) {
+            return response()->json(['success' => false, 'message' => 'Harap masukkan teks materi atau unggah gambar soal.'], 422);
+        }
 
         try {
             $setting = \App\Models\Setting::first();
             $provider = $setting->ai_provider ?? 'gemini';
 
-            if ($provider === 'groq') {
+            if ($provider === 'groq' && $request->hasFile('source_image')) {
+                // Groq usually doesn't handle images well in current integration, force Gemini for images if possible
+                $aiService = app(GeminiAiService::class);
+            } elseif ($provider === 'groq') {
                 $aiService = app(GroqAiService::class);
             } else {
                 $aiService = app(GeminiAiService::class);
+            }
+
+            $imagePath = null;
+            if ($request->hasFile('source_image')) {
+                $imagePath = $request->file('source_image')->getRealPath();
             }
 
             $questions = $aiService->generateQuestions(
                 $request->source_text,
                 $request->type,
                 $request->count,
-                $bank->class_level
+                $bank->class_level,
+                $imagePath
             );
 
             return response()->json([
@@ -566,7 +580,7 @@ class CbtBankController extends Controller
     {
         $request->validate([
             'questions' => 'required|array',
-            'type' => 'required|in:pilihan_ganda,essay',
+            'type' => 'required|in:pilihan_ganda,ganda_komplek,penjodohan,essay,uraian',
         ]);
 
         \DB::beginTransaction();
@@ -577,16 +591,24 @@ class CbtBankController extends Controller
             foreach ($request->questions as $qData) {
                 if (empty($qData['question_text'])) continue;
 
-                $question = $bank->questions()->create([
-                    'question_text' => $qData['question_text'],
-                    'question_type' => $type === 'pilihan_ganda' ? 'pilihan_ganda' : 'essay',
-                    'score_weight'  => $qData['score_weight'] ?? ($type === 'pilihan_ganda' ? 1 : 5),
-                    'answer_key'    => $qData['answer_key'] ?? null,
-                ]);
+                $questionData = [
+                    'question_text'  => $qData['question_text'],
+                    'question_type'  => $type,
+                    'score_weight'   => $qData['score_weight'] ?? 1,
+                    'question_image' => $qData['image_path'] ?? null,
+                ];
 
-                // Handle Options for Multiple Choice
-                $options = $qData['options'] ?? $qData['choices'] ?? null;
-                if ($type === 'pilihan_ganda' && is_array($options)) {
+                if ($type === 'penjodohan') {
+                    $questionData['matching_pairs'] = $qData['matching_pairs'] ?? [];
+                } elseif (in_array($type, ['essay', 'uraian'])) {
+                    $questionData['answer_key'] = $qData['answer_key'] ?? null;
+                }
+
+                $question = $bank->questions()->create($questionData);
+
+                // Handle Options for PG / PGK
+                if (in_array($type, ['pilihan_ganda', 'ganda_komplek'])) {
+                    $options = $qData['options'] ?? $qData['choices'] ?? [];
                     foreach ($options as $opt) {
                         $text = $opt['text'] ?? $opt['option_text'] ?? $opt['answer'] ?? null;
                         if (!$text) continue;
@@ -604,8 +626,62 @@ class CbtBankController extends Controller
             return response()->json(['success' => true, 'message' => $savedCount . ' soal berhasil disimpan ke bank.']);
         } catch (\Exception $e) {
             \DB::rollBack();
-            \Log::error('AI Save Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            \Log::error('AI Save Error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Gagal menyimpan: ' . $e->getMessage()], 500);
+        }
+    }
+    /**
+     * Generate an AI illustration for a question.
+     */
+    public function generateQuestionImage(Request $request, CbtBank $bank)
+    {
+        $request->validate([
+            'question_text' => 'required|string',
+        ]);
+
+        try {
+            $setting = \App\Models\Setting::first();
+            $provider = $setting->ai_provider ?? 'gemini';
+
+            if ($provider === 'groq') {
+                $aiService = app(GroqAiService::class);
+            } else {
+                $aiService = app(GeminiAiService::class);
+            }
+
+            $imagePrompt = $aiService->generateImagePrompt($request->question_text);
+            
+            if (!$imagePrompt || strlen($imagePrompt) < 5) {
+                throw new \Exception("Gagal membuat deskripsi gambar.");
+            }
+
+            // Use Pollinations AI
+            $encodedPrompt = urlencode($imagePrompt);
+            $imageUrl = "https://image.pollinations.ai/prompt/{$encodedPrompt}?width=1024&height=1024&nologo=true&seed=" . rand(1, 99999);
+
+            $response = \Illuminate\Support\Facades\Http::timeout(60)->get($imageUrl);
+            
+            if ($response->failed()) {
+                throw new \Exception("Gagal menghubungi AI Image Generator (HTTP Error).");
+            }
+
+            $imageContents = $response->body();
+            $filename = 'ai_gen_' . Str::uuid() . '.jpg';
+            $path = 'cbt/images/' . $filename;
+            Storage::disk('public')->put($path, $imageContents);
+
+            return response()->json([
+                'success' => true,
+                'image_url' => asset('storage/' . $path),
+                'image_path' => $path,
+                'prompt' => $imagePrompt
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('AI Image Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal generate gambar: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

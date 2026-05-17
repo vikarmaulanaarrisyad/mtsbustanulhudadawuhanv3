@@ -206,6 +206,40 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="p-3 bg-light-soft rounded-20 border-info-light border-dashed mt-2">
+                                <h6 class="font-weight-bold text-dark text-xs uppercase mb-3"><i class="fas fa-laptop-code mr-2"></i> Pengaturan CBT (Ujian AI)</h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-0">
+                                            <label class="text-[10px] font-weight-bold text-muted uppercase">Gelombang</label>
+                                            <select name="cbt_wave" id="cbt_wave" class="form-control form-control-sm">
+                                                <option value="1">Gelombang 1</option>
+                                                <option value="2">Gelombang 2</option>
+                                                <option value="3">Gelombang 3</option>
+                                                <option value="4">Gelombang 4</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-0">
+                                            <label class="text-[10px] font-weight-bold text-muted uppercase">Sesi Ujian</label>
+                                            <select name="cbt_session" id="cbt_session" class="form-control form-control-sm">
+                                                <option value="1">Sesi 1</option>
+                                                <option value="2">Sesi 2</option>
+                                                <option value="3">Sesi 3</option>
+                                                <option value="4">Sesi 4</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-0">
+                                            <label class="text-[10px] font-weight-bold text-muted uppercase">Ruang Ujian</label>
+                                            <input type="text" name="cbt_room" id="cbt_room" class="form-control form-control-sm" placeholder="Contoh: R1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- TAB 3: KONTAK & FISIK --}}

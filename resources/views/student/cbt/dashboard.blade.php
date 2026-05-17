@@ -34,8 +34,19 @@
 
                 <div class="flex items-center space-x-4">
                     <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-[2rem] border border-white/10 text-center shadow-2xl">
-                        <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Tahun Pelajaran</span>
-                        <span class="text-sm font-black text-white">{{ $student->academicYear->year ?? '-' }}</span>
+                        <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Gelombang</span>
+                        <span class="text-sm font-black text-white">G{{ $student->cbt_wave ?? 1 }}</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-[2rem] border border-white/10 text-center shadow-2xl">
+                        <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Sesi & Waktu</span>
+                        <span class="text-sm font-black text-white">Sesi {{ $student->cbt_session ?? 1 }}</span>
+                        @if(isset($sessionTime))
+                            <span class="block text-[8px] font-bold text-white/70 mt-1">({{ substr($sessionTime->start_time, 0, 5) }} - {{ substr($sessionTime->end_time, 0, 5) }})</span>
+                        @endif
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-[2rem] border border-white/10 text-center shadow-2xl">
+                        <span class="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">Ruang</span>
+                        <span class="text-sm font-black text-white">{{ $student->cbt_room ?? '-' }}</span>
                     </div>
                 </div>
             </div>
@@ -155,7 +166,13 @@
                                             <div class="text-center bg-emerald-50/50 px-10 py-6 rounded-[2.5rem] border border-emerald-100/50 shadow-inner min-w-[180px]">
                                                 @if($exam->display_result)
                                                     <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2 block">SKOR ANDA</span>
-                                                    <div class="text-5xl font-black text-emerald-600 tracking-tighter">{{ number_format($studentExam->final_score, 1) }}</div>
+                                                    <div class="text-5xl font-black text-emerald-600 tracking-tighter mb-4">{{ number_format($studentExam->final_score, 1) }}</div>
+                                                    
+                                                    @if($exam->generate_certificate && $studentExam->final_score >= $exam->passing_grade)
+                                                        <a href="{{ route('student.cbt.certificate', $exam->id) }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-600 text-white text-[9px] font-black px-5 py-2.5 rounded-full uppercase tracking-widest shadow-lg shadow-amber-200 hover:scale-105 transition-transform">
+                                                            <i class="fas fa-certificate text-xs"></i> UNDUH SERTIFIKAT
+                                                        </a>
+                                                    @endif
                                                 @else
                                                     <div class="flex flex-col items-center py-2">
                                                         <div class="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center mb-3 shadow-lg shadow-emerald-200">

@@ -22,6 +22,8 @@ use App\Models\Achievement;
 use App\Models\PpdbRegistrant;
 use App\Models\AdmissionQuotas;
 use App\Models\AdmissionPhase;
+use App\Models\Faq;
+use App\Models\WelcomeMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -87,7 +89,13 @@ class FrontController extends Controller
             'achievement_count' => $achievements->count(),
         ];
 
-        return view('welcome', compact('posts', 'quetes', 'breakingNews', 'sliders', 'agendas', 'ppdbOpen', 'academicYear', 'albums', 'site_setting', 'extracurriculars', 'achievements', 'stats', 'ppdbRegistrants'));
+        // 👉 Ambil FAQ
+        $faqs = Faq::where('is_active', true)->orderBy('position', 'asc')->orderBy('id', 'desc')->get();
+
+        // 👉 Ambil Sambutan Kepala Madrasah
+        $welcomeMessage = WelcomeMessage::first();
+
+        return view('welcome', compact('posts', 'quetes', 'breakingNews', 'sliders', 'agendas', 'ppdbOpen', 'academicYear', 'albums', 'site_setting', 'extracurriculars', 'achievements', 'stats', 'ppdbRegistrants', 'faqs', 'welcomeMessage'));
     }
 
     public function ppdbMonitoring()
@@ -223,6 +231,22 @@ class FrontController extends Controller
 
     public function handle($slug)
     {
+        if ($slug === 'galeri' || $slug === 'albums') {
+            return redirect('/#galeri');
+        }
+
+        if ($slug === 'monitoring-ppdb') {
+            return redirect('/ppdb/monitoring');
+        }
+
+        if ($slug === 'form-pendaftaran') {
+            return redirect('/ppdb/check');
+        }
+
+        if ($slug === 'ppdb-online') {
+            return redirect('/ppdb/monitoring');
+        }
+
         $menu = Menu::where('menu_slug', $slug)->firstOrFail();
 
         switch ($menu->menu_type) {

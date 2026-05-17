@@ -10,12 +10,24 @@ use App\Traits\AutoNumberTrait;
 class Student extends Model
 {
     use HasFactory, SoftDeletes, AutoNumberTrait;
+    
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($student) {
+            if (empty($student->qr_token)) {
+                $student->qr_token = \Illuminate\Support\Str::random(40);
+            }
+        });
+    }
 
     protected $casts = [
         'tanggal_lahir' => 'date',
         'tanggal_masuk' => 'date',
         'tanggal_keluar' => 'date',
         'is_active' => 'boolean',
+        'cbt_wave' => 'integer',
+        'cbt_session' => 'integer',
     ];
 
     // ==================== RELATIONSHIPS ====================
@@ -83,6 +95,11 @@ class Student extends Model
     public function tahfidzLogs()
     {
         return $this->hasMany(TahfidzLog::class);
+    }
+
+    public function cbtStudentExams()
+    {
+        return $this->hasMany(CbtStudentExam::class);
     }
 
     // ==================== ACCESSORS ====================

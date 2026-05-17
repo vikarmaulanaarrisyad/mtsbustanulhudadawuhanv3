@@ -62,6 +62,168 @@
         .section-divider .shape-fill {
             fill: #f8f9fa;
         }
+
+        /* Hero Typography & Buttons */
+        .carousel-caption {
+            bottom: 25% !important;
+            z-index: 10;
+        }
+        .carousel-caption h1 {
+            text-shadow: 2px 4px 15px rgba(0,0,0,0.6);
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        .carousel-caption .lead {
+            font-size: 1.4rem;
+            font-weight: 300;
+            text-shadow: 1px 2px 10px rgba(0,0,0,0.5);
+            margin-bottom: 2.5rem;
+        }
+        .btn-hero {
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn-hero-primary {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            box-shadow: 0 10px 20px rgba(11, 140, 137, 0.4);
+        }
+        .btn-hero-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(11, 140, 137, 0.6);
+            color: white;
+        }
+        .btn-hero-outline {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            color: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .btn-hero-outline:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        /* Breaking News Premium Ticker */
+        .breaking-news-ticker {
+            display: flex;
+            width: 90%;
+            max-width: 1200px;
+            margin: -35px auto 40px auto;
+            position: relative;
+            z-index: 20;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(11, 140, 137, 0.15);
+            background: #fff;
+            border: 1px solid rgba(11, 140, 137, 0.1);
+            transition: all 0.3s ease;
+        }
+        .breaking-news-ticker:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(11, 140, 137, 0.25);
+        }
+        .ticker-label {
+            white-space: nowrap;
+            z-index: 2;
+            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            padding: 12px 35px 12px 25px;
+            flex-shrink: 0;
+            clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
+            box-shadow: 5px 0 15px rgba(231, 76, 60, 0.4);
+            text-transform: uppercase;
+        }
+        .ticker-content {
+            flex-grow: 1;
+            overflow: hidden;
+            position: relative;
+            background: #fff;
+            display: flex;
+            align-items: center;
+        }
+        .ticker-content::before, .ticker-content::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 50px;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .ticker-content::before {
+            left: 0;
+            background: linear-gradient(to right, #fff, transparent);
+        }
+        .ticker-content::after {
+            right: 0;
+            background: linear-gradient(to left, #fff, transparent);
+        }
+        .ticker-scroll {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            animation: tickerScroll 25s linear infinite;
+        }
+        .ticker-scroll:hover {
+            animation-play-state: paused;
+        }
+        .ticker-item {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #34495e;
+            display: flex;
+            align-items: center;
+        }
+        @keyframes tickerScroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Adjust Mobile View */
+        @media (max-width: 768px) {
+            .carousel-caption { bottom: 15% !important; padding: 0 15px; }
+            .carousel-caption h1 { font-size: 2rem; margin-bottom: 1rem; }
+            .carousel-caption .lead { font-size: 1rem; margin-bottom: 1.5rem; }
+            
+            /* Hero Buttons for Mobile */
+            .hero-buttons { flex-direction: column; gap: 12px !important; width: 100%; padding: 0 10px; }
+            .btn-hero { width: 100%; padding: 12px 15px; font-size: 1rem; text-align: center; justify-content: center; display: flex; align-items: center; }
+
+            /* Breaking News for Mobile */
+            .breaking-news-ticker { margin: -25px auto 30px auto; flex-direction: column; width: 92%; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+            .ticker-label { text-align: center; justify-content: center; width: 100%; clip-path: none; padding: 8px 15px; font-size: 0.85rem; }
+            .ticker-content { padding: 8px 0; }
+            .ticker-content::before, .ticker-content::after { width: 15px; }
+            .ticker-item { font-size: 0.85rem; }
+        }
+        /* FAQ Accordion Styling */
+        .faq-section .btn-link {
+            transition: all 0.3s;
+        }
+        .faq-section .btn-link:hover {
+            background-color: rgba(11, 140, 137, 0.05);
+            border-radius: 15px;
+        }
+        .faq-section .btn-link .fa-chevron-down {
+            transition: transform 0.3s;
+        }
+        .faq-section .btn-link[aria-expanded="true"] .fa-chevron-down {
+            transform: rotate(180deg);
+        }
     </style>
 @endpush
 
@@ -112,9 +274,9 @@
             </div>
         @endif
         
-        <div class="scroll-down-indicator" onclick="window.scrollBy({top: window.innerHeight, behavior: 'smooth'});">
+        <!-- <div class="scroll-down-indicator" onclick="window.scrollBy({top: window.innerHeight, behavior: 'smooth'});">
             <i class="fas fa-chevron-down"></i>
-        </div>
+        </div> -->
 
         {{-- Controls --}}
         <a class="carousel-control-prev" href="#carouselExampleCaptions" role="button" data-slide="prev">
@@ -126,84 +288,82 @@
             <span class="sr-only">Next</span>
         </a>
     </div>
-    {{-- Breaking News --}}
-    <div class="breaking-news">
-        <div class="news-text">
-            @if ($quetes->isNotEmpty())
-                <p id="quote-fade">
-                    @foreach ($quetes as $q)
-                        <span class="fade-quote">{{ $q->quote }}</span>
-                    @endforeach
-                </p>
-            @endif
 
+    {{-- Breaking News Ticker --}}
+    <div class="breaking-news-ticker" data-aos="fade-up">
+        <div class="ticker-label text-white font-weight-bold d-flex align-items-center">
+            <i class="fas fa-bolt mr-2 animate__animated animate__flash animate__infinite text-warning"></i> INFO PENTING
+        </div>
+        <div class="ticker-content">
+            <div class="ticker-scroll">
+                @if ($quetes->isNotEmpty())
+                    @foreach ($quetes as $q)
+                        <span class="ticker-item mx-4"><i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px; vertical-align: middle;"></i>{{ $q->quote }}</span>
+                    @endforeach
+                @else
+                    <span class="ticker-item mx-4"><i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px; vertical-align: middle;"></i>Selamat Datang di Madrasah Kami. Pendaftaran Peserta Didik Baru Telah Dibuka.</span>
+                    <span class="ticker-item mx-4"><i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px; vertical-align: middle;"></i>Membangun Generasi Cerdas, Berakhlak Mulia, dan Berdaya Saing Global.</span>
+                @endif
+            </div>
         </div>
     </div>
 
-    <section class="ppdb-banner py-4 bg-light mt-3" data-aos="fade-up">
-        <div class="container text-center rounded shadow-sm p-4" style="border-left: 5px solid #198754; background-color: #fff;">
-            <h3 class="font-weight-bold text-success mb-3">Informasi PPDB</h3>
-            @if(isset($ppdbOpen) && $ppdbOpen)
-                <p class="lead mb-4">Pendaftaran Peserta Didik Baru (PPDB) Tahun Ajaran {{ $academicYear->academic_year ?? '' }} <strong>Telah Dibuka!</strong> Segera daftarkan diri Anda dan lengkapi biodata serta berkas persyaratan.</p>
-                <div class="d-flex justify-content-center flex-wrap" style="gap: 15px;">
-                    <a href="{{ route('register') }}" class="btn btn-success btn-lg shadow-sm">
-                        <i class="fa fa-user-plus mr-2"></i> Daftar Akun PPDB Baru
-                    </a>
-                    <a href="{{ route('login') }}" class="btn btn-outline-success btn-lg shadow-sm">
-                        <i class="fa fa-sign-in-alt mr-2"></i> Login Pendaftar
-                    </a>
-                </div>
-            @else
-                <div class="alert alert-warning mb-0 border-0 shadow-sm text-dark d-inline-block px-5" role="alert" style="background-color: #fff3cd;">
-                    <i class="fa fa-info-circle mr-2 text-warning"></i> Pendaftaran Peserta Didik Baru (PPDB) saat ini sedang <strong>Ditutup</strong>. Silakan pantau terus informasi terbaru.
-                </div>
-            @endif
-
-            @if(isset($ppdbRegistrants) && $ppdbRegistrants->count() > 0)
-                <div class="mt-5 text-left">
-                    <h5 class="font-weight-bold mb-4 text-success border-bottom pb-2"><i class="fa fa-users mr-2"></i> Pendaftar Terbaru</h5>
-                    <div class="table-responsive px-2" data-aos="fade-up">
-                        <table class="premium-table">
-                            <thead>
-                                <tr>
-                                    <th width="5%" class="text-center">No</th>
-                                    <th>Nama Pendaftar</th>
-                                    <th>Asal Sekolah</th>
-                                    <th width="15%" class="text-center">Status</th>
-                                    <th width="15%" class="text-center">Waktu</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($ppdbRegistrants as $index => $registrant)
-                                    <tr>
-                                        <td class="text-center text-muted font-weight-bold">{{ $index + 1 }}</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="rounded-circle text-white d-flex align-items-center justify-content-center mr-3 shadow-sm" style="width: 40px; height: 40px; flex-shrink: 0; font-size: 1rem; font-weight: bold; background: linear-gradient(135deg, var(--primary-color), var(--primary-light));">
-                                                    {{ strtoupper(substr($registrant->masked_name, 0, 1)) }}
-                                                </div>
-                                                <div>
-                                                    <span class="font-weight-bold text-dark d-block" style="font-size: 1.05rem;">{{ $registrant->masked_name }}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="text-muted"><i class="fa fa-school mr-2 text-success opacity-75"></i> {{ $registrant->asal_sekolah ?? 'Tidak diketahui' }}</td>
-                                        <td class="text-center">
-                                            <span class="badge badge-{{ $registrant->public_status_color }} badge-pill px-3 py-2 shadow-sm" style="font-size: 0.8rem;">{{ $registrant->public_status_label }}</span>
-                                        </td>
-                                        <td class="text-center text-muted small">
-                                            <i class="fa fa-clock mr-1 text-success opacity-75"></i> {{ $registrant->created_at->diffForHumans() }}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+    {{-- Sambutan Kepala Madrasah Section --}}
+    <section class="sambutan-section py-5" style="background-color: #f8f9fa;">
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <!-- Foto Kepala Madrasah -->
+                <div class="col-lg-5 mb-5 mb-lg-0 text-center" data-aos="fade-right">
+                    <div class="position-relative d-inline-block">
+                        <!-- Frame Decorative -->
+                        <div style="position: absolute; top: -15px; left: -15px; width: 100%; height: 100%; border: 3px solid var(--primary-color); border-radius: 20px; z-index: 0;"></div>
+                        <!-- Decorative shapes -->
+                        <div style="position: absolute; bottom: -20px; right: -20px; width: 80px; height: 80px; background: radial-gradient(circle, var(--primary-light) 20%, transparent 20%); background-size: 10px 10px; z-index: 2; opacity: 0.5;"></div>
+                        
+                        @php
+                            $kepsekImage = isset($welcomeMessage) && $welcomeMessage->path_image && Storage::disk('public')->exists($welcomeMessage->path_image) 
+                                            ? Storage::url($welcomeMessage->path_image) 
+                                            : 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=600&auto=format&fit=crop';
+                        @endphp
+                        <img src="{{ $kepsekImage }}" alt="Kepala Madrasah" class="img-fluid position-relative shadow-lg" style="z-index: 1; max-height: 420px; object-fit: cover; border-radius: 20px;">
+                        
+                        <!-- Floating Badge -->
+                        <div class="position-absolute bg-white shadow-sm px-4 py-2 d-none d-md-block" style="bottom: 20px; left: -30px; border-radius: 10px; z-index: 3; border-left: 4px solid var(--primary-color);">
+                            <h6 class="mb-0 font-weight-bold text-dark text-left">Kepala Madrasah</h6>
+                            <small class="text-muted text-left d-block">{{ $setting->company_name ?? 'MTS Bustanul Huda' }}</small>
+                        </div>
                     </div>
                 </div>
-            @endif
+                
+                <!-- Isi Sambutan -->
+                <div class="col-lg-7 pl-lg-5" data-aos="fade-left">
+                    <span class="badge px-3 py-2 rounded-pill mb-3" style="background: rgba(11, 140, 137, 0.1); color: #0b8c89; font-weight: 700; letter-spacing: 1px;">SAMBUTAN</span>
+                    <h2 class="font-weight-bold text-dark mb-4" style="font-size: 2.5rem; line-height: 1.2;">Selamat Datang di <br><span style="color: var(--primary-color);">{{ $setting->company_name ?? 'MTS Bustanul Huda' }}</span></h2>
+                    
+                    <div class="text-muted" style="font-size: 1.05rem; line-height: 1.8; text-align: justify;">
+                        @if(isset($welcomeMessage) && $welcomeMessage->content)
+                            {!! $welcomeMessage->content !!}
+                        @else
+                            <h5 class="font-weight-bold text-dark mb-3">Assalamu'alaikum Warahmatullahi Wabarakatuh</h5>
+                            <p>Alhamdulillah, puji syukur senantiasa kita panjatkan kehadirat Allah SWT. Kami merasa bangga dan bersyukur atas kehadiran Anda di portal informasi digital Madrasah kami.</p>
+                            <p>Madrasah kami berkomitmen penuh untuk terus mencetak generasi yang unggul dalam ilmu pengetahuan, tangguh dalam menghadapi tantangan zaman, serta memiliki landasan akhlak mulia sesuai dengan nilai-nilai ajaran Islam. Kami mengintegrasikan kurikulum modern dengan pendidikan pesantren demi masa depan gemilang anak didik kita.</p>
+                            <p>Semoga website ini dapat menjadi jembatan informasi yang efektif, transparan, dan bermanfaat bagi pihak sekolah, wali murid, dan masyarakat luas.</p>
+                            <p class="font-weight-bold text-dark mt-3 mb-0">Wassalamu'alaikum Warahmatullahi Wabarakatuh.</p>
+                        @endif
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-top d-flex align-items-center">
+                        <div class="mr-3 text-center d-flex justify-content-center align-items-center rounded-circle" style="width: 50px; height: 50px; background: rgba(11, 140, 137, 0.1); color: var(--primary-color); font-size: 1.5rem;">
+                            <i class="fas fa-quote-left"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-weight-bold text-dark mb-0">{{ $welcomeMessage->name ?? 'Bapak/Ibu Kepala Madrasah, S.Pd., M.Pd.' }}</h5>
+                            <p class="text-muted small mb-0">Kepala Madrasah</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </section>
-
     </section>
 
     {{-- Why Choose Us Section --}}
@@ -409,7 +569,7 @@
     </section>
 
     {{-- Galeri dan Video Profil --}}
-    <section class="gallery-section py-5 bg-light">
+    <section id="galeri" class="gallery-section py-5 bg-light">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
                 <h2 class="font-weight-bold text-success d-inline-block shadow-sm px-4 py-2 rounded bg-white">Galeri & Profil Sekolah</h2>
@@ -532,6 +692,47 @@
         </div>
     </section>
 
+    {{-- FAQ Section --}}
+    <section class="faq-section py-5" style="background-color: #ffffff;">
+        <div class="container py-4">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <span class="badge px-3 py-2 rounded-pill mb-3" style="background: rgba(11, 140, 137, 0.1); color: var(--primary-color); font-weight: 700; letter-spacing: 1px;">FAQ</span>
+                <h2 class="font-weight-bold text-dark mt-2" style="font-size: 2.5rem;">Pertanyaan Seputar PPDB</h2>
+                <p class="text-muted">Jawaban atas pertanyaan yang paling sering diajukan oleh calon wali murid.</p>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-8" data-aos="fade-up" data-aos-delay="100">
+                    <div class="accordion" id="faqAccordion">
+                        @forelse($faqs as $key => $faq)
+                        <!-- FAQ Item -->
+                        <div class="card border-0 mb-3" style="border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                            <div class="card-header bg-white border-0 p-0" id="headingFaq{{ $faq->id }}" style="border-radius: 15px;">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link btn-block text-left text-dark font-weight-bold p-4 text-decoration-none d-flex justify-content-between align-items-center {{ $key == 0 ? '' : 'collapsed' }}" type="button" data-toggle="collapse" data-target="#collapseFaq{{ $faq->id }}" aria-expanded="{{ $key == 0 ? 'true' : 'false' }}" aria-controls="collapseFaq{{ $faq->id }}">
+                                        {{ $faq->question }}
+                                        <i class="fas fa-chevron-down text-success"></i>
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapseFaq{{ $faq->id }}" class="collapse {{ $key == 0 ? 'show' : '' }}" aria-labelledby="headingFaq{{ $faq->id }}" data-parent="#faqAccordion">
+                                <div class="card-body text-muted px-4 pb-4 pt-0" style="line-height: 1.7;">
+                                    {!! nl2br(e($faq->answer)) !!}
+                                </div>
+                            </div>
+                        </div>
+                        @empty
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-question-circle fa-3x mb-3 text-light"></i>
+                            <p>Belum ada pertanyaan seputar PPDB.</p>
+                        </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- Lokasi Sekolah --}}
     <section class="py-5 bg-light">
         <div class="container">
@@ -605,9 +806,48 @@
             </div>
         </div>
     </section>
+
+    <!-- Modal Pop-Up Pengumuman PPDB -->
+    <div class="modal fade" id="promoModal" tabindex="-1" role="dialog" aria-labelledby="promoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="border-radius: 20px; overflow: hidden; border: none; box-shadow: 0 15px 50px rgba(0,0,0,0.2);">
+                <div class="modal-header border-0 position-absolute" style="top: 0; right: 0; z-index: 10;">
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="text-shadow: 0 2px 4px rgba(0,0,0,0.5); opacity: 1; font-size: 2rem;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0 position-relative">
+                    <div style="background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); padding: 40px 20px; text-align: center; color: white;">
+                        <i class="fas fa-bullhorn mb-3 animate__animated animate__tada animate__infinite" style="font-size: 3rem; color: #f1c40f; text-shadow: 0 4px 10px rgba(0,0,0,0.2);"></i>
+                        <h3 class="font-weight-bold mb-2" style="letter-spacing: 1px;">PENGUMUMAN PPDB</h3>
+                        <p class="mb-0" style="font-size: 1.1rem; opacity: 0.9;">Pendaftaran Peserta Didik Baru Tahun Ajaran {{ date('Y') }}/{{ date('Y')+1 }} Telah Dibuka!</p>
+                    </div>
+                    <div class="p-4 text-center" style="background: white;">
+                        <h5 class="font-weight-bold text-dark mb-3">Segera Daftarkan Putra-Putri Anda</h5>
+                        <p class="text-muted mb-4">Kuota terbatas! Jangan lewatkan kesempatan untuk bergabung bersama Madrasah unggulan kami.</p>
+                        <a href="{{ route('register') }}" class="btn btn-success btn-lg btn-block font-weight-bold" style="border-radius: 50px; background: var(--primary-color); border: none; box-shadow: 0 5px 15px rgba(11, 140, 137, 0.3);">
+                            <i class="fas fa-paper-plane mr-2"></i> Daftar Sekarang
+                        </a>
+                        <button type="button" class="btn btn-link text-muted mt-2" data-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
+    <script>
+        $(document).ready(function() {
+            // Tampilkan modal promo PPDB setelah 1.5 detik halaman dimuat
+            if (!sessionStorage.getItem('promoShown')) {
+                setTimeout(function() {
+                    $('#promoModal').modal('show');
+                    sessionStorage.setItem('promoShown', 'true');
+                }, 1500);
+            }
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const counters = document.querySelectorAll('.counter');
@@ -650,42 +890,9 @@
         });
     </script>
     <script>
-        const counters = document.querySelectorAll('.counter');
-        counters.forEach(counter => {
-            const updateCount = () => {
-                const target = +counter.getAttribute('data-target');
-                const count = +counter.innerText;
-                const increment = target / 200;
-
-                if (count < target) {
-                    counter.innerText = Math.ceil(count + increment);
-                    setTimeout(updateCount, 10);
-                } else {
-                    counter.innerText = target;
-                }
-            }
-            updateCount();
-        });
-    </script>
-    <script>
         $('#carouselExampleCaptions').carousel({
             interval: 3000, // 3 detik
             ride: 'carousel'
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const quotes = document.querySelectorAll('.fade-quote');
-            let index = 0;
-
-            function showNextQuote() {
-                if (index < quotes.length) {
-                    quotes[index].classList.add('visible');
-                    index++;
-                    setTimeout(showNextQuote, 1500); // jeda antar quote (1,5 detik)
-                }
-            }
-
-            showNextQuote();
         });
     </script>
     <script>

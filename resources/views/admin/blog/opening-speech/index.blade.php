@@ -71,12 +71,19 @@
                         <small class="text-muted d-block mt-2">Format: JPG/PNG. Rasio ideal 1:1 (Persegi)</small>
                     </div>
 
-                    <!-- Name Input -->
+                    <!-- Name Input (Select from Teachers) -->
                     <div class="form-group text-left mb-0 mt-4">
-                        <label class="text-xs font-weight-bold text-muted uppercase">Nama Lengkap & Gelar <span class="text-danger">*</span></label>
+                        <label class="text-xs font-weight-bold text-muted uppercase">Pilih Kepala Madrasah <span class="text-danger">*</span></label>
                         <div class="input-group-premium bg-white">
                             <i class="fas fa-user text-amber opacity-50"></i>
-                            <input type="text" name="name" id="name" class="form-control border-0 font-weight-bold text-lg text-dark" value="{{ $data->name ?? '' }}" placeholder="Contoh: Dr. H. Fulan, M.Pd." required>
+                            <select name="name" id="name" class="form-control border-0 font-weight-bold text-md text-dark select2" required style="background: transparent; outline: none;">
+                                <option value="" disabled {{ !isset($data->name) ? 'selected' : '' }}>-- Pilih Guru --</option>
+                                @foreach($teachers as $teacher)
+                                    <option value="{{ $teacher->name }}" {{ isset($data) && $data->name == $teacher->name ? 'selected' : '' }}>
+                                        {{ $teacher->name }} {{ $teacher->position ? '('.$teacher->position.')' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -90,9 +97,14 @@
                     <h4 class="mb-0 font-weight-bold text-dark">
                         <i class="fas fa-comment-dots text-amber mr-2"></i> Naskah Sambutan
                     </h4>
-                    <button type="submit" class="btn btn-amber rounded-pill px-5 font-weight-bold shadow-amber-light text-white" id="submitBtn">
-                        <i class="fas fa-paper-plane mr-2"></i> TERBITKAN PROFIL
-                    </button>
+                    <div>
+                        <button type="button" class="btn btn-outline-info rounded-pill px-4 font-weight-bold shadow-sm mr-2" id="btnGenerateAI">
+                            <i class="fas fa-magic mr-1"></i> Buat dengan AI
+                        </button>
+                        <button type="submit" class="btn btn-amber rounded-pill px-5 font-weight-bold shadow-amber-light text-white" id="submitBtn">
+                            <i class="fas fa-paper-plane mr-2"></i> TERBITKAN PROFIL
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body p-4 p-md-5 bg-white">
                     <div class="alert bg-soft-amber border-0 rounded-10 d-flex align-items-center p-3 mb-4 shadow-sm">
@@ -150,6 +162,33 @@
         padding: 0 !important; background: transparent !important; 
         box-shadow: none !important; color: #1e293b; width: 100%; height: 100%; outline: none;
     }
+    .input-group-premium select { 
+        background: transparent !important; 
+        box-shadow: none !important; color: #1e293b; width: 100%; height: 100%; outline: none;
+        border: none !important;
+    }
+    .input-group-premium .select2-container {
+        width: 80% !important;
+        flex-grow: 1;
+    }
+    .input-group-premium .select2-container--default .select2-selection--single {
+        background-color: transparent !important;
+        border: none !important;
+        height: 46px !important;
+        display: flex !important;
+        align-items: center !important;
+        outline: none !important;
+    }
+    .input-group-premium .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #1e293b !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        padding-left: 0 !important;
+    }
+    .input-group-premium .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 100% !important;
+        top: 0 !important;
+    }
     .input-group-premium:focus-within { border-color: #f59e0b; box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1); }
     
     /* Premium Textarea / Summernote Wrapper */
@@ -159,6 +198,8 @@
     .note-toolbar { background-color: #f8fafc !important; border-bottom: 1px solid #e2e8f0 !important; }
 </style>
 @endsection
+
+@include('includes.select2')
 
 @push('scripts')
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
@@ -179,6 +220,11 @@
     }
 
     $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "-- Pilih Guru --",
+            allowClear: true
+        });
+
         $('#sambutan').summernote({
             height: 400,
             placeholder: 'Mulai menuliskan naskah sambutan resmi di sini...',
@@ -219,6 +265,61 @@
                 },
                 complete: function() {
                     btn.prop('disabled', false).html('<i class="fas fa-paper-plane mr-2"></i> TERBITKAN PROFIL');
+                }
+            });
+        });
+        $('#btnGenerateAI').on('click', function() {
+            let principalName = $('#name').val();
+            if (!principalName) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Pilih Kepala Madrasah',
+                    text: 'Silakan pilih nama Kepala Madrasah terlebih dahulu agar AI dapat menyesuaikan isi sambutan dengan nama beliau.'
+                });
+                return;
+            }
+
+            let btn = $(this);
+            let originalHtml = btn.html();
+            
+            Swal.fire({
+                title: 'AI Sedang Merangkai...',
+                text: 'Membaca data dan menyusun kalimat terbaik untuk sambutan Anda...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Bekerja...');
+            
+            $.ajax({
+                url: '{{ route('opening_speech.generate') }}',
+                type: 'POST',
+                data: { name: principalName },
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#sambutan').summernote('code', response.data);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Selesai!',
+                            text: 'Naskah berhasil di-generate. Silakan periksa atau ubah jika perlu sebelum diterbitkan.',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    let errMsg = xhr.responseJSON?.message || 'Gagal terhubung dengan AI. Pastikan API key sudah dikonfigurasi.';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: errMsg
+                    });
+                },
+                complete: function() {
+                    btn.prop('disabled', false).html(originalHtml);
                 }
             });
         });

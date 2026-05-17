@@ -177,6 +177,7 @@
                                 <th width="200px">Siswa</th>
                                 <th>Detail Identitas</th>
                                 <th>Rombel & TA</th>
+                                <th>CBT Sched</th>
                                 <th width="100px" class="text-center">Status</th>
                                 <th width="120px" class="text-center">AKSI</th>
                             </tr>
@@ -266,6 +267,12 @@
                     }
                 },
                 { data: 'kelas' },
+                { 
+                    data: 'cbt_session',
+                    render: function(data, type, row) {
+                        return '<div class="d-flex flex-column"><span class="badge badge-soft-primary mb-1">G' + (row.cbt_wave || 1) + '</span><span class="badge badge-soft-info">Sesi ' + (data || 1) + '</span></div>';
+                    }
+                },
                 { data: 'status', className: 'text-center' },
                 { data: 'action', orderable: false, searchable: false, className: 'text-center' },
             ]

@@ -165,6 +165,9 @@ class StudentController extends Controller
                 'asal_sekolah' => $request->asal_sekolah,
                 'no_ijazah' => $request->no_ijazah,
                 'is_active' => $request->has('is_active') ? true : true,
+                'cbt_wave' => $request->cbt_wave ?? 1,
+                'cbt_session' => $request->cbt_session ?? 1,
+                'cbt_room' => $request->cbt_room,
                 'keterangan' => $request->keterangan,
             ]);
 
@@ -288,6 +291,9 @@ class StudentController extends Controller
                 'asal_sekolah' => $request->asal_sekolah,
                 'no_ijazah' => $request->no_ijazah,
                 'is_active' => $request->has('is_active') ? true : false,
+                'cbt_wave' => $request->cbt_wave ?? 1,
+                'cbt_session' => $request->cbt_session ?? 1,
+                'cbt_room' => $request->cbt_room,
                 'keterangan' => $request->keterangan,
             ]);
 

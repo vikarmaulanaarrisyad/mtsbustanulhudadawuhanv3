@@ -21,6 +21,11 @@ class CbtRankingController extends Controller
         $selectedExam = $request->cbt_exam_id;
 
         $rankings = [];
+        $stats = [
+            'total_students' => 0,
+            'average_score' => 0,
+            'highest_score' => 0
+        ];
 
         if ($selectedExam) {
             // Ranking Per Mata Pelajaran / Ujian
@@ -35,6 +40,12 @@ class CbtRankingController extends Controller
             }
 
             $rankings = $query->orderBy('final_score', 'DESC')->get();
+            
+            if ($rankings->isNotEmpty()) {
+                $stats['total_students'] = $rankings->count();
+                $stats['average_score'] = $rankings->avg('final_score');
+                $stats['highest_score'] = $rankings->max('final_score');
+            }
         } else {
             // Global Ranking (Accumulated)
             $query = DB::table('cbt_student_exams')
@@ -58,8 +69,14 @@ class CbtRankingController extends Controller
             }
 
             $rankings = $query->orderBy('total_score', 'DESC')->get();
+
+            if ($rankings->isNotEmpty()) {
+                $stats['total_students'] = $rankings->count();
+                $stats['average_score'] = $rankings->avg('average_score');
+                $stats['highest_score'] = $rankings->max('total_score');
+            }
         }
 
-        return view('admin.cbt.ranking.index', compact('classGroups', 'exams', 'rankings', 'selectedClass', 'selectedExam'));
+        return view('admin.cbt.ranking.index', compact('classGroups', 'exams', 'rankings', 'selectedClass', 'selectedExam', 'stats'));
     }
 }

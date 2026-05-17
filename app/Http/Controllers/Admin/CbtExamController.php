@@ -65,12 +65,19 @@ class CbtExamController extends Controller
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
             'duration_minutes' => $request->duration_minutes,
+            'wave' => $request->wave ?: null,
+            'session' => $request->session ?: null,
+            'room' => $request->room,
             'token' => strtoupper(Str::random(6)),
             'is_active' => $request->boolean('is_active'),
             'display_result' => $request->boolean('display_result'),
+            'generate_certificate' => $request->boolean('generate_certificate'),
+            'passing_grade' => $request->passing_grade ?? 75,
             'detect_tab_switch' => $request->boolean('detect_tab_switch'),
             'max_violations' => $request->max_violations ?? 5,
-            'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit')
+            'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit'),
+            'randomize_questions' => $request->boolean('randomize_questions'),
+            'randomize_options' => $request->boolean('randomize_options'),
         ]);
 
         $exam->classes()->sync($request->classes);
@@ -103,11 +110,18 @@ class CbtExamController extends Controller
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
             'duration_minutes' => $request->duration_minutes,
+            'wave' => $request->wave ?: null,
+            'session' => $request->session ?: null,
+            'room' => $request->room,
             'is_active' => $request->boolean('is_active'),
             'display_result' => $request->boolean('display_result'),
+            'generate_certificate' => $request->boolean('generate_certificate'),
+            'passing_grade' => $request->passing_grade ?? 75,
             'detect_tab_switch' => $request->boolean('detect_tab_switch'),
             'max_violations' => $request->max_violations ?? 5,
-            'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit')
+            'auto_finish_on_limit' => $request->boolean('auto_finish_on_limit'),
+            'randomize_questions' => $request->boolean('randomize_questions'),
+            'randomize_options' => $request->boolean('randomize_options'),
         ]);
 
         $exam->classes()->sync($request->classes);
@@ -129,120 +143,230 @@ class CbtExamController extends Controller
 
     public function monitor(CbtExam $exam)
     {
-        $exam->load([
-            'bank' => function($q) { $q->withCount('questions'); },
-            'classes',
-            'studentExams' => function($q) {
-                $q->with(['student.classGroup'])->withCount('answers');
-            }
-        ]);
-        
+        $exam->load(['bank.questions', 'classes']);
+        return view('admin.cbt.exam.monitor', compact('exam'));
+    }
+
+    public function monitorData(CbtExam $exam)
+    {
+        $exam->load(['bank.questions', 'classes']);
         $allClassIds = $exam->classes->pluck('id');
-        $allStudents = \App\Models\Student::whereIn('student_class_group_id', $allClassIds)->get();
+        
+        $students = \App\Models\Student::whereIn('student_class_group_id', $allClassIds)
+            ->with(['classGroup', 'cbtExams' => function($q) use ($exam) {
+                $q->where('cbt_exam_id', $exam->id);
+            }])
+            ->get()
+            ->map(function($student) use ($exam) {
+                $studentExam = $student->cbtExams->first();
+                $totalQuestions = $exam->bank->questions->count();
+                $progress = 0;
+                if ($studentExam && $totalQuestions > 0) {
+                    // progress based on answers count
+                    $answered = \App\Models\CbtStudentAnswer::where('cbt_student_exam_id', $studentExam->id)->count();
+                    $progress = round(($answered / $totalQuestions) * 100);
+                }
 
-        return view('admin.cbt.exam.monitor', compact('exam', 'allStudents'));
-    }
-
-    public function resetStudentExam(CbtStudentExam $studentExam)
-    {
-        // Delete answers and reset status
-        $studentExam->answers()->delete();
-        $studentExam->update([
-            'status' => 'not_started',
-            'start_time' => null,
-            'end_time' => null,
-            'violation_count' => 0,
-            'final_score' => 0
-        ]);
-
-        return response()->json(['message' => 'Sesi ujian siswa berhasil di-reset']);
-    }
-
-    public function forceFinishStudentExam(CbtStudentExam $studentExam)
-    {
-        if ($studentExam->status == 'finished') {
-            return response()->json(['message' => 'Siswa sudah menyelesaikan ujian'], 400);
-        }
-
-        // Calculate score (simple logic)
-        $totalQuestions = $studentExam->exam->bank->questions->count();
-        $correctAnswers = $studentExam->answers()->where('is_correct', true)->count();
-        $score = ($totalQuestions > 0) ? ($correctAnswers / $totalQuestions) * 100 : 0;
-
-        $studentExam->update([
-            'status' => 'finished',
-            'end_time' => now(),
-            'final_score' => $score
-        ]);
-
-        return response()->json(['message' => 'Ujian siswa berhasil dihentikan paksa']);
-    }
-
-    public function exportExcel(CbtExam $exam)
-    {
-        return Excel::download(new CbtExamResultExport($exam->id), "Hasil_Ujian_{$exam->name}.xlsx");
-    }
-
-    public function exportPdf(CbtExam $exam)
-    {
-        $exam->load(['bank', 'studentExams.student.classGroup']);
-        $pdf = Pdf::loadView('admin.cbt.exam.export.result_pdf', compact('exam'))
-                  ->setPaper('a4', 'portrait');
-        return $pdf->download("Laporan_Ujian_{$exam->name}.pdf");
-    }
-
-    public function exportStudentPdf(CbtStudentExam $studentExam)
-    {
-        $studentExam->load(['student.classGroup', 'exam.bank', 'answers.question.options', 'answers.option']);
-        $pdf = Pdf::loadView('admin.cbt.exam.export.student_result_pdf', compact('studentExam'))
-                  ->setPaper('a4', 'portrait');
-        return $pdf->download("Hasil_Detail_{$studentExam->student->nama_lengkap}.pdf");
-    }
-
-    public function storeSpecialSession(Request $request, CbtExam $exam)
-    {
-        $request->validate([
-            'type' => 'required|in:remedial,susulan',
-            'name' => 'required',
-            'exam_date' => 'required|date',
-            'start_time' => 'required',
-            'end_time' => 'required',
-            'duration_minutes' => 'required|numeric',
-            'student_ids' => 'required|array',
-            'kkm' => 'nullable|numeric'
-        ]);
-
-        $newExam = CbtExam::create([
-            'name' => $request->name,
-            'cbt_bank_id' => $exam->cbt_bank_id,
-            'type' => $request->type,
-            'exam_mode' => 'selected_students',
-            'parent_exam_id' => $exam->id,
-            'exam_date' => $request->exam_date,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'duration_minutes' => $request->duration_minutes,
-            'token' => strtoupper(Str::random(6)),
-            'is_active' => true,
-            'display_result' => $exam->display_result
-        ]);
-
-        // Link to the same classes just in case, but participation is limited by pre-created studentExams
-        $newExam->classes()->sync($exam->classes->pluck('id'));
-
-        // Pre-create student exams for selected students
-        foreach ($request->student_ids as $studentId) {
-            CbtStudentExam::create([
-                'cbt_exam_id' => $newExam->id,
-                'student_id' => $studentId,
-                'status' => 'not_started',
-                'final_score' => 0
-            ]);
-        }
+                return [
+                    'id' => $student->id,
+                    'exam_id' => $studentExam->id ?? null,
+                    'nama' => $student->nama_lengkap,
+                    'kelas' => $student->classGroup ? $student->classGroup->class_group . ' ' . $student->classGroup->sub_class_group : '-',
+                    'session' => $student->cbt_session,
+                    'room' => $student->cbt_room,
+                    'status' => $studentExam->status ?? 'not_started',
+                    'progress' => $progress,
+                    'current_index' => ($studentExam->last_question_index ?? 0) + 1,
+                    'violations' => $studentExam->violation_count ?? 0,
+                    'is_logged_in' => $studentExam->is_logged_in ?? false,
+                    'last_active' => $studentExam ? $studentExam->updated_at->diffForHumans() : '-',
+                ];
+            });
 
         return response()->json([
-            'message' => 'Sesi ' . ucfirst($request->type) . ' berhasil dibuat untuk ' . count($request->student_ids) . ' siswa.',
-            'id' => $newExam->id
+            'exam' => $exam,
+            'students' => $students
+        ]);
+    }
+
+    public function sendMessage(Request $request, CbtStudentExam $studentExam)
+    {
+        $request->validate(['message' => 'required|string|max:255']);
+        $studentExam->update(['admin_message' => $request->message]);
+        return response()->json(['message' => 'Pesan terkirim ke siswa.']);
+    }
+
+    public function printAttendance(CbtExam $exam, Request $request)
+    {
+        $exam->load('classes');
+        $query = \App\Models\Student::whereIn('student_class_group_id', $exam->classes->pluck('id'))
+            ->with('classGroup')
+            ->orderBy('cbt_wave')
+            ->orderBy('cbt_session')
+            ->orderBy('cbt_room')
+            ->orderBy('nama_lengkap');
+
+        if ($request->wave) $query->where('cbt_wave', $request->wave);
+        if ($request->session) $query->where('cbt_session', $request->session);
+        if ($request->room) $query->where('cbt_room', $request->room);
+
+        $students = $query->get();
+        $setting = \App\Models\Setting::first();
+        $mailSetting = \App\Models\MailSetting::first();
+        $sessionTimes = \App\Models\CbtSessionTime::all()->keyBy('session_number');
+        
+        // Fetch Duty Personnel with robust matching (Flexible for "Sesi 1", "R1", etc)
+        $session = $request->session;
+        $room = trim($request->room);
+        
+        $duty = \App\Models\CbtDutySchedule::where('cbt_exam_id', $exam->id)
+            ->where(function($q) use ($session) {
+                $q->where('session_number', $session)
+                  ->orWhere('session_number', "Sesi $session");
+            })
+            ->where(function($q) use ($room) {
+                $q->where('room_name', $room)
+                  ->orWhere('room_name', "R$room")
+                  ->orWhere('room_name', "Ruang $room")
+                  ->orWhere('room_name', str_replace(['R', 'Ruang', ' '], '', $room));
+            })
+            ->with(['proctor', 'supervisor'])
+            ->first();
+
+        // Fallback headmaster search
+        $headmaster = \App\Models\Teacher::where('position', 'LIKE', '%Kepala%')->where('position', 'LIKE', '%Madrasah%')->first() 
+                      ?? \App\Models\Teacher::where('position', 'LIKE', '%Kepala%')->first();
+
+        $pdf = Pdf::loadView('admin.cbt.exam.export.attendance_pdf', compact('exam', 'students', 'setting', 'mailSetting', 'request', 'sessionTimes', 'duty', 'headmaster'))
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->stream("Daftar_Hadir_{$exam->name}.pdf");
+    }
+
+    public function printBeritaAcara(CbtExam $exam, Request $request)
+    {
+        $exam->load(['classes', 'bank']);
+        
+        $wave = $request->wave;
+        $session = $request->session;
+        $room = $request->room;
+
+        $studentQuery = \App\Models\Student::whereIn('student_class_group_id', $exam->classes->pluck('id'));
+        if ($wave) $studentQuery->where('cbt_wave', $wave);
+        if ($session) $studentQuery->where('cbt_session', $session);
+        if ($room) $studentQuery->where('cbt_room', $room);
+        
+        $total = $studentQuery->count();
+        
+        // Present students matching filters
+        $presentQuery = \App\Models\CbtStudentExam::where('cbt_exam_id', $exam->id)
+            ->whereIn('status', ['doing', 'finished'])
+            ->whereHas('student', function($q) use ($wave, $session, $room) {
+                if ($wave) $q->where('cbt_wave', $wave);
+                if ($session) $q->where('cbt_session', $session);
+                if ($room) $q->where('cbt_room', $room);
+            });
+            
+        $present = $presentQuery->count();
+        $absent = $total - $present;
+        
+        // Auto absent list
+        $absentList = $studentQuery->whereDoesntHave('cbtStudentExams', function($q) use ($exam) {
+            $q->where('cbt_exam_id', $exam->id);
+        })->pluck('nama_lengkap')->toArray();
+
+        // Fetch Duty Personnel with flexible matching
+        $duty = \App\Models\CbtDutySchedule::where('cbt_exam_id', $exam->id)
+            ->where(function($q) use ($session) {
+                $q->where('session_number', $session)
+                  ->orWhere('session_number', "Sesi $session");
+            })
+            ->where(function($q) use ($room) {
+                $q->where('room_name', $room)
+                  ->orWhere('room_name', "R$room")
+                  ->orWhere('room_name', "Ruang $room")
+                  ->orWhere('room_name', str_replace(['R', 'Ruang', ' '], '', $room));
+            })
+            ->with(['proctor', 'supervisor'])
+            ->first();
+
+        // Fetch Session Time with flexible matching
+        $sessionTime = \App\Models\CbtSessionTime::where('session_number', $session)
+            ->orWhere('session_number', str_replace(['Sesi', ' '], '', $session))
+            ->first();
+
+        $stats = [
+            'total' => $total,
+            'present' => $present,
+            'absent' => $absent,
+            'absent_list_auto' => implode(', ', $absentList),
+            'notes' => $request->notes ?? 'Ujian berjalan lancar.',
+            'wave' => $wave,
+            'session' => $session,
+            'room' => $room,
+            'absent_manual' => $request->absent_manual,
+            'proctor' => $duty->proctor->name ?? '................................',
+            'proctor_nip' => $duty->proctor->nip ?? '................................',
+            'supervisor' => $duty->supervisor->name ?? '................................',
+            'supervisor_nip' => $duty->supervisor->nip ?? '................................',
+            'start_time' => $sessionTime->start_time ?? $exam->start_time,
+            'end_time' => $sessionTime->end_time ?? $exam->end_time
+        ];
+
+        $setting = \App\Models\Setting::first();
+        $mailSetting = \App\Models\MailSetting::first();
+        $headmaster = \App\Models\Teacher::where('position', 'LIKE', '%Kepala%')->where('position', 'LIKE', '%Madrasah%')->first() 
+                      ?? \App\Models\Teacher::where('position', 'LIKE', '%Kepala%')->first();
+        
+        $pdf = Pdf::loadView('admin.cbt.exam.export.berita_acara_pdf', compact('exam', 'stats', 'setting', 'mailSetting', 'headmaster', 'request'))
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->stream("Berita_Acara_{$exam->name}.pdf");
+    }
+
+    public function storeDutySchedule(Request $request, CbtExam $exam)
+    {
+        $request->validate([
+            'session_number' => 'required',
+            'room_name' => 'required',
+            'proctor_id' => 'nullable|exists:teachers,id',
+            'supervisor_id' => 'nullable|exists:teachers,id'
+        ]);
+
+        \App\Models\CbtDutySchedule::updateOrCreate(
+            [
+                'cbt_exam_id' => $exam->id,
+                'session_number' => $request->session_number,
+                'room_name' => $request->room_name,
+            ],
+            [
+                'proctor_id' => $request->proctor_id,
+                'supervisor_id' => $request->supervisor_id,
+            ]
+        );
+
+        return response()->json(['message' => 'Jadwal petugas berhasil disimpan.']);
+    }
+
+    public function getDutyData(CbtExam $exam)
+    {
+        $duties = \App\Models\CbtDutySchedule::where('cbt_exam_id', $exam->id)
+            ->with(['proctor', 'supervisor'])
+            ->get();
+        $teachers = \App\Models\Teacher::orderBy('name')->get();
+        
+        // Fetch unique rooms from students involved in this exam
+        $rooms = \App\Models\Student::whereIn('student_class_group_id', $exam->classes->pluck('id'))
+            ->whereNotNull('cbt_room')
+            ->distinct()
+            ->pluck('cbt_room')
+            ->sort()
+            ->values();
+        
+        return response()->json([
+            'duties' => $duties,
+            'teachers' => $teachers,
+            'rooms' => $rooms
         ]);
     }
 
@@ -265,7 +389,9 @@ class CbtExamController extends Controller
             $setting->headmaster_nip = $headmaster->nip;
         }
 
-        $pdf = Pdf::loadView('admin.cbt.exam.export.exam_cards_pdf', compact('exam', 'students', 'setting'))
+        $sessionTimes = \App\Models\CbtSessionTime::all()->keyBy('session_number');
+        
+        $pdf = Pdf::loadView('admin.cbt.exam.export.exam_cards_pdf', compact('exam', 'students', 'setting', 'sessionTimes'))
                   ->setPaper('a4', 'portrait');
         
         return $pdf->stream("Kartu_Ujian_{$exam->name}.pdf");

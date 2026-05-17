@@ -104,6 +104,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.admin|Super Admin|Admin']], function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::get('/workflow', [\App\Http\Controllers\Admin\WorkflowController::class, 'index'])->name('admin.workflow');
+        Route::post('/workflow/activate', [\App\Http\Controllers\Admin\WorkflowController::class, 'activate'])->name('admin.workflow.activate');
+        Route::post('/workflow/reset', [\App\Http\Controllers\Admin\WorkflowController::class, 'reset'])->name('admin.workflow.reset');
+        Route::get('/upgrade-module/{module}', [\App\Http\Controllers\Admin\WorkflowController::class, 'upgradePage'])->name('admin.upgrade_module');
+        Route::post('/upgrade-module/{module}/activate', [\App\Http\Controllers\Admin\WorkflowController::class, 'activateModule'])->name('admin.upgrade_module.activate');
+        Route::post('/upgrade-module/{module}/checkout', [\App\Http\Controllers\Admin\WorkflowController::class, 'submitCheckout'])->name('admin.upgrade_module.checkout');
 
         // Behavior Logs (Character Points) - Admin Access
         Route::post('/behavior-logs', [\App\Http\Controllers\BehaviorLogController::class, 'store'])->name('admin.behavior-logs.store');
@@ -235,6 +240,8 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/cbt/{exam}/save-answer', 'saveAnswer')->name('student.cbt.save-answer');
             Route::post('/cbt/{exam}/report-violation', 'reportViolation')->name('student.cbt.report-violation');
             Route::post('/cbt/{exam}/finish', 'finish')->name('student.cbt.finish');
+            Route::get('/cbt/{exam}/status', 'checkStatus')->name('student.cbt.check-status');
+            Route::get('/cbt/{exam}/certificate', 'downloadCertificate')->name('student.cbt.certificate');
         });
 
         // Student Savings
@@ -252,6 +259,17 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
         Route::put('/announcements/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
         Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+
+        // FAQ Management (Admin)
+        Route::controller(\App\Http\Controllers\Admin\FaqController::class)->group(function () {
+            Route::get('/faq', 'index')->name('faq.index');
+            Route::get('/faq/data', 'data')->name('faq.data');
+            Route::post('/faq', 'store')->name('faq.store');
+            Route::get('/faq/{id}', 'show')->name('faq.show');
+            Route::put('/faq/{id}', 'update')->name('faq.update');
+            Route::delete('/faq/{id}', 'destroy')->name('faq.destroy');
+            Route::post('/faq/delete-selected', 'deleteSelected')->name('faq.deleteSelected');
+        });
 
         // Teaching Journal Monitoring (Admin)
         Route::controller(\App\Http\Controllers\Admin\AdminTeachingJournalController::class)->group(function () {
@@ -301,6 +319,7 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::post('/{bank}/upload-images', 'bulkUploadImages')->name('uploadImages');
                 // AI Generator
                 Route::post('/{bank}/ai-generate', 'generateAiQuestions')->name('ai_generate');
+                Route::post('/{bank}/ai-generate-image', 'generateQuestionImage')->name('ai_generate_image');
                 Route::post('/{bank}/ai-save', 'saveAiQuestions')->name('ai_save');
             });
 
@@ -313,6 +332,8 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::delete('/{exam}', 'destroy')->name('destroy');
                 Route::post('/{exam}/refresh-token', 'refreshToken')->name('refresh-token');
                 Route::get('/{exam}/monitor', 'monitor')->name('monitor');
+                Route::get('/{exam}/monitor-data', 'monitorData')->name('monitor-data');
+                Route::post('/{exam}/send-message/{studentExam}', 'sendMessage')->name('send-message');
                 Route::post('/{exam}/store-special-session', 'storeSpecialSession')->name('store-special-session');
                 Route::post('/student-exam/{studentExam}/reset', 'resetStudentExam')->name('student-exam.reset');
                 Route::post('/student-exam/{studentExam}/force-finish', 'forceFinishStudentExam')->name('student-exam.force-finish');
@@ -321,6 +342,10 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/{exam}/export-pdf', 'exportPdf')->name('export-pdf');
                 Route::get('/{exam}/export-rdm', 'exportRdm')->name('export-rdm');
                 Route::get('/{exam}/print-exam-cards', 'printExamCards')->name('print-exam-cards');
+                Route::get('/{exam}/print-attendance', 'printAttendance')->name('print-attendance');
+                Route::get('/{exam}/print-berita-acara', 'printBeritaAcara')->name('print-berita-acara');
+                Route::get('/{exam}/duty-data', 'getDutyData')->name('duty-data');
+                Route::post('/{exam}/duty-schedule', 'storeDutySchedule')->name('duty-schedule.store');
                 Route::get('/student-exam/{studentExam}/export-pdf', 'exportStudentPdf')->name('export-student-pdf');
                 
                 // AI Grading & Manual Correction
@@ -332,6 +357,16 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/{exam}/item-analysis', [\App\Http\Controllers\Admin\CbtItemAnalysisController::class, 'show'])->name('item-analysis');
                 Route::post('/{exam}/question/{question}/ai-analyze', [\App\Http\Controllers\Admin\CbtItemAnalysisController::class, 'aiAnalyze'])->name('item-analysis.ai');
             });
+
+                // Session Sync
+                Route::controller(\App\Http\Controllers\Admin\CbtSessionSyncController::class)->prefix('session-sync')->name('session-sync.')->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/data', 'listData')->name('list-data');
+                    Route::post('/sync', 'sync')->name('sync');
+                    Route::post('/auto-distribute', 'autoDistribute')->name('auto-distribute');
+                    Route::post('/reset', 'reset')->name('reset');
+                    Route::post('/update-session-times', 'updateSessionTimes')->name('update-session-times');
+                });
 
             // Ranking & Recap
             Route::get('/ranking', [\App\Http\Controllers\Admin\CbtRankingController::class, 'index'])->name('ranking.index');
@@ -709,6 +744,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/blog/quotes', 'index')->name('quotes.index');
             Route::get('/blog/quotes/{id}', 'show')->name('quotes.show');
             Route::put('/blog/quotes/{id}', 'update')->name('quotes.update');
+            Route::post('/blog/quotes/generate', 'generateWithAi')->name('quotes.generate');
             Route::post('/blog/quotes/import-excel', 'importEXCEL')->name('quotes.import_excel');
             Route::post('/blog/quotes', 'store')->name('quotes.store');
             Route::post('/blog/quotes/delete-selected', 'deleteSelected')->name('quotes.deleteSelected');
@@ -722,6 +758,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('opening-speech/edit', 'edit')->name('opening_speech.edit');
             Route::post('opening-speech/store', 'store')->name('opening_speech.store');
             Route::put('opening-speech/update/{id}', 'update')->name('opening_speech.update');
+            Route::post('opening-speech/generate', 'generateWithAi')->name('opening_speech.generate');
         });
     });
 
@@ -1108,6 +1145,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/data', [\App\Http\Controllers\StudentSavingController::class, 'data'])->name('data');
             Route::post('/store', [\App\Http\Controllers\StudentSavingController::class, 'store'])->name('store');
             Route::get('/history/{id}', [\App\Http\Controllers\StudentSavingController::class, 'history'])->name('history');
+            Route::get('/print/{id}', [\App\Http\Controllers\StudentSavingController::class, 'print'])->name('print');
         });
         Route::get('/live', [TeacherAttendanceController::class, 'liveMonitoring'])->name('admin.attendance.live');
         Route::resource('/reports', AttendanceReportController::class)->names('attendance-reports');
@@ -1181,6 +1219,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/data', [\App\Http\Controllers\StudentSavingController::class, 'data'])->name('data');
         Route::post('/store', [\App\Http\Controllers\StudentSavingController::class, 'store'])->name('store');
         Route::get('/history/{id}', [\App\Http\Controllers\StudentSavingController::class, 'history'])->name('history');
+        Route::get('/print/{id}', [\App\Http\Controllers\StudentSavingController::class, 'print'])->name('print');
     });
 });
 
@@ -1190,6 +1229,40 @@ Route::group(['middleware' => ['auth']], function () {
 |--------------------------------------------------------------------------
 */
 Route::post('/api/midtrans/callback', [\App\Http\Controllers\Ppdb\PaymentCallbackController::class, 'callback'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+/*
+|--------------------------------------------------------------------------
+| DEVELOPER & SELLER ROUTES (PORTAL PENJUAL)
+|--------------------------------------------------------------------------
+*/
+Route::group(['prefix' => 'seller'], function () {
+    Route::get('/login', [\App\Http\Controllers\SellerController::class, 'loginForm'])->name('seller.login');
+    Route::post('/login', [\App\Http\Controllers\SellerController::class, 'login']);
+    Route::post('/logout', [\App\Http\Controllers\SellerController::class, 'logout'])->name('seller.logout');
+    Route::get('/dashboard', [\App\Http\Controllers\SellerController::class, 'dashboard'])->name('seller.dashboard');
+    Route::post('/toggle-license', [\App\Http\Controllers\SellerController::class, 'toggleLicense'])->name('seller.toggle_license');
+    Route::post('/simulate-payment', [\App\Http\Controllers\SellerController::class, 'simulatePayment'])->name('seller.simulate_payment');
+    Route::post('/update-prices', [\App\Http\Controllers\SellerController::class, 'updatePrices'])->name('seller.update_prices');
+    Route::post('/update-bank-settings', [\App\Http\Controllers\SellerController::class, 'updateBankSettings'])->name('seller.update_bank_settings');
+    Route::post('/quick-action', [\App\Http\Controllers\SellerController::class, 'quickAction'])->name('seller.quick_action');
+    Route::post('/record-manual-payment', [\App\Http\Controllers\SellerController::class, 'recordManualPayment'])->name('seller.record_manual_payment');
+    
+    // Remote Diagnostics & One-Click Backup
+    Route::post('/remote-diagnostics', [\App\Http\Controllers\SellerController::class, 'remoteDiagnostics'])->name('seller.remote_diagnostics');
+    Route::post('/remote-backup', [\App\Http\Controllers\SellerController::class, 'remoteBackup'])->name('seller.remote_backup');
+    Route::get('/remote-backup/download/{filename}', [\App\Http\Controllers\SellerController::class, 'downloadBackup'])->name('seller.download_backup');
+    Route::delete('/remote-backup/delete/{filename}', [\App\Http\Controllers\SellerController::class, 'destroyBackup'])->name('seller.delete_backup');
+
+    // Coupon & Diskon Management
+    Route::post('/coupons', [\App\Http\Controllers\SellerController::class, 'createCoupon'])->name('seller.coupon.create');
+    Route::post('/coupons/{id}/toggle', [\App\Http\Controllers\SellerController::class, 'toggleCouponStatus'])->name('seller.coupon.toggle');
+    Route::delete('/coupons/{id}', [\App\Http\Controllers\SellerController::class, 'deleteCoupon'])->name('seller.coupon.delete');
+    Route::post('/coupons/validate', [\App\Http\Controllers\SellerController::class, 'validateCoupon'])->name('seller.coupon.validate');
+
+    // Manual Verification Transactions Management
+    Route::post('/transactions/{id}/approve', [\App\Http\Controllers\SellerController::class, 'approveActivation'])->name('seller.transaction.approve');
+    Route::post('/transactions/{id}/reject', [\App\Http\Controllers\SellerController::class, 'rejectActivation'])->name('seller.transaction.reject');
+});
 
 /*
 |--------------------------------------------------------------------------

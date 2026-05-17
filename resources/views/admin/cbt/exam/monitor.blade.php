@@ -1,232 +1,408 @@
 @extends('layouts.app')
-@section('title', 'Live Monitoring: ' . $exam->name)
-@section('subtitle', 'CBT Madrasah Digital')
+@section('title', 'Proctor Command Center: UJIAN MADRASAH')
+@section('subtitle', 'CBT Management')
 
 @section('content')
-{{-- PREMIUM HEADER --}}
+<!-- PREMIUM HEADER BANNER -->
 <div class="row">
     <div class="col-12">
-        <div class="card shadow-lg border-0 mb-4 overflow-hidden position-relative" style="border-radius:20px; background: linear-gradient(135deg, #0f172a 0%, #334155 100%);">
-            <div class="card-body p-4 position-relative" style="z-index: 2;">
+        <div class="card shadow-lg border-0 mb-4 bg-gradient-indigo position-relative" style="border-radius: 15px;">
+            <!-- Background Decoration (Clipped) -->
+            <div class="position-absolute w-100 h-100 overflow-hidden" style="top:0; left:0; border-radius: 15px; z-index: 0;">
+                <div class="bg-circle-1"></div>
+                <div class="bg-circle-2"></div>
+            </div>
+            
+            <div class="card-body p-4 position-relative" style="z-index: 1;">
                 <div class="row align-items-center">
-                    <div class="col-md-7 text-white">
-                        <a href="{{ route('admin.cbt.exam.index') }}" class="btn btn-sm btn-glass mb-3 rounded-pill px-3">
-                            <i class="fas fa-arrow-left mr-1"></i> Kembali
-                        </a>
-                        <h1 class="display-5 font-weight-bold mb-1"><i class="fas fa-desktop mr-2 text-info"></i>Live Monitoring</h1>
-                        <p class="mb-0 opacity-80 lead">
-                            <span class="mr-3"><i class="fas fa-file-signature mr-1 text-warning"></i> {{ $exam->name }}</span>
-                            <span><i class="fas fa-calendar-alt mr-1 text-info"></i> {{ $exam->exam_date ? $exam->exam_date->format('d M Y') : '-' }}</span>
-                        </p>
+                    <div class="col-md-8 text-white">
+                        <div class="d-flex align-items-center mb-2">
+                            <a href="{{ route('admin.cbt.exam.index') }}" class="btn btn-xs btn-outline-light rounded-pill px-3 mr-3">
+                                <i class="fas fa-arrow-left"></i>
+                            </a>
+                            <span class="badge badge-soft-warning px-3 py-1 rounded-pill font-weight-bold animate__animated animate__pulse animate__infinite">LIVE MONITORING</span>
+                        </div>
+                        <h2 class="font-weight-bold mb-1 text-white">
+                            <i class="fas fa-satellite mr-2 animate__animated animate__fadeInLeft"></i> 
+                            UJIAN MADRASAH: {{ $exam->name }}
+                        </h2>
+                        <div class="d-flex gap-3 text-sm opacity-8">
+                            <span><i class="fas fa-calendar mr-1 text-white"></i> {{ $exam->exam_date ? \Carbon\Carbon::parse($exam->exam_date)->format('d M Y') : '-' }}</span>
+                            <span><i class="fas fa-clock mr-1 text-white"></i> {{ $exam->start_time }} - {{ $exam->end_time }}</span>
+                            <span><i class="fas fa-key mr-1 text-white"></i> TOKEN: <strong class="text-warning">{{ $exam->token }}</strong></span>
+                        </div>
                     </div>
-                    <div class="col-md-5 text-right d-none d-md-block">
-                        <div class="token-card shadow-sm animate__animated animate__pulse animate__infinite">
-                            <small class="text-uppercase font-weight-bold opacity-70">TOKEN UJIAN</small>
-                            <h2 class="font-weight-black mb-0 letter-spacing-2">{{ $exam->token }}</h2>
+                    <div class="col-md-4 text-right">
+                        <button type="button" onclick="openDutyModal()" class="btn btn-indigo rounded-pill px-4 font-weight-bold shadow-lg btn-premium mr-2">
+                            <i class="fas fa-user-shield mr-2"></i> PETUGAS UJIAN
+                        </button>
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-warning rounded-pill px-4 font-weight-bold dropdown-toggle shadow-lg btn-premium" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-print mr-2"></i> LAPORAN LENGKAP
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right border-0 shadow-lg p-3 animate__animated animate__fadeIn" style="border-radius: 15px; min-width: 280px; z-index: 9999;">
+                                <h6 class="dropdown-header text-xs text-muted font-weight-bold pl-0 mb-2 uppercase letter-spacing-1">Dokumen Administrasi</h6>
+                                <a class="dropdown-item py-2 rounded-10 mb-1" href="javascript:void(0)" onclick="$('#attendanceModal').modal('show')">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-shape bg-soft-primary rounded p-2 mr-3" style="width:35px; height:35px;"><i class="fas fa-user-check text-primary"></i></div>
+                                        <div><span class="d-block font-weight-bold text-dark text-sm">Daftar Hadir</span><small class="text-[10px] text-muted">Filter Sesi & Ruang</small></div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item py-2 rounded-10 mb-1" href="javascript:void(0)" onclick="$('#beritaAcaraModal').modal('show')">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-shape bg-soft-success rounded p-2 mr-3" style="width:35px; height:35px;"><i class="fas fa-file-alt text-success"></i></div>
+                                        <div><span class="d-block font-weight-bold text-dark text-sm">Berita Acara</span><small class="text-[10px] text-muted">Input Catatan & Absensi</small></div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item py-2 rounded-10 mb-1" href="{{ route('admin.cbt.exam.print-exam-cards', $exam->id) }}" target="_blank">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-shape bg-soft-warning rounded p-2 mr-3" style="width:35px; height:35px;"><i class="fas fa-id-card text-warning"></i></div>
+                                        <div><span class="d-block font-weight-bold text-dark text-sm">Kartu Login</span><small class="text-[10px] text-muted">Cetak Per Ruang</small></div>
+                                    </div>
+                                </a>
+                                
+                                <div class="dropdown-divider my-2"></div>
+                                <h6 class="dropdown-header text-xs text-muted font-weight-bold pl-0 mb-2 uppercase letter-spacing-1">Rekapitulasi Hasil</h6>
+                                <a class="dropdown-item py-2 rounded-10 mb-1" href="{{ route('admin.cbt.exam.export-excel', $exam->id) }}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-shape bg-soft-success rounded p-2 mr-3" style="width:35px; height:35px;"><i class="fas fa-file-excel text-success"></i></div>
+                                        <div><span class="d-block font-weight-bold text-dark text-sm">Export Excel</span><small class="text-[10px] text-muted">Rekap Nilai Siswa</small></div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item py-2 rounded-10 mb-1" href="{{ route('admin.cbt.exam.export-pdf', $exam->id) }}" target="_blank">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-shape bg-soft-danger rounded p-2 mr-3" style="width:35px; height:35px;"><i class="fas fa-file-pdf text-danger"></i></div>
+                                        <div><span class="d-block font-weight-bold text-dark text-sm">Export PDF</span><small class="text-[10px] text-muted">Daftar Nilai (PDF)</small></div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item py-2 rounded-10 mb-1" href="{{ route('admin.cbt.exam.item-analysis', $exam->id) }}" target="_blank">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-shape bg-soft-info rounded p-2 mr-3" style="width:35px; height:35px;"><i class="fas fa-chart-pie text-info"></i></div>
+                                        <div><span class="d-block font-weight-bold text-dark text-sm">Analisis Soal</span><small class="text-[10px] text-muted">Daya Pembeda & Kesukaran</small></div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item py-2 rounded-10" href="{{ route('admin.cbt.exam.export-rdm', $exam->id) }}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-shape bg-soft-indigo rounded p-2 mr-3" style="width:35px; height:35px;"><i class="fas fa-upload text-indigo"></i></div>
+                                        <div><span class="d-block font-weight-bold text-dark text-sm">Format RDM</span><small class="text-[10px] text-muted">Template Raport Digital</small></div>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
-                        <div class="mt-3 d-flex justify-content-end gap-2">
-                            <a href="{{ route('admin.cbt.exam.export-excel', $exam->id) }}" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm border-0 font-weight-bold">
-                                <i class="fas fa-file-excel mr-1"></i> Excel
-                            </a>
-                            <a href="{{ route('admin.cbt.exam.export-pdf', $exam->id) }}" class="btn btn-sm btn-danger rounded-pill px-3 shadow-sm border-0 font-weight-bold">
-                                <i class="fas fa-file-pdf mr-1"></i> PDF
-                            </a>
-                        </div>
+                        <button class="btn btn-white rounded-pill px-4 font-weight-bold shadow-lg btn-premium text-indigo" onclick="location.reload()">
+                            <i class="fas fa-sync-alt mr-2"></i> REFRESH
+                        </button>
                     </div>
                 </div>
             </div>
-            <div class="header-shape-1"></div>
-            <div class="header-shape-2"></div>
+            <!-- Decorative Circles -->
+            <div class="bg-circle-1"></div>
+            <div class="bg-circle-2"></div>
         </div>
     </div>
 </div>
 
-{{-- STATS SECTION --}}
-<div class="row mb-4">
-    <div class="col-lg-3 col-6 mb-3">
-        <div class="card border-0 shadow-sm h-100 stat-card-premium" style="border-radius:18px;">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="icon-shape-premium bg-soft-primary mr-3">
-                        <i class="fas fa-users"></i>
+<!-- STATISTICS WIDGETS -->
+<div class="row mb-4 animate__animated animate__fadeInUp">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm info-card overflow-hidden" style="border-radius: 12px; border-left: 5px solid #6610f2 !important;">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Total Peserta</p>
+                        <h2 class="font-weight-bold mb-0 text-indigo" id="total-count">-</h2>
                     </div>
-                    <span class="text-xs font-weight-bold text-muted text-uppercase letter-spacing-1">Total Peserta</span>
+                    <div class="icon-shape bg-soft-indigo rounded-circle p-3">
+                        <i class="fas fa-users text-indigo fa-lg"></i>
+                    </div>
                 </div>
-                <h2 class="font-weight-bold mb-0" id="stat-total">{{ $exam->studentExams->count() }}</h2>
-                <div class="text-xs text-muted mt-2">Siswa telah login ke ujian</div>
+                <div class="progress progress-xs mt-3 bg-light">
+                    <div class="progress-bar bg-indigo" style="width: 100%"></div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-6 mb-3">
-        <div class="card border-0 shadow-sm h-100 stat-card-premium" style="border-radius:18px;">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="icon-shape-premium bg-soft-warning mr-3">
-                        <i class="fas fa-spinner fa-spin"></i>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm info-card overflow-hidden" style="border-radius: 12px; border-left: 5px solid #ffc107 !important;">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Mengerjakan</p>
+                        <h2 class="font-weight-bold mb-0 text-warning" id="active-count">-</h2>
                     </div>
-                    <span class="text-xs font-weight-bold text-muted text-uppercase letter-spacing-1">Aktif</span>
+                    <div class="icon-shape bg-soft-warning rounded-circle p-3">
+                        <i class="fas fa-pen-nib text-warning fa-lg pulse-warning-icon"></i>
+                    </div>
                 </div>
-                <h2 class="font-weight-bold mb-0 text-warning" id="stat-doing">{{ $exam->studentExams->where('status', 'doing')->count() }}</h2>
-                <div class="text-xs text-muted mt-2">Sedang mengerjakan soal</div>
+                <div class="progress progress-xs mt-3 bg-light" id="active-progress-container">
+                    <div class="progress-bar bg-warning" id="active-progress-bar" style="width: 0%"></div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-6 mb-3">
-        <div class="card border-0 shadow-sm h-100 stat-card-premium" style="border-radius:18px;">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="icon-shape-premium bg-soft-success mr-3">
-                        <i class="fas fa-check-double"></i>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm info-card overflow-hidden" style="border-radius: 12px; border-left: 5px solid #28a745 !important;">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Selesai</p>
+                        <h2 class="font-weight-bold mb-0 text-success" id="finished-count">-</h2>
                     </div>
-                    <span class="text-xs font-weight-bold text-muted text-uppercase letter-spacing-1">Selesai</span>
+                    <div class="icon-shape bg-soft-success rounded-circle p-3">
+                        <i class="fas fa-check-double text-success fa-lg"></i>
+                    </div>
                 </div>
-                <h2 class="font-weight-bold mb-0 text-success" id="stat-finished">{{ $exam->studentExams->where('status', 'finished')->count() }}</h2>
-                <div class="text-xs text-muted mt-2">Telah mengirimkan jawaban</div>
+                <div class="progress progress-xs mt-3 bg-light" id="finished-progress-container">
+                    <div class="progress-bar bg-success" id="finished-progress-bar" style="width: 0%"></div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-6 mb-3">
-        <div class="card border-0 shadow-sm h-100 stat-card-premium" style="border-radius:18px;">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="icon-shape-premium bg-soft-danger mr-3">
-                        <i class="fas fa-exclamation-triangle"></i>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm info-card overflow-hidden" style="border-radius: 12px; border-left: 5px solid #dc3545 !important;">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-sm font-weight-bold text-uppercase text-muted mb-1">Pelanggaran</p>
+                        <h2 class="font-weight-bold mb-0 text-danger" id="violation-count">-</h2>
                     </div>
-                    <span class="text-xs font-weight-bold text-muted text-uppercase letter-spacing-1">Pelanggaran</span>
+                    <div class="icon-shape bg-soft-danger rounded-circle p-3">
+                        <i class="fas fa-exclamation-triangle text-danger fa-lg"></i>
+                    </div>
                 </div>
-                <h2 class="font-weight-bold mb-0 text-danger" id="stat-violations">{{ $exam->studentExams->sum('violation_count') }}</h2>
-                <div class="text-xs text-muted mt-2">Deteksi kecurangan sistem</div>
+                <div class="progress progress-xs mt-3 bg-light">
+                    <div class="progress-bar bg-danger" style="width: 30%"></div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-{{-- MONITORING TABLE --}}
+<!-- MONITORING MAIN -->
 <div class="row">
-    <div class="col-12">
-        <div class="card shadow-lg border-0 mb-5" style="border-radius:20px;">
-            <div class="card-header bg-white py-4 border-bottom d-flex justify-content-between align-items-center">
-                <div>
-                    <h4 class="mb-0 font-weight-bold text-dark">Daftar Real-time Peserta</h4>
-                    <p class="text-muted text-sm mb-0 mt-1"><i class="fas fa-sync-alt fa-spin mr-1 text-info"></i> Auto-refresh aktif setiap 30 detik</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('admin.cbt.exam.print-exam-cards', $exam->id) }}" target="_blank" class="btn btn-dark rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2">
-                        <i class="fas fa-id-card mr-2 text-warning"></i> CETAK KARTU
-                    </a>
-                    <a href="{{ route('admin.cbt.exam.item-analysis', $exam->id) }}" class="btn btn-primary rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2">
-                        <i class="fas fa-chart-bar mr-2"></i> ANALISIS SOAL
-                    </a>
-                    <a href="{{ route('admin.cbt.exam.export-rdm', $exam->id) }}" class="btn btn-warning rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2">
-                        <i class="fas fa-file-excel mr-2 text-dark"></i> EKSPOR RDM
-                    </a>
-                    <button class="btn btn-glass-dark rounded-xl px-4 py-2 font-weight-bold shadow-sm mr-2" onclick="openSpecialSessionModal()">
-                        <i class="fas fa-plus-circle mr-2 text-warning"></i> SESI KHUSUS
-                    </button>
-                    <button class="btn btn-primary rounded-xl px-4 py-2 font-weight-bold shadow-sm" onclick="location.reload()">
-                        <i class="fas fa-sync mr-2"></i> REFRESH
-                    </button>
+    <div class="col-xl-9 animate__animated animate__fadeInLeft">
+        <div class="card shadow-sm border-0 premium-card">
+            <div class="card-header bg-white py-4 border-bottom-0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0 font-weight-bold text-dark">Live Monitoring</h4>
+                    <div class="d-flex gap-2">
+                        <div class="input-group input-group-sm" style="width: 200px;">
+                            <input type="text" id="search-monitor" class="form-control rounded-pill-left px-3 border-2" placeholder="Cari nama...">
+                            <div class="input-group-append">
+                                <span class="input-group-text bg-light rounded-pill-right border-2"><i class="fas fa-search"></i></span>
+                            </div>
+                        </div>
+                        <select id="filter-status" class="form-control form-control-sm rounded-pill px-3 border-2" style="width: 150px;">
+                            <option value="all">Semua Status</option>
+                            <option value="doing">Mengerjakan</option>
+                            <option value="finished">Selesai</option>
+                            <option value="not_started">Standby</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover align-items-center mb-0 premium-table">
-                        <thead class="bg-light">
+                    <table class="table table-hover align-middle mb-0" id="monitor-table" style="width:100%">
+                        <thead class="bg-light-indigo text-uppercase text-xs font-weight-bold">
                             <tr>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 pr-3 pl-4">Peserta</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">Status Login</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2">Anti-Cheat</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2 text-center">Nilai</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 px-2 text-center">Progress</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 pl-2 pr-4 text-center">Aksi</th>
+                                <th class="pl-4 py-3">Siswa</th>
+                                <th width="150px">Sesi & Ruang</th>
+                                <th width="200px" class="text-center">Progress</th>
+                                <th width="150px" class="text-center">Status</th>
+                                <th width="100px" class="text-right pr-4">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @forelse($exam->studentExams as $se)
+                        <tbody id="student-list">
+                            {{-- Inject by AJAX --}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK ACTIONS & LOGS -->
+    <div class="col-xl-3 animate__animated animate__fadeInRight">
+        <div class="card shadow-sm border-0 premium-card mb-4 border-left-indigo-thick">
+            <div class="card-header bg-white py-3 border-bottom-0">
+                <h6 class="font-weight-bold text-indigo mb-0">Quick Control</h6>
+            </div>
+            <div class="card-body pt-0">
+                <button class="btn btn-indigo btn-block btn-premium font-weight-bold py-2 mb-2 shadow-sm" onclick="broadcastMessage()">
+                    <i class="fas fa-bullhorn mr-2"></i> Broadcast Pesan
+                </button>
+                <button class="btn btn-outline-danger btn-block btn-premium font-weight-bold py-2 shadow-sm" onclick="forceFinishAll()">
+                    <i class="fas fa-power-off mr-2"></i> Hentikan Semua
+                </button>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 premium-card">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h6 class="font-weight-bold mb-0">Aktivitas Terbaru</h6>
+            </div>
+            <div class="card-body p-0" id="activity-logs" style="max-height: 450px; overflow-y: auto;">
+                <div class="p-4 text-center opacity-50">
+                    <small>Menunggu aktivitas...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL CETAK DAFTAR HADIR --}}
+<div class="modal fade animate__animated animate__fadeInDown" id="attendanceModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-2xl" style="border-radius: 20px;">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-print mr-2"></i> Cetak Daftar Hadir</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="{{ route('admin.cbt.exam.print-attendance', $exam->id) }}" target="_blank">
+                <div class="modal-body p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-xs font-weight-bold text-muted uppercase">GELOMBANG</label>
+                            <select name="wave" class="form-control rounded-10">
+                                <option value="">Semua Gelombang</option>
+                                @for($i=1; $i<=4; $i++) <option value="{{$i}}">Gelombang {{$i}}</option> @endfor
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-xs font-weight-bold text-muted uppercase">SESI</label>
+                            <select name="session" class="form-control rounded-10">
+                                <option value="">Semua Sesi</option>
+                                @for($i=1; $i<=4; $i++) <option value="{{$i}}">Sesi {{$i}}</option> @endfor
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="text-xs font-weight-bold text-muted uppercase">RUANG</label>
+                            <input type="text" name="room" class="form-control rounded-10" placeholder="Misal: Ruang 1 (Kosongkan jika semua)">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-primary btn-block font-weight-bold py-3 btn-premium shadow-lg">
+                        <i class="fas fa-file-pdf mr-2"></i> GENERATE PDF
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL BUAT BERITA ACARA --}}
+<div class="modal fade animate__animated animate__fadeInDown" id="beritaAcaraModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-2xl" style="border-radius: 20px;">
+            <div class="modal-header bg-success text-white border-0">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-file-contract mr-2"></i> Berita Acara Pelaksanaan</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="{{ route('admin.cbt.exam.print-berita-acara', $exam->id) }}" target="_blank">
+                <div class="modal-body p-4">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="text-xs font-weight-bold text-muted uppercase">GELOMBANG</label>
+                            <select name="wave" class="form-control rounded-10">
+                                <option value="">Pilih Gelombang</option>
+                                @for($i=1; $i<=4; $i++) <option value="{{$i}}">Gelombang {{$i}}</option> @endfor
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="text-xs font-weight-bold text-muted uppercase">SESI</label>
+                            <select name="session" class="form-control rounded-10">
+                                <option value="">Pilih Sesi</option>
+                                @for($i=1; $i<=4; $i++) <option value="{{$i}}">Sesi {{$i}}</option> @endfor
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="text-xs font-weight-bold text-muted uppercase">RUANG</label>
+                            <input type="text" name="room" class="form-control rounded-10" placeholder="Misal: Ruang 1">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="text-xs font-weight-bold text-muted uppercase">CATATAN KEJADIAN PENTING</label>
+                            <textarea name="notes" class="form-control rounded-10" rows="3" placeholder="Misal: Ujian berjalan lancar tanpa kendala..."></textarea>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="text-xs font-weight-bold text-muted uppercase">SISWA TIDAK HADIR</label>
+                            <textarea name="absent_manual" class="form-control rounded-10" rows="2" placeholder="Tulis nama-nama siswa yang tidak hadir (dipisah koma)..."></textarea>
+                            <small class="text-muted text-[10px]">Biarkan kosong jika ingin sistem mendeteksi otomatis dari data login.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-success btn-block font-weight-bold py-3 btn-premium shadow-lg">
+                        <i class="fas fa-print mr-2"></i> CETAK BERITA ACARA
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL PETUGAS UJIAN --}}
+<div class="modal fade animate__animated animate__fadeInDown" id="dutyModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-2xl" style="border-radius: 20px;">
+            <div class="modal-header bg-indigo text-white border-0">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-user-shield mr-2"></i> Pengaturan Petugas Ujian</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-soft-indigo rounded-10 mb-4">
+                    <small><i class="fas fa-info-circle mr-2"></i> Tentukan proktor dan pengawas untuk setiap ruang dan sesi agar tercantum otomatis di Berita Acara.</small>
+                </div>
+                
+                <form id="duty-form">
+                    <div class="row align-items-end">
+                        <div class="col-md-3 mb-3">
+                            <label class="text-xs font-weight-bold text-muted uppercase">SESI</label>
+                            <select name="session_number" id="duty-session" class="form-control rounded-10">
+                                @for($i=1; $i<=4; $i++) <option value="{{$i}}">Sesi {{$i}}</option> @endfor
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="text-xs font-weight-bold text-muted uppercase">RUANG</label>
+                            <select name="room_name" id="duty-room" class="form-control rounded-10">
+                                {{-- Will be populated dynamically based on student data --}}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="text-xs font-weight-bold text-muted uppercase">PROKTOR</label>
+                            <select name="proctor_id" id="duty-proctor" class="form-control rounded-10 select2-duty">
+                                <option value="">Pilih Proktor</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="text-xs font-weight-bold text-muted uppercase">PENGAWAS</label>
+                            <select name="supervisor_id" id="duty-supervisor" class="form-control rounded-10 select2-duty">
+                                <option value="">Pilih Pengawas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <button type="button" onclick="saveDuty()" class="btn btn-indigo btn-block font-weight-bold py-3 btn-premium shadow-lg">
+                                <i class="fas fa-save mr-2"></i> SIMPAN JADWAL PETUGAS
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover text-sm">
+                        <thead class="bg-light">
                             <tr>
-                                <td class="pl-4">
-                                    <div class="d-flex px-0 py-1">
-                                        <div class="avatar-premium-sm mr-3">
-                                            <span>{{ substr($se->student->name, 0, 1) }}</span>
-                                        </div>
-                                        <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm font-weight-bold">{{ $se->student->name }}</h6>
-                                            <p class="text-xs text-secondary mb-0">NISN: {{ $se->student->nisn }}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    @if($se->status == 'finished')
-                                        <span class="badge badge-pill badge-soft-success font-weight-bold">SELESAI</span>
-                                    @elseif($se->status == 'doing')
-                                        <span class="badge badge-pill badge-soft-warning font-weight-bold animate__animated animate__flash animate__infinite">MENGERJAKAN</span>
-                                    @else
-                                        <span class="badge badge-pill badge-soft-secondary font-weight-bold">STANDBY</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($se->violation_count == 0)
-                                        <span class="text-success text-xs font-weight-bold"><i class="fas fa-shield-alt mr-1"></i> Aman</span>
-                                    @else
-                                        <span class="badge badge-pill badge-soft-danger font-weight-bold">
-                                            <i class="fas fa-exclamation-circle mr-1"></i> {{ $se->violation_count }} Pelanggaran
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    @if($se->status == 'finished')
-                                        <span class="h5 font-weight-black text-primary mb-0">{{ number_format($se->final_score, 0) }}</span>
-                                    @else
-                                        <span class="text-xs text-muted font-italic">In Progress</span>
-                                    @endif
-                                </td>
-                                <td class="text-center" style="min-width: 180px;">
-                                    @php
-                                        $totalQ = $exam->bank->questions_count ?? 0;
-                                        $answeredQ = $se->answers_count ?? 0;
-                                        $percent = ($totalQ > 0) ? round(($answeredQ / $totalQ) * 100) : 0;
-                                        if($se->status == 'finished') $percent = 100;
-                                    @endphp
-                                    <div class="d-flex flex-column align-items-center">
-                                        <div class="d-flex align-items-center justify-content-between w-100 mb-1 px-2">
-                                            <span class="text-xxs font-weight-bold text-muted">{{ $answeredQ }}/{{ $totalQ }} Soal</span>
-                                            <span class="text-xxs font-weight-black text-{{ $percent == 100 ? 'success' : 'info' }}">{{ $percent }}%</span>
-                                        </div>
-                                        <div class="progress shadow-none w-100" style="height: 6px; border-radius: 10px; background: #f1f5f9;">
-                                            <div class="progress-bar {{ $percent == 100 ? 'bg-success' : ($percent > 70 ? 'bg-info' : 'bg-warning') }}" role="progressbar" style="width: {{ $percent }}%;"></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-center pr-4">
-                                    <div class="btn-group">
-                                        @if($se->status == 'finished')
-                                            <a href="{{ route('admin.cbt.exam.grading.show', $se->id) }}" class="btn btn-xs btn-primary rounded-pill font-weight-bold px-3 mr-1">
-                                                <i class="fas fa-check-circle mr-1"></i> Koreksi
-                                            </a>
-                                            <a href="{{ route('admin.cbt.exam.export-student-pdf', $se->id) }}" class="btn btn-xs btn-outline-danger rounded-pill font-weight-bold px-3">
-                                                <i class="fas fa-file-pdf mr-1"></i> Cetak
-                                            </a>
-                                        @else
-                                            <button type="button" class="btn btn-xs btn-soft-warning rounded-pill px-3 mr-1" onclick="resetExam({{ $se->id }}, '{{ $se->student->nama_lengkap }}')">
-                                                <i class="fas fa-sync-alt mr-1"></i> Reset
-                                            </button>
-                                            <button type="button" class="btn btn-xs btn-soft-danger rounded-pill px-3" onclick="forceFinish({{ $se->id }}, '{{ $se->student->nama_lengkap }}')">
-                                                <i class="fas fa-stop mr-1"></i> Selesai
-                                            </button>
-                                        @endif
-                                    </div>
-                                </td>
+                                <th>Sesi</th>
+                                <th>Ruang</th>
+                                <th>Proktor</th>
+                                <th>Pengawas</th>
                             </tr>
-                            @empty
-                            <tr>
-                                <td colspan="6" class="text-center py-5">
-                                    <div class="opacity-50">
-                                        <i class="fas fa-user-slash fa-3x mb-3 text-muted"></i>
-                                        <p class="font-weight-bold">Belum ada peserta yang aktif.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforelse
+                        </thead>
+                        <tbody id="duty-list">
+                            {{-- Load via AJAX --}}
                         </tbody>
                     </table>
                 </div>
@@ -235,318 +411,369 @@
     </div>
 </div>
 
-<style>
-/* PREMIUM DESIGN TOKENS */
-.letter-spacing-1 { letter-spacing: 1px; }
-.letter-spacing-2 { letter-spacing: 2px; }
-.font-weight-black { font-weight: 900; }
-.rounded-xl { border-radius: 12px; }
-
-/* HEADER */
-.btn-glass { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; }
-.btn-glass:hover { background: rgba(255,255,255,0.25); color: white; transform: translateX(-5px); }
-.header-shape-1 { position: absolute; width: 300px; height: 300px; top: -150px; right: -50px; background: rgba(0, 184, 217, 0.15); border-radius: 50%; }
-.header-shape-2 { position: absolute; width: 200px; height: 200px; bottom: -100px; left: 10%; background: rgba(255, 171, 0, 0.1); border-radius: 50%; }
-
-.token-card {
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 20px;
-    padding: 15px 30px;
-    display: inline-block;
-    color: white;
-    text-align: center;
-}
-
-/* STAT CARDS */
-.stat-card-premium { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.stat-card-premium:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important; }
-.icon-shape-premium {
-    width: 50px;
-    height: 50px;
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-}
-
-/* BADGES SOFT */
-.btn-soft-info { background: #e0f2fe; color: #0369a1; border: none; }
-.btn-soft-warning { background: #fef3c7; color: #92400e; border: none; }
-.btn-soft-danger { background: #fee2e2; color: #b91c1c; border: none; }
-.btn-soft-info:hover, .btn-soft-warning:hover, .btn-soft-danger:hover { filter: brightness(0.95); }
-
-.badge-soft-primary { background: #eef2ff; color: #4f46e5; }
-.badge-soft-success { background: #ecfdf5; color: #10b981; }
-.badge-soft-warning { background: #fffbeb; color: #f59e0b; }
-.badge-soft-danger { background: #fef2f2; color: #ef4444; }
-.badge-soft-secondary { background: #f8fafc; color: #64748b; }
-
-.bg-soft-primary { background: rgba(79, 70, 229, 0.1); color: #4f46e5; }
-.bg-soft-warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-.bg-soft-success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-.bg-soft-danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-
-/* TABLE PREMIUM */
-.premium-table thead th {
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 15px 20px;
-}
-.premium-table tbody td {
-    padding: 18px 20px;
-    vertical-align: middle;
-}
-.avatar-premium-sm {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 0.9rem;
-}
-
-.text-xxs { font-size: 0.65rem; }
-
-/* AUTO REFRESH ANIMATION */
-@keyframes flash-warning {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-}
-</style>
-
-@push('scripts')
-<script>
-    // Auto refresh every 30 seconds
-    setTimeout(function(){
-        // location.reload();
-    }, 30000);
-
-    function openSpecialSessionModal() {
-        $('#specialSessionModal').modal('show');
-    }
-
-    function toggleStudentSelectionByKKM() {
-        let kkm = $('#kkm_threshold').val() || 75;
-        $('.student-checkbox').prop('checked', false);
-        
-        // Loop through student results in the table to identify those below KKM
-        @foreach($exam->studentExams as $se)
-            @if($se->status == 'finished')
-                if ({{ $se->final_score }} < kkm) {
-                    $('#student_chk_{{ $se->student_id }}').prop('checked', true);
-                }
-            @endif
-        @endforeach
-    }
-
-    function selectSusulanStudents() {
-        $('.student-checkbox').prop('checked', false);
-        
-        // Select students who are not in studentExams or status is not finished/doing
-        let joinedStudentIds = [@foreach($exam->studentExams as $se) {{ $se->student_id }}, @endforeach];
-        
-        @foreach($allStudents as $student)
-            if (!joinedStudentIds.includes({{ $student->id }})) {
-                $('#student_chk_{{ $student->id }}').prop('checked', true);
-            }
-        @endforeach
-    }
-
-    $('#type').on('change', function() {
-        if ($(this).val() === 'remedial') {
-            $('#kkm_container').removeClass('d-none');
-            $('#session_name').val('Remedial: {{ $exam->name }}');
-            toggleStudentSelectionByKKM();
-        } else {
-            $('#kkm_container').addClass('d-none');
-            $('#session_name').val('Susulan: {{ $exam->name }}');
-            selectSusulanStudents();
-        }
-    });
-
-    $('#specialSessionForm').on('submit', function(e) {
-        e.preventDefault();
-        let formData = $(this).serialize();
-        
-        $('#btnSubmitSpecial').html('<i class="fas fa-spinner fa-spin mr-2"></i> MEMPROSES...').prop('disabled', true);
-
-        $.ajax({
-            url: '{{ route('admin.cbt.exam.store-special-session', $exam->id) }}',
-            type: 'POST',
-            data: formData,
-            success: function(res) {
-                $('#specialSessionModal').modal('hide');
-                Swal.fire({
-                    title: 'Sukses',
-                    text: res.message,
-                    icon: 'success',
-                    confirmButtonText: 'Lihat Jadwal Baru'
-                }).then(() => {
-                    window.location.href = '{{ route('admin.cbt.exam.index') }}';
-                });
-            },
-            error: function(err) {
-                Swal.fire('Gagal', 'Terjadi kesalahan saat membuat sesi.', 'error');
-            },
-            complete: function() {
-                $('#btnSubmitSpecial').html('<i class="fas fa-save mr-2"></i> BUAT SESI KHUSUS').prop('disabled', false);
-            }
-        });
-    });
-
-    function resetExam(id, name) {
-        Swal.fire({
-            title: 'Reset Ujian?',
-            text: `Yakin ingin mereset sesi ujian ${name}? Semua jawaban akan dihapus!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Ya, Reset!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.post('{{ route('admin.cbt.exam.student-exam.reset', '') }}/' + id, { _token: '{{ csrf_token() }}' }, function(res) {
-                    location.reload();
-                });
-            }
-        });
-    }
-
-    function forceFinish(id, name) {
-        Swal.fire({
-            title: 'Selesaikan Paksa?',
-            text: `Hentikan sesi ujian ${name} sekarang?`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Selesaikan!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.post('{{ route('admin.cbt.exam.student-exam.force-finish', '') }}/' + id, { _token: '{{ csrf_token() }}' }, function(res) {
-                    location.reload();
-                });
-            }
-        });
-    }
-</script>
-@endpush
-
-{{-- MODAL SESI KHUSUS --}}
-<div class="modal fade" id="specialSessionModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header bg-light border-0 py-3">
-                <h5 class="modal-title font-weight-bold text-dark"><i class="fas fa-plus-circle mr-2 text-warning"></i> Buat Sesi Khusus (Remedial/Susulan)</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+{{-- MODAL MESSAGE --}}
+<div class="modal fade animate__animated animate__fadeIn" id="messageModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-2xl" style="border-radius: 20px;">
+            <div class="modal-header bg-indigo text-white border-0 py-3">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-paper-plane mr-2"></i> Kirim Pesan Proktor</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body p-4">
+                <p id="message-target" class="badge badge-soft-indigo px-3 py-2 rounded-pill font-weight-bold text-sm mb-3 w-100 text-center"></p>
+                <div class="form-group mb-3">
+                    <label class="text-xs font-weight-bold text-uppercase text-muted">Isi Pesan Instruksi</label>
+                    <textarea id="admin-message" class="form-control rounded-15 border-2 p-3" rows="3" placeholder="Tulis instruksi di sini..."></textarea>
+                </div>
+                <div class="d-flex gap-2 mb-3">
+                    <button class="btn btn-xs btn-outline-indigo rounded-pill px-3" onclick="$('#admin-message').val('Harap tenang dan fokus mengerjakan!')">Template 1</button>
+                    <button class="btn btn-xs btn-outline-danger rounded-pill px-3" onclick="$('#admin-message').val('Pelanggaran terdeteksi! Ujian Anda akan dihentikan jika berulang.')">Peringatan</button>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button class="btn btn-indigo btn-block font-weight-bold py-3 btn-premium shadow-lg" onclick="submitMessage()">
+                    <i class="fas fa-send mr-2"></i> KIRIM SEKARANG
                 </button>
             </div>
-            <form id="specialSessionForm">
-                @csrf
-                <div class="modal-body p-4">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="text-xs font-weight-bold text-muted">TIPE SESI</label>
-                                <select name="type" id="type" class="form-control" required>
-                                    <option value="">-- Pilih Tipe --</option>
-                                    <option value="susulan">Ujian Susulan (Bagi yang belum ikut)</option>
-                                    <option value="remedial">Ujian Remedial (Bagi yang nilai rendah)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="text-xs font-weight-bold text-muted">NAMA SESI</label>
-                                <input type="text" name="name" id="session_name" class="form-control" required placeholder="Contoh: Remedial Matematika">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="kkm_container" class="d-none animate__animated animate__fadeIn">
-                        <div class="alert alert-info border-0 shadow-sm py-2">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-info-circle mr-3 fa-lg"></i>
-                                <div>
-                                    <label class="text-xs font-weight-bold mb-0">AMBANG BATAS NILAI (KKM)</label>
-                                    <div class="input-group input-group-sm mt-1" style="width: 150px;">
-                                        <input type="number" name="kkm" id="kkm_threshold" class="form-control" value="75" onchange="toggleStudentSelectionByKKM()">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text">Poin</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group mb-3">
-                                <label class="text-xs font-weight-bold text-muted">TANGGAL</label>
-                                <input type="date" name="exam_date" class="form-control" required value="{{ date('Y-m-d') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group mb-3">
-                                <label class="text-xs font-weight-bold text-muted">JAM MULAI</label>
-                                <input type="time" name="start_time" class="form-control" required value="{{ date('H:i') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group mb-3">
-                                <label class="text-xs font-weight-bold text-muted">JAM SELESAI</label>
-                                <input type="time" name="end_time" class="form-control" required value="{{ date('H:i', strtotime('+2 hours')) }}">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <label class="text-xs font-weight-bold text-muted">DURASI (MENIT)</label>
-                        <input type="number" name="duration_minutes" class="form-control" required value="{{ $exam->duration_minutes }}">
-                    </div>
-
-                    <div class="form-group mb-0">
-                        <label class="text-xs font-weight-bold text-muted mb-2">DAFTAR PESERTA TERPILIH</label>
-                        <div class="student-list-container border rounded p-3" style="max-height: 250px; overflow-y: auto; background: #f8fafc;">
-                            <div class="row">
-                                @foreach($allStudents as $student)
-                                <div class="col-md-6 mb-2">
-                                    <div class="custom-control custom-checkbox student-item-card">
-                                        <input type="checkbox" name="student_ids[]" class="custom-control-input student-checkbox" id="student_chk_{{ $student->id }}" value="{{ $student->id }}">
-                                        <label class="custom-control-label text-sm d-flex flex-column" for="student_chk_{{ $student->id }}">
-                                            <span class="font-weight-bold">{{ $student->name }}</span>
-                                            <small class="text-muted">{{ $student->nisn }} | {{ $student->classGroup->class_group ?? '-' }}</small>
-                                        </label>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer bg-light border-0">
-                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-dismiss="modal">BATAL</button>
-                    <button type="submit" class="btn btn-warning rounded-pill px-4 font-weight-bold" id="btnSubmitSpecial">BUAT SESI KHUSUS</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
 
 <style>
-.btn-glass-dark { background: rgba(0,0,0,0.05); color: #334155; border: 1px solid rgba(0,0,0,0.1); transition: 0.3s; }
-.btn-glass-dark:hover { background: rgba(0,0,0,0.1); color: #000; transform: translateY(-2px); }
-.student-list-container::-webkit-scrollbar { width: 6px; }
-.student-list-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-.student-item-card { background: white; padding: 8px 12px; border-radius: 10px; border: 1px solid #e2e8f0; transition: 0.2s; }
-.student-item-card:hover { border-color: #3b82f6; background: #eff6ff; }
-.custom-control-input:checked ~ .student-item-card { border-color: #3b82f6; background: #eff6ff; }
+    /* PREMIUM DESIGN SYSTEM (Penempatan Rombel Style) */
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap');
+    body { font-family: 'Outfit', sans-serif; }
+
+    .bg-gradient-indigo { background: linear-gradient(135deg, #6610f2 0%, #4338ca 100%) !important; }
+    .text-indigo { color: #6610f2 !important; }
+    .btn-indigo { background-color: #6610f2; color: white; }
+    .btn-indigo:hover { background-color: #520dc2; color: white; }
+    .btn-outline-indigo { border-color: #6610f2; color: #6610f2; }
+    .btn-outline-indigo:hover { background-color: #6610f2; color: white; }
+    
+    .bg-circle-1, .bg-circle-2 { position: absolute; background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 0; }
+    .bg-circle-1 { width: 300px; height: 300px; top: -100px; right: -50px; }
+    .bg-circle-2 { width: 150px; height: 150px; bottom: -50px; left: 10%; }
+
+    .premium-card { border-radius: 15px; overflow: hidden; transition: all 0.3s ease; border: none !important; }
+    .border-left-indigo-thick { border-left: 5px solid #6610f2 !important; }
+
+    #monitor-table { border-collapse: separate; border-spacing: 0 10px; padding: 0 15px; }
+    #monitor-table tbody tr { background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: all 0.2s ease; }
+    #monitor-table tbody tr:hover { background: #f8fbff; transform: scale(1.005); }
+    #monitor-table td { border: none; padding: 1rem 0.75rem; vertical-align: middle; }
+    .bg-light-indigo { background: #f5f3ff; color: #5b21b6; }
+
+    .icon-shape { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
+    .bg-soft-indigo { background: #eef2ff; }
+    .bg-soft-warning { background: #fff8e1; }
+    .bg-soft-success { background: #e8f5e9; }
+    .bg-soft-danger { background: #fee2e2; }
+    
+    .btn-premium { border-radius: 10px; letter-spacing: 0.5px; transition: all 0.3s ease; }
+    .rounded-15 { border-radius: 15px; }
+    .rounded-pill-left { border-top-left-radius: 50rem; border-bottom-left-radius: 50rem; }
+    .rounded-pill-right { border-top-right-radius: 50rem; border-bottom-right-radius: 50rem; }
+    .border-2 { border-width: 2px !important; }
+
+    .progress-premium { height: 8px; border-radius: 10px; background: #f1f5f9; overflow: hidden; }
+    .avatar-initial {
+        width: 40px; height: 40px; border-radius: 12px; background: #f5f3ff;
+        color: #6610f2; display: flex; align-items: center; justify-content: center;
+        font-weight: 900; font-size: 1.2rem;
+    }
+
+    .pulse-warning-icon { animation: pulse-warn 2s infinite; }
+    @keyframes pulse-warn {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .active-row { border-left: 4px solid #6610f2 !important; background: #f5f3ff !important; }
+    .badge-soft-indigo { background: #eef2ff; color: #6366f1; }
+    .badge-soft-warning { background: #fff7ed; color: #f59e0b; }
+    .badge-soft-success { background: #f0fdf4; color: #10b981; }
+
+    .rounded-10 { border-radius: 10px !important; }
+    .uppercase { text-transform: uppercase !important; }
+    .letter-spacing-1 { letter-spacing: 1px !important; }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; }
+    .bg-white\/10 { background-color: rgba(255, 255, 255, 0.1) !important; }
 </style>
+
 @endsection
+
+@push('scripts')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script>
+    let currentExamId = '{{ $exam->id }}';
+    let currentStudentExamId = null;
+    let studentsData = [];
+
+    $(document).ready(function() {
+        fetchMonitorData();
+        setInterval(fetchMonitorData, 15000); // Poll every 15s
+
+        $('#search-monitor, #filter-status').on('input change', function() {
+            renderStudents();
+        });
+    });
+
+    function fetchMonitorData() {
+        $.get(`/admin/cbt/exam/${currentExamId}/monitor-data`, function(res) {
+            studentsData = res.students;
+            updateStats(res.students);
+            renderStudents();
+        });
+    }
+
+    function updateStats(students) {
+        let total = students.length;
+        let active = students.filter(s => s.status === 'doing').length;
+        let finished = students.filter(s => s.status === 'finished').length;
+        let violations = students.reduce((acc, s) => acc + s.violations, 0);
+
+        $('#total-count').text(total);
+        $('#active-count').text(active);
+        $('#finished-count').text(finished);
+        $('#violation-count').text(violations);
+
+        if (total > 0) {
+            $('#active-progress-bar').css('width', (active / total * 100) + '%');
+            $('#finished-progress-bar').css('width', (finished / total * 100) + '%');
+        }
+    }
+
+    function renderStudents() {
+        let search = $('#search-monitor').val().toLowerCase();
+        let status = $('#filter-status').val();
+        let html = '';
+
+        let filtered = studentsData.filter(s => {
+            let matchSearch = s.nama.toLowerCase().includes(search);
+            let matchStatus = status === 'all' || s.status === status;
+            return matchSearch && matchStatus;
+        });
+
+        filtered.forEach(s => {
+            let statusBadge = '';
+            if (s.status === 'doing') {
+                statusBadge = `<span class="badge badge-soft-warning px-3 py-1 rounded-pill animate__animated animate__flash animate__infinite">MENGERJAKAN</span>`;
+            } else if (s.status === 'finished') {
+                statusBadge = `<span class="badge badge-soft-success px-3 py-1 rounded-pill">SELESAI</span>`;
+            } else {
+                statusBadge = `<span class="badge badge-light px-3 py-1 rounded-pill text-muted">STANDBY</span>`;
+            }
+
+            let progressClass = s.progress === 100 ? 'bg-success' : (s.progress > 70 ? 'bg-indigo' : 'bg-warning');
+
+            html += `
+                <tr class="${s.status === 'doing' ? 'active-row' : ''}">
+                    <td class="pl-4">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-initial mr-3">
+                                ${s.nama.charAt(0)}
+                            </div>
+                            <div>
+                                <h6 class="mb-0 font-weight-bold text-dark">${s.nama}</h6>
+                                <small class="text-muted text-xs">${s.kelas}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-xs">
+                            <span class="badge badge-light mr-1">SESI ${s.session || '-'}</span>
+                            <span class="badge badge-light">ROOM ${s.room || '-'}</span>
+                            <div class="mt-1 text-muted"><i class="far fa-clock mr-1"></i>${s.is_logged_in ? '<span class="text-success">Aktif Sekarang</span>' : 'Offline'}</div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex flex-column align-items-center px-3">
+                            <div class="d-flex justify-content-between w-100 mb-1">
+                                <small class="text-xs font-weight-bold text-muted">No. ${s.current_index}</small>
+                                <small class="text-xs font-weight-bold text-indigo">${s.progress}%</small>
+                            </div>
+                            <div class="progress-premium w-100">
+                                <div class="progress-bar ${progressClass}" style="width: ${s.progress}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        ${statusBadge}
+                        ${s.violations > 0 ? `<div class="text-danger font-weight-bold text-xs mt-1"><i class="fas fa-exclamation-triangle"></i> ${s.violations} Violations</div>` : ''}
+                    </td>
+                    <td class="text-right pr-4">
+                        <div class="btn-group shadow-xs rounded-pill overflow-hidden">
+                            <button class="btn btn-xs btn-outline-indigo" onclick="openMessageModal(${s.id}, '${s.nama}', ${s.exam_id})" title="Kirim Pesan">
+                                <i class="fas fa-comment"></i>
+                            </button>
+                            <button class="btn btn-xs btn-outline-danger" onclick="resetStudent(${s.exam_id})" title="Reset Sesi">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        if (filtered.length === 0) {
+            html = '<tr><td colspan="5" class="text-center py-5 opacity-50">Data siswa tidak ditemukan</td></tr>';
+        }
+
+        $('#student-list').html(html);
+    }
+
+    function openMessageModal(studentId, name, examId) {
+        currentStudentExamId = examId;
+        if (!currentStudentExamId) {
+            Swal.fire('Info', 'Siswa belum memulai ujian.', 'info');
+            return;
+        }
+        $('#message-target').text(`PENERIMA: ${name}`);
+        $('#messageModal').modal('show');
+    }
+
+    function submitMessage() {
+        let msg = $('#admin-message').val();
+        if (!msg) return;
+
+        $.post(`/admin/cbt/exam/${currentExamId}/send-message/${currentStudentExamId}`, {
+            _token: '{{ csrf_token() }}',
+            message: msg
+        }, function(res) {
+            $('#messageModal').modal('hide');
+            $('#admin-message').val('');
+            Swal.fire({
+                toast: true, position: 'top-end', icon: 'success',
+                title: res.message, showConfirmButton: false, timer: 3000
+            });
+        });
+    }
+
+    function resetStudent(examId) {
+        if (!examId) return;
+        Swal.fire({
+            title: 'Reset Sesi?',
+            text: 'Seluruh jawaban siswa akan dikosongkan dan waktu dimulai ulang.',
+            icon: 'warning', showCancelButton: true,
+            confirmButtonText: 'Ya, Reset!', confirmButtonColor: '#dc3545'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                $.post(`/admin/cbt/exam/student-exam/${examId}/reset`, { _token: '{{ csrf_token() }}' }, function() {
+                    Swal.fire('Berhasil!', 'Sesi siswa telah direset.', 'success');
+                    fetchMonitorData();
+                });
+            }
+        });
+    }
+
+    function broadcastMessage() {
+        Swal.fire({
+            title: 'Broadcast Pesan',
+            input: 'textarea',
+            inputPlaceholder: 'Tulis pesan untuk semua siswa...',
+            showCancelButton: true,
+            confirmButtonText: 'Kirim Semua',
+            confirmButtonColor: '#6610f2'
+        }).then((result) => {
+            if (result.value) {
+                // Implement broadcast logic if needed, or loop through studentsData
+                Swal.fire('Info', 'Fitur broadcast segera hadir. Gunakan tombol aksi per siswa untuk saat ini.', 'info');
+            }
+        });
+    }
+
+    function forceFinishAll() {
+        Swal.fire({
+            title: 'Hentikan Semua Ujian?',
+            text: 'Seluruh siswa yang sedang mengerjakan akan dipaksa selesai.',
+            icon: 'danger', showCancelButton: true,
+            confirmButtonText: 'Ya, Hentikan!', confirmButtonColor: '#dc3545'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                Swal.fire('Info', 'Gunakan dashboard proktor untuk menghentikan siswa secara manual satu per satu demi keamanan data.', 'info');
+            }
+        });
+    }
+    // DUTY MANAGEMENT
+    function openDutyModal() {
+        $('#dutyModal').modal('show');
+        loadDutyData();
+    }
+
+    function loadDutyData() {
+        $.get(`/admin/cbt/exam/${currentExamId}/duty-data`, function(data) {
+            // Populate Teachers
+            const proctorSelect = $('#duty-proctor');
+            const supervisorSelect = $('#duty-supervisor');
+            proctorSelect.html('<option value="">Pilih Proktor</option>');
+            supervisorSelect.html('<option value="">Pilih Pengawas</option>');
+            
+            data.teachers.forEach(t => {
+                proctorSelect.append(`<option value="${t.id}">${t.name}</option>`);
+                supervisorSelect.append(`<option value="${t.id}">${t.name}</option>`);
+            });
+
+            // Populate Rooms
+            const roomSelect = $('#duty-room');
+            roomSelect.empty();
+            if(data.rooms.length > 0) {
+                data.rooms.forEach(r => {
+                    roomSelect.append(`<option value="${r}">${r}</option>`);
+                });
+            } else {
+                roomSelect.append('<option value="">Tidak ada data ruang</option>');
+            }
+
+            // Render List
+            const list = $('#duty-list');
+            list.empty();
+            if(data.duties.length === 0) {
+                list.append('<tr><td colspan="4" class="text-center py-3 text-muted">Belum ada petugas yang diatur</td></tr>');
+            } else {
+                data.duties.forEach(d => {
+                    list.append(`
+                        <tr>
+                            <td>Sesi ${d.session_number}</td>
+                            <td>${d.room_name}</td>
+                            <td class="font-weight-bold text-primary">${d.proctor ? d.proctor.name : '-'}</td>
+                            <td class="font-weight-bold text-success">${d.supervisor ? d.supervisor.name : '-'}</td>
+                        </tr>
+                    `);
+                });
+            }
+        });
+    }
+
+    function saveDuty() {
+        const formData = {
+            session_number: $('#duty-session').val(),
+            room_name: $('#duty-room').val(),
+            proctor_id: $('#duty-proctor').val(),
+            supervisor_id: $('#duty-supervisor').val(),
+            _token: '{{ csrf_token() }}'
+        };
+
+        if(!formData.room_name) {
+            Swal.fire('Peringatan', 'Mohon pilih ruang terlebih dahulu', 'warning');
+            return;
+        }
+
+        $.post(`/admin/cbt/exam/${currentExamId}/duty-schedule`, formData, function(response) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: response.message,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            loadDutyData();
+        }).fail(function(xhr) {
+            Swal.fire('Error', 'Gagal menyimpan data petugas', 'error');
+        });
+    }
+</script>
+@endpush

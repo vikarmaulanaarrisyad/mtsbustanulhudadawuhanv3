@@ -18,6 +18,12 @@ class CbtExam extends Model
         'detect_tab_switch' => 'boolean',
         'auto_finish_on_limit' => 'boolean',
         'max_violations' => 'integer',
+        'passing_grade' => 'integer',
+        'generate_certificate' => 'boolean',
+        'wave' => 'integer',
+        'session' => 'integer',
+        'randomize_questions' => 'boolean',
+        'randomize_options' => 'boolean',
     ];
 
     public function bank()

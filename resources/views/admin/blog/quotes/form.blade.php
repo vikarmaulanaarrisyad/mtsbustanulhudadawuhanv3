@@ -27,7 +27,12 @@
                     </div>
                     
                     <div class="form-group mb-2">
-                        <label class="text-xs font-weight-bold text-muted uppercase">Isi Kata Mutiara / Motivasi <span class="text-danger">*</span></label>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="text-xs font-weight-bold text-muted uppercase">Isi Kata Mutiara / Motivasi <span class="text-danger">*</span></label>
+                            <button type="button" class="btn btn-xs btn-outline-info rounded-pill font-weight-bold px-3 shadow-xs" id="btnGenerateQuoteAI">
+                                <i class="fas fa-magic mr-1"></i> Buat dengan AI
+                            </button>
+                        </div>
                         <div class="premium-textarea-wrapper bg-white">
                             <textarea id="quote" name="quote" class="form-control quote summernote border-0" rows="10" placeholder="Tuliskan kata mutiaranya di sini..."></textarea>
                         </div>

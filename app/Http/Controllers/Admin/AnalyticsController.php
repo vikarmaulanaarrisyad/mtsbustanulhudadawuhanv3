@@ -96,6 +96,12 @@ class AnalyticsController extends Controller
         $academic_year_id = $request->academic_year_id;
 
         $rankings = collect([]);
+        $stats = [
+            'total_students' => 0,
+            'average_class_score' => 0,
+            'highest_score' => 0
+        ];
+
         if ($class_group_id && $academic_year_id) {
             $rankings = Student::where('student_class_group_id', $class_group_id)
                 ->with(['classGroup'])
@@ -116,9 +122,15 @@ class AnalyticsController extends Controller
                 })
                 ->sortByDesc('avg_grade')
                 ->values();
+
+            if ($rankings->isNotEmpty()) {
+                $stats['total_students'] = $rankings->count();
+                $stats['average_class_score'] = $rankings->avg('avg_grade');
+                $stats['highest_score'] = $rankings->max('avg_grade');
+            }
         }
 
-        return view('admin.analytics.ranking', compact('classGroups', 'academicYears', 'rankings', 'class_group_id', 'academic_year_id'));
+        return view('admin.analytics.ranking', compact('classGroups', 'academicYears', 'rankings', 'class_group_id', 'academic_year_id', 'stats'));
     }
 
     public function exportRanking(Request $request)

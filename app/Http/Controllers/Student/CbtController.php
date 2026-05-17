@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Setting;
 
 class CbtController extends Controller
 {
@@ -21,9 +23,17 @@ class CbtController extends Controller
         // Ambil ujian yang sedang aktif untuk kelas siswa ini pada hari ini
         $today = Carbon::today()->toDateString();
         $now = Carbon::now()->toTimeString();
+        
+        $sessionTime = \App\Models\CbtSessionTime::where('session_number', $student->cbt_session)->first();
 
         $activeExams = CbtExam::where('is_active', true)
             ->where('exam_date', $today)
+            ->where(function($q) use ($student) {
+                $q->whereNull('wave')->orWhere('wave', 0)->orWhere('wave', $student->cbt_wave);
+            })
+            ->where(function($q) use ($student) {
+                $q->whereNull('session')->orWhere('session', 0)->orWhere('session', $student->cbt_session);
+            })
             ->where(function($query) use ($student) {
                 $query->where(function($q) use ($student) {
                     $q->where('exam_mode', 'all_class')
@@ -65,7 +75,7 @@ class CbtController extends Controller
         $stats['class_rank'] = $myRank !== false ? $myRank + 1 : '-';
         $stats['total_students'] = Student::where('student_class_group_id', $student->student_class_group_id)->count();
 
-        return view('student.cbt.dashboard', compact('activeExams', 'student', 'stats'));
+        return view('student.cbt.dashboard', compact('activeExams', 'student', 'stats', 'sessionTime'));
     }
 
     public function join(Request $request, CbtExam $exam)
@@ -78,13 +88,26 @@ class CbtController extends Controller
             return back()->with('error', 'Token Ujian tidak valid!');
         }
 
-        // Validasi Waktu
+        // Validasi Waktu berdasarkan Sesi Siswa
+        $sessionTime = \App\Models\CbtSessionTime::where('session_number', $student->cbt_session)->first();
         $now = Carbon::now();
-        if ($now->toTimeString() < $exam->start_time) {
-            return back()->with('error', 'Ujian belum dimulai.');
-        }
-        if ($now->toTimeString() > $exam->end_time) {
-            return back()->with('error', 'Waktu ujian sudah berakhir.');
+        $currentTime = $now->toTimeString();
+
+        if ($sessionTime) {
+            if ($currentTime < $sessionTime->start_time) {
+                return back()->with('error', "Ujian untuk Sesi {$student->cbt_session} belum dimulai. Dimulai pukul {$sessionTime->start_time}.");
+            }
+            if ($currentTime > $sessionTime->end_time) {
+                return back()->with('error', "Waktu untuk Sesi {$student->cbt_session} sudah berakhir.");
+            }
+        } else {
+            // Fallback ke waktu ujian jika tidak ada setting sesi khusus
+            if ($currentTime < $exam->start_time) {
+                return back()->with('error', 'Ujian belum dimulai.');
+            }
+            if ($currentTime > $exam->end_time) {
+                return back()->with('error', 'Waktu ujian sudah berakhir.');
+            }
         }
 
         // Cek apakah sudah pernah mulai
@@ -112,9 +135,48 @@ class CbtController extends Controller
             return redirect()->route('student.cbt.dashboard')->with('error', 'Ujian sudah selesai.');
         }
 
-        // Load bank and questions with randomized options (if needed)
-        // For simplicity in V1, we just load them.
-        $exam->load('bank.questions.options');
+        $exam->load(['bank.questions.options']);
+        $questions = $exam->bank->questions;
+
+        // 1. Randomize Questions
+        if ($exam->randomize_questions) {
+            if (!$studentExam->question_order) {
+                $order = $questions->pluck('id')->shuffle()->toArray();
+                $studentExam->update(['question_order' => $order]);
+            }
+            $order = $studentExam->question_order;
+            $questions = $questions->sortBy(function($q) use ($order) {
+                return array_search($q->id, $order);
+            })->values();
+        }
+
+        // 2. Randomize Options
+        if ($exam->randomize_options) {
+            $optionOrders = $studentExam->option_order ?? [];
+            $newOptionOrders = $optionOrders;
+            $hasNewOrder = false;
+
+            foreach ($questions as $question) {
+                if (in_array($question->question_type, ['pilihan_ganda', 'ganda_komplek'])) {
+                    if (!isset($optionOrders[$question->id])) {
+                        $newOptionOrders[$question->id] = $question->options->pluck('id')->shuffle()->toArray();
+                        $hasNewOrder = true;
+                    }
+                    
+                    $qOrder = $newOptionOrders[$question->id];
+                    $question->setRelation('options', $question->options->sortBy(function($opt) use ($qOrder) {
+                        return array_search($opt->id, $qOrder);
+                    })->values());
+                }
+            }
+
+            if ($hasNewOrder) {
+                $studentExam->update(['option_order' => $newOptionOrders]);
+            }
+        }
+
+        // Override the collection in the bank relation
+        $exam->bank->setRelation('questions', $questions);
 
         // Load existing answers
         $answers = CbtStudentAnswer::where('cbt_student_exam_id', $studentExam->id)
@@ -141,15 +203,22 @@ class CbtController extends Controller
         if ($request->has('answer_text')) $data['answer_text'] = $request->answer_text;
         if ($request->has('is_doubtful')) $data['is_doubtful'] = $request->is_doubtful;
 
-        $answer = CbtStudentAnswer::updateOrCreate(
-            [
-                'cbt_student_exam_id' => $studentExam->id,
-                'cbt_question_id' => $request->question_id
-            ],
-            $data
-        );
+        if ($request->has('last_question_index')) {
+            $studentExam->update(['last_question_index' => $request->last_question_index]);
+        }
 
-        return response()->json(['message' => 'Jawaban disimpan', 'data' => $answer]);
+        if ($request->has('question_id')) {
+            $answer = CbtStudentAnswer::updateOrCreate(
+                [
+                    'cbt_student_exam_id' => $studentExam->id,
+                    'cbt_question_id' => $request->question_id
+                ],
+                $data
+            );
+            return response()->json(['message' => 'Jawaban disimpan', 'data' => $answer]);
+        }
+
+        return response()->json(['message' => 'Progress diperbarui']);
     }
 
     public function reportViolation(Request $request, CbtExam $exam)
@@ -292,5 +361,56 @@ class CbtController extends Controller
         Auth::loginUsingId($student->user_id);
         
         return redirect()->route('student.cbt.dashboard')->with('success', 'Berhasil login via QR Code. Selamat mengerjakan!');
+    }
+
+    public function downloadCertificate(CbtExam $exam)
+    {
+        $student = Student::where('user_id', Auth::id())->firstOrFail();
+        $studentExam = CbtStudentExam::where('cbt_exam_id', $exam->id)
+            ->where('student_id', $student->id)
+            ->where('status', 'finished')
+            ->firstOrFail();
+
+        // Security check
+        if (!$exam->generate_certificate) {
+            return back()->with('error', 'Sertifikat tidak diaktifkan untuk ujian ini.');
+        }
+
+        if ($studentExam->final_score < $exam->passing_grade) {
+            return back()->with('error', 'Maaf, nilai Anda belum mencapai batas KKM untuk mendapatkan sertifikat.');
+        }
+
+        $setting = Setting::first();
+        $exam->load('bank.subject');
+
+        $pdf = Pdf::loadView('pdf.cbt.certificate', compact('student', 'exam', 'studentExam', 'setting'))
+                  ->setPaper('a4', 'landscape');
+
+        return $pdf->download("Sertifikat_{$exam->name}_{$student->nama_lengkap}.pdf");
+    }
+
+    public function checkStatus(CbtExam $exam)
+    {
+        $student = Student::where('user_id', Auth::id())->first();
+        $studentExam = CbtStudentExam::where('cbt_exam_id', $exam->id)
+            ->where('student_id', $student->id)
+            ->first();
+
+        if (!$studentExam) {
+            return response()->json(['error' => 'No active session'], 404);
+        }
+
+        // Update presence & heartbeat
+        $studentExam->update([
+            'is_logged_in' => true,
+            'updated_at' => now()
+        ]);
+
+        return response()->json([
+            'admin_message' => $studentExam->admin_message,
+            'force_finish' => $studentExam->status === 'finished',
+            'violation_count' => $studentExam->violation_count,
+            'status' => $studentExam->status
+        ]);
     }
 }
