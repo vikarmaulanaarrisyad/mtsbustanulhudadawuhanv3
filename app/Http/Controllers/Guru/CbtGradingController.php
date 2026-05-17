@@ -104,8 +104,18 @@ class CbtGradingController extends Controller
         ]);
     }
 
-    public function aiGrade(CbtStudentAnswer $answer)
+    public function aiGrade(Request $request)
     {
+        $request->validate([
+            'student_exam_id' => 'required|exists:cbt_student_exams,id',
+            'question_id' => 'required|exists:cbt_questions,id'
+        ]);
+
+        $answer = CbtStudentAnswer::firstOrNew([
+            'cbt_student_exam_id' => $request->student_exam_id,
+            'cbt_question_id' => $request->question_id
+        ]);
+
         $answer->load('question');
         $setting = Setting::first();
         $aiService = ($setting->ai_provider === 'gemini') ? app(GeminiAiService::class) : app(GroqAiService::class);

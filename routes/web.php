@@ -204,8 +204,8 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/', [\App\Http\Controllers\Guru\CbtGradingController::class, 'index'])->name('index');
             Route::get('/{exam}', [\App\Http\Controllers\Guru\CbtGradingController::class, 'show'])->name('show');
             Route::get('/student/{studentExam}', [\App\Http\Controllers\Guru\CbtGradingController::class, 'grade'])->name('grade');
-            Route::post('/answer/{answer}/save', [\App\Http\Controllers\Guru\CbtGradingController::class, 'saveGrade'])->name('save');
-            Route::post('/answer/{answer}/ai', [\App\Http\Controllers\Guru\CbtGradingController::class, 'aiGrade'])->name('ai');
+            Route::post('/answer/save', [\App\Http\Controllers\Guru\CbtGradingController::class, 'saveGrade'])->name('save');
+            Route::post('/answer/ai', [\App\Http\Controllers\Guru\CbtGradingController::class, 'aiGrade'])->name('ai');
         });
     });
 

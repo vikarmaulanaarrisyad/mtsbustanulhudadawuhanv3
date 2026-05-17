@@ -93,7 +93,7 @@
                                             <div class="relative">
                                                 <input type="number" step="0.5" max="{{ $ans->question->score_weight }}" 
                                                        class="score-input w-full h-16 bg-white border-2 border-slate-100 rounded-2xl px-6 text-xl font-black text-slate-800 focus:border-indigo-500 focus:ring-8 focus:ring-indigo-50 transition-all" 
-                                                       value="{{ $ans->score ?? 0 }}" data-id="{{ $ans->id }}" data-max="{{ $ans->question->score_weight }}">
+                                                       value="{{ $ans->score ?? 0 }}" data-id="{{ $ans->id }}" data-qid="{{ $ans->cbt_question_id }}" data-max="{{ $ans->question->score_weight }}">
                                                 <div class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 font-black text-xs uppercase tracking-widest">
                                                     / {{ $ans->question->score_weight }}
                                                 </div>
@@ -104,16 +104,16 @@
                                         <div class="form-group">
                                             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Catatan Guru (Feedback)</label>
                                             <textarea class="feedback-input w-full bg-white border-2 border-slate-100 rounded-2xl p-6 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-8 focus:ring-indigo-50 transition-all" 
-                                                      rows="2" placeholder="Tuliskan saran perbaikan untuk siswa..." data-id="{{ $ans->id }}">{{ $ans->feedback }}</textarea>
+                                                      rows="2" placeholder="Tuliskan saran perbaikan untuk siswa..." data-id="{{ $ans->id }}" data-qid="{{ $ans->cbt_question_id }}">{{ $ans->feedback }}</textarea>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-50">
-                                    <button onclick="triggerAiGrading({{ $ans->id }})" class="w-full sm:w-auto px-8 py-4 bg-emerald-50 text-emerald-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center border border-emerald-100">
+                                    <button onclick="triggerAiGrading('{{ $ans->id }}', '{{ $ans->cbt_question_id }}')" class="w-full sm:w-auto px-8 py-4 bg-emerald-50 text-emerald-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center border border-emerald-100">
                                         <i class="fas fa-robot mr-3"></i> Minta Saran AI
                                     </button>
-                                    <button onclick="saveSingleGrade({{ $ans->id }})" class="save-btn w-full sm:w-auto px-12 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center">
+                                    <button onclick="saveSingleGrade('{{ $ans->id }}', '{{ $ans->cbt_question_id }}')" class="save-btn w-full sm:w-auto px-12 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center">
                                         Simpan Nilai <i class="fas fa-save ml-3"></i>
                                     </button>
                                 </div>
@@ -140,10 +140,10 @@
 </style>
 
 <script>
-    function saveSingleGrade(answerId) {
-        const score = $(`.score-input[data-id="${answerId}"]`).val();
-        const feedback = $(`.feedback-input[data-id="${answerId}"]`).val();
-        const max = $(`.score-input[data-id="${answerId}"]`).data('max');
+    function saveSingleGrade(answerId, questionId) {
+        const score = $(`.score-input[data-qid="${questionId}"]`).val();
+        const feedback = $(`.feedback-input[data-qid="${questionId}"]`).val();
+        const max = $(`.score-input[data-qid="${questionId}"]`).data('max');
 
         if (score > max) {
             Swal.fire({ icon: 'error', title: 'Skor Melebihi Maksimal', text: `Skor maksimal untuk soal ini adalah ${max}`, customClass: { popup: 'rounded-[2rem]' } });
@@ -154,10 +154,12 @@
         const originalContent = btn.html();
         btn.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
 
-        $.post(`{{ url('siswa/cbt/grading/answer') }}/${answerId}/save`, {
+        $.post(`{{ route('guru.cbt.grading.save') }}`, {
             _token: '{{ csrf_token() }}',
             score: score,
-            feedback: feedback
+            feedback: feedback,
+            student_exam_id: '{{ $studentExam->id }}',
+            question_id: questionId
         }).done(res => {
             btn.html(originalContent).prop('disabled', false);
             $('#display-total-score').text(parseFloat(res.new_total_score).toFixed(1));
@@ -173,7 +175,7 @@
         });
     }
 
-    function triggerAiGrading(answerId) {
+    function triggerAiGrading(answerId, questionId) {
         Swal.fire({
             title: 'Minta Bantuan AI?',
             text: "AI akan menganalisis jawaban siswa berdasarkan kunci jawaban. Hasilnya bisa Anda edit kembali.",
@@ -192,16 +194,18 @@
                     customClass: { popup: 'rounded-[3rem]' }
                 });
 
-                $.post(`{{ url('siswa/cbt/grading/answer') }}/${answerId}/ai`, {
-                    _token: '{{ csrf_token() }}'
+                $.post(`{{ route('guru.cbt.grading.ai') }}`, {
+                    _token: '{{ csrf_token() }}',
+                    student_exam_id: '{{ $studentExam->id }}',
+                    question_id: questionId
                 }).done(res => {
                     Swal.close();
                     if (res.success) {
-                        $(`.score-input[data-id="${answerId}"]`).val(res.score).addClass('ring-8 ring-emerald-100 border-emerald-500');
-                        $(`.feedback-input[data-id="${answerId}"]`).val(res.feedback).addClass('ring-8 ring-emerald-100 border-emerald-500');
+                        $(`.score-input[data-qid="${questionId}"]`).val(res.score).addClass('ring-8 ring-emerald-100 border-emerald-500');
+                        $(`.feedback-input[data-qid="${questionId}"]`).val(res.feedback).addClass('ring-8 ring-emerald-100 border-emerald-500');
                         
                         setTimeout(() => {
-                            $(`.score-input[data-id="${answerId}"], .feedback-input[data-id="${answerId}"]`).removeClass('ring-8 ring-emerald-100 border-emerald-500');
+                            $(`.score-input[data-qid="${questionId}"], .feedback-input[data-qid="${questionId}"]`).removeClass('ring-8 ring-emerald-100 border-emerald-500');
                         }, 2000);
 
                         toastr.success('Analisis AI Berhasil');

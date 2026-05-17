@@ -829,6 +829,13 @@
             });
         });
 
+        let hasValue = false;
+        $(`#q-panel-${qNo} .matching-select`).each(function() {
+            if ($(this).val() !== '') hasValue = true;
+        });
+
+        if (!hasValue) return null;
+
         return $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
             _token: '{{ csrf_token() }}',
             question_id: questionId,
@@ -853,10 +860,12 @@
         const isDoubt = panel.find('.doubt-checkbox').is(':checked');
         
         // Update local data attribute
-        $(`#q-panel-${qNo}`).data('doubtful', isDoubt ? 1 : 0);
-
         const text = $(`textarea[name="answer_${questionId}"]`).val();
         
+        if (text.trim() === '') {
+            return null;
+        }
+
         return $.post('{{ route("student.cbt.save-answer", $exam->id) }}', {
             _token: '{{ csrf_token() }}',
             question_id: questionId,
@@ -894,9 +903,9 @@
         }).then((res) => { 
             if (res.isConfirmed) {
                 const savePromise = saveCurrentQuestion(currentQ);
-                if (savePromise) {
+                if (savePromise && savePromise !== null) {
                     Swal.fire({
-                        title: 'Menyimpan Jawaban Terakhir...',
+                        title: 'Menyimpan...',
                         allowOutsideClick: false,
                         didOpen: () => Swal.showLoading(),
                         customClass: { popup: 'rounded-[3rem]' }
