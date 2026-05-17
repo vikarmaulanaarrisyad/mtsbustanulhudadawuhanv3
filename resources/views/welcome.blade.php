@@ -743,10 +743,48 @@
             </div>
         </div>
     </section>
+
+    <!-- Modal Pop-Up Pengumuman PPDB -->
+    <div class="modal fade" id="promoModal" tabindex="-1" role="dialog" aria-labelledby="promoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="border-radius: 20px; overflow: hidden; border: none; box-shadow: 0 15px 50px rgba(0,0,0,0.2);">
+                <div class="modal-header border-0 position-absolute" style="top: 0; right: 0; z-index: 10;">
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="text-shadow: 0 2px 4px rgba(0,0,0,0.5); opacity: 1; font-size: 2rem;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0 position-relative">
+                    <div style="background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); padding: 40px 20px; text-align: center; color: white;">
+                        <i class="fas fa-bullhorn mb-3 animate__animated animate__tada animate__infinite" style="font-size: 3rem; color: #f1c40f; text-shadow: 0 4px 10px rgba(0,0,0,0.2);"></i>
+                        <h3 class="font-weight-bold mb-2" style="letter-spacing: 1px;">PENGUMUMAN PPDB</h3>
+                        <p class="mb-0" style="font-size: 1.1rem; opacity: 0.9;">Pendaftaran Peserta Didik Baru Tahun Ajaran {{ date('Y') }}/{{ date('Y')+1 }} Telah Dibuka!</p>
+                    </div>
+                    <div class="p-4 text-center" style="background: white;">
+                        <h5 class="font-weight-bold text-dark mb-3">Segera Daftarkan Putra-Putri Anda</h5>
+                        <p class="text-muted mb-4">Kuota terbatas! Jangan lewatkan kesempatan untuk bergabung bersama Madrasah unggulan kami.</p>
+                        <a href="{{ route('register') }}" class="btn btn-success btn-lg btn-block font-weight-bold" style="border-radius: 50px; background: var(--primary-color); border: none; box-shadow: 0 5px 15px rgba(11, 140, 137, 0.3);">
+                            <i class="fas fa-paper-plane mr-2"></i> Daftar Sekarang
+                        </a>
+                        <button type="button" class="btn btn-link text-muted mt-2" data-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
     <script>
+        $(document).ready(function() {
+            // Tampilkan modal promo PPDB setelah 1.5 detik halaman dimuat
+            if (!sessionStorage.getItem('promoShown')) {
+                setTimeout(function() {
+                    $('#promoModal').modal('show');
+                    sessionStorage.setItem('promoShown', 'true');
+                }, 1500);
+            }
+        });
+    </script>
         document.addEventListener('DOMContentLoaded', () => {
             const counters = document.querySelectorAll('.counter');
             const speed = 100; // Semakin kecil, semakin cepat
