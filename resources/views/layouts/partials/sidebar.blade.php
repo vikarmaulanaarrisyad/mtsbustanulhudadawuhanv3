@@ -599,6 +599,12 @@
                                 <p>Manajemen Menu</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('faq.index') }}" class="nav-link {{ request()->is('admin/faq*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon text-warning"></i>
+                                <p>FAQ (Tanya Jawab)</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 @can('dashboard.admin')

@@ -255,6 +255,17 @@ Route::group(['middleware' => ['auth']], function () {
         Route::put('/announcements/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
         Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
 
+        // FAQ Management (Admin)
+        Route::controller(\App\Http\Controllers\Admin\FaqController::class)->group(function () {
+            Route::get('/faq', 'index')->name('faq.index');
+            Route::get('/faq/data', 'data')->name('faq.data');
+            Route::post('/faq', 'store')->name('faq.store');
+            Route::get('/faq/{id}', 'show')->name('faq.show');
+            Route::put('/faq/{id}', 'update')->name('faq.update');
+            Route::delete('/faq/{id}', 'destroy')->name('faq.destroy');
+            Route::post('/faq/delete-selected', 'deleteSelected')->name('faq.deleteSelected');
+        });
+
         // Teaching Journal Monitoring (Admin)
         Route::controller(\App\Http\Controllers\Admin\AdminTeachingJournalController::class)->group(function () {
             Route::get('/teaching-journals', 'index')->name('admin.teaching-journals.index');

@@ -22,6 +22,7 @@ use App\Models\Achievement;
 use App\Models\PpdbRegistrant;
 use App\Models\AdmissionQuotas;
 use App\Models\AdmissionPhase;
+use App\Models\Faq;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -87,7 +88,10 @@ class FrontController extends Controller
             'achievement_count' => $achievements->count(),
         ];
 
-        return view('welcome', compact('posts', 'quetes', 'breakingNews', 'sliders', 'agendas', 'ppdbOpen', 'academicYear', 'albums', 'site_setting', 'extracurriculars', 'achievements', 'stats', 'ppdbRegistrants'));
+        // 👉 Ambil FAQ
+        $faqs = Faq::where('is_active', true)->orderBy('position', 'asc')->orderBy('id', 'desc')->get();
+
+        return view('welcome', compact('posts', 'quetes', 'breakingNews', 'sliders', 'agendas', 'ppdbOpen', 'academicYear', 'albums', 'site_setting', 'extracurriculars', 'achievements', 'stats', 'ppdbRegistrants', 'faqs'));
     }
 
     public function ppdbMonitoring()

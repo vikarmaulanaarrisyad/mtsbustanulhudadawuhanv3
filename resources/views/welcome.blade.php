@@ -210,6 +210,20 @@
             .ticker-content::before, .ticker-content::after { width: 15px; }
             .ticker-item { font-size: 0.85rem; }
         }
+        /* FAQ Accordion Styling */
+        .faq-section .btn-link {
+            transition: all 0.3s;
+        }
+        .faq-section .btn-link:hover {
+            background-color: rgba(11, 140, 137, 0.05);
+            border-radius: 15px;
+        }
+        .faq-section .btn-link .fa-chevron-down {
+            transition: transform 0.3s;
+        }
+        .faq-section .btn-link[aria-expanded="true"] .fa-chevron-down {
+            transform: rotate(180deg);
+        }
     </style>
 @endpush
 
@@ -665,6 +679,47 @@
                             <p>Belum ada agenda sekolah terdekat.</p>
                         </div>
                     @endforelse
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- FAQ Section --}}
+    <section class="faq-section py-5" style="background-color: #ffffff;">
+        <div class="container py-4">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <span class="badge px-3 py-2 rounded-pill mb-3" style="background: rgba(11, 140, 137, 0.1); color: var(--primary-color); font-weight: 700; letter-spacing: 1px;">FAQ</span>
+                <h2 class="font-weight-bold text-dark mt-2" style="font-size: 2.5rem;">Pertanyaan Seputar PPDB</h2>
+                <p class="text-muted">Jawaban atas pertanyaan yang paling sering diajukan oleh calon wali murid.</p>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-8" data-aos="fade-up" data-aos-delay="100">
+                    <div class="accordion" id="faqAccordion">
+                        @forelse($faqs as $key => $faq)
+                        <!-- FAQ Item -->
+                        <div class="card border-0 mb-3" style="border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                            <div class="card-header bg-white border-0 p-0" id="headingFaq{{ $faq->id }}" style="border-radius: 15px;">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link btn-block text-left text-dark font-weight-bold p-4 text-decoration-none d-flex justify-content-between align-items-center {{ $key == 0 ? '' : 'collapsed' }}" type="button" data-toggle="collapse" data-target="#collapseFaq{{ $faq->id }}" aria-expanded="{{ $key == 0 ? 'true' : 'false' }}" aria-controls="collapseFaq{{ $faq->id }}">
+                                        {{ $faq->question }}
+                                        <i class="fas fa-chevron-down text-success"></i>
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapseFaq{{ $faq->id }}" class="collapse {{ $key == 0 ? 'show' : '' }}" aria-labelledby="headingFaq{{ $faq->id }}" data-parent="#faqAccordion">
+                                <div class="card-body text-muted px-4 pb-4 pt-0" style="line-height: 1.7;">
+                                    {!! nl2br(e($faq->answer)) !!}
+                                </div>
+                            </div>
+                        </div>
+                        @empty
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-question-circle fa-3x mb-3 text-light"></i>
+                            <p>Belum ada pertanyaan seputar PPDB.</p>
+                        </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>
