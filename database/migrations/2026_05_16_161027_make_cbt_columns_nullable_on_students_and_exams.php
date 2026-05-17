@@ -12,13 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('cbt_exams', function (Blueprint $table) {
-            $table->integer('wave')->nullable()->change();
-            $table->integer('session')->nullable()->change();
+            if (Schema::hasColumn('cbt_exams', 'wave')) {
+                $table->integer('wave')->nullable()->change();
+            }
+            if (Schema::hasColumn('cbt_exams', 'session')) {
+                $table->integer('session')->nullable()->change();
+            }
         });
 
         Schema::table('students', function (Blueprint $table) {
-            $table->integer('cbt_wave')->nullable()->change();
-            $table->integer('cbt_session')->nullable()->change();
+            if (Schema::hasColumn('students', 'cbt_wave')) {
+                $table->integer('cbt_wave')->nullable()->change();
+            }
+            if (Schema::hasColumn('students', 'cbt_session')) {
+                $table->integer('cbt_session')->nullable()->change();
+            }
         });
     }
 
@@ -28,13 +36,21 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('cbt_exams', function (Blueprint $table) {
-            $table->integer('wave')->nullable(false)->change();
-            $table->integer('session')->nullable(false)->change();
+            if (Schema::hasColumn('cbt_exams', 'wave')) {
+                $table->integer('wave')->nullable(false)->change();
+            }
+            if (Schema::hasColumn('cbt_exams', 'session')) {
+                $table->integer('session')->nullable(false)->change();
+            }
         });
 
         Schema::table('students', function (Blueprint $table) {
-            $table->integer('cbt_wave')->nullable(false)->change();
-            $table->integer('cbt_session')->nullable(false)->change();
+            if (Schema::hasColumn('students', 'cbt_wave')) {
+                $table->integer('cbt_wave')->nullable(false)->change();
+            }
+            if (Schema::hasColumn('students', 'cbt_session')) {
+                $table->integer('cbt_session')->nullable(false)->change();
+            }
         });
     }
 };

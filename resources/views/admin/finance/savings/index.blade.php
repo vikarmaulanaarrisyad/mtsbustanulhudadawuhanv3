@@ -195,7 +195,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text bg-white font-weight-bold border-right-0">Rp</span>
                             </div>
-                            <input type="number" name="amount" class="form-control form-control-lg font-weight-bold text-dark border-left-0 h3 mb-0" placeholder="0" min="1000" required>
+                            <input type="text" id="amount_mask" class="form-control form-control-lg font-weight-bold text-dark border-left-0 h3 mb-0" placeholder="0" required>
+                            <input type="hidden" name="amount" id="amount_raw">
                         </div>
                     </div>
 
@@ -341,6 +342,10 @@
         $('#student_name_display').text(name);
         $('#transaction_type').val(type);
         
+        // Reset nominal inputs
+        $('#amount_mask').val('');
+        $('#amount_raw').val('');
+        
         const title = $('#modalTitle');
         const btn = $('#submitBtn');
         
@@ -354,5 +359,17 @@
         
         $('#modal-transaction').modal('show');
     }
+
+    // Mask nominal input to Indonesian Currency format
+    document.getElementById('amount_mask').addEventListener('input', function(e) {
+        let value = this.value.replace(/\D/g, '');
+        document.getElementById('amount_raw').value = value;
+        
+        if (value) {
+            this.value = new Intl.NumberFormat('id-ID').format(value);
+        } else {
+            this.value = '';
+        }
+    });
 </script>
 @endpush

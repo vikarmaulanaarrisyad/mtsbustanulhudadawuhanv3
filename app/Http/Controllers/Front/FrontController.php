@@ -231,6 +231,22 @@ class FrontController extends Controller
 
     public function handle($slug)
     {
+        if ($slug === 'galeri' || $slug === 'albums') {
+            return redirect('/#galeri');
+        }
+
+        if ($slug === 'monitoring-ppdb') {
+            return redirect('/ppdb/monitoring');
+        }
+
+        if ($slug === 'form-pendaftaran') {
+            return redirect('/ppdb/check');
+        }
+
+        if ($slug === 'ppdb-online') {
+            return redirect('/ppdb/monitoring');
+        }
+
         $menu = Menu::where('menu_slug', $slug)->firstOrFail();
 
         switch ($menu->menu_type) {

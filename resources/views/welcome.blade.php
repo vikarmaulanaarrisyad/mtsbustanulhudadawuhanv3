@@ -569,7 +569,7 @@
     </section>
 
     {{-- Galeri dan Video Profil --}}
-    <section class="gallery-section py-5 bg-light">
+    <section id="galeri" class="gallery-section py-5 bg-light">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
                 <h2 class="font-weight-bold text-success d-inline-block shadow-sm px-4 py-2 rounded bg-white">Galeri & Profil Sekolah</h2>

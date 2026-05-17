@@ -166,6 +166,15 @@ class SettingController extends Controller
             ];
         }
 
+        if ($request->has('pills') && $request->pills == 'premium') {
+            $rules = [
+                'is_workflow_pro_active' => 'nullable|boolean',
+            ];
+            $request->merge([
+                'is_workflow_pro_active' => $request->has('is_workflow_pro_active')
+            ]);
+        }
+
         $data = $request->except('path_image', 'path_image_header', 'path_breadcrumb', 'path_image_footer');
 
         // Auto-increment PWA version when PWA settings change → triggers SW update on all devices

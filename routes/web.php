@@ -104,6 +104,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin', 'middleware' => ['role_or_permission:dashboard.admin|Super Admin|Admin']], function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::get('/workflow', [\App\Http\Controllers\Admin\WorkflowController::class, 'index'])->name('admin.workflow');
+        Route::post('/workflow/activate', [\App\Http\Controllers\Admin\WorkflowController::class, 'activate'])->name('admin.workflow.activate');
+        Route::post('/workflow/reset', [\App\Http\Controllers\Admin\WorkflowController::class, 'reset'])->name('admin.workflow.reset');
+        Route::get('/upgrade-module/{module}', [\App\Http\Controllers\Admin\WorkflowController::class, 'upgradePage'])->name('admin.upgrade_module');
+        Route::post('/upgrade-module/{module}/activate', [\App\Http\Controllers\Admin\WorkflowController::class, 'activateModule'])->name('admin.upgrade_module.activate');
+        Route::post('/upgrade-module/{module}/checkout', [\App\Http\Controllers\Admin\WorkflowController::class, 'submitCheckout'])->name('admin.upgrade_module.checkout');
 
         // Behavior Logs (Character Points) - Admin Access
         Route::post('/behavior-logs', [\App\Http\Controllers\BehaviorLogController::class, 'store'])->name('admin.behavior-logs.store');
@@ -1140,6 +1145,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/data', [\App\Http\Controllers\StudentSavingController::class, 'data'])->name('data');
             Route::post('/store', [\App\Http\Controllers\StudentSavingController::class, 'store'])->name('store');
             Route::get('/history/{id}', [\App\Http\Controllers\StudentSavingController::class, 'history'])->name('history');
+            Route::get('/print/{id}', [\App\Http\Controllers\StudentSavingController::class, 'print'])->name('print');
         });
         Route::get('/live', [TeacherAttendanceController::class, 'liveMonitoring'])->name('admin.attendance.live');
         Route::resource('/reports', AttendanceReportController::class)->names('attendance-reports');
@@ -1213,6 +1219,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/data', [\App\Http\Controllers\StudentSavingController::class, 'data'])->name('data');
         Route::post('/store', [\App\Http\Controllers\StudentSavingController::class, 'store'])->name('store');
         Route::get('/history/{id}', [\App\Http\Controllers\StudentSavingController::class, 'history'])->name('history');
+        Route::get('/print/{id}', [\App\Http\Controllers\StudentSavingController::class, 'print'])->name('print');
     });
 });
 
@@ -1222,6 +1229,39 @@ Route::group(['middleware' => ['auth']], function () {
 |--------------------------------------------------------------------------
 */
 Route::post('/api/midtrans/callback', [\App\Http\Controllers\Ppdb\PaymentCallbackController::class, 'callback'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+/*
+|--------------------------------------------------------------------------
+| DEVELOPER & SELLER ROUTES (PORTAL PENJUAL)
+|--------------------------------------------------------------------------
+*/
+Route::group(['prefix' => 'seller'], function () {
+    Route::get('/login', [\App\Http\Controllers\SellerController::class, 'loginForm'])->name('seller.login');
+    Route::post('/login', [\App\Http\Controllers\SellerController::class, 'login']);
+    Route::post('/logout', [\App\Http\Controllers\SellerController::class, 'logout'])->name('seller.logout');
+    Route::get('/dashboard', [\App\Http\Controllers\SellerController::class, 'dashboard'])->name('seller.dashboard');
+    Route::post('/toggle-license', [\App\Http\Controllers\SellerController::class, 'toggleLicense'])->name('seller.toggle_license');
+    Route::post('/simulate-payment', [\App\Http\Controllers\SellerController::class, 'simulatePayment'])->name('seller.simulate_payment');
+    Route::post('/update-prices', [\App\Http\Controllers\SellerController::class, 'updatePrices'])->name('seller.update_prices');
+    Route::post('/update-bank-settings', [\App\Http\Controllers\SellerController::class, 'updateBankSettings'])->name('seller.update_bank_settings');
+    Route::post('/quick-action', [\App\Http\Controllers\SellerController::class, 'quickAction'])->name('seller.quick_action');
+    Route::post('/record-manual-payment', [\App\Http\Controllers\SellerController::class, 'recordManualPayment'])->name('seller.record_manual_payment');
+    
+    // Remote Diagnostics & One-Click Backup
+    Route::post('/remote-diagnostics', [\App\Http\Controllers\SellerController::class, 'remoteDiagnostics'])->name('seller.remote_diagnostics');
+    Route::post('/remote-backup', [\App\Http\Controllers\SellerController::class, 'remoteBackup'])->name('seller.remote_backup');
+    Route::get('/remote-backup/download/{filename}', [\App\Http\Controllers\SellerController::class, 'downloadBackup'])->name('seller.download_backup');
+
+    // Coupon & Diskon Management
+    Route::post('/coupons', [\App\Http\Controllers\SellerController::class, 'createCoupon'])->name('seller.coupon.create');
+    Route::post('/coupons/{id}/toggle', [\App\Http\Controllers\SellerController::class, 'toggleCouponStatus'])->name('seller.coupon.toggle');
+    Route::delete('/coupons/{id}', [\App\Http\Controllers\SellerController::class, 'deleteCoupon'])->name('seller.coupon.delete');
+    Route::post('/coupons/validate', [\App\Http\Controllers\SellerController::class, 'validateCoupon'])->name('seller.coupon.validate');
+
+    // Manual Verification Transactions Management
+    Route::post('/transactions/{id}/approve', [\App\Http\Controllers\SellerController::class, 'approveActivation'])->name('seller.transaction.approve');
+    Route::post('/transactions/{id}/reject', [\App\Http\Controllers\SellerController::class, 'rejectActivation'])->name('seller.transaction.reject');
+});
 
 /*
 |--------------------------------------------------------------------------

@@ -47,6 +47,17 @@
                 </li>
 
                 @can('dashboard.admin')
+                @if(!($setting->is_workflow_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'workflow') }}" class="nav-link">
+                        <i class="nav-icon fas fa-map-marked-alt text-muted"></i>
+                        <p>
+                            Peta Jalan Admin
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item">
                     <a href="{{ route('admin.workflow') }}"
                         class="nav-link {{ request()->routeIs('admin.workflow') ? 'active' : '' }}">
@@ -54,6 +65,19 @@
                         <p>Peta Jalan Admin</p>
                     </a>
                 </li>
+                @endif
+
+                @if(!($setting->is_announcements_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'announcements') }}" class="nav-link">
+                        <i class="nav-icon fas fa-bullhorn text-muted"></i>
+                        <p>
+                            Pengumuman Madrasah
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item">
                     <a href="{{ route('announcements.admin') }}"
                         class="nav-link {{ request()->is('admin/manage-announcements*') ? 'active' : '' }}">
@@ -61,12 +85,24 @@
                         <p>Pengumuman Madrasah</p>
                     </a>
                 </li>
+                @endif
                 @endcan
 
                 {{-- ================= MANAJEMEN KEPENDIDIKAN ================= --}}
                 <li class="nav-header uppercase tracking-wider opacity-70">Manajemen Kependidikan</li>
                 
                 @canany(['teachers.view', 'dashboard.admin'])
+                @if(!($setting->is_teachers_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'teachers') }}" class="nav-link">
+                        <i class="nav-icon fas fa-users text-muted"></i>
+                        <p>
+                            Guru & Kepegawaian
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item {{ request()->is('teachers*') || request()->is('admin/performance*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('teachers*') || request()->is('admin/performance*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-users"></i>
@@ -98,8 +134,20 @@
                         @endcan
                     </ul>
                 </li>
+                @endif
                 @endcanany
 
+                @if(!($setting->is_students_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'students') }}" class="nav-link">
+                        <i class="nav-icon fas fa-user-graduate text-muted"></i>
+                        <p>
+                            Manajemen Siswa
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item {{ request()->is('academic/students*') || request()->is('alumni*') || request()->is('transfers*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('academic/students*') || request()->is('alumni*') || request()->is('transfers*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user-graduate"></i>
@@ -141,7 +189,19 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
+                @if(!($setting->is_curriculum_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'curriculum') }}" class="nav-link">
+                        <i class="nav-icon fas fa-school text-muted"></i>
+                        <p>
+                            Kurikulum & Kelas
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item {{ request()->is('academic/class-groups*') || request()->is('academic/academic-years*') || request()->is('subjects*') || request()->is('class-schedules*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('academic/class-groups*') || request()->is('academic/academic-years*') || request()->is('subjects*') || request()->is('class-schedules*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-school"></i>
@@ -201,7 +261,19 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
+                @if(!($setting->is_achievements_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'achievements') }}" class="nav-link">
+                        <i class="nav-icon fas fa-star text-muted"></i>
+                        <p>
+                            Pembiasaan & Prestasi
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item {{ request()->is('academic/mutabaah-tahfidz*') || request()->is('admin/achievements*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('academic/mutabaah-tahfidz*') || request()->is('admin/achievements*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-star"></i>
@@ -225,11 +297,23 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
                 {{-- ================= UJIAN & PENILAIAN (CBT) ================= --}}
                 <li class="nav-header uppercase tracking-wider opacity-70">Ujian & Penilaian (CBT)</li>
                 
                 @can('dashboard.admin')
+                @if(!($setting->is_cbt_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'cbt') }}" class="nav-link">
+                        <i class="nav-icon fas fa-laptop-code text-muted"></i>
+                        <p>
+                            Manajemen CBT
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item {{ request()->is('cbt/*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('cbt/*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-laptop-code text-indigo"></i>
@@ -265,8 +349,20 @@
                         </li>
                     </ul>
                 </li>
+                @endif
                 @endcan
 
+                @if(!($setting->is_grades_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'grades') }}" class="nav-link">
+                        <i class="nav-icon fas fa-file-invoice text-muted"></i>
+                        <p>
+                            Pengolahan Nilai
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item {{ request()->is('grades*') || request()->is('guru/cbt/grading*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('grades*') || request()->is('guru/cbt/grading*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-file-invoice"></i>
@@ -302,11 +398,23 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
                 {{-- ================= ABSENSI & MONITORING ================= --}}
                 <li class="nav-header uppercase tracking-wider opacity-70">Absensi & Monitoring</li>
                 
                 @can('dashboard.admin')
+                @if(!($setting->is_attendance_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'attendance') }}" class="nav-link">
+                        <i class="nav-icon fas fa-clipboard-list text-muted"></i>
+                        <p>
+                            Presensi & Absensi
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item">
                     <a href="{{ route('teacher.attendance.dashboard') }}"
                         class="nav-link {{ request()->is('teacher/attendance*') ? 'active' : '' }}">
@@ -379,11 +487,23 @@
                         </li>
                     </ul>
                 </li>
+                @endif
                 @endcan
 
                 {{-- ================= ADMINISTRASI & PERSURATAN ================= --}}
                 <li class="nav-header uppercase tracking-wider opacity-70">Administrasi & Persuratan</li>
                 
+                @if(!($setting->is_mail_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'mail') }}" class="nav-link">
+                        <i class="nav-icon fas fa-file-alt text-muted"></i>
+                        <p>
+                            Layanan Surat & SPPD
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item">
                     <a href="{{ route('duty-letters.index') }}"
                         class="nav-link {{ request()->is('duty-letters*') ? 'active' : '' }}">
@@ -439,11 +559,23 @@
                         <p>Pengaturan Kop Surat</p>
                     </a>
                 </li>
+                @endif
 
                 {{-- ================= KEUANGAN & IURAN ================= --}}
                 <li class="nav-header uppercase tracking-wider opacity-70">Keuangan & Iuran</li>
                 
                 @can('dashboard.admin')
+                @if(!($setting->is_savings_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'savings') }}" class="nav-link">
+                        <i class="nav-icon fas fa-wallet text-muted"></i>
+                        <p>
+                            Keuangan Siswa (SPP)
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item {{ request()->is('admin/spp*') || request()->is('admin/savings*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('admin/spp*') || request()->is('admin/savings*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-wallet text-success"></i>
@@ -479,7 +611,19 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
+                @if(!($setting->is_bos_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'bos') }}" class="nav-link">
+                        <i class="nav-icon fas fa-university text-muted"></i>
+                        <p>
+                            Dana BOS & Payroll
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item {{ request()->is('admin/bos*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('admin/bos*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-university"></i>
@@ -516,11 +660,23 @@
                         <p>Penggajian Guru</p>
                     </a>
                 </li>
+                @endif
                 @endcan
 
                 {{-- ================= PENERIMAAN SISWA (PPDB) ================= --}}
                 @canany(['ppdb.view', 'student-admissions.view'])
                 <li class="nav-header uppercase tracking-wider opacity-70">Penerimaan Siswa Baru</li>
+                @if(!($setting->is_ppdb_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'ppdb') }}" class="nav-link">
+                        <i class="nav-icon fas fa-user-plus text-muted"></i>
+                        <p>
+                            PPDB Online
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item {{ request()->is('ppdb*') || request()->is('admission*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('ppdb*') || request()->is('admission*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user-plus text-primary"></i>
@@ -562,10 +718,22 @@
                         </li>
                     </ul>
                 </li>
+                @endif
                 @endcanany
 
                 {{-- ================= MEDIA & PUBLIKASI ================= --}}
                 <li class="nav-header uppercase tracking-wider opacity-70">Media & Publikasi</li>
+                @if(!($setting->is_website_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'website') }}" class="nav-link">
+                        <i class="nav-icon fas fa-globe text-muted"></i>
+                        <p>
+                            Website Madrasah
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item {{ request()->is('posts*') || request()->is('pages*') || request()->is('albums*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('posts*') || request()->is('pages*') || request()->is('albums*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-globe text-info"></i>
@@ -619,18 +787,42 @@
                         </li>
                     </ul>
                 </li>
+                @endif
                 @can('dashboard.admin')
+                @if(!($setting->is_wa_gateway_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'wa_gateway') }}" class="nav-link">
+                        <i class="nav-icon fab fa-whatsapp text-muted"></i>
+                        <p>
+                            WA Gateway
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item">
                     <a href="{{ route('admin.wa-gateway.index') }}" class="nav-link {{ request()->is('admin/wa-gateway*') ? 'active' : '' }}">
                         <i class="nav-icon fab fa-whatsapp text-success"></i>
                         <p>WA Gateway</p>
                     </a>
                 </li>
+                @endif
                 @endcan
 
                 {{-- ================= ANALISIS & SISTEM ================= --}}
                 <li class="nav-header uppercase tracking-wider opacity-70">Analisis & Sistem</li>
                 
+                @if(!($setting->is_system_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'system') }}" class="nav-link">
+                        <i class="nav-icon fas fa-cogs text-muted"></i>
+                        <p>
+                            Analisis & Sistem
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 @can('dashboard.admin')
                 <li class="nav-item {{ request()->is('admin/analytics*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('admin/analytics*') ? 'active' : '' }}">
@@ -657,6 +849,17 @@
                 </li>
                 @endcan
 
+                @if(!($setting->is_users_pro_active ?? false))
+                <li class="nav-item">
+                    <a href="{{ route('admin.upgrade_module', 'users') }}" class="nav-link">
+                        <i class="nav-icon fas fa-user-shield text-muted"></i>
+                        <p>
+                            Hak Akses & User
+                            <span class="badge badge-warning right font-weight-bold text-[9px]"><i class="fas fa-lock"></i> PRO</span>
+                        </p>
+                    </a>
+                </li>
+                @else
                 <li class="nav-item {{ request()->is('users*') || request()->is('role*') || request()->is('positions*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('users*') || request()->is('role*') || request()->is('positions*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user-shield"></i>
@@ -686,6 +889,7 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
                 @can('setting.view')
                 <li class="nav-item">
@@ -707,6 +911,7 @@
                     </a>
                 </li>
                 @endcan
+                @endif
 
                 <li class="nav-header">AKSI</li>
                 <li class="nav-item mt-auto">

@@ -171,4 +171,20 @@ class StudentSavingController extends Controller
         $view = $isGuru ? 'guru.savings.history' : 'admin.finance.savings.history';
         return view($view, compact('student', 'transactions', 'isGuru'));
     }
+
+    public function print($id)
+    {
+        $student = Student::with(['savings', 'classGroup'])->findOrFail($id);
+        $transactions = StudentSavingTransaction::where('student_saving_id', $student->savings->id ?? 0)
+            ->with('creator')
+            ->orderBy('created_at', 'asc')
+            ->get();
+            
+        $setting = \App\Models\Setting::first();
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.finance.savings.pdf', compact('student', 'transactions', 'setting'));
+        $pdf->setPaper('a4', 'portrait');
+        
+        return $pdf->stream('Kartu_Tabungan_' . str_replace(' ', '_', $student->nama_lengkap) . '.pdf');
+    }
 }
