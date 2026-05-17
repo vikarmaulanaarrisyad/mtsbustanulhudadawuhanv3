@@ -320,12 +320,17 @@
                         <!-- Decorative shapes -->
                         <div style="position: absolute; bottom: -20px; right: -20px; width: 80px; height: 80px; background: radial-gradient(circle, var(--primary-light) 20%, transparent 20%); background-size: 10px 10px; z-index: 2; opacity: 0.5;"></div>
                         
-                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=600&auto=format&fit=crop" alt="Kepala Madrasah" class="img-fluid position-relative shadow-lg" style="z-index: 1; max-height: 420px; object-fit: cover; border-radius: 20px;">
+                        @php
+                            $kepsekImage = isset($welcomeMessage) && $welcomeMessage->path_image && Storage::disk('public')->exists($welcomeMessage->path_image) 
+                                            ? Storage::url($welcomeMessage->path_image) 
+                                            : 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=600&auto=format&fit=crop';
+                        @endphp
+                        <img src="{{ $kepsekImage }}" alt="Kepala Madrasah" class="img-fluid position-relative shadow-lg" style="z-index: 1; max-height: 420px; object-fit: cover; border-radius: 20px;">
                         
                         <!-- Floating Badge -->
                         <div class="position-absolute bg-white shadow-sm px-4 py-2 d-none d-md-block" style="bottom: 20px; left: -30px; border-radius: 10px; z-index: 3; border-left: 4px solid var(--primary-color);">
                             <h6 class="mb-0 font-weight-bold text-dark text-left">Kepala Madrasah</h6>
-                            <small class="text-muted text-left d-block">MTS Bustanul Huda</small>
+                            <small class="text-muted text-left d-block">{{ $setting->company_name ?? 'MTS Bustanul Huda' }}</small>
                         </div>
                     </div>
                 </div>
@@ -335,13 +340,16 @@
                     <span class="badge px-3 py-2 rounded-pill mb-3" style="background: rgba(11, 140, 137, 0.1); color: #0b8c89; font-weight: 700; letter-spacing: 1px;">SAMBUTAN</span>
                     <h2 class="font-weight-bold text-dark mb-4" style="font-size: 2.5rem; line-height: 1.2;">Selamat Datang di <br><span style="color: var(--primary-color);">{{ $setting->company_name ?? 'MTS Bustanul Huda' }}</span></h2>
                     
-                    <h5 class="font-weight-bold text-dark mb-3">Assalamu'alaikum Warahmatullahi Wabarakatuh</h5>
-                    
                     <div class="text-muted" style="font-size: 1.05rem; line-height: 1.8; text-align: justify;">
-                        <p>Alhamdulillah, puji syukur senantiasa kita panjatkan kehadirat Allah SWT. Kami merasa bangga dan bersyukur atas kehadiran Anda di portal informasi digital Madrasah kami.</p>
-                        <p>Madrasah kami berkomitmen penuh untuk terus mencetak generasi yang unggul dalam ilmu pengetahuan, tangguh dalam menghadapi tantangan zaman, serta memiliki landasan akhlak mulia sesuai dengan nilai-nilai ajaran Islam. Kami mengintegrasikan kurikulum modern dengan pendidikan pesantren demi masa depan gemilang anak didik kita.</p>
-                        <p>Semoga website ini dapat menjadi jembatan informasi yang efektif, transparan, dan bermanfaat bagi pihak sekolah, wali murid, dan masyarakat luas.</p>
-                        <p class="font-weight-bold text-dark mt-3 mb-0">Wassalamu'alaikum Warahmatullahi Wabarakatuh.</p>
+                        @if(isset($welcomeMessage) && $welcomeMessage->content)
+                            {!! $welcomeMessage->content !!}
+                        @else
+                            <h5 class="font-weight-bold text-dark mb-3">Assalamu'alaikum Warahmatullahi Wabarakatuh</h5>
+                            <p>Alhamdulillah, puji syukur senantiasa kita panjatkan kehadirat Allah SWT. Kami merasa bangga dan bersyukur atas kehadiran Anda di portal informasi digital Madrasah kami.</p>
+                            <p>Madrasah kami berkomitmen penuh untuk terus mencetak generasi yang unggul dalam ilmu pengetahuan, tangguh dalam menghadapi tantangan zaman, serta memiliki landasan akhlak mulia sesuai dengan nilai-nilai ajaran Islam. Kami mengintegrasikan kurikulum modern dengan pendidikan pesantren demi masa depan gemilang anak didik kita.</p>
+                            <p>Semoga website ini dapat menjadi jembatan informasi yang efektif, transparan, dan bermanfaat bagi pihak sekolah, wali murid, dan masyarakat luas.</p>
+                            <p class="font-weight-bold text-dark mt-3 mb-0">Wassalamu'alaikum Warahmatullahi Wabarakatuh.</p>
+                        @endif
                     </div>
                     
                     <div class="mt-4 pt-4 border-top d-flex align-items-center">
@@ -349,7 +357,7 @@
                             <i class="fas fa-quote-left"></i>
                         </div>
                         <div>
-                            <h5 class="font-weight-bold text-dark mb-0">Bapak/Ibu Kepala Madrasah, S.Pd., M.Pd.</h5>
+                            <h5 class="font-weight-bold text-dark mb-0">{{ $welcomeMessage->name ?? 'Bapak/Ibu Kepala Madrasah, S.Pd., M.Pd.' }}</h5>
                             <p class="text-muted small mb-0">Kepala Madrasah</p>
                         </div>
                     </div>
