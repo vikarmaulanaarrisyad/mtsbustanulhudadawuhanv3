@@ -68,6 +68,17 @@ class GroqAiService
             }
 
             $result = $response->json();
+            
+            // Track total tokens consumed
+            $tokens = $result['usage']['total_tokens'] ?? 0;
+            if ($tokens > 0) {
+                try {
+                    Setting::first()->increment('groq_tokens_this_month', $tokens);
+                } catch (\Exception $ex) {
+                    Log::warning('Failed to increment Groq token usage: ' . $ex->getMessage());
+                }
+            }
+
             $content = $result['choices'][0]['message']['content'] ?? '';
             $data = json_decode($content, true);
             
@@ -134,6 +145,17 @@ Instruksi:
             }
 
             $result = $response->json();
+
+            // Track total tokens consumed
+            $tokens = $result['usage']['total_tokens'] ?? 0;
+            if ($tokens > 0) {
+                try {
+                    Setting::first()->increment('groq_tokens_this_month', $tokens);
+                } catch (\Exception $ex) {
+                    Log::warning('Failed to increment Groq token usage: ' . $ex->getMessage());
+                }
+            }
+
             return $result['choices'][0]['message']['content'] ?? 'No response from AI.';
         } catch (\Exception $e) {
             Log::error('Groq getCompletion error: ' . $e->getMessage());

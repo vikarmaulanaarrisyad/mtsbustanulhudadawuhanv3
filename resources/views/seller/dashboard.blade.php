@@ -485,6 +485,142 @@
             </div>
         </div>
 
+        <!-- MONITORING KESEHATAN SISTEM & PEMANTAUAN RESOURCE -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="glow-card p-4" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.02) 0%, rgba(59, 130, 246, 0.02) 100%);">
+                    <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom border-secondary flex-wrap">
+                        <div class="d-flex align-items-center mb-2 mb-md-0">
+                            <h5 class="font-weight-bold text-white mb-0"><i class="fas fa-heartbeat text-success mr-2"></i> Pemantauan Kesehatan Sistem & Kuota API</h5>
+                            <span class="badge badge-success text-xs ml-3"><i class="fas fa-shield-alt mr-1"></i> SECURED SYSTEM</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Server Storage & DB Metrics Grid -->
+                        <div class="col-xl-6 mb-4 mb-xl-0">
+                            <h6 class="font-weight-bold text-white mb-3"><i class="fas fa-database text-info mr-2"></i> Kapasitas Penyimpanan & Database</h6>
+                            <div class="row">
+                                <!-- Proof Storage Card -->
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <div class="p-3 border rounded border-secondary bg-dark-50" style="background: rgba(0,0,0,0.25);">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="metric-badge mr-2" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; width: 36px; height: 36px;">
+                                                <i class="fas fa-file-invoice-dollar"></i>
+                                            </div>
+                                            <span class="text-xs text-muted uppercase font-weight-bold">File Bukti Transfer</span>
+                                        </div>
+                                        <h4 class="font-weight-bold text-white mb-1 console-font">{{ $systemHealth['proofs_size'] }}</h4>
+                                        <span class="text-xs text-muted">Penyimpanan bukti bayar klien</span>
+                                    </div>
+                                </div>
+                                <!-- DB Size Card -->
+                                <div class="col-sm-6">
+                                    <div class="p-3 border rounded border-secondary bg-dark-50" style="background: rgba(0,0,0,0.25);">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="metric-badge mr-2" style="background: rgba(16, 185, 129, 0.1); color: #10b981; width: 36px; height: 36px;">
+                                                <i class="fas fa-hdd"></i>
+                                            </div>
+                                            <span class="text-xs text-muted uppercase font-weight-bold">Ukuran Database</span>
+                                        </div>
+                                        <h4 class="font-weight-bold text-white mb-1 console-font">{{ $systemHealth['db_size'] }}</h4>
+                                        <span class="text-xs text-muted">Kapasitas utama: <code>mts_db</code></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- API Quotas Counter Grid (AI & WA) -->
+                        <div class="col-xl-6">
+                            <h6 class="font-weight-bold text-white mb-3"><i class="fas fa-plug text-warning mr-2"></i> Pemantauan Kuota API (AI & WA)</h6>
+                            <div class="row">
+                                <!-- WA Connection Card -->
+                                <div class="col-md-4 mb-3 mb-md-0">
+                                    <div class="p-3 border rounded border-secondary bg-dark-50 text-center" style="background: rgba(0,0,0,0.25);">
+                                        <span class="text-xs text-muted uppercase font-weight-bold d-block mb-2">WhatsApp Gateway</span>
+                                        @if($systemHealth['wa_status'] === 'Aktif')
+                                            <span class="badge badge-success px-3 py-2 rounded-pill font-weight-bold" style="font-size: 11px; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);">
+                                                <i class="fab fa-whatsapp mr-1"></i> AKTIF
+                                            </span>
+                                        @else
+                                            <span class="badge badge-danger px-3 py-2 rounded-pill font-weight-bold" style="font-size: 11px; box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);">
+                                                <i class="fas fa-phone-slash mr-1"></i> TERPUTUS
+                                            </span>
+                                        @endif
+                                        <small class="text-muted d-block mt-2">Status Fonnte Gateway</small>
+                                    </div>
+                                </div>
+                                <!-- Gemini AI Tokens Card -->
+                                <div class="col-md-4 mb-3 mb-md-0">
+                                    <div class="p-3 border rounded border-secondary bg-dark-50 text-center" style="background: rgba(0,0,0,0.25);">
+                                        <span class="text-xs text-muted uppercase font-weight-bold d-block mb-2">Gemini AI Usage</span>
+                                        <h5 class="font-weight-bold text-white mb-1 console-font">{{ number_format($systemHealth['gemini_tokens'], 0, ',', '.') }}</h5>
+                                        <small class="text-muted">Token bulan ini</small>
+                                    </div>
+                                </div>
+                                <!-- Groq AI Tokens Card -->
+                                <div class="col-md-4">
+                                    <div class="p-3 border rounded border-secondary bg-dark-50 text-center" style="background: rgba(0,0,0,0.25);">
+                                        <span class="text-xs text-muted uppercase font-weight-bold d-block mb-2">Groq AI Usage</span>
+                                        <h5 class="font-weight-bold text-white mb-1 console-font">{{ number_format($systemHealth['groq_tokens'], 0, ',', '.') }}</h5>
+                                        <small class="text-muted">Token bulan ini</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DATABASE BACKUP MANAGEMENT -->
+                    <div class="mt-4 pt-3 border-top border-secondary">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h6 class="font-weight-bold text-white mb-0"><i class="fas fa-file-zipper text-danger mr-2"></i> Riwayat & Status File Backup Database</h6>
+                            <span class="text-xs text-muted console-font">Format: *.zip archive</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-dev table-borderless mb-0">
+                                <thead>
+                                    <tr style="background: rgba(255,255,255,0.02);">
+                                        <th class="py-2.5 pl-3">Nama File Backup</th>
+                                        <th class="py-2.5">Ukuran File</th>
+                                        <th class="py-2.5">Terakhir Dibuat</th>
+                                        <th class="py-2.5 text-right pr-3">Aksi Pemilik</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if(count($systemHealth['backups']) > 0)
+                                        @foreach($systemHealth['backups'] as $backup)
+                                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.02);" id="backup-row-{{ Str::slug($backup['file_name']) }}">
+                                                <td class="pl-3 py-3 font-weight-bold text-white console-font">
+                                                    <i class="fas fa-file-archive text-warning mr-2"></i> {{ $backup['file_name'] }}
+                                                </td>
+                                                <td class="py-3 text-light">{{ $backup['file_size'] }}</td>
+                                                <td class="py-3 text-muted">{{ $backup['last_modified'] }}</td>
+                                                <td class="py-3 text-right pr-3">
+                                                    <a href="{{ route('seller.download_backup', ['filename' => $backup['file_name']]) }}" class="btn btn-xs btn-outline-success mr-2" style="border-radius: 6px; font-size: 11px;">
+                                                        <i class="fas fa-download mr-1"></i> Download
+                                                    </a>
+                                                    <button onclick="deleteBackupFile('{{ $backup['file_name'] }}')" class="btn btn-xs btn-outline-danger" style="border-radius: 6px; font-size: 11px;">
+                                                        <i class="fas fa-trash-alt mr-1"></i> Hapus
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="4" class="text-center py-4 text-muted">
+                                                <i class="fas fa-info-circle mr-1"></i> Belum ada file backup database yang tersedia. Gunakan tombol backup jarak jauh di atas.
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             
             <!-- LICENSE CONTROL PANEL -->
@@ -1897,6 +2033,51 @@
                     })
                     .fail(xhr => {
                         Swal.fire('Gagal', xhr.responseJSON?.message || 'Gagal memproses backup database klien.', 'error');
+                    });
+                }
+            });
+        }
+
+        function deleteBackupFile(fileName) {
+            Swal.fire({
+                title: 'Hapus File Backup?',
+                text: "File backup '" + fileName + "' akan dihapus selamanya dari penyimpanan server.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#374151',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menghapus File...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: '/seller/remote-backup/delete/' + encodeURIComponent(fileName),
+                        type: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        }
+                    })
+                    .done(res => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Dihapus!',
+                            text: res.message,
+                            showConfirmButton: false,
+                            timer: 2000
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    })
+                    .fail(xhr => {
+                        Swal.fire('Gagal', xhr.responseJSON?.message || 'Gagal menghapus file backup.', 'error');
                     });
                 }
             });

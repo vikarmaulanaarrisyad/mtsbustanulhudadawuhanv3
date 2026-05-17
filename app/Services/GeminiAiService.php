@@ -72,6 +72,17 @@ class GeminiAiService
             }
 
             $result = $response->json();
+            
+            // Track total tokens consumed
+            $tokens = $result['usageMetadata']['totalTokenCount'] ?? 0;
+            if ($tokens > 0) {
+                try {
+                    Setting::first()->increment('gemini_tokens_this_month', $tokens);
+                } catch (\Exception $ex) {
+                    Log::warning('Failed to increment Gemini token usage: ' . $ex->getMessage());
+                }
+            }
+
             $content = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
             
             // Clean up JSON
@@ -135,6 +146,17 @@ class GeminiAiService
             }
 
             $result = $response->json();
+
+            // Track total tokens consumed
+            $tokens = $result['usageMetadata']['totalTokenCount'] ?? 0;
+            if ($tokens > 0) {
+                try {
+                    Setting::first()->increment('gemini_tokens_this_month', $tokens);
+                } catch (\Exception $ex) {
+                    Log::warning('Failed to increment Gemini token usage: ' . $ex->getMessage());
+                }
+            }
+
             $content = $result['candidates'][0]['content']['parts'][0]['text'] ?? '{}';
             
             // Clean up JSON
@@ -197,6 +219,17 @@ Instruksi Khusus:
             }
 
             $result = $response->json();
+
+            // Track total tokens consumed
+            $tokens = $result['usageMetadata']['totalTokenCount'] ?? 0;
+            if ($tokens > 0) {
+                try {
+                    Setting::first()->increment('gemini_tokens_this_month', $tokens);
+                } catch (\Exception $ex) {
+                    Log::warning('Failed to increment Gemini token usage: ' . $ex->getMessage());
+                }
+            }
+
             return $result['candidates'][0]['content']['parts'][0]['text'] ?? 'No response from AI.';
         } catch (\Exception $e) {
             Log::error('Gemini getCompletion error: ' . $e->getMessage());

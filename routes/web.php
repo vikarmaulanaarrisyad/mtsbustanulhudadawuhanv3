@@ -1251,6 +1251,7 @@ Route::group(['prefix' => 'seller'], function () {
     Route::post('/remote-diagnostics', [\App\Http\Controllers\SellerController::class, 'remoteDiagnostics'])->name('seller.remote_diagnostics');
     Route::post('/remote-backup', [\App\Http\Controllers\SellerController::class, 'remoteBackup'])->name('seller.remote_backup');
     Route::get('/remote-backup/download/{filename}', [\App\Http\Controllers\SellerController::class, 'downloadBackup'])->name('seller.download_backup');
+    Route::delete('/remote-backup/delete/{filename}', [\App\Http\Controllers\SellerController::class, 'destroyBackup'])->name('seller.delete_backup');
 
     // Coupon & Diskon Management
     Route::post('/coupons', [\App\Http\Controllers\SellerController::class, 'createCoupon'])->name('seller.coupon.create');

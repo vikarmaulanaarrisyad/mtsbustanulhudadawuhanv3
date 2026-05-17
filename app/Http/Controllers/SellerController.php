@@ -16,6 +16,17 @@ class SellerController extends Controller
         return session()->has('seller_logged_in');
     }
 
+    private function formatBytes($bytes, $precision = 2)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= (1 << (10 * $pow));
+
+        return round($bytes, $precision) . ' ' . $units[$pow];
+    }
+
     public function loginForm()
     {
         if ($this->checkAuth()) {
@@ -112,7 +123,118 @@ class SellerController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('seller.dashboard', compact('setting', 'transactions', 'stats', 'expiringSoon', 'coupons', 'pendingTransactions'));
+        // 1. Proofs Folder Size Calculation
+        $proofsFolder = public_path('uploads/transfer_proofs');
+        $proofsSize = 0;
+        if (is_dir($proofsFolder)) {
+            $files = glob($proofsFolder . '/*');
+            if ($files) {
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        $proofsSize += filesize($file);
+                    }
+                }
+            }
+        }
+        $proofsSizeFormatted = $this->formatBytes($proofsSize);
+
+        // 2. MySQL Database Size Calculation
+        $dbName = config('database.connections.mysql.database');
+        $dbSizeBytes = 0;
+        try {
+            $dbSizeResult = \DB::select("
+                SELECT SUM(data_length + index_length) AS size 
+                FROM information_schema.TABLES 
+                WHERE table_schema = ?
+            ", [$dbName]);
+            $dbSizeBytes = $dbSizeResult[0]->size ?? 0;
+        } catch (\Exception $e) {
+            \Log::warning('DB Size query failed: ' . $e->getMessage());
+        }
+        $dbSizeFormatted = $this->formatBytes($dbSizeBytes);
+
+        // 3. WhatsApp Gateway connection ping
+        $waStatus = 'Terputus';
+        if ($setting && $setting->wa_api_url && $setting->wa_api_token) {
+            try {
+                // Rapid timeout check (2s)
+                $response = \Illuminate\Support\Facades\Http::timeout(2)
+                    ->withHeaders(['Authorization' => $setting->wa_api_token])
+                    ->post('https://api.fonnte.com/device');
+                
+                if ($response->successful() && $response->json('status') === true) {
+                    $waStatus = 'Aktif';
+                } else {
+                    // Generic fallback ping check
+                    $response = \Illuminate\Support\Facades\Http::timeout(2)
+                        ->withHeaders(['Authorization' => $setting->wa_api_token])
+                        ->post($setting->wa_api_url, [
+                            'target' => '000000000000',
+                            'message' => 'ping'
+                        ]);
+                    if ($response->successful()) {
+                        $waStatus = 'Aktif';
+                    }
+                }
+            } catch (\Exception $e) {
+                $waStatus = 'Terputus';
+            }
+        }
+
+        // 4. Database Backup Listing (Top 5)
+        $backupFiles = glob(storage_path('app/*.zip'));
+        $backups = [];
+        if ($backupFiles) {
+            foreach ($backupFiles as $file) {
+                $backups[] = [
+                    'file_name' => basename($file),
+                    'file_size' => $this->formatBytes(filesize($file)),
+                    'last_modified' => \Carbon\Carbon::createFromTimestamp(filemtime($file))->diffForHumans(),
+                    'raw_timestamp' => filemtime($file)
+                ];
+            }
+            // Sort by newest
+            usort($backups, function($a, $b) {
+                return $b['raw_timestamp'] <=> $a['raw_timestamp'];
+            });
+            // Take top 5
+            $backups = array_slice($backups, 0, 5);
+        }
+
+        $systemHealth = [
+            'proofs_size' => $proofsSizeFormatted,
+            'db_size' => $dbSizeFormatted,
+            'wa_status' => $waStatus,
+            'backups' => $backups,
+            'gemini_tokens' => $setting->gemini_tokens_this_month ?? 0,
+            'groq_tokens' => $setting->groq_tokens_this_month ?? 0,
+        ];
+
+        return view('seller.dashboard', compact('setting', 'transactions', 'stats', 'expiringSoon', 'coupons', 'pendingTransactions', 'systemHealth'));
+    }
+
+    public function destroyBackup($fileName)
+    {
+        if (!$this->checkAuth()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        // Sanitize path traversal
+        $fileName = basename($fileName);
+        $filePath = storage_path('app/' . $fileName);
+
+        if (file_exists($filePath) && str_ends_with($fileName, '.zip')) {
+            unlink($filePath);
+            return response()->json([
+                'success' => true,
+                'message' => 'File backup berhasil dihapus dari server!'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'File backup tidak ditemukan.'
+        ], 404);
     }
 
     public function toggleLicense(Request $request)
@@ -717,14 +839,23 @@ class SellerController extends Controller
 
         // Security check: prevent directory traversal attacks
         $filename = basename($filename);
-        $filepath = storage_path('app/backups/' . $filename);
 
-        if (!file_exists($filepath)) {
-            abort(404, 'File backup tidak ditemukan.');
+        // 1. Search in storage/app/ for .zip backups
+        if (str_ends_with($filename, '.zip')) {
+            $filepath = storage_path('app/' . $filename);
+            if (file_exists($filepath)) {
+                return response()->download($filepath);
+            }
         }
 
-        // Stream and delete after send
-        return response()->download($filepath)->deleteFileAfterSend(true);
+        // 2. Search in storage/app/backups/ for diagnostic SQL dumps
+        $filepath = storage_path('app/backups/' . $filename);
+        if (file_exists($filepath)) {
+            // Stream and delete after send
+            return response()->download($filepath)->deleteFileAfterSend(true);
+        }
+
+        abort(404, 'File backup tidak ditemukan.');
     }
 
     public function createCoupon(Request $request)

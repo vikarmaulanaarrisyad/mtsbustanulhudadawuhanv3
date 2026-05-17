@@ -64,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
             }
             
             $view->with('layout', $layout);
-            $view->with('setting', Setting::first());
+            $view->with('setting', Setting::first() ?? new Setting());
         });
     }
 }

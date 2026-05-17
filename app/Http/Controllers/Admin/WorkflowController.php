@@ -159,7 +159,7 @@ class WorkflowController extends Controller
 
     public function upgradePage($module)
     {
-        $setting = \App\Models\Setting::first();
+        $setting = \App\Models\Setting::first() ?? new \App\Models\Setting();
         $modules = [
             'workflow' => [
                 'key' => 'is_workflow_pro_active',
@@ -465,7 +465,7 @@ class WorkflowController extends Controller
 
     public function activateModule($module)
     {
-        $setting = \App\Models\Setting::first();
+        $setting = \App\Models\Setting::first() ?? new \App\Models\Setting();
         $modules = [
             'workflow' => ['key' => 'is_workflow_pro_active', 'name' => 'Peta Jalan Admin (Workflow)', 'price' => $setting->workflow_price ?? 99000],
             'announcements' => ['key' => 'is_announcements_pro_active', 'name' => 'Pengumuman Madrasah', 'price' => $setting->announcements_price ?? 49000],
