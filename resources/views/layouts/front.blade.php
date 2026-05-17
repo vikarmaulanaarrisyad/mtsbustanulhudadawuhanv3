@@ -548,7 +548,7 @@
 
         /* MOBILE OFFCANVAS ONLY */
 
-        @media (max-width: 575.98px) {
+        @media (max-width: 991.98px) {
 
             .offcanvas-menu {
                 position: fixed;
@@ -562,6 +562,7 @@
                 z-index: 1050;
                 padding: 20px;
                 overflow-y: auto;
+                display: block !important;
             }
 
             .offcanvas-menu.show {
@@ -583,19 +584,58 @@
                 visibility: visible;
             }
 
-            /* Supaya menu vertical */
+            /* Fix Mobile Layout & Gaps */
             .offcanvas-menu .navbar-nav {
                 flex-direction: column;
+                margin-top: 15px;
+                gap: 8px;
+            }
+
+            .offcanvas-menu .nav-item {
+                margin: 0 !important;
+                width: 100%;
             }
 
             .offcanvas-menu .nav-link {
-                padding: 10px 0;
+                padding: 12px 15px !important;
+                border-radius: 12px;
+                display: block;
+                text-align: left;
+            }
+
+            /* Fix Dropdown invisible gaps */
+            .offcanvas-menu .dropdown-menu {
+                display: none !important;
+                position: static !important;
+                opacity: 1 !important;
+                transform: none !important;
+                box-shadow: none !important;
+                border: none !important;
+                background: transparent !important;
+                padding-left: 20px;
+                margin-top: 5px;
+            }
+
+            .offcanvas-menu .dropdown-menu.show {
+                display: block !important;
+            }
+
+            /* Fix Login Button */
+            .offcanvas-menu .nav-item.ml-lg-3 {
+                margin-top: 15px !important;
+            }
+            .offcanvas-menu .btn-outline-success {
+                display: block;
+                text-align: center;
+                padding: 12px !important;
+                border-radius: 12px !important;
+                border-width: 2px;
             }
         }
 
         /* DESKTOP NORMAL NAVBAR */
 
-        @media (min-width: 576px) {
+        @media (min-width: 992px) {
 
             .offcanvas-overlay {
                 display: none !important;
@@ -1091,7 +1131,7 @@
         <div class="progress-bar" id="myBar"></div>
     </div>
 
-    <nav class="navbar navbar-expand-sm sticky-top fixed-top navbar-light bg-white border-bottom shadow-sm">
+    <nav class="navbar navbar-expand-lg sticky-top fixed-top navbar-light bg-white border-bottom shadow-sm">
         <div class="container">
             <a class="navbar-brand font-weight-bold text-success d-flex align-items-center" href="{{ url('/') }}">
                 <img src="{{ Storage::url($setting->path_image_header) }}" alt="Logo" class="logo-image mr-2">
@@ -1221,7 +1261,7 @@
 
         toggleBtn.addEventListener('click', function() {
 
-            if (window.innerWidth < 576) {
+            if (window.innerWidth < 992) {
                 mobileMenu.classList.toggle('show');
                 overlay.classList.toggle('active');
             }
@@ -1233,7 +1273,7 @@
         });
 
         window.addEventListener('resize', function() {
-            if (window.innerWidth >= 576) {
+            if (window.innerWidth >= 992) {
                 mobileMenu.classList.remove('show');
                 overlay.classList.remove('active');
             }

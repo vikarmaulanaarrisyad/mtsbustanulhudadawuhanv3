@@ -62,6 +62,154 @@
         .section-divider .shape-fill {
             fill: #f8f9fa;
         }
+
+        /* Hero Typography & Buttons */
+        .carousel-caption {
+            bottom: 25% !important;
+            z-index: 10;
+        }
+        .carousel-caption h1 {
+            text-shadow: 2px 4px 15px rgba(0,0,0,0.6);
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        .carousel-caption .lead {
+            font-size: 1.4rem;
+            font-weight: 300;
+            text-shadow: 1px 2px 10px rgba(0,0,0,0.5);
+            margin-bottom: 2.5rem;
+        }
+        .btn-hero {
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn-hero-primary {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            box-shadow: 0 10px 20px rgba(11, 140, 137, 0.4);
+        }
+        .btn-hero-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(11, 140, 137, 0.6);
+            color: white;
+        }
+        .btn-hero-outline {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            color: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .btn-hero-outline:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        /* Breaking News Premium Ticker */
+        .breaking-news-ticker {
+            display: flex;
+            width: 90%;
+            max-width: 1200px;
+            margin: -35px auto 40px auto;
+            position: relative;
+            z-index: 20;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(11, 140, 137, 0.15);
+            background: #fff;
+            border: 1px solid rgba(11, 140, 137, 0.1);
+            transition: all 0.3s ease;
+        }
+        .breaking-news-ticker:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(11, 140, 137, 0.25);
+        }
+        .ticker-label {
+            white-space: nowrap;
+            z-index: 2;
+            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            padding: 12px 35px 12px 25px;
+            flex-shrink: 0;
+            clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
+            box-shadow: 5px 0 15px rgba(231, 76, 60, 0.4);
+            text-transform: uppercase;
+        }
+        .ticker-content {
+            flex-grow: 1;
+            overflow: hidden;
+            position: relative;
+            background: #fff;
+            display: flex;
+            align-items: center;
+        }
+        .ticker-content::before, .ticker-content::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 50px;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .ticker-content::before {
+            left: 0;
+            background: linear-gradient(to right, #fff, transparent);
+        }
+        .ticker-content::after {
+            right: 0;
+            background: linear-gradient(to left, #fff, transparent);
+        }
+        .ticker-scroll {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            animation: tickerScroll 25s linear infinite;
+        }
+        .ticker-scroll:hover {
+            animation-play-state: paused;
+        }
+        .ticker-item {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #34495e;
+            display: flex;
+            align-items: center;
+        }
+        @keyframes tickerScroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Adjust Mobile View */
+        @media (max-width: 768px) {
+            .carousel-caption { bottom: 15% !important; padding: 0 15px; }
+            .carousel-caption h1 { font-size: 2rem; margin-bottom: 1rem; }
+            .carousel-caption .lead { font-size: 1rem; margin-bottom: 1.5rem; }
+            
+            /* Hero Buttons for Mobile */
+            .hero-buttons { flex-direction: column; gap: 12px !important; width: 100%; padding: 0 10px; }
+            .btn-hero { width: 100%; padding: 12px 15px; font-size: 1rem; text-align: center; justify-content: center; display: flex; align-items: center; }
+
+            /* Breaking News for Mobile */
+            .breaking-news-ticker { margin: -25px auto 30px auto; flex-direction: column; width: 92%; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+            .ticker-label { text-align: center; justify-content: center; width: 100%; clip-path: none; padding: 8px 15px; font-size: 0.85rem; }
+            .ticker-content { padding: 8px 0; }
+            .ticker-content::before, .ticker-content::after { width: 15px; }
+            .ticker-item { font-size: 0.85rem; }
+        }
     </style>
 @endpush
 
@@ -112,9 +260,9 @@
             </div>
         @endif
         
-        <div class="scroll-down-indicator" onclick="window.scrollBy({top: window.innerHeight, behavior: 'smooth'});">
+        <!-- <div class="scroll-down-indicator" onclick="window.scrollBy({top: window.innerHeight, behavior: 'smooth'});">
             <i class="fas fa-chevron-down"></i>
-        </div>
+        </div> -->
 
         {{-- Controls --}}
         <a class="carousel-control-prev" href="#carouselExampleCaptions" role="button" data-slide="prev">
@@ -126,85 +274,25 @@
             <span class="sr-only">Next</span>
         </a>
     </div>
-    {{-- Breaking News --}}
-    <div class="breaking-news">
-        <div class="news-text">
-            @if ($quetes->isNotEmpty())
-                <p id="quote-fade">
-                    @foreach ($quetes as $q)
-                        <span class="fade-quote">{{ $q->quote }}</span>
-                    @endforeach
-                </p>
-            @endif
 
+    {{-- Breaking News Ticker --}}
+    <div class="breaking-news-ticker" data-aos="fade-up">
+        <div class="ticker-label text-white font-weight-bold d-flex align-items-center">
+            <i class="fas fa-bolt mr-2 animate__animated animate__flash animate__infinite text-warning"></i> INFO PENTING
+        </div>
+        <div class="ticker-content">
+            <div class="ticker-scroll">
+                @if ($quetes->isNotEmpty())
+                    @foreach ($quetes as $q)
+                        <span class="ticker-item mx-4"><i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px; vertical-align: middle;"></i>{{ $q->quote }}</span>
+                    @endforeach
+                @else
+                    <span class="ticker-item mx-4"><i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px; vertical-align: middle;"></i>Selamat Datang di Madrasah Kami. Pendaftaran Peserta Didik Baru Telah Dibuka.</span>
+                    <span class="ticker-item mx-4"><i class="fas fa-circle text-success" style="font-size: 8px; margin-right: 8px; vertical-align: middle;"></i>Membangun Generasi Cerdas, Berakhlak Mulia, dan Berdaya Saing Global.</span>
+                @endif
+            </div>
         </div>
     </div>
-
-    <section class="ppdb-banner py-4 bg-light mt-3" data-aos="fade-up">
-        <div class="container text-center rounded shadow-sm p-4" style="border-left: 5px solid #198754; background-color: #fff;">
-            <h3 class="font-weight-bold text-success mb-3">Informasi PPDB</h3>
-            @if(isset($ppdbOpen) && $ppdbOpen)
-                <p class="lead mb-4">Pendaftaran Peserta Didik Baru (PPDB) Tahun Ajaran {{ $academicYear->academic_year ?? '' }} <strong>Telah Dibuka!</strong> Segera daftarkan diri Anda dan lengkapi biodata serta berkas persyaratan.</p>
-                <div class="d-flex justify-content-center flex-wrap" style="gap: 15px;">
-                    <a href="{{ route('register') }}" class="btn btn-success btn-lg shadow-sm">
-                        <i class="fa fa-user-plus mr-2"></i> Daftar Akun PPDB Baru
-                    </a>
-                    <a href="{{ route('login') }}" class="btn btn-outline-success btn-lg shadow-sm">
-                        <i class="fa fa-sign-in-alt mr-2"></i> Login Pendaftar
-                    </a>
-                </div>
-            @else
-                <div class="alert alert-warning mb-0 border-0 shadow-sm text-dark d-inline-block px-5" role="alert" style="background-color: #fff3cd;">
-                    <i class="fa fa-info-circle mr-2 text-warning"></i> Pendaftaran Peserta Didik Baru (PPDB) saat ini sedang <strong>Ditutup</strong>. Silakan pantau terus informasi terbaru.
-                </div>
-            @endif
-
-            @if(isset($ppdbRegistrants) && $ppdbRegistrants->count() > 0)
-                <div class="mt-5 text-left">
-                    <h5 class="font-weight-bold mb-4 text-success border-bottom pb-2"><i class="fa fa-users mr-2"></i> Pendaftar Terbaru</h5>
-                    <div class="table-responsive px-2" data-aos="fade-up">
-                        <table class="premium-table">
-                            <thead>
-                                <tr>
-                                    <th width="5%" class="text-center">No</th>
-                                    <th>Nama Pendaftar</th>
-                                    <th>Asal Sekolah</th>
-                                    <th width="15%" class="text-center">Status</th>
-                                    <th width="15%" class="text-center">Waktu</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($ppdbRegistrants as $index => $registrant)
-                                    <tr>
-                                        <td class="text-center text-muted font-weight-bold">{{ $index + 1 }}</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="rounded-circle text-white d-flex align-items-center justify-content-center mr-3 shadow-sm" style="width: 40px; height: 40px; flex-shrink: 0; font-size: 1rem; font-weight: bold; background: linear-gradient(135deg, var(--primary-color), var(--primary-light));">
-                                                    {{ strtoupper(substr($registrant->masked_name, 0, 1)) }}
-                                                </div>
-                                                <div>
-                                                    <span class="font-weight-bold text-dark d-block" style="font-size: 1.05rem;">{{ $registrant->masked_name }}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="text-muted"><i class="fa fa-school mr-2 text-success opacity-75"></i> {{ $registrant->asal_sekolah ?? 'Tidak diketahui' }}</td>
-                                        <td class="text-center">
-                                            <span class="badge badge-{{ $registrant->public_status_color }} badge-pill px-3 py-2 shadow-sm" style="font-size: 0.8rem;">{{ $registrant->public_status_label }}</span>
-                                        </td>
-                                        <td class="text-center text-muted small">
-                                            <i class="fa fa-clock mr-1 text-success opacity-75"></i> {{ $registrant->created_at->diffForHumans() }}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            @endif
-        </div>
-    </section>
-
-    </section>
 
     {{-- Why Choose Us Section --}}
     <section class="why-us py-5 bg-white">
@@ -671,21 +759,6 @@
         $('#carouselExampleCaptions').carousel({
             interval: 3000, // 3 detik
             ride: 'carousel'
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const quotes = document.querySelectorAll('.fade-quote');
-            let index = 0;
-
-            function showNextQuote() {
-                if (index < quotes.length) {
-                    quotes[index].classList.add('visible');
-                    index++;
-                    setTimeout(showNextQuote, 1500); // jeda antar quote (1,5 detik)
-                }
-            }
-
-            showNextQuote();
         });
     </script>
     <script>
