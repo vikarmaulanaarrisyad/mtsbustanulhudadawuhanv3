@@ -188,6 +188,58 @@
                 }
             });
         });
+
+        $('#btnGenerateQuoteAI').on('click', function() {
+            let btn = $(this);
+            let originalHtml = btn.html();
+            
+            Swal.fire({
+                title: 'AI Sedang Merangkai...',
+                text: 'AI sedang memikirkan kata mutiara inspiratif yang indah...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Bekerja...');
+            
+            $.ajax({
+                url: '{{ route('quotes.generate') }}',
+                type: 'POST',
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function(response) {
+                    if (response.status && response.data) {
+                        $('#quote').summernote('code', response.data.quote);
+                        $('#quote_by').val(response.data.quote_by);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Selesai!',
+                            text: 'Kutipan inspiratif berhasil dibuat oleh AI.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Gagal mendapatkan data dari AI.'
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    let errMsg = xhr.responseJSON?.message || 'Gagal terhubung dengan AI. Coba lagi.';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: errMsg
+                    });
+                },
+                complete: function() {
+                    btn.prop('disabled', false).html(originalHtml);
+                }
+            });
+        });
     });
 
     function addForm(url, title = 'Kutipan Inspiratif Baru') {

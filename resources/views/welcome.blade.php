@@ -848,6 +848,7 @@
             }
         });
     </script>
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             const counters = document.querySelectorAll('.counter');
             const speed = 100; // Semakin kecil, semakin cepat
@@ -886,24 +887,6 @@
             if (statsSection) {
                 observer.observe(statsSection);
             }
-        });
-    </script>
-    <script>
-        const counters = document.querySelectorAll('.counter');
-        counters.forEach(counter => {
-            const updateCount = () => {
-                const target = +counter.getAttribute('data-target');
-                const count = +counter.innerText;
-                const increment = target / 200;
-
-                if (count < target) {
-                    counter.innerText = Math.ceil(count + increment);
-                    setTimeout(updateCount, 10);
-                } else {
-                    counter.innerText = target;
-                }
-            }
-            updateCount();
         });
     </script>
     <script>

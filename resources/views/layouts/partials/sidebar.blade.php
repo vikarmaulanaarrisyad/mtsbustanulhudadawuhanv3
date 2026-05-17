@@ -605,6 +605,18 @@
                                 <p>FAQ (Tanya Jawab)</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('opening_speech.index') }}" class="nav-link {{ request()->is('blog/opening-speech*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon text-success"></i>
+                                <p>Sambutan Kepala</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('quotes.index') }}" class="nav-link {{ request()->is('blog/quotes*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon text-info"></i>
+                                <p>Kata Mutiara (Quotes)</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 @can('dashboard.admin')

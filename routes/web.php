@@ -739,6 +739,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/blog/quotes', 'index')->name('quotes.index');
             Route::get('/blog/quotes/{id}', 'show')->name('quotes.show');
             Route::put('/blog/quotes/{id}', 'update')->name('quotes.update');
+            Route::post('/blog/quotes/generate', 'generateWithAi')->name('quotes.generate');
             Route::post('/blog/quotes/import-excel', 'importEXCEL')->name('quotes.import_excel');
             Route::post('/blog/quotes', 'store')->name('quotes.store');
             Route::post('/blog/quotes/delete-selected', 'deleteSelected')->name('quotes.deleteSelected');
@@ -752,6 +753,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('opening-speech/edit', 'edit')->name('opening_speech.edit');
             Route::post('opening-speech/store', 'store')->name('opening_speech.store');
             Route::put('opening-speech/update/{id}', 'update')->name('opening_speech.update');
+            Route::post('opening-speech/generate', 'generateWithAi')->name('opening_speech.generate');
         });
     });
 
