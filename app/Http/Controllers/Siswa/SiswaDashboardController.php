@@ -378,4 +378,67 @@ class SiswaDashboardController extends Controller
             return response()->json(['success' => false, 'message' => 'Gagal menyimpan: ' . $e->getMessage()], 500);
         }
     }
+
+    public function graduation()
+    {
+        $student = $this->getStudent();
+        if (!$student) {
+            return redirect()->route('dashboard')->with('error', 'Profil Siswa tidak ditemukan. Mohon hubungi Administrator.');
+        }
+
+        $level = $student->classGroup->class_level ?? 0;
+        if (!in_array($level, [6, 9, 12])) {
+            return redirect()->route('siswa.dashboard')->with('error', 'Fitur ini hanya tersedia untuk siswa tingkat akhir.');
+        }
+
+        $setting = \App\Models\GraduationSetting::where('level', $level)->first();
+
+        return view('siswa.graduation', compact('student', 'setting'));
+    }
+
+    public function printSKL(\App\Services\DocumentVerificationService $verificationService)
+    {
+        $student = $this->getStudent();
+        if (!$student) {
+            return redirect()->route('dashboard')->with('error', 'Profil Siswa tidak ditemukan.');
+        }
+
+        $level = $student->classGroup->class_level ?? 0;
+        if (!in_array($level, [6, 9, 12])) {
+            return redirect()->route('siswa.dashboard')->with('error', 'Fitur ini hanya tersedia untuk siswa tingkat akhir.');
+        }
+
+        $setting = \App\Models\GraduationSetting::where('level', $level)->first();
+        if (!$setting || !$setting->is_active || now()->lt($setting->announcement_date)) {
+            return redirect()->route('siswa.graduation')->with('error', 'Pengumuman kelulusan belum dirilis.');
+        }
+
+        if ($student->student_status_id != 2) {
+            return redirect()->route('siswa.graduation')->with('error', 'Anda belum dinyatakan lulus.');
+        }
+
+        $mailSetting = \App\Models\MailSetting::first();
+        $appSetting = \App\Models\Setting::first();
+
+        // Generate verification record
+        $verification = $verificationService->generate(
+            $student, 
+            'Surat Keterangan Lulus (SKL)', 
+            $student->skl_number ?? $student->nis,
+            ['academic_year' => $student->academicYear->academic_year ?? '-'],
+            $student->graduated_principal_name ?: (get_kepala_madrasah()->name ?? null)
+        );
+
+        $qrCode = $verificationService->generateQrCode($verification->verification_code, 80);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.mail.pdf.skl', [
+            'student' => $student,
+            'setting' => $mailSetting,
+            'verification' => $verification,
+            'qrCode' => $qrCode,
+            'appSetting' => $appSetting
+        ]);
+
+        return $pdf->stream('SKL_' . str_replace('/', '-', ($student->skl_number ?? $student->nis)) . '.pdf');
+    }
 }

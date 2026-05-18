@@ -222,6 +222,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/store-mutabaah', [SiswaDashboardController::class, 'storeMutabaah'])->name('siswa.store_mutabaah');
 
         // New Student Features
+        Route::get('/graduation', [SiswaDashboardController::class, 'graduation'])->name('siswa.graduation');
+        Route::get('/graduation/print-skl', [SiswaDashboardController::class, 'printSKL'])->name('siswa.graduation.print-skl');
         Route::get('/raport', [SiswaDashboardController::class, 'raport'])->name('siswa.raport');
         Route::get('/cbt-results', [SiswaDashboardController::class, 'cbtResults'])->name('siswa.cbt_results');
         Route::get('/schedule', [SiswaDashboardController::class, 'schedule'])->name('siswa.schedule');
@@ -1076,6 +1078,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('/class-transfers', \App\Http\Controllers\ClassTransferController::class);
 
     // Student Graduations (Kelulusan)
+    Route::get('/graduations/settings', [StudentGraduationController::class, 'settings'])->name('graduations.settings');
+    Route::post('/graduations/settings/update', [StudentGraduationController::class, 'updateSettings'])->name('graduations.update-settings');
     Route::get('/graduations/data', [StudentGraduationController::class, 'data'])->name('graduations.data');
     Route::get('/graduations/get-classes', [StudentGraduationController::class, 'getClassesByYear'])->name('graduations.get-classes');
     Route::post('/graduations/graduate', [StudentGraduationController::class, 'graduate'])->name('graduations.graduate');

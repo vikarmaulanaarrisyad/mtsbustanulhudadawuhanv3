@@ -228,6 +228,9 @@
                         <p class="text-muted text-sm mb-0">Data siswa tingkat akhir yang siap diproses</p>
                     </div>
                     <div class="card-tools d-flex align-items-center" style="gap: 15px;">
+                        <a href="{{ route('graduations.settings') }}" class="btn btn-warning btn-sm rounded-pill px-4 font-weight-bold shadow-sm">
+                            <i class="fas fa-cog mr-1"></i> PENGATURAN PENGUMUMAN
+                        </a>
                         <button type="button" onclick="printMassal()" class="btn btn-info btn-sm rounded-pill px-4 font-weight-bold shadow-sm" id="btnPrintMass" style="display:none;">
                             <i class="fas fa-print mr-2"></i> CETAK SKL TERPILIH
                         </button>

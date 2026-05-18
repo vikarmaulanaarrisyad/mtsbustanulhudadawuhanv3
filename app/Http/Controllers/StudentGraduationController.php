@@ -255,4 +255,44 @@ class StudentGraduationController extends Controller
             
         return $pdf->stream('SKL_Massal_' . date('Ymd_His') . '.pdf');
     }
+
+    public function settings()
+    {
+        $levels = [6, 9, 12];
+        foreach ($levels as $lvl) {
+            \App\Models\GraduationSetting::firstOrCreate(
+                ['level' => $lvl],
+                [
+                    'announcement_date' => now()->addDays(7),
+                    'is_active' => false,
+                    'announcement_text' => 'Selamat! Anda dinyatakan LULUS. Tetap semangat menempuh jenjang berikutnya dan jaga nama baik almamater.',
+                    'non_graduation_text' => 'Mohon maaf, Anda dinyatakan BELUM LULUS. Silakan hubungi pihak madrasah untuk informasi dan tindak lanjut lebih lanjut.',
+                ]
+            );
+        }
+
+        $settings = \App\Models\GraduationSetting::orderBy('level')->get();
+        return view('admin.academic.graduations.settings', compact('settings'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'settings' => 'required|array',
+            'settings.*.announcement_date' => 'required|date',
+            'settings.*.announcement_text' => 'nullable|string',
+            'settings.*.non_graduation_text' => 'nullable|string',
+        ]);
+
+        foreach ($request->settings as $level => $data) {
+            \App\Models\GraduationSetting::where('level', $level)->update([
+                'announcement_date' => $data['announcement_date'],
+                'is_active' => isset($data['is_active']) ? (bool)$data['is_active'] : false,
+                'announcement_text' => $data['announcement_text'],
+                'non_graduation_text' => $data['non_graduation_text'],
+            ]);
+        }
+
+        return redirect()->route('graduations.index')->with('success', 'Pengaturan pengumuman kelulusan berhasil diperbarui.');
+    }
 }

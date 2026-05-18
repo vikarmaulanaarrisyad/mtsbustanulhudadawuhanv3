@@ -93,8 +93,14 @@
                 </div>
 
                 <!-- Nav Links (Desktop) -->
+                @php
+                    $finalYearStudent = \App\Models\Student::where('user_id', Auth::id())
+                        ->whereHas('classGroup', function($q) {
+                            $q->whereIn('class_level', [6, 9, 12]);
+                        })->exists();
+                @endphp
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="{{ route('siswa.dashboard') }}" class="text-sm font-black text-slate-400 hover:text-indigo-600 transition-colors flex items-center">
+                    <a href="{{ route('siswa.dashboard') }}" class="text-sm font-black {{ request()->routeIs('siswa.dashboard') ? 'text-indigo-600' : 'text-slate-400' }} hover:text-indigo-600 transition-colors flex items-center">
                         <i class="fas fa-home mr-2 text-xs"></i> DASHBOARD
                     </a>
                     @if(Auth::user()->can('student.cbt.dashboard'))
@@ -102,9 +108,14 @@
                         <i class="fas fa-laptop-code mr-2 text-xs"></i> CBT PORTAL
                     </a>
                     @endif
-                    <a href="{{ route('siswa.achievements') }}" class="text-sm font-black text-slate-400 hover:text-indigo-600 transition-colors flex items-center">
+                    <a href="{{ route('siswa.achievements') }}" class="text-sm font-black {{ request()->routeIs('siswa.achievements') ? 'text-indigo-600' : 'text-slate-400' }} hover:text-indigo-600 transition-colors flex items-center">
                         <i class="fas fa-award mr-2 text-xs"></i> PRESTASI
                     </a>
+                    @if($finalYearStudent)
+                    <a href="{{ route('siswa.graduation') }}" class="text-sm font-black {{ request()->routeIs('siswa.graduation') ? 'text-indigo-600' : 'text-slate-400' }} hover:text-indigo-600 transition-colors flex items-center">
+                        <i class="fas fa-graduation-cap mr-2 text-xs"></i> KELULUSAN
+                    </a>
+                    @endif
                 </div>
 
                 <!-- User Profile & Logout -->

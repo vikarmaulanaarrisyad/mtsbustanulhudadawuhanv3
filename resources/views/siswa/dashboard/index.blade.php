@@ -239,6 +239,12 @@
                             <div class="tool-icon"><i class="fas fa-piggy-bank"></i></div>
                             <span class="tool-label">Tabungan</span>
                         </a>
+                        @if(in_array($student->classGroup->class_level ?? 0, [6, 9, 12]))
+                        <a href="{{ route('siswa.graduation') }}" class="tool-btn bg-gradient-to-br from-indigo-600 to-purple-700">
+                            <div class="tool-icon"><i class="fas fa-graduation-cap"></i></div>
+                            <span class="tool-label">Kelulusan</span>
+                        </a>
+                        @endif
                         <a href="{{ route('students.card', $student->id) }}" target="_blank" class="tool-btn bg-grad-orange">
                             <div class="tool-icon"><i class="fas fa-id-card"></i></div>
                             <span class="tool-label">Kartu Siswa</span>
